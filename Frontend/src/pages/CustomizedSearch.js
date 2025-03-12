@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
 import SearchMap from '../components/chart/SearchMap';
-import { getAllBolide, getBolideWithCustomSearch } from '../services/bolideService'
+import { getBolideWithCustomSearch } from '../services/bolideService';
 import { TextureLoader } from 'three';
 
 const CustomizedSearch = () => {
@@ -11,28 +11,13 @@ const CustomizedSearch = () => {
     const [heightChecked, setAlturaChecked] = useState(false);
     const [latLonChecked, setLatLonChecked] = useState(false);
     const [ratioFilter, setRadioBusqueda] = useState();
+    const [dateRangeChecked, setDateRangeChecked] = useState(false);
+    const [startDate, setStartDate] = useState(getYearAgoDate());
+    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
 
     const [bolides, setBolides] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [searchButton, setSearchButton] = useState(false);
     const [mapResetKey, setMapResetKey] = useState(0);
-    /*
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getAllBolide();
-                setBolides(data);
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-    */
 
     const handleApplyFilters = async () => {
         try {
@@ -42,7 +27,10 @@ const CustomizedSearch = () => {
                 lonFilter,
                 ratioFilter,
                 heightChecked,
-                latLonChecked
+                latLonChecked,
+                dateRangeChecked,
+                startDate,
+                endDate,
             });
             setBolides(response);
             setSearchButton(true);
@@ -52,12 +40,9 @@ const CustomizedSearch = () => {
         }
     };
 
-
     const getZoomLevel = () => {
         if (ratioFilter) {
             const parsedRatio = parseInt(ratioFilter);
-            console.log("ratioFilter:", ratioFilter, "parsedRatio:", parsedRatio); // Depuración
-    
             if (!isNaN(parsedRatio)) {
                 if (parsedRatio > 0 && parsedRatio < 50) {
                     return 10;
@@ -71,49 +56,60 @@ const CustomizedSearch = () => {
                     return 5;
                 }
             } else {
-                return 5; // Valor predeterminado si no es un número válido
+                return 5;
             }
         } else {
-            return 5; // Valor predeterminado si ratioFilter no está definido
+            return 5;
         }
     };
+
+    function getYearAgoDate() {
+        const today = new Date();
+        const yearAgo = new Date(today);
+        yearAgo.setFullYear(today.getFullYear() - 1);
+        return yearAgo.toISOString().split('T')[0];
+    }
 
     return (
         <Container className="my-4">
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
-                    <Col xs={12} md={12} className="d-flex align-items-center">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Check
                             type="checkbox"
                             label="Altura"
-                            checked={heightChecked} // Usar el estado booleano correcto
+                            checked={heightChecked}
                             onChange={(e) => setAlturaChecked(e.target.checked)}
                             className="me-2"
                         />
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex align-items-center">
                         <Form.Control
                             type="text"
                             placeholder="Altura"
                             value={heightFilter}
                             onChange={(e) => setAlturaFilter(e.target.value)}
-                            disabled={!heightChecked} // Deshabilitar si no está marcado
+                            disabled={!heightChecked}
                         />
                     </Col>
                 </Row>
                 <Row className="mb-3">
-                    <Col xs={12} md={12} className="d-flex align-items-center">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Check
                             type="checkbox"
                             label="Latitud/Longitud"
-                            checked={latLonChecked} // Usar el estado booleano correcto
+                            checked={latLonChecked}
                             onChange={(e) => setLatLonChecked(e.target.checked)}
                             className="me-2"
                         />
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex align-items-center">
                         <Form.Control
                             type="text"
                             placeholder="Latitud"
                             value={latFilter}
                             onChange={(e) => setLatFilter(e.target.value)}
-                            disabled={!latLonChecked} // Deshabilitar si no está marcado
+                            disabled={!latLonChecked}
                             className="me-2"
                         />
                         <Form.Control
@@ -121,16 +117,18 @@ const CustomizedSearch = () => {
                             placeholder="Longitud"
                             value={lonFilter}
                             onChange={(e) => setLonFilter(e.target.value)}
-                            disabled={!latLonChecked} // Deshabilitar si no está marcado
+                            disabled={!latLonChecked}
                         />
                     </Col>
                 </Row>
                 <Row className="mb-3">
-                    <Col xs={12} md={12} className="d-flex align-items-center">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Label className="me-2 mb-0">Radio de búsqueda (km):</Form.Label>
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex align-items-center">
                         <Form.Select
                             value={ratioFilter}
-                            disabled={!latLonChecked} // Deshabilitar si no está marcado
+                            disabled={!latLonChecked}
                             onChange={(e) => setRadioBusqueda(e.target.value)}
                         >
                             <option value="10">10 km</option>
@@ -144,6 +142,32 @@ const CustomizedSearch = () => {
                         </Form.Select>
                     </Col>
                 </Row>
+                <Row className="mb-3">
+                    <Col xs={12} md={3} className="d-flex align-items-center"> {/* Aumenta el ancho de la columna */}
+                        <Form.Check
+                            type="checkbox"
+                            label="Rango de Fechas"
+                            checked={dateRangeChecked}
+                            onChange={(e) => setDateRangeChecked(e.target.checked)}
+                            className="me-2"
+                        />
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex align-items-center"> {/* Columna para los inputs */}
+                        <Form.Control
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            disabled={!dateRangeChecked}
+                            className="me-2"
+                        />
+                        <Form.Control
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            disabled={!dateRangeChecked}
+                        />
+                    </Col>
+                </Row>
                 <Row>
                     <Col xs={12} md={4}>
                         <Button variant="primary" onClick={handleApplyFilters}>
@@ -152,20 +176,27 @@ const CustomizedSearch = () => {
                     </Col>
                 </Row>
             </Card>
-            {searchButton &&
+            {searchButton && (
                 <div className="mt-4 shadow rounded">
-
                     <h5 className="mb-3 fw-bold text-center pt-4" style={{ fontSize: '1.5em' }}>
                         Se han encontrado un total de {bolides.length} resultados
                     </h5>
-
                     <div className="p-3 rounded shadow-sm">
-                        <SearchMap key={mapResetKey} data={bolides} zoom={getZoomLevel()} activePopUp={TextureLoader} ratioFilter={ratioFilter} lat={latFilter} lon={lonFilter} />
+                        <SearchMap
+                            key={mapResetKey}
+                            data={bolides}
+                            zoom={getZoomLevel()}
+                            activePopUp={TextureLoader}
+                            ratioFilter={ratioFilter}
+                            lat={latFilter}
+                            lon={lonFilter}
+                            latLonChecked={latLonChecked}
+                        />
                     </div>
                 </div>
-            }
+            )}
         </Container>
     );
-}
+};
 
 export default CustomizedSearch;

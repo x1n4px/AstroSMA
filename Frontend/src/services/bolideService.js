@@ -16,22 +16,22 @@ export const getAllBolide = async () => {
 export const getAllBolideLastSixMonths = async () => {
     try {
         const response = await axios.get(`${API_URL}/bolide/months`);
-        return response.data.filteredData; 
+        return response.data.filteredData;
     } catch (error) {
         console.error('Error fetching bolides:', error);
         throw error;
     }
-} 
+}
 
 export const getAllBolideLastSixMonthsWithInfo = async () => {
     try {
         const response = await axios.get(`${API_URL}/bolide/months`);
-        return response.data; 
+        return response.data;
     } catch (error) {
         console.error('Error fetching bolides:', error);
         throw error;
     }
-} 
+}
 
 
 
@@ -39,7 +39,7 @@ export const getAllBolideLastSixMonthsWithInfo = async () => {
 export const getBolideById = async (id) => {
     try {
         const response = await axios.get(`${API_URL}/bolide/${id}`);
-        return [response.data]; 
+        return [response.data];
     } catch (error) {
         console.error(`Error fetching bolides with ID: ${id}:`, error);
         throw error;
@@ -50,7 +50,7 @@ export const getBolideById = async (id) => {
 export const getLastTenBolide = async () => {
     try {
         const response = await axios.get(`${API_URL}/bolide/comparation`);
-        return response.data; 
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -59,14 +59,14 @@ export const getLastTenBolide = async () => {
 export const getLastTWoBolide = async () => {
     try {
         const response = await axios.get(`${API_URL}/bolide/comparation/two`);
-        return response.data; 
+        return response.data;
     } catch (error) {
         throw error;
     }
 }
 
 
-export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked }) => {
+export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate }) => {
     try {
         const response = await axios.get(`${API_URL}/bolide/search`, {
             params: {
@@ -75,7 +75,10 @@ export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFi
                 lonFilter,
                 ratioFilter,
                 heightChecked,
-                latLonChecked
+                latLonChecked,
+                dateRangeChecked,
+                startDate,
+                endDate
             }
         });
 
