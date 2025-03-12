@@ -1,26 +1,23 @@
 {
-  "name": "gestor-horarios-back",
+  "name": "backtest",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon src/index.js"
+    "start": "node api/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mariadb": "^3.4.0",
-    "mongoose": "^8.10.1",
-    "mysql2": "^3.12.0",
-    "sequelize": "^6.37.5"
+    "mongoose": "^8.12.1",
+    "mysql2": "^3.13.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@types/node": "^22.13.10"
   }
 }

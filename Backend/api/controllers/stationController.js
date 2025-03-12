@@ -1,5 +1,3 @@
-const { pool } = require('../database/connection');
-
 
 // Función para obtener un empleado por su ID
 const getAllStations = async (req, res) => {
