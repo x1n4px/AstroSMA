@@ -82,7 +82,6 @@ export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFi
             }
         });
 
-        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error('Error en la petición:', error);
