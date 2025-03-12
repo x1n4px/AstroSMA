@@ -354,9 +354,9 @@ const data = [
   },
   {
     id: 40,
-    lat: 36.6257,
-    lon: -4.4452,
-    title: 'Punto 40 (Málaga)',
+    lat: 37.689887,
+    lon: -4.478384,
+    title: 'Punto 40 (Campiña de Baena)',
     date: 'Fri Mar 07 2025 06:24:02 GMT+0100 (Central European Standard Time)',
     height: 454
   },
@@ -387,9 +387,9 @@ const data = [
   },
   {
     id: 44,
-    lat: 36.6294,
-    lon: -4.6482,
-    title: 'Punto 44 (Marbella)',
+    lat: 37.278807,
+    lon: -2.240855,
+    title: 'Punto 44 (Valle del Almanzora)',
     date: 'Wed Feb 26 2025 11:56:08 GMT+0100 (Central European Standard Time)',
     height: 296
   },
@@ -419,9 +419,9 @@ const data = [
   },
   {
     id: 48,
-    lat: 36.7484,
-    lon: -4.4832,
-    title: 'Punto 48 (Málaga)',
+    lat: 37.383979,
+    lon: -6.396265,
+    title: 'Punto 48 (El Condado)',
     date: 'Sun Sep 15 2024 04:41:55 GMT+0200 (Central European Summer Time)',
     height: 306
   },
