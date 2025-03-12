@@ -346,9 +346,9 @@ const data = [
   },
   {
     id: 39,
-    lat: 36.7909,
-    lon: -4.5599,
-    title: 'Punto 39 (Cártama)',
+    lat: 41.148755,
+    lon: -5.009247,
+    title: 'Punto 39 (Ávila)',
     date: 'Sun Jan 05 2025 14:52:19 GMT+0100 (Central European Standard Time)',
     height: 312
   },
@@ -362,17 +362,17 @@ const data = [
   },
   {
     id: 41,
-    lat: 36.7324,
-    lon: -4.7205,
-    title: 'Punto 41 (Mijas)',
+    lat: 41.302254,
+    lon: -3.044902,
+    title: 'Punto 41 (Soria)',
     date: 'Sun Nov 17 2024 14:41:10 GMT+0100 (Central European Standard Time)',
     height: 414
   },
   {
     id: 42,
-    lat: 36.7932,
-    lon: -4.6821,
-    title: 'Punto 42 (Benalmádena)',
+    lat: 39.749374,
+    lon: -6.492149,
+    title: 'Punto 42 (Tajo)',
     date: 'Tue Jan 07 2025 23:34:39 GMT+0100 (Central European Standard Time)',
     video: '',
     height: 241
@@ -395,17 +395,17 @@ const data = [
   },
   {
     id: 45,
-    lat: 36.6679,
-    lon: -4.7072,
-    title: 'Punto 45 (Torremolinos)',
+    lat: 38.643997,
+    lon: -2.228551,
+    title: 'Punto 45 (Albacete)',
     date: 'Tue Oct 15 2024 12:57:03 GMT+0200 (Central European Summer Time)',
     height: 412
   },
   {
     id: 46,
-    lat: 36.6499,
-    lon: -4.5063,
-    title: 'Punto 46 (Ronda)',
+    lat: 39.809908,
+    lon: -7.483811,
+    title: 'Punto 46 (Distrito de Castelo Branco)',
     date: 'Tue Dec 03 2024 12:14:36 GMT+0100 (Central European Standard Time)',
     height: 452
   },
