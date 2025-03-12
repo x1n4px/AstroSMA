@@ -379,9 +379,9 @@ const data = [
   },
   {
     id: 43,
-    lat: 36.5533,
-    lon: -4.5759,
-    title: 'Punto 43 (Coín)',
+    lat: 36.387797,
+    lon: -5.613681,
+    title: 'Punto 43 (Alcalá de los Gazules)',
     date: 'Wed Sep 18 2024 03:36:42 GMT+0200 (Central European Summer Time)',
     height: 450
   },
