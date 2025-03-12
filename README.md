@@ -1,1 +1,74 @@
 # AstroUMA
+# Visualización e Inferencia de Datos de Lluvias de Meteoros
+
+Este proyecto tiene como objetivo desarrollar una plataforma web interactiva para visualizar y analizar los datos de lluvias de meteoros recopilados por la Universidad de Málaga (UMA) y la Sociedad Malagueña de Astronomía (SMA), en colaboración con el profesor Alberto Castellón Serrano.
+
+## Contexto
+
+La UMA y la SMA han creado una base de datos que registra la información de la identificación y monitoreo de lluvias de meteoros. Sin embargo, el análisis y la representación gráfica de estos datos pueden ser complicados debido a su volumen, diversidad y formato. Este Trabajo de Fin de Grado (TFG) busca solucionar este problema mediante la creación de una plataforma web accesible e intuitiva.
+
+## Objetivos
+
+* Desarrollar una aplicación web interactiva que se conecte a la base de datos de la UMA/SMA.
+* Implementar visualizaciones de datos sofisticadas para facilitar la comprensión de la información.
+* Aplicar métodos de análisis de datos para identificar patrones y tendencias en las lluvias de meteoros.
+* Promover la divulgación científica, permitiendo a investigadores y aficionados explorar los datos fácilmente.
+
+## Tecnologías Utilizadas
+
+* **Frontend:** React
+* **Backend:** Node.js
+* **Base de Datos:** MariaDB
+
+## Funcionalidades Principales
+
+* Visualización interactiva de datos de lluvias de meteoros.
+* Herramientas de análisis para identificar patrones y tendencias.
+* Interfaz intuitiva y fácil de usar para investigadores y aficionados.
+* Divulgación científica a través de la exploración de datos.
+
+## Contribución
+
+Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, pero va más allá al ofrecer una solución tecnológica que centraliza, procesa y muestra la información de manera eficiente. A diferencia de los métodos anteriores, esta plataforma proporciona una herramienta sofisticada para la interpretación de datos, impulsando el conocimiento en el campo de la astronomía y fomentando la divulgación científica.
+
+## Instalación
+
+1.  Clona el repositorio:
+
+    ```bash
+    git clone [https://github.com/cran/DELTD](https://github.com/cran/DELTD)
+    ```
+
+2.  Instala las dependencias del backend:
+
+    ```bash
+    cd backend
+    npm install
+    ```
+
+3.  Configura la base de datos MariaDB y las variables de entorno.
+4.  Inicia el servidor backend:
+
+    ```bash
+    npm start
+    ```
+
+5.  Instala las dependencias del frontend:
+
+    ```bash
+    cd ../frontend
+    npm install
+    ```
+
+6.  Inicia la aplicación frontend:
+
+    ```bash
+    npm start
+    ```
+
+## Uso
+
+1.  Abre la aplicación web en tu navegador.
+2.  Explora las visualizaciones de datos y utiliza las herramientas de análisis.
+3.  Familiarízate con los patrones y tendencias de las lluvias de meteoros.
+
