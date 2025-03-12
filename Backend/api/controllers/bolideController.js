@@ -561,52 +561,61 @@ const getBolideCompareLastTwo = async (req, res) => {
 */
 
 const getBolideWithCustomSearch = async (req, res) => {
-    try {
-        const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked } = req.query;
-        let resultados = data; // Inicializamos con todos los datos
+  try {
+      const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate } = req.query;
+      let resultados = data; // Inicializamos con todos los datos
+      // Filtrar por altura
+      if (JSON.parse(heightChecked) && heightFilter) {
+          resultados = resultados.filter(item => item.height <= parseFloat(heightFilter));
+      }
 
-        // Filtrar por altura
-        if (JSON.parse(heightChecked) && heightFilter) {
-            resultados = resultados.filter(item => item.height <= parseFloat(heightFilter));
-        }
+      // Filtrar por latitud y longitud
+      if (latLonChecked && JSON.parse(latLonChecked) && latFilter && lonFilter && ratioFilter) {
+          const centroLat = parseFloat(latFilter);
+          const centroLon = parseFloat(lonFilter);
+          const radio = parseFloat(ratioFilter);
 
-        // Filtrar por latitud y longitud
-        if (latLonChecked && JSON.parse(latLonChecked) && latFilter && lonFilter && ratioFilter) {
-            const centroLat = parseFloat(latFilter);
-            const centroLon = parseFloat(lonFilter);
-            const radio = parseFloat(ratioFilter);
+          resultados = resultados.filter(item => {
+              const distancia = calcularDistancia(centroLat, centroLon, item.lat, item.lon);
+              return distancia <= radio;
+          });
+      }
 
-            resultados = resultados.filter(item => {
-                const distancia = calcularDistancia(centroLat, centroLon, item.lat, item.lon);
-                return distancia <= radio;
-            });
+      // Filtrar por rango de fechas
+      if (dateRangeChecked && JSON.parse(dateRangeChecked) && startDate && endDate) {
+          const fechaInicio = new Date(startDate);
+          const fechaFin = new Date(endDate);
 
-        }
+          resultados = resultados.filter(item => {
+              const fechaItem = new Date(item.date);
+              return fechaItem >= fechaInicio && fechaItem <= fechaFin;
+          });
+      }
 
-        res.json(resultados);
+      res.json(resultados);
 
-    } catch (error) {
-        console.error('Error al obtener los bolidos:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
+  } catch (error) {
+      console.error('Error al obtener los bolidos:', error);
+      res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
 // Función para calcular la distancia entre dos puntos (en kilómetros)
 function calcularDistancia(lat1, lon1, lat2, lon2) {
-    const radioTierra = 6371; // Radio de la Tierra en kilómetros
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distancia = radioTierra * c; // Distancia en kilómetros
-    return distancia;
+  const radioTierra = 6371; // Radio de la Tierra en kilómetros
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distancia = radioTierra * c; // Distancia en kilómetros
+  return distancia;
 }
 
 function deg2rad(deg) {
-    return deg * (Math.PI / 180);
+  return deg * (Math.PI / 180);
 }
 
 
