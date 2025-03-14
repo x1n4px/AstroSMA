@@ -22,46 +22,48 @@ function Login({ onLogin }) {
   };
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Row className="justify-content-center">
-        <Col xs={12}>
-          <Card>
-            <Card.Body>
-              <Card.Title className="text-center mb-4">Iniciar sesión</Card.Title>
-              <Form onSubmit={handleSubmit}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Correo electrónico</Form.Label>
-                  <Form.Control
-                    type="email"
-                    placeholder="Introduce tu correo electrónico"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Contraseña</Form.Label>
-                  <Form.Control
-                    type="password"
-                    placeholder="Introduce tu contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </Form.Group>
-                {error && <Alert variant="danger">{error}</Alert>}
-                <Button variant="primary" type="submit" className="w-100 mb-3">
-                  Iniciar sesión
+    <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+      <Container className="d-flex justify-content-center align-items-center vh-100">
+        <Row className="justify-content-center">
+          <Col>
+            <Card>
+              <Card.Body>
+                <Card.Title className="text-center mb-4">Iniciar sesión</Card.Title>
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Correo electrónico</Form.Label>
+                    <Form.Control
+                      type="email"
+                      placeholder="abc@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Contraseña</Form.Label>
+                    <Form.Control
+                      type="password"
+                      placeholder="****"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                  {error && <Alert variant="danger">{error}</Alert>}
+                  <Button variant="primary" type="submit" className="w-100 mb-3">
+                    Iniciar sesión
+                  </Button>
+                </Form>
+                <Button variant="outline-secondary" className="w-100" as={Link} to="/register">
+                  Ir a registro
                 </Button>
-              </Form>
-              <Button variant="outline-secondary" className="w-100" as={Link} to="/register">
-                Ir a registro
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 }
 

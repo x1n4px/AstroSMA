@@ -54,7 +54,7 @@ function App() {
           }
         >
           {/* <Route index element={<Home />} /> */}
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route index path="dashboard" element={<Dashboard />} />
           <Route path="report/:reportId" element={<Report />} />
           <Route path="station" element={<Station />} />
           <Route path="bolide/:bolideId" element={<Bolide />} />

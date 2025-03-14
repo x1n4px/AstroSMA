@@ -100,7 +100,7 @@ function Dashboard() {
   };
 
   return (
-    <Container fluid>
+    <Container fluid style={{ backgroundColor: '#f0f2f5' }}> 
       <Button variant="primary" onClick={handleOpenSettingsModal} className="mb-3 mt-3">
         {t('CONFIGURATION_BTN')}
       </Button>
@@ -108,27 +108,27 @@ function Dashboard() {
       <Row className="justify-content-center mt-4">
         {chartVisibility[1] && (
           <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
+            <div className='shadow-sm bg-white rounded p-4'>
               <Card.Body>
                 <Card.Title>Gráfica 1</Card.Title>
                 <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
                   <BarChart data={chartData} />
                 </div>
               </Card.Body>
-            </Card>
+            </div>
           </Col>
         )}
 
         {chartVisibility[2] && (
           <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
+            <div className='shadow-sm bg-white rounded p-4'>
               <Card.Body>
                 <Card.Title>Gráfica 2</Card.Title>
                 <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
                   <LineChart data={lineData} />
                 </div>
               </Card.Body>
-            </Card>
+            </div>
           </Col>
         )}
 
