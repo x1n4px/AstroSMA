@@ -13,7 +13,7 @@ import PieChart from '../../components/chart/PieChart';
 import ScatterPlot from '../../components/chart/ScatterPlot';
 import SizeBarChart from '../../components/chart/SizeBarChart';
 
-
+ 
 
 function Dashboard() {
   const { t } = useTranslation(['dashboard']);
@@ -107,7 +107,7 @@ function Dashboard() {
 
       <Row className="justify-content-center mt-4">
         {chartVisibility[1] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Gráfica 1</Card.Title>
@@ -120,7 +120,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[2] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Gráfica 2</Card.Title>
@@ -133,7 +133,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[3] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Gráfica 3</Card.Title>
@@ -146,7 +146,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[4] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Gráfica 4</Card.Title>
@@ -162,7 +162,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[5] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Gráfica 5</Card.Title>
@@ -178,7 +178,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[6] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Listado informe Z lluvia A</Card.Title>
@@ -197,7 +197,7 @@ function Dashboard() {
         )}
 
         {chartVisibility[7] && (
-          <Col xs={12} md={6} lg={4} className="mb-4">
+          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
             <Card>
               <Card.Body>
                 <Card.Title>Listado infomes con antigiro</Card.Title>

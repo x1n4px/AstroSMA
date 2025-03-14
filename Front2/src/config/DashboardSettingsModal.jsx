@@ -38,12 +38,16 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings }) {
       <Modal.Body>
         {Object.keys(settings).map((chartId) => (
           <Card key={chartId} className="mb-2">
-            <Card.Body>
+            <Card.Body
+              onClick={() => handleCheckboxChange(chartId)} // Hacer clic en todo el Card.Body
+              style={{ cursor: 'pointer' }} // Cambiar el cursor a pointer
+            >
               <Form.Check
                 type="checkbox"
                 label={`Mostrar Gráfica ${dictionary[chartId]}`}
                 checked={settings[chartId]}
-                onChange={() => handleCheckboxChange(chartId)}
+                onChange={() => handleCheckboxChange(chartId)} // Manejar el cambio del checkbox
+                onClick={(e) => e.stopPropagation()} // Evitar que el clic en el checkbox propague el evento
               />
             </Card.Body>
           </Card>

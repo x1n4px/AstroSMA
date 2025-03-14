@@ -11,7 +11,7 @@ function Login({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (email === 'silosabia@gmail.com' && password === '1234') {
+    if (email === 'user@gmail.com' && password === '1234') {
       console.log('Login correcto');
       const token = 'sample_token_123456';
       onLogin(token);

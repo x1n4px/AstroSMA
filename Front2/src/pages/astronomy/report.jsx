@@ -60,7 +60,7 @@ function Report() {
                 <MapChart lat={data.lat} lon={data.lon} zoom={7} />
             </Row>
             <Row>
-                <Link to={`/report/${id}/bolide/1`} className="btn btn-primary">Ver bólido</Link>
+                <Link to={`/report/${id}/bolide/1`} className="btn btn-primary mb-4">Ver bólido</Link>
                 <Col>
                     <Table striped bordered hover>
                         <thead>
