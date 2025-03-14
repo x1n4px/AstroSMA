@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar as BootstrapNavbar, Nav, Container, Button } from 'react-bootstrap';
+
+// Internationalization
 import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
@@ -9,8 +11,9 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
     navigate('/login');
+    window.location.reload();
   };
 
   return (
@@ -25,7 +28,7 @@ const Navbar = () => {
         <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" onClick={() => setExpanded(expanded ? false : "expanded")} />
         <BootstrapNavbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_HOME')}</Nav.Link>
+            <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_STATIONS')}</Nav.Link>
             <Nav.Link as={Link} to="/profile" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_PROFILE')}</Nav.Link>
             <Button variant="outline-light" onClick={handleLogout}>Cerrar sesión</Button>

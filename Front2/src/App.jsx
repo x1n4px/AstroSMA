@@ -55,8 +55,8 @@ function App() {
         >
           {/* <Route index element={<Home />} /> */}
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="report" element={<Report />} />
-          <Route path="Station" element={<Station />} />
+          <Route path="report/:reportId" element={<Report />} />
+          <Route path="station" element={<Station />} />
           <Route path="bolide/:bolideId" element={<Bolide />} />
           <Route path="/report/:reportId/bolide/:bolideId" element={<Bolide />} />
           <Route path="profile" element={<Profile/>} />
