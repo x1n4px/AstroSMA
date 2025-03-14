@@ -1,0 +1,9 @@
+{
+    "NAME":"Nombre",
+    "SURNAME":"Apellido",
+    "EMAIL":"Correo Electrónico",
+    "PASSWORD":"Contraseña",
+    "UPDATE_BTN":"Actualizar",
+    "DELETE_BTN":"Eliminar",
+    "TITLE":"Información de Perfil"
+}
