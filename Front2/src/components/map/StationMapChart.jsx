@@ -62,3 +62,4 @@ const StationMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom
 };
 
 export default StationMapChart;
+

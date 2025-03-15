@@ -1,19 +1,37 @@
-import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
-
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-
+import { getUser } from '../../services/userService';
 
 const Profile = () => {
     const { t } = useTranslation(['profile']);
-
-
     const [profile, setProfile] = useState({
         name: '',
         surname: '',
-        email: 'user@gmail.com',
+        email: '',
         password: ''
     });
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            setLoading(true);
+            try {
+                
+                const userData = await getUser();
+                setProfile(userData);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error al obtener datos del usuario:', err);
+                setError(t('FETCH_ERROR')); // Usa traducción para el mensaje de error
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [t]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,22 +41,38 @@ const Profile = () => {
         });
     };
 
-    const handleDeleteAccount = () => {
-        // Logic to handle account deletion
-        alert('Account deletion requested');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+        setSuccess(null);
+
+        // Implementa aquí la lógica para actualizar el perfil
+        try {
+            // Ejemplo: llamada a una función de servicio para actualizar el perfil
+            // await updateUserProfile(profile);
+            setSuccess(t('UPDATE_SUCCESS'));
+        } catch (err) {
+            console.error('Error al actualizar el perfil:', err);
+            setError(t('UPDATE_ERROR'));
+        }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Logic to handle profile update
-        alert('Profile updated');
+    const handleDeleteAccount = () => {
+        // Lógica para manejar la eliminación de la cuenta
+        alert(t('DELETE_CONFIRM'));
     };
+
+    if (loading) {
+        return <Container><p>{t('LOADING')}</p></Container>;
+    }
 
     return (
         <Container>
             <Row className="justify-content-md-center mt-4">
                 <Col md={6}>
                     <h2>{t('TITLE')}</h2>
+                    {/* {error && <Alert variant="danger">{error}</Alert>} */}
+                    {success && <Alert variant="success">{success}</Alert>}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="formName">
                             <Form.Label>{t('NAME')}</Form.Label>
@@ -75,15 +109,15 @@ const Profile = () => {
                             <Form.Control
                                 type="password"
                                 name="password"
-                                value={profile.password}
+                                placeholder='********'
                                 onChange={handleChange}
+                                disabled={true}
                             />
                         </Form.Group>
-
-                        <Button variant="primary" type="submit" className='mt-2'>
+                         <Button variant="primary" type="submit" className='mr-2 mt-4' disabled={true}>
                             {t('UPDATE_BTN')}
                         </Button>
-                        <Button variant="danger" onClick={handleDeleteAccount} className="ml-4 mt-2">
+                        <Button variant="danger" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
                             {t('DELETE_BTN')}
                         </Button>
                     </Form>

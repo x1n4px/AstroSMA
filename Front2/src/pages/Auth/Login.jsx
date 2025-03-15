@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import { loginUser } from '../../services/authService';
 
 function Login({ onLogin }) {
   const [email, setEmail] = useState('');
@@ -8,17 +9,19 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (email === 'user@gmail.com' && password === '1234') {
-      console.log('Login correcto');
-      const token = 'sample_token_123456';
+
+    try {
+      const token = await loginUser(email, password);
       onLogin(token);
       navigate('/dashboard');
-    } else {
+    } catch (error) {
       setError('Credenciales incorrectas');
     }
+
+
   };
 
   return (

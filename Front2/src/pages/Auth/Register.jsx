@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import TermsAndConditions from '../../components/legal/TermsAndCondition'; // Asegúrate de crear este componente
+import { registerUser } from '../../services/authService';
 
 function Register() {
   const [email, setEmail] = useState('');
@@ -14,8 +15,11 @@ function Register() {
   const [showTermsModal, setShowTermsModal] = useState(false); // Estado para mostrar el modal
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+
 
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
@@ -27,9 +31,15 @@ function Register() {
       return;
     }
 
-    // Simula un registro exitoso
-    console.log('Registro exitoso');
-    navigate('/dashboard');
+    try {
+      const token = await registerUser(email, password, firstName, lastName);
+      onLogin(token);
+      navigate('/dashboard');
+    } catch (error) {
+      setError('Credenciales incorrectas');
+    }
+
+
   };
 
   const handleShowTermsModal = () => setShowTermsModal(true);
