@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Card, Alert, Container, Row, Col, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../../services/authService';
 
@@ -12,7 +12,6 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
     try {
       const token = await loginUser(email, password);
       onLogin(token);
@@ -20,12 +19,10 @@ function Login({ onLogin }) {
     } catch (error) {
       setError('Credenciales incorrectas');
     }
-
-
   };
 
   return (
-    <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', position: 'relative' }}>
       <Container className="d-flex justify-content-center align-items-center vh-100">
         <Row className="justify-content-center">
           <Col>
@@ -66,6 +63,12 @@ function Login({ onLogin }) {
           </Col>
         </Row>
       </Container>
+
+      {/* Logos en la esquina inferior derecha */}
+      <div style={{ position: 'absolute', bottom: '20px', right: '20px' }}>
+        <Image src={'/logoSMA.webp'} alt="SMA Logo" style={{ maxWidth: '100px', margin: '0 5px' }} />
+        <Image src={'/logoUMA.webp'} alt="UMA Logo" style={{ maxWidth: '100px', margin: '0 5px' }} />
+      </div>
     </div>
   );
 }

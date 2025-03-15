@@ -179,15 +179,15 @@ function Dashboard() {
   };
 
   return (
-    <Container fluid style={{ backgroundColor: '#f0f2f5' }}>
+    <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
-        <Button variant="primary" onClick={handleOpenSettingsModal}>
+        <Button variant='primary' onClick={handleOpenSettingsModal}>
           {t('CONFIGURATION_BTN')}
         </Button>
 
         <div className="d-none d-xl-block">
           <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
-            {[2, 3, 4, 6].map((num) => (
+            {[1, 2, 3, 4, 6].map((num) => (
               <option key={num} value={num}>
                 {t('SHOW_OPTIONS_BTN', { num: num })}
               </option>
@@ -200,7 +200,7 @@ function Dashboard() {
         {t('DRAG_AND_DROP_INFO')}
       </Alert> */}
 
-      <Row className="justify-content-center mt-4">
+      <Row className="justify-content-center mt-4" >
         {chartOrder.map((id, index) => {
           if (!chartVisibility[id]) return null;
 
@@ -209,7 +209,7 @@ function Dashboard() {
             case 1:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 1</Card.Title>
+                  <Card.Title > Gráfica 1</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <BarChart data={chartData} />
                   </div>
@@ -313,7 +313,7 @@ function Dashboard() {
           }
 
           return (
-            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow}>
+            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} >
               {chartComponent}
             </DraggableChart>
           );
