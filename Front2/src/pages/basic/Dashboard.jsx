@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Button, ListGroup } from 'react-bootstrap';
+import React, { useState, useCallback } from 'react';
+import { Container, Row, Col, Card, Button, ListGroup, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import DashboardSettingsModal from '../../config/DashboardSettingsModal';
+import { useDrag, useDrop } from 'react-dnd';
+
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -13,6 +15,39 @@ import PieChart from '../../components/chart/PieChart';
 import ScatterPlot from '../../components/chart/ScatterPlot';
 import SizeBarChart from '../../components/chart/SizeBarChart';
 
+const ItemTypes = {
+  CHART: 'chart',
+};
+
+const DraggableChart = ({ id, children, moveChart }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.CHART,
+    item: { id },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [, drop] = useDrop({
+    accept: ItemTypes.CHART,
+    hover: (item, monitor) => {
+      if (item.id === id) {
+        return;
+      }
+      moveChart(item.id, id);
+    },
+  });
+
+  return (
+    <Col ref={(node) => drag(drop(node))} xs={12} md={6} lg={4} xl={3} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
+      <div className='shadow-sm bg-white rounded p-4'>
+        <Card.Body>
+          {children}
+        </Card.Body>
+      </div>
+    </Col>
+  );
+};
  
 
 function Dashboard() {
@@ -27,6 +62,9 @@ function Dashboard() {
     6: true,
     7: true,
   });
+
+  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7]);
+
 
   const chartData = [
     { label: 'A', value: 30 },
@@ -95,9 +133,20 @@ function Dashboard() {
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
 
-  const handleSaveSettings = (newSettings) => {
+  const handleSaveSettings = (newSettings, newOrder) => {
     setChartVisibility(newSettings);
+    setChartOrder(newOrder);
   };
+
+  const moveChart = useCallback((dragIndex, hoverIndex) => {
+    setChartOrder((prevCharts) => {
+      const draggedChart = prevCharts[dragIndex];
+      const newCharts = [...prevCharts];
+      newCharts.splice(dragIndex, 1);
+      newCharts.splice(hoverIndex, 0, draggedChart);
+      return newCharts;
+    });
+  }, []);
 
   return (
     <Container fluid style={{ backgroundColor: '#f0f2f5' }}> 
@@ -105,115 +154,108 @@ function Dashboard() {
         {t('CONFIGURATION_BTN')}
       </Button>
 
+      <Alert variant="info" className="mb-3">
+        {t('DRAG_AND_DROP_INFO')}
+      </Alert>
+
       <Row className="justify-content-center mt-4">
-        {chartVisibility[1] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <div className='shadow-sm bg-white rounded p-4'>
-              <Card.Body>
-                <Card.Title>Gráfica 1</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <BarChart data={chartData} />
-                </div>
-              </Card.Body>
-            </div>
-          </Col>
-        )}
+        {chartOrder.map((id, index) => {
+          if (!chartVisibility[id]) return null;
 
-        {chartVisibility[2] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <div className='shadow-sm bg-white rounded p-4'>
-              <Card.Body>
-                <Card.Title>Gráfica 2</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <LineChart data={lineData} />
-                </div>
-              </Card.Body>
-            </div>
-          </Col>
-        )}
+          let chartComponent;
+          switch (id) {
+            case 1:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 1</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <BarChart data={chartData} />
+                  </div>
+                </>
+              );
+              break;
+            case 2:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 2</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <LineChart data={lineData} />
+                  </div>
+                </>
+              );
+              break;
+            case 3:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 3</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <PieChart data={pieData} />
+                  </div>
+                </>
+              );
+              break;
+            case 4:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 4</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <SizeBarChart data={sizeBarData} />
+                  </div>
+                </>
+              );
+              break;
+            case 5:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 5</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <ScatterPlot data={scatterData} />
+                  </div>
+                </>
+              );
+              break;
+            case 6:
+              chartComponent = (
+                <>
+                  <Card.Title>Listado informe Z lluvia A</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <ListGroup>
+                      {listItems.map((item) => (
+                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
+                          Informe {item.title}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  </div>
+                </>
+              );
+              break;
+            case 7:
+              chartComponent = (
+                <>
+                  <Card.Title>Listado infomes con antigiro</Card.Title>
+                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                    <ListGroup>
+                      {listItems.map((item) => (
+                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
+                          Informe {item.title}
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  </div>
+                </>
+              );
+              break;
+            default:
+              chartComponent = null;
+          }
 
-        {chartVisibility[3] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>Gráfica 3</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <PieChart data={pieData} />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
-
-        {chartVisibility[4] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>Gráfica 4</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <SizeBarChart data={sizeBarData} />
-                </div>
-                <Link to="/report/4/bolide/1" style={{ color: 'black' }}>
-                  boton
-                </Link>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
-
-        {chartVisibility[5] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>Gráfica 5</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <ScatterPlot data={scatterData} />
-                </div>
-                <Link to="/report/4/bolide/1" style={{ color: 'black' }}>
-                  boton
-                </Link>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
-
-        {chartVisibility[6] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>Listado informe Z lluvia A</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <ListGroup>
-                    {listItems.map((item) => (
-                      <ListGroup.Item key={item.id} action as={Link} to={item.path}>
-                        Informe {item.title}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
-
-        {chartVisibility[7] && (
-          <Col xs={12} md={6} lg={4} xl={3} className="mb-4">
-            <Card>
-              <Card.Body>
-                <Card.Title>Listado infomes con antigiro</Card.Title>
-                <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
-                  <ListGroup>
-                    {listItems.map((item) => (
-                      <ListGroup.Item key={item.id} action as={Link} to={item.path}>
-                        Informe {item.title}
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        )}
+          return (
+            <DraggableChart key={id} id={index} moveChart={moveChart}>
+              {chartComponent}
+            </DraggableChart>
+          );
+        })}
       </Row>
 
       <DashboardSettingsModal
@@ -221,6 +263,7 @@ function Dashboard() {
         onHide={handleCloseSettingsModal}
         onSave={handleSaveSettings}
         initialSettings={chartVisibility}
+        initialOrder={chartOrder}
       />
     </Container>
   );

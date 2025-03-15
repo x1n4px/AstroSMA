@@ -1,3 +1,4 @@
 {
-    "CONFIGURATION_BTN":"Configure dashboard"
+    "CONFIGURATION_BTN":"Configure dashboard",
+    "DRAG_AND_DROP_INFO": "Drag and drop widgets on the dashboard"
 }
