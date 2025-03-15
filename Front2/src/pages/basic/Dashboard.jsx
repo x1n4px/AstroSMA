@@ -40,9 +40,8 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
   });
 
   let xlValue = 12 / chartsToShow;
-  console.log(xlValue)
   if (xlValue < 3) {
-      xlValue = 2; // Asegura que xlValue no sea menor que 2
+    xlValue = 2; // Asegura que xlValue no sea menor que 2
   }
 
   return (
@@ -68,10 +67,11 @@ function Dashboard() {
     5: true,
     6: true,
     7: true,
-    8: true
+    8: true,
+    9: true
   });
 
-  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const [chartsToShow, setChartsToShow] = useState(4);
 
   const chartData = [
@@ -144,6 +144,17 @@ function Dashboard() {
     { label: 'Región Delta', value: 120 },
   ];
 
+  const starMapData = [
+    { ra: 0, dec: 89, mag: 1 }, // Estrella cerca del polo norte
+    { ra: 180, dec: 80, mag: 2 },
+    { ra: 90, dec: 70, mag: 3 },
+    { ra: 270, dec: 60, mag: 4 },
+    { ra: 45, dec: 50, mag: 5 },
+    { ra: 135, dec: 40, mag: 6 },
+    { ra: 225, dec: 30, mag: 7 },
+    { ra: 315, dec: 20, mag: 8 },
+  ];
+
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -169,19 +180,19 @@ function Dashboard() {
 
   return (
     <Container fluid style={{ backgroundColor: '#f0f2f5' }}>
-       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
+      <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
         <Button variant="primary" onClick={handleOpenSettingsModal}>
           {t('CONFIGURATION_BTN')}
         </Button>
 
-        <div className="d-none d-xl-block"> 
-        <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
-          {[2, 3, 4, 6].map((num) => (
-            <option key={num} value={num}>
-             {t('SHOW_OPTIONS_BTN', { num: num })}
-            </option>
-          ))}
-        </Form.Select>
+        <div className="d-none d-xl-block">
+          <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
+            {[2, 3, 4, 6].map((num) => (
+              <option key={num} value={num}>
+                {t('SHOW_OPTIONS_BTN', { num: num })}
+              </option>
+            ))}
+          </Form.Select>
         </div>
       </div>
 
@@ -283,6 +294,16 @@ function Dashboard() {
                   <Card.Title>Gráfica 5</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <HorizontalBarChart data={horizontalBarChartData} />
+                  </div>
+                </>
+              );
+              break;
+            case 9:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 5</Card.Title>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
+                    
                   </div>
                 </>
               );

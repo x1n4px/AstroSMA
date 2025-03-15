@@ -31,6 +31,7 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_STATIONS')}</Nav.Link>
             <Nav.Link as={Link} to="/profile" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_PROFILE')}</Nav.Link>
+            <Nav.Link as={Link} to="/star" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_PROFILE')}</Nav.Link>
             <Button variant="outline-light" onClick={handleLogout}>Cerrar sesión</Button>
           </Nav>
         </BootstrapNavbar.Collapse>
