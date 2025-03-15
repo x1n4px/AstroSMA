@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Container, Row, Col, Card, Button, ListGroup, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, ListGroup, Alert, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import DashboardSettingsModal from '../../config/DashboardSettingsModal';
 import { useDrag, useDrop } from 'react-dnd';
@@ -14,12 +14,13 @@ import LineChart from '../../components/chart/LineChart';
 import PieChart from '../../components/chart/PieChart';
 import ScatterPlot from '../../components/chart/ScatterPlot';
 import SizeBarChart from '../../components/chart/SizeBarChart';
+import HorizontalBarChart from '../../components/chart/HorizontalBarChart';
 
 const ItemTypes = {
   CHART: 'chart',
 };
 
-const DraggableChart = ({ id, children, moveChart }) => {
+const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART,
     item: { id },
@@ -38,8 +39,14 @@ const DraggableChart = ({ id, children, moveChart }) => {
     },
   });
 
+  let xlValue = 12 / chartsToShow;
+  console.log(xlValue)
+  if (xlValue < 3) {
+      xlValue = 2; // Asegura que xlValue no sea menor que 2
+  }
+
   return (
-    <Col ref={(node) => drag(drop(node))} xs={12} md={6} lg={4} xl={3} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <Col ref={(node) => drag(drop(node))} xs={12} md={6} lg={4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
       <div className='shadow-sm bg-white rounded p-4'>
         <Card.Body>
           {children}
@@ -48,7 +55,7 @@ const DraggableChart = ({ id, children, moveChart }) => {
     </Col>
   );
 };
- 
+
 
 function Dashboard() {
   const { t } = useTranslation(['dashboard']);
@@ -61,10 +68,11 @@ function Dashboard() {
     5: true,
     6: true,
     7: true,
+    8: true
   });
 
-  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7]);
-
+  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [chartsToShow, setChartsToShow] = useState(4);
 
   const chartData = [
     { label: 'A', value: 30 },
@@ -129,6 +137,13 @@ function Dashboard() {
     { id: 4, title: '20240821', path: '/report/4' },
   ];
 
+  const horizontalBarChartData = [
+    { label: 'Región Alfa', value: 180 },
+    { label: 'Región Beta', value: 150 },
+    { label: 'Región Gamma', value: 200 },
+    { label: 'Región Delta', value: 120 },
+  ];
+
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -148,15 +163,31 @@ function Dashboard() {
     });
   }, []);
 
-  return (
-    <Container fluid style={{ backgroundColor: '#f0f2f5' }}> 
-      <Button variant="primary" onClick={handleOpenSettingsModal} className="mb-3 mt-3">
-        {t('CONFIGURATION_BTN')}
-      </Button>
+  const handleChartsToShowChange = (event) => {
+    setChartsToShow(parseInt(event.target.value));
+  };
 
-      <Alert variant="info" className="mb-3">
+  return (
+    <Container fluid style={{ backgroundColor: '#f0f2f5' }}>
+       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
+        <Button variant="primary" onClick={handleOpenSettingsModal}>
+          {t('CONFIGURATION_BTN')}
+        </Button>
+
+        <div className="d-none d-xl-block"> 
+        <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
+          {[2, 3, 4, 6].map((num) => (
+            <option key={num} value={num}>
+             {t('SHOW_OPTIONS_BTN', { num: num })}
+            </option>
+          ))}
+        </Form.Select>
+        </div>
+      </div>
+
+      {/* <Alert variant="info" className="mb-3">
         {t('DRAG_AND_DROP_INFO')}
-      </Alert>
+      </Alert> */}
 
       <Row className="justify-content-center mt-4">
         {chartOrder.map((id, index) => {
@@ -168,7 +199,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Gráfica 1</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <BarChart data={chartData} />
                   </div>
                 </>
@@ -178,7 +209,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Gráfica 2</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <LineChart data={lineData} />
                   </div>
                 </>
@@ -188,7 +219,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Gráfica 3</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <PieChart data={pieData} />
                   </div>
                 </>
@@ -198,7 +229,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Gráfica 4</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <SizeBarChart data={sizeBarData} />
                   </div>
                 </>
@@ -208,7 +239,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Gráfica 5</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ScatterPlot data={scatterData} />
                   </div>
                 </>
@@ -218,7 +249,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Listado informe Z lluvia A</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ListGroup>
                       {listItems.map((item) => (
                         <ListGroup.Item key={item.id} action as={Link} to={item.path}>
@@ -234,7 +265,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>Listado infomes con antigiro</Card.Title>
-                  <div style={{ height: '400px', width: '100%', overflow: 'hidden' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ListGroup>
                       {listItems.map((item) => (
                         <ListGroup.Item key={item.id} action as={Link} to={item.path}>
@@ -246,12 +277,22 @@ function Dashboard() {
                 </>
               );
               break;
+            case 8:
+              chartComponent = (
+                <>
+                  <Card.Title>Gráfica 5</Card.Title>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
+                    <HorizontalBarChart data={horizontalBarChartData} />
+                  </div>
+                </>
+              );
+              break;
             default:
               chartComponent = null;
           }
 
           return (
-            <DraggableChart key={id} id={index} moveChart={moveChart}>
+            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow}>
               {chartComponent}
             </DraggableChart>
           );

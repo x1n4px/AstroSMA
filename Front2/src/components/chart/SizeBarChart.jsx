@@ -3,16 +3,20 @@ import * as d3 from 'd3';
 
 function SizeBarChart({ data }) {
   const svgRef = useRef();
+  const wrapperRef = useRef(); // Referencia al contenedor del SVG
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
-
-    const width = 600;
-    const height = 400;
+    const wrapper = d3.select(wrapperRef.current);
+    const dimensions = wrapper.node().getBoundingClientRect();
+    const width = dimensions.width;
+    const height = dimensions.height;
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
+
+    // Limpia el SVG anterior
+    svg.selectAll('*').remove();
 
     svg.attr('width', width).attr('height', height);
 
@@ -36,7 +40,11 @@ function SizeBarChart({ data }) {
       .attr('fill', 'steelblue');
   }, [data]);
 
-  return <svg ref={svgRef}></svg>;
+  return (
+    <div ref={wrapperRef} style={{ width: '100%', height: '100%' }}>
+      <svg ref={svgRef} style={{ width: '100%', height: '100%' }}></svg>
+    </div>
+  );
 }
 
 export default SizeBarChart;

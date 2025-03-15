@@ -1,4 +1,6 @@
 {
     "CONFIGURATION_BTN":"Configurar panel de control",
-    "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control"
+    "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
+    "SHOW_OPTIONS_BTN":"Mostrar {{num}} gráficos"
+
 }
