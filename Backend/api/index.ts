@@ -5,6 +5,7 @@ const StationRoute = require('./routes/stationRoute')
 const BolideRoute = require('./routes/bolideRoute')
 const AuthRoute = require('./routes/authRoute')
 const UserRoute = require('./routes/userRoute')
+const ReportZRoute = require('./routes/reportZRoute')
 app.use(cors());
 app.use(express.json());
 
@@ -16,6 +17,7 @@ app.use('/api', StationRoute);  // La ruta api ya está en la función
 app.use('/api', BolideRoute);
 app.use('/api', AuthRoute);
 app.use('/api', UserRoute);
+app.use('/api', ReportZRoute);
  
 const port = 3005;
 
