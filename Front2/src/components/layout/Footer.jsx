@@ -1,7 +1,12 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
 const Footer = () => {
+    const { t } = useTranslation(['text']);
+
     return (
         <footer className="bg-primary text-white py-3">
             <Container>
@@ -13,7 +18,7 @@ const Footer = () => {
                     </Col>
 
                     <Col md={4} className="text-center mb-3 mb-md-0">
-                        <p className="mb-2">Síguenos en nuestras redes sociales:</p>
+                        <p className="mb-2">{t('FOOTER.FOLLOW')}</p>
                         <div className="d-flex justify-content-center">
                             <a href="https://x.com/i/flow/login?redirect_after_login=%2Fastromalaga" className="text-white mx-2" style={{ fontSize: '2em' }}>
                                 <img src="/social_media/twitter.webp" alt="twitter" style={{ width: '25px', height: 'auto', marginRight: '0.5rem' }} />
@@ -39,7 +44,7 @@ const Footer = () => {
                         </div>
                     </Col>
                     <Col md={4} className="text-center text-md-end">
-                        <p className="mb-0">Contacto: <a href="mailto:astromalaga@gmail.com" className="text-white">astromalaga@gmail.com</a></p>
+                        <p className="mb-0">{t('FOOTER.CONTACT_TEXT')} <a href="mailto:astromalaga@gmail.com" className="text-white">{t('FOOTER.CONTACT_INFO')}</a></p>
                     </Col>
                 </Row>
             </Container>

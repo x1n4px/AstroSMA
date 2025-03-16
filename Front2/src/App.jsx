@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Login from './pages/Auth/Login';
 import Home from './pages/basic/Home';
@@ -10,8 +11,7 @@ import Report from './pages/astronomy/report';
 import Station from './pages/astronomy/Station';
 import Bolide from './pages/astronomy/bolide';
 import Profile from './pages/basic/Profile';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import Report2 from './pages/astronomy/example';
 
 
 function App() {
@@ -60,6 +60,7 @@ function App() {
           <Route path="bolide/:bolideId" element={<Bolide />} />
           <Route path="/report/:reportId/bolide/:bolideId" element={<Bolide />} />
           <Route path="profile" element={<Profile/>} />
+          <Route path="/example" element={<Report2 />} />
         </Route>
       </Routes>
     </Router>

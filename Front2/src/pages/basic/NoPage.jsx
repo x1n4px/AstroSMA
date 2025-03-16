@@ -1,6 +1,10 @@
 import React from 'react';
 
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
 const NoPage = () => {
+  const { t } = useTranslation(['text']);
   return (
     <div
       style={{
@@ -18,10 +22,10 @@ const NoPage = () => {
       }}
     >
       <h1 style={{ fontSize: '4rem', fontWeight: 'bold', margin: '0' }}>
-        ¡Oops! La nave se perdió en el espacio
+        {t('NOPAGE.TITLE')}
       </h1>
       <p style={{ fontSize: '1.5rem', marginTop: '1rem' }}>
-        No encontramos la página que buscas. Tal vez esté explorando una galaxia lejana.
+        {t('NOPAGE.DESCRIPTION')}
       </p>
       <a
         href="/"

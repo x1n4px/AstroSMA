@@ -57,7 +57,7 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
 
 
 function Dashboard() {
-  const { t } = useTranslation(['dashboard']);
+  const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [chartVisibility, setChartVisibility] = useState({
     1: true,
@@ -182,14 +182,14 @@ function Dashboard() {
     <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
         <Button variant='primary' onClick={handleOpenSettingsModal}>
-          {t('CONFIGURATION_BTN')}
+          {t('DASHBOARD.CONFIGURATION_BTN')}
         </Button>
 
         <div className="d-none d-xl-block">
           <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
             {[1, 2, 3, 4, 6].map((num) => (
               <option key={num} value={num}>
-                {t('SHOW_OPTIONS_BTN', { num: num })}
+                {t('DASHBOARD.SHOW_OPTIONS_BTN', { num: num })}
               </option>
             ))}
           </Form.Select>
@@ -263,7 +263,7 @@ function Dashboard() {
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ListGroup>
                       {listItems.map((item) => (
-                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
+                        <ListGroup.Item key={item.id} action as={Link} to={'/example'}>
                           Informe {item.title}
                         </ListGroup.Item>
                       ))}

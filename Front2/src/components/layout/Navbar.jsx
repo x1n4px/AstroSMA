@@ -6,7 +6,7 @@ import { Navbar as BootstrapNavbar, Nav, Container, Button } from 'react-bootstr
 import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
-  const { t } = useTranslation(['navbar']);
+  const { t } = useTranslation(['text']);
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -29,11 +29,10 @@ const Navbar = () => {
         <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" onClick={() => setExpanded(expanded ? false : "expanded")} />
         <BootstrapNavbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_HOME')}</Nav.Link>
-            <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_STATIONS')}</Nav.Link>
-            <Nav.Link as={Link} to="/profile" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_PROFILE')}</Nav.Link>
-            <Nav.Link as={Link} to="/star" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('BTN_PROFILE')}</Nav.Link>
-            <Button variant="outline-light" onClick={handleLogout}>Cerrar sesión</Button>
+            <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
+            <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
+            <Nav.Link as={Link} to="/profile" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_PROFILE')}</Nav.Link>
+            <Button variant="outline-light" onClick={handleLogout}>{t('NAVBAR.BTN_LOGOUT')}</Button>
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>

@@ -1,0 +1,70 @@
+{
+    "WELCOME": {
+        "title": "Bienvenido a la aplicación",
+        "description": "Esta es una aplicación de ejemplo"
+    },
+    "PROFILE": {
+        "NAME": "Nombre",
+        "SURNAME": "Apellido",
+        "EMAIL": "Correo Electrónico",
+        "PASSWORD": "Contraseña",
+        "UPDATE_BTN": "Actualizar",
+        "DELETE_BTN": "Eliminar",
+        "TITLE": "Información de Perfil"
+    },
+    "NAVBAR": {
+        "BTN_HOME": "Inicio",
+        "BTN_STATIONS": "Estaciones",
+        "BTN_LOGOUT": "Cerrar sesión",
+        "BTN_PROFILE": "Perfil"
+    },
+    "FOOTER": {
+        "FOLLOW": "Síguenos en nuestras redes sociales",
+        "CONTACT_TEXT": "Contacto",
+        "CONTACT_INFO": "astromalaga@gmail.com"
+    },
+    "DASHBOARD": {
+        "CONFIGURATION_BTN": "Configurar panel de control",
+        "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
+        "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos"
+    },
+    "LOGIN": {
+        "TITLE": "Iniciar sesión",
+        "EMAIL": "Correo Electrónico",
+        "PASSWORD": "Contraseña",
+        "LOGIN_BTN": "Iniciar sesión",
+        "REGISTER_BTN": "Registrarse",
+        "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?"
+    },
+    "REGISTER": {
+        "TITLE": "Registrarse",
+        "NAME": "Nombre",
+        "SURNAME": "Apellido",
+        "EMAIL": "Correo Electrónico",
+        "PASSWORD": "Contraseña",
+        "PASSWORD_CONFIRM": "Confirmar Contraseña",
+        "REGISTER_BTN": "Registrarse",
+        "LOGIN_BTN": "Iniciar sesión",
+        "ERROR": {
+            "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
+            "EMAIL_ALREADY_EXISTS": "El correo electrónico ya está registrado",
+            "INVALID_EMAIL": "Correo electrónico inválido",
+            "TERMS_AND_CONDITIONS": "Debe aceptar los términos y condiciones"
+        },
+        "TERM": {
+            "ACEPT":"Acepto los ",
+            "TERMS_AND_CONDITIONS": "términos y condiciones"
+        },
+        "PLACEHOLDER": {
+            "NAME": "Introduce tu nombre",
+            "SURNAME": "Introduce tu apellido",
+            "EMAIL": "Introduce tu correo electrónico",
+            "PASSWORD": "Introduce tu contraseña",
+            "PASSWORD_CONFIRM": "Confirma tu contraseña"
+        }
+    },
+    "NOPAGE": {
+        "TITLE": "¡Oops! La nave se perdió en el espacio",
+        "DESCRIPTION": "No encontramos la página que buscas. Tal vez esté explorando una galaxia lejana."
+    }
+}

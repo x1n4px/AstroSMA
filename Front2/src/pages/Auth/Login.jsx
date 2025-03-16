@@ -3,7 +3,11 @@ import { Form, Button, Card, Alert, Container, Row, Col, Image } from 'react-boo
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../../services/authService';
 
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
 function Login({ onLogin }) {
+  const { t } = useTranslation(['text']);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,10 +32,10 @@ function Login({ onLogin }) {
           <Col>
             <Card>
               <Card.Body>
-                <Card.Title className="text-center mb-4">Iniciar sesión</Card.Title>
+                <Card.Title className="text-center mb-4">{t('LOGIN.TITLE')}</Card.Title>
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Correo electrónico</Form.Label>
+                    <Form.Label>{t('LOGIN.EMAIL')}</Form.Label>
                     <Form.Control
                       type="email"
                       placeholder="abc@gmail.com"
@@ -41,7 +45,7 @@ function Login({ onLogin }) {
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">
-                    <Form.Label>Contraseña</Form.Label>
+                    <Form.Label>{t('LOGIN.PASSWORD')}</Form.Label>
                     <Form.Control
                       type="password"
                       placeholder="****"
@@ -52,11 +56,11 @@ function Login({ onLogin }) {
                   </Form.Group>
                   {error && <Alert variant="danger">{error}</Alert>}
                   <Button variant="primary" type="submit" className="w-100 mb-3">
-                    Iniciar sesión
+                  {t('LOGIN.TITLE')}
                   </Button>
                 </Form>
                 <Button variant="outline-secondary" className="w-100" as={Link} to="/register">
-                  Ir a registro
+                {t('LOGIN.REGISTER_BTN')}
                 </Button>
               </Card.Body>
             </Card>

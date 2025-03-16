@@ -1,0 +1,70 @@
+{
+    "WELCOME": {
+        "title": "Welcome to the application",
+        "description": "This is a sample application"
+    },
+    "PROFILE": {
+        "NAME": "Name",
+        "SURNAME": "Surname",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "UPDATE_BTN": "Update",
+        "DELETE_BTN": "Delete",
+        "TITLE": "Profile Information"
+    },
+    "NAVBAR": {
+        "BTN_HOME": "Home",
+        "BTN_STATIONS": "Stations",
+        "BTN_LOGOUT": "Log out",
+        "BTN_PROFILE": "Profile"
+    },
+    "FOOTER": {
+        "FOLLOW": "Follow us on our social media",
+        "CONTACT_TEXT": "Contact",
+        "CONTACT_INFO": "astromalaga@gmail.com"
+    },
+    "DASHBOARD": {
+        "CONFIGURATION_BTN": "Configure dashboard",
+        "DRAG_AND_DROP_INFO": "Drag and drop widgets into the dashboard",
+        "SHOW_OPTIONS_BTN": "Show {{num}} charts"
+    },
+    "LOGIN": {
+        "TITLE": "Log in",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "LOGIN_BTN": "Log in",
+        "REGISTER_BTN": "Register",
+        "FORGOT_PASSWORD": "Forgot your password?"
+    },
+    "REGISTER": {
+        "TITLE": "Register",
+        "NAME": "Name",
+        "SURNAME": "Surname",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "PASSWORD_CONFIRM": "Confirm Password",
+        "REGISTER_BTN": "Register",
+        "LOGIN_BTN": "Log in",
+        "ERROR": {
+            "PASSWORDS_NOT_MATCH": "Passwords do not match",
+            "EMAIL_ALREADY_EXISTS": "The email is already registered",
+            "INVALID_EMAIL": "Invalid email",
+            "TERMS_AND_CONDITIONS": "You must accept the terms and conditions"
+        },
+        "TERM": {
+            "ACEPT": "I accept the ",
+            "TERMS_AND_CONDITIONS": "terms and conditions"
+        },
+        "PLACEHOLDER": {
+            "NAME": "Enter your name",
+            "SURNAME": "Enter your surname",
+            "EMAIL": "Enter your email",
+            "PASSWORD": "Enter your password",
+            "PASSWORD_CONFIRM": "Confirm your password"
+        }
+    },
+    "NOPAGE": {
+        "TITLE": "Oops! The spaceship got lost in space",
+        "DESCRIPTION": "We couldn't find the page you're looking for. Maybe it's exploring a distant galaxy."
+    }
+}

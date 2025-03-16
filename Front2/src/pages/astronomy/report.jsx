@@ -4,6 +4,8 @@ import { Container, Row, Col, Table } from "react-bootstrap";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import MapChart from '../../components/map/MapChart';
+import ReportMapChart from '../../components/map/ReportMap';
+import PendienteChart from '../../components/chart/Pending';
 
 function Report() {
 
@@ -53,11 +55,34 @@ function Report() {
         lon: -5.994165,
     };
 
+    const data2 = [
+        {
+          id: 1,
+          lat: 40.4168,
+          lon: -3.7038,
+          title: 'Estación 1',
+          date: '2023-10-27',
+          video: '',
+          height: 83
+        },
+        {
+          id: 2,
+          lat: 41.3851,
+          lon: 2.1734,
+          title: 'Estación 2',
+          date: '2023-10-27',
+          video: '',
+          height: 30
+        },
+      ];
+    
+
     return (
         <Container>
             <Row className="mb-4 mt-4">
                 {/* Mapa */}
-                <MapChart lat={data.lat} lon={data.lon} zoom={7} />
+                <ReportMapChart lat={data.lat} lon={data.lon} zoom={7} />
+                <PendienteChart data={data2} />
             </Row>
             <Row>
                 <Link to={`/report/${id}/bolide/1`} className="btn btn-primary mb-4">Ver bólido</Link>

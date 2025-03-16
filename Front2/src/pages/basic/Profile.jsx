@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getUser } from '../../services/userService';
 
 const Profile = () => {
-    const { t } = useTranslation(['profile']);
+    const { t } = useTranslation(['text']);
     const [profile, setProfile] = useState({
         name: '',
         surname: '',
@@ -63,19 +63,19 @@ const Profile = () => {
     };
 
     if (loading) {
-        return <Container><p>{t('LOADING')}</p></Container>;
+        return <Container><p>{t('PROFILE.LOADING')}</p></Container>;
     }
 
     return (
         <Container>
             <Row className="justify-content-md-center mt-4">
                 <Col md={6}>
-                    <h2>{t('TITLE')}</h2>
+                    <h2>{t('PROFILE.TITLE')}</h2>
                     {/* {error && <Alert variant="danger">{error}</Alert>} */}
                     {success && <Alert variant="success">{success}</Alert>}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="formName">
-                            <Form.Label>{t('NAME')}</Form.Label>
+                            <Form.Label>{t('PROFILE.NAME')}</Form.Label>
                             <Form.Control
                                 type="text"
                                 name="name"
@@ -85,7 +85,7 @@ const Profile = () => {
                         </Form.Group>
 
                         <Form.Group controlId="formSurname">
-                            <Form.Label>{t('SURNAME')}</Form.Label>
+                            <Form.Label>{t('PROFILE.SURNAME')}</Form.Label>
                             <Form.Control
                                 type="text"
                                 name="surname"
@@ -95,7 +95,7 @@ const Profile = () => {
                         </Form.Group>
 
                         <Form.Group controlId="formEmail">
-                            <Form.Label>{t('EMAIL')}</Form.Label>
+                            <Form.Label>{t('PROFILE.EMAIL')}</Form.Label>
                             <Form.Control
                                 type="email"
                                 name="email"
@@ -105,7 +105,7 @@ const Profile = () => {
                         </Form.Group>
 
                         <Form.Group controlId="formPassword">
-                            <Form.Label>{t('PASSWORD')}</Form.Label>
+                            <Form.Label>{t('PROFILE.PASSWORD')}</Form.Label>
                             <Form.Control
                                 type="password"
                                 name="password"
@@ -115,10 +115,10 @@ const Profile = () => {
                             />
                         </Form.Group>
                          <Button variant="primary" type="submit" className='mr-2 mt-4' disabled={true}>
-                            {t('UPDATE_BTN')}
+                            {t('PROFILE.UPDATE_BTN')}
                         </Button>
                         <Button variant="danger" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
-                            {t('DELETE_BTN')}
+                            {t('PROFILE.DELETE_BTN')}
                         </Button>
                     </Form>
                 </Col>
