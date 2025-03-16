@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs, Tab, Container, Row, Col, Table, Form } from 'react-bootstrap';
+import { Tabs, Tab, Container, Row, Col, Form } from 'react-bootstrap';
 
 import ReportMapChart from '../../components/map/ReportMap';
 import PendienteChart from '../../components/chart/Pending';
@@ -67,7 +67,6 @@ const data2 = [
     },
 ];
 
-
 const Report = () => {
     const [activeTab, setActiveTab] = useState('summary');
 
@@ -78,7 +77,6 @@ const Report = () => {
         dataPairs.push(entries.slice(i, i + 2));
     }
 
-
     return (
         <div className="p-4">
             <h1> Informe bólido 20240224 </h1>
@@ -86,6 +84,8 @@ const Report = () => {
                 activeKey={activeTab}
                 onSelect={(k) => setActiveTab(k)}
                 className="mb-3"
+                mountOnEnter // Montar el contenido solo cuando se selecciona la pestaña
+                unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
             >
                 <Tab eventKey="summary" title="Resumen">
                     En la noche del 31 de enero, a las 20:19, un impresionante bólido iluminó los cielos del Mediterráneo, siendo detectado por múltiples estaciones de la Red UMA/SMA. La trayectoria del meteoroide comenzó sobre el mar, al noreste de Mallorca, a una altitud de 75 km. Desde allí, el objeto celeste se desplazó 36 km en dirección sureste, alcanzando una velocidad de 67,320 km/h antes de desintegrarse en la atmósfera a una altura de 50 km.
