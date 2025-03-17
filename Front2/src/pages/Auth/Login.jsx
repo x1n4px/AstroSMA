@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../../services/authService';
+import { loginUser } from '@/services/authService';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -21,7 +21,9 @@ function Login({ onLogin }) {
       onLogin(token);
       navigate('/dashboard');
     } catch (error) {
-      setError('Credenciales incorrectas');
+      setError(<>
+        {t('REGISTER.ERROR.CREDENTIALS')}
+      </>);
     }
   };
 

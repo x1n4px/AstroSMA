@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getNearbyStation } from '../../services/stationService';
+import { getNearbyStation } from '@/services/stationService';
 
 const ReportMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom = 11 }) => {
   const [radius, setRadius] = useState(200);

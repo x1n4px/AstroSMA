@@ -1,70 +1,265 @@
 {
-    "WELCOME": {
-        "title": "Welcome to the application",
-        "description": "This is a sample application"
+  "WELCOME": {
+    "title": "Welcome to the application",
+    "description": "This is a sample application"
+  },
+  "PROFILE": {
+    "NAME": "Name",
+    "SURNAME": "Surname",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "UPDATE_BTN": "Update",
+    "DELETE_BTN": "Delete",
+    "TITLE": "Profile Information"
+  },
+  "NAVBAR": {
+    "BTN_HOME": "Home",
+    "BTN_STATIONS": "Stations",
+    "BTN_LOGOUT": "Log out",
+    "BTN_PROFILE": "Profile"
+  },
+  "FOOTER": {
+    "FOLLOW": "Follow us on our social media",
+    "CONTACT_TEXT": "Contact",
+    "CONTACT_INFO": "astromalaga@gmail.com"
+  },
+  "DASHBOARD": {
+    "CONFIGURATION_BTN": "Configure dashboard",
+    "DRAG_AND_DROP_INFO": "Drag and drop widgets into the dashboard",
+    "SHOW_OPTIONS_BTN": "Show {{num}} charts"
+  },
+  "LOGIN": {
+    "TITLE": "Log in",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "LOGIN_BTN": "Log in",
+    "REGISTER_BTN": "Register",
+    "FORGOT_PASSWORD": "Forgot your password?"
+  },
+  "REGISTER": {
+    "TITLE": "Register",
+    "NAME": "Name",
+    "SURNAME": "Surname",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "PASSWORD_CONFIRM": "Confirm Password",
+    "REGISTER_BTN": "Register",
+    "LOGIN_BTN": "Log in",
+    "ERROR": {
+      "PASSWORDS_NOT_MATCH": "Passwords do not match",
+      "EMAIL_ALREADY_EXISTS": "The email is already registered",
+      "INVALID_EMAIL": "Invalid email",
+      "TERMS_AND_CONDITIONS": "You must accept the terms and conditions",
+      "CREDENTIALS": "Invalid credentials"
     },
-    "PROFILE": {
-        "NAME": "Name",
-        "SURNAME": "Surname",
-        "EMAIL": "Email",
-        "PASSWORD": "Password",
-        "UPDATE_BTN": "Update",
-        "DELETE_BTN": "Delete",
-        "TITLE": "Profile Information"
+    "TERM": {
+      "ACEPT": "I accept the ",
+      "TERMS_AND_CONDITIONS": "terms and conditions"
     },
-    "NAVBAR": {
-        "BTN_HOME": "Home",
-        "BTN_STATIONS": "Stations",
-        "BTN_LOGOUT": "Log out",
-        "BTN_PROFILE": "Profile"
-    },
-    "FOOTER": {
-        "FOLLOW": "Follow us on our social media",
-        "CONTACT_TEXT": "Contact",
-        "CONTACT_INFO": "astromalaga@gmail.com"
-    },
-    "DASHBOARD": {
-        "CONFIGURATION_BTN": "Configure dashboard",
-        "DRAG_AND_DROP_INFO": "Drag and drop widgets into the dashboard",
-        "SHOW_OPTIONS_BTN": "Show {{num}} charts"
-    },
-    "LOGIN": {
-        "TITLE": "Log in",
-        "EMAIL": "Email",
-        "PASSWORD": "Password",
-        "LOGIN_BTN": "Log in",
-        "REGISTER_BTN": "Register",
-        "FORGOT_PASSWORD": "Forgot your password?"
-    },
-    "REGISTER": {
-        "TITLE": "Register",
-        "NAME": "Name",
-        "SURNAME": "Surname",
-        "EMAIL": "Email",
-        "PASSWORD": "Password",
-        "PASSWORD_CONFIRM": "Confirm Password",
-        "REGISTER_BTN": "Register",
-        "LOGIN_BTN": "Log in",
-        "ERROR": {
-            "PASSWORDS_NOT_MATCH": "Passwords do not match",
-            "EMAIL_ALREADY_EXISTS": "The email is already registered",
-            "INVALID_EMAIL": "Invalid email",
-            "TERMS_AND_CONDITIONS": "You must accept the terms and conditions"
-        },
-        "TERM": {
-            "ACEPT": "I accept the ",
-            "TERMS_AND_CONDITIONS": "terms and conditions"
-        },
-        "PLACEHOLDER": {
-            "NAME": "Enter your name",
-            "SURNAME": "Enter your surname",
-            "EMAIL": "Enter your email",
-            "PASSWORD": "Enter your password",
-            "PASSWORD_CONFIRM": "Confirm your password"
-        }
-    },
-    "NOPAGE": {
-        "TITLE": "Oops! The spaceship got lost in space",
-        "DESCRIPTION": "We couldn't find the page you're looking for. Maybe it's exploring a distant galaxy."
+    "PLACEHOLDER": {
+      "NAME": "Enter your name",
+      "SURNAME": "Enter your surname",
+      "EMAIL": "Enter your email",
+      "PASSWORD": "Enter your password",
+      "PASSWORD_CONFIRM": "Confirm your password"
     }
+  },
+  "NOPAGE": {
+    "TITLE": "Oops! The spaceship got lost in space",
+    "DESCRIPTION": "We couldn't find the page you're looking for. Maybe it's exploring a distant galaxy."
+  },
+  "TERMS_AND_CONDITIONS": {
+    "TITLE": "Terms and Conditions of Use",
+    "LAST_UPDATED": "2025-03-17",
+    "CLOSE_BTN": "Close",
+    "SECTIONS": [
+      {
+        "TITLE": "1. Acceptance of Terms",
+        "CONTENT": "By registering on our platform, the user fully accepts these terms and conditions. If you do not agree with any part, you should not proceed with registration or use the application."
+      },
+      {
+        "TITLE": "2. Information Availability",
+        "CONTENT": "All information provided by the user during registration and use of the application will be available to the entity. This includes, but is not limited to, personal data, user-generated content, and usage statistics."
+      },
+      {
+        "TITLE": "3. Use of Obtained Information",
+        "CONTENT": "Any information, benefit, data, or result obtained through the use of the application must be mentioned and attributed to the entity. The user agrees not to omit or misrepresent the source of the obtained information."
+      },
+      {
+        "TITLE": "4. Changes to Terms",
+        "CONTENT": "We reserve the right to modify these terms at any time. Users will be notified of any relevant changes."
+      },
+      {
+        "TITLE": "5. Contact",
+        "CONTENT": "For any inquiries related to these terms, users can contact the entity through official support channels."
+      }
+    ]
+  },
+  "INFERRED_DATA": {
+    "Report_Id": {
+        "label": "Report ID",
+        "measure": ""
+    },
+    "Observatory_Number_2": {
+        "label": "Observatory Number 2",
+        "measure": ""
+    },
+    "Observatory_Number": {
+        "label": "Observatory Number",
+        "measure": ""
+    },
+    "Date": {
+        "label": "Date",
+        "measure": ""
+    },
+    "Time": {
+        "label": "Time",
+        "measure": ""
+    },
+    "Quadratic_Error_Orthogonality_Celestial_Sphere_1": {
+        "label": "Quadratic Error of Orthogonality in the Celestial Sphere 1",
+        "measure": ""
+    },
+    "Quadratic_Error_Orthogonality_Celestial_Sphere_2": {
+        "label": "Quadratic Error of Orthogonality in the Celestial Sphere 2",
+        "measure": ""
+    },
+    "Frames_Used": {
+        "label": "Frames Used",
+        "measure": ""
+    },
+    "Station_Adjustment_2_Start": {
+        "label": "Station 2 Adjustment Start",
+        "measure": ""
+    },
+    "Station_Adjustment_2_End": {
+        "label": "Station 2 Adjustment End",
+        "measure": ""
+    },
+    "Dihedral_Angle_Between_Trajectory_Planes": {
+        "label": "Dihedral Angle Between Trajectory Planes",
+        "measure": ""
+    },
+    "Static_Weight": {
+        "label": "Static Weight",
+        "measure": ""
+    },
+    "Errors_AR_DE_Radiants": {
+        "label": "Errors AR/DE in Radiants",
+        "measure": ""
+    },
+    "Astronomical_Coordinates_Radiant_Ecliptic_Date": {
+        "label": "Astronomical Coordinates of Radiant (Ecliptic Date)",
+        "measure": ""
+    },
+    "Astronomical_Coordinates_Radiant_J2000": {
+        "label": "Astronomical Coordinates of Radiant (J2000)",
+        "measure": ""
+    },
+    "Azimuth": {
+        "label": "Azimuth",
+        "measure": ""
+    },
+    "Zenith_Distance": {
+        "label": "Zenith Distance",
+        "measure": ""
+    },
+    "Trajectory_Start_Station_1": {
+        "label": "Trajectory Start at Station 1",
+        "measure": ""
+    },
+    "Trajectory_End_Station_1": {
+        "label": "Trajectory End at Station 1",
+        "measure": ""
+    },
+    "Trajectory_Start_Station_2": {
+        "label": "Trajectory Start at Station 2",
+        "measure": ""
+    },
+    "Trajectory_End_Station_2": {
+        "label": "Trajectory End at Station 2",
+        "measure": ""
+    },
+    "Expected_Impact": {
+        "label": "Expected Impact",
+        "measure": ""
+    },
+    "Distance_Received_Station_1": {
+        "label": "Distance Received at Station 1",
+        "measure": "Km"
+    },
+    "Height_Error_Station_1": {
+        "label": "Height Error at Station 1",
+        "measure": "Km"
+    },
+    "Distance_Error_Station_1": {
+        "label": "Distance Error at Station 1",
+        "measure": "Km"
+    },
+    "Distance_Received_Station_2": {
+        "label": "Distance Received at Station 2",
+        "measure": "Km"
+    },
+    "Height_Error_Station_2": {
+        "label": "Height Error at Station 2",
+        "measure": "Km"
+    },
+    "Distance_Error_Station_2": {
+        "label": "Distance Error at Station 2",
+        "measure": "Km"
+    },
+    "Trajectory_Time_Station_2": {
+        "label": "Trajectory Time at Station 2",
+        "measure": "s"
+    },
+    "Equation_Motion_Km": {
+        "label": "Equation of Motion in Km",
+        "measure": "Km"
+    },
+    "Equation_Velocity_Gs": {
+        "label": "Equation of Velocity in Gs",
+        "measure": "Gs"
+    },
+    "Velocity_Error": {
+        "label": "Velocity Error",
+        "measure": "Km/s"
+    },
+    "Initial_Velocity_Station_2": {
+        "label": "Initial Velocity at Station 2",
+        "measure": "Km/s"
+    },
+    "Acceleration_Km": {
+        "label": "Acceleration in Km",
+        "measure": "Km/s²"
+    },
+    "Acceleration_Gs": {
+        "label": "Acceleration in Gs",
+        "measure": "Gs/s"
+    },
+    "Report_Path": {
+        "label": "Report Path",
+        "measure": ""
+    },
+    "Parametric_Equation_Id": {
+        "label": "Parametric Equation ID",
+        "measure": ""
+    },
+    "Latitude": {
+        "label": "Latitude",
+        "measure": "°"
+    },
+    "Longitude": {
+        "label": "Longitude",
+        "measure": "°"
+    }
+},
+"REPORT": {
+  "TITLE":"Informe bólido {{id}}",
+  "SUMMARY_TAB":"Summary",
+  "INFERRED_DATA_TAB":"Inferred Data",
+  "MAP_TAB":"Map",
+  "ACTIVE_RAIN_TAB":"Active Rain",
+  "STATIONS": "Stations",
+  "TRAJECTORY":"Trajectory"
+} 
 }

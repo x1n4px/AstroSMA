@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 
-const StationMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom = 11 }) => {
+const StationMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom = 11, useStatinIcon=false }) => {
   const navigate = useNavigate();
 
   // Función para determinar el color del marcador según el estado
@@ -33,7 +33,7 @@ const StationMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom
     data.forEach((punto) => {
       const marker = L.marker([punto.lat, punto.lon], {
         icon: new L.Icon({
-          iconUrl: getMarkerColor(punto.state),
+          iconUrl: (useStatinIcon ? '/antena.png':getMarkerColor(punto.state)),
           iconSize: [25, 25],
         }),
       }).addTo(map);

@@ -263,7 +263,7 @@ function Dashboard() {
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ListGroup>
                       {listItems.map((item) => (
-                        <ListGroup.Item key={item.id} action as={Link} to={'/example'}>
+                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
                           Informe {item.title}
                         </ListGroup.Item>
                       ))}
@@ -291,7 +291,7 @@ function Dashboard() {
             case 8:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 5</Card.Title>
+                  <Card.Title>Gráfica 8</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <HorizontalBarChart data={horizontalBarChartData} />
                   </div>

@@ -1,7 +1,7 @@
-import StationMapChart from '../../components/map/StationMapChart';
+import StationMapChart from '@/components/map/StationMapChart';
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, ListGroup, Badge } from 'react-bootstrap';
-import { getStations } from '../../services/stationService';
+import { getStations } from '@/services/stationService';
 
 function Station() {
     const [stations, setStations] = useState([]);

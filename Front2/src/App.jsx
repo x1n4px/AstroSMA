@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Login from './pages/Auth/Login';
-import Dashboard from './pages/basic/Dashboard';
-import Layout from './layout/Layout';
-import Register from './pages/Auth/Register';
-import Report from './pages/astronomy/report';
-import Station from './pages/astronomy/Station';
-import Bolide from './pages/astronomy/bolide';
-import Profile from './pages/basic/Profile';
-import Report2 from './pages/astronomy/example';
+import Login from '@/pages/Auth/Login';
+import Dashboard from '@/pages/basic/Dashboard';
+import Layout from '@/layout/Layout';
+import Register from '@/pages/Auth/Register';
+import Station from '@/pages/astronomy/Station';
+import Bolide from '@/pages/astronomy/bolide';
+import Profile from '@/pages/basic/Profile';
+import Report from '@/pages/astronomy/report/report';
+import NotFound from '@/pages/basic/NotFound'; // Importa el componente NotFound
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,6 +49,18 @@ function App() {
         />
         <Route path="/register" element={<Register />} />
 
+        {/* Redirigir desde "/" a "/dashboard" si el usuario está autenticado */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+
         <Route
           path="/"
           element={
@@ -60,15 +72,15 @@ function App() {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="report/:reportId" element={<Report />} />
           <Route path="station" element={<Station />} />
           <Route path="bolide/:bolideId" element={<Bolide />} />
           <Route path="/report/:reportId/bolide/:bolideId" element={<Bolide />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="/example" element={<Report2 />} />
-          {/* Opcional: Ruta por defecto o "no encontrado" */}
-          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="/report/:reportId" element={<Report />} />
         </Route>
+
+        {/* Ruta comodín para páginas no encontradas */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

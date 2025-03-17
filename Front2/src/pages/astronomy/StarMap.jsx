@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
-import StarMapChart from '../../components/chart/StarMapChart'; // Asegúrate de que la ruta sea correcta
+import StarMapChart from '@/components/chart/StarMapChart'; // Asegúrate de que la ruta sea correcta
 
 function StarMapPage() {
   const starMapData = [

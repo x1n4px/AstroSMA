@@ -3,7 +3,7 @@ import React from 'react';
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
-const NoPage = () => {
+const NotFound = () => {
   const { t } = useTranslation(['text']);
   return (
     <div
@@ -56,4 +56,4 @@ const NoPage = () => {
   );
 };
 
-export default NoPage;
+export default NotFound;

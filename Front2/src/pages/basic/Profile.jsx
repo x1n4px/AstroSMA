@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { getUser } from '../../services/userService';
+import { getUser } from '@/services/userService';
 
 const Profile = () => {
     const { t } = useTranslation(['text']);

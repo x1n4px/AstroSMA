@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from "react-router-dom";
 import { Card, Container, Row } from 'react-bootstrap';
-import MapChart from '../../components/map/MapChart';
-import SonificationComponent from '../../components/sonification/sonification';
+import MapChart from '@/components/map/MapChart';
+import SonificationComponent from '@/components/sonification/sonification';
 
 
 function Bolide() {

@@ -3,9 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { Container, Row, Col, Table } from "react-bootstrap";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import MapChart from '../../components/map/MapChart';
-import ReportMapChart from '../../components/map/ReportMap';
-import PendienteChart from '../../components/chart/Pending';
+import MapChart from '@/components/map/MapChart';
+import ReportMapChart from '@/components/map/ReportMap';
+import PendienteChart from '@/components/chart/Pending';
 
 function Report() {
 

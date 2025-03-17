@@ -49,10 +49,11 @@
             "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
             "EMAIL_ALREADY_EXISTS": "El correo electrónico ya está registrado",
             "INVALID_EMAIL": "Correo electrónico inválido",
-            "TERMS_AND_CONDITIONS": "Debe aceptar los términos y condiciones"
+            "TERMS_AND_CONDITIONS": "Debe aceptar los términos y condiciones",
+            "CREDENTIALS": "Credenciales inválidas"
         },
         "TERM": {
-            "ACEPT":"Acepto los ",
+            "ACEPT": "Acepto los ",
             "TERMS_AND_CONDITIONS": "términos y condiciones"
         },
         "PLACEHOLDER": {
@@ -66,5 +67,199 @@
     "NOPAGE": {
         "TITLE": "¡Oops! La nave se perdió en el espacio",
         "DESCRIPTION": "No encontramos la página que buscas. Tal vez esté explorando una galaxia lejana."
+    },
+    "TERMS_AND_CONDITIONS": {
+        "TITLE": "Términos y Condiciones de Uso",
+        "LAST_UPDATED": "2025-03-17",
+        "CLOSE_BTN": "Cerrar",
+        "SECTION": [
+            {
+                "TITLE": "1. Aceptación de los Términos",
+                "CONTENT": "Al registrarse en nuestra plataforma, el usuario acepta estos términos y condiciones en su totalidad. Si no está de acuerdo con alguna parte, no debe continuar con el registro ni utilizar la aplicación."
+            },
+            {
+                "TITLE": "2. Disposición de la Información",
+                "CONTENT": "Toda la información proporcionada por el usuario durante el registro y el uso de la aplicación quedará a disposición de la entidad. Esto incluye, pero no se limita a, datos personales, contenido generado por el usuario y estadísticas de uso."
+            },
+            {
+                "TITLE": "3. Uso de la Información Obtenida",
+                "CONTENT": "Cualquier información, beneficio, dato o resultado obtenido a través del uso de la aplicación deberá ser mencionado y atribuido a la entidad. El usuario se compromete a no omitir ni tergiversar el origen de la información obtenida."
+            },
+            {
+                "TITLE": "4. Modificaciones de los Términos",
+                "CONTENT": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Se notificará a los usuarios sobre cualquier cambio relevante."
+            },
+            {
+                "TITLE": "5. Contacto",
+                "CONTENT": "Para cualquier consulta relacionada con estos términos, el usuario puede comunicarse con la entidad a través de los canales oficiales de soporte."
+            }
+        ]
+    },
+    "INFERRED_DATA": {
+        "Report_Id": {
+            "label": "ID del Informe",
+            "measure": ""
+        },
+        "Observatory_Number_2": {
+            "label": "Número del Observatorio 2",
+            "measure": ""
+        },
+        "Observatory_Number": {
+            "label": "Número del Observatorio",
+            "measure": ""
+        },
+        "Date": {
+            "label": "Fecha",
+            "measure": ""
+        },
+        "Time": {
+            "label": "Hora",
+            "measure": ""
+        },
+        "Quadratic_Error_Orthogonality_Celestial_Sphere_1": {
+            "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 1",
+            "measure": ""
+        },
+        "Quadratic_Error_Orthogonality_Celestial_Sphere_2": {
+            "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 2",
+            "measure": ""
+        },
+        "Frames_Used": {
+            "label": "Fotogramas Usados",
+            "measure": "fotogramas"
+        },
+        "Station_Adjustment_2_Start": {
+            "label": "Ajuste de Estación 2 - Inicio",
+            "measure": ""
+        },
+        "Station_Adjustment_2_End": {
+            "label": "Ajuste de Estación 2 - Fin",
+            "measure": ""
+        },
+        "Dihedral_Angle_Between_Trajectory_Planes": {
+            "label": "Ángulo Diedro entre Planos de Trayectoria",
+            "measure": "°"
+        },
+        "Static_Weight": {
+            "label": "Peso Estático",
+            "measure": "Kg"
+        },
+        "Errors_AR_DE_Radiants": {
+            "label": "Errores AR/DE en Radianes",
+            "measure": "radianes"
+        },
+        "Astronomical_Coordinates_Radiant_Ecliptic_Date": {
+            "label": "Coordenadas Astronómicas del Radiante (Eclíptica - Fecha)",
+            "measure": ""
+        },
+        "Astronomical_Coordinates_Radiant_J2000": {
+            "label": "Coordenadas Astronómicas del Radiante (J2000)",
+            "measure": ""
+        },
+        "Azimuth": {
+            "label": "Azimut",
+            "measure": "°"
+        },
+        "Zenith_Distance": {
+            "label": "Distancia Cenital",
+            "measure": "°"
+        },
+        "Trajectory_Start_Station_1": {
+            "label": "Inicio de la Trayectoria en Estación 1",
+            "measure": ""
+        },
+        "Trajectory_End_Station_1": {
+            "label": "Fin de la Trayectoria en Estación 1",
+            "measure": ""
+        },
+        "Trajectory_Start_Station_2": {
+            "label": "Inicio de la Trayectoria en Estación 2",
+            "measure": ""
+        },
+        "Trajectory_End_Station_2": {
+            "label": "Fin de la Trayectoria en Estación 2",
+            "measure": ""
+        },
+        "Expected_Impact": {
+            "label": "Impacto Previsible",
+            "measure": ""
+        },
+        "Distance_Received_Station_1": {
+            "label": "Distancia Recibida en Estación 1",
+            "measure": "Km"
+        },
+        "Height_Error_Station_1": {
+            "label": "Error de Altura en Estación 1",
+            "measure": "m"
+        },
+        "Distance_Error_Station_1": {
+            "label": "Error de Distancia en Estación 1",
+            "measure": "Km"
+        },
+        "Distance_Received_Station_2": {
+            "label": "Distancia Recibida en Estación 2",
+            "measure": "Km"
+        },
+        "Height_Error_Station_2": {
+            "label": "Error de Altura en Estación 2",
+            "measure": "m"
+        },
+        "Distance_Error_Station_2": {
+            "label": "Error de Distancia en Estación 2",
+            "measure": "Km"
+        },
+        "Trajectory_Time_Station_2": {
+            "label": "Tiempo de Trayectoria en Estación 2",
+            "measure": "s"
+        },
+        "Equation_Motion_Km": {
+            "label": "Ecuación del Movimiento",
+            "measure": ""
+        },
+        "Equation_Velocity_Gs": {
+            "label": "Ecuación de la Velocidad",
+            "measure": ""
+        },
+        "Velocity_Error": {
+            "label": "Error en la Velocidad",
+            "measure": "Km/s"
+        },
+        "Initial_Velocity_Station_2": {
+            "label": "Velocidad Inicial en Estación 2",
+            "measure": "Km/s"
+        },
+        "Acceleration_Km": {
+            "label": "Aceleración",
+            "measure": "Km/s²"
+        },
+        "Acceleration_Gs": {
+            "label": "Aceleración en Gs",
+            "measure": "Gs/s"
+        },
+        "Report_Path": {
+            "label": "Ruta del Informe",
+            "measure": ""
+        },
+        "Parametric_Equation_Id": {
+            "label": "ID de la Ecuación Paramétrica",
+            "measure": ""
+        },
+        "Latitude": {
+            "label": "Latitud",
+            "measure": "°"
+        },
+        "Longitude": {
+            "label": "Longitud",
+            "measure": "°"
+        }
+    },
+    "REPORT": {
+        "TITLE": "Informe bólido {{id}}",
+        "SUMMARY_TAB": "Resumen",
+        "INFERRED_DATA_TAB": "Datos Inferidos",
+        "MAP_TAB": "Mapa",
+        "ACTIVE_RAIN_TAB": "Lluvia Activa",
+        "STATIONS": "Estaciones",
+        "TRAJECTORY": "Trayectoria"
     }
 }

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import TermsAndConditions from '../../components/legal/TermsAndCondition'; // Asegúrate de crear este componente
-import { registerUser } from '../../services/authService';
+import TermsAndConditions from '@/components/legal/TermsAndCondition'; // Asegúrate de crear este componente
+import { registerUser } from '@/services/authService';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -26,12 +27,18 @@ function Register() {
 
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError(
+        <>
+          {t('REGISTER.ERROR.PASSWORDS_NOT_MATCH')}
+        </>
+      );
       return;
     }
 
     if (!acceptedTerms) {
-      setError('Debes aceptar los términos y condiciones');
+      setError(<>
+        {t('REGISTER.ERROR.TERMS_AND_CONDITIONS')}
+      </>);
       return;
     }
 
@@ -40,7 +47,9 @@ function Register() {
       onLogin(token);
       navigate('/dashboard');
     } catch (error) {
-      setError('Credenciales incorrectas');
+      setError(<>
+        {t('REGISTER.ERROR.CREDENTIALS')}
+      </>);
     }
 
 
@@ -122,7 +131,10 @@ function Register() {
                   </Form.Group>
                   {error && <Alert variant="danger">{error}</Alert>}
                   <Button variant="primary" type="submit" className="w-100">
-                    Registrarse
+                  {t('REGISTER.REGISTER_BTN')}
+                  </Button>
+                  <Button variant="outline-secondary" className="w-100 mt-2" as={Link} to="/login">
+                    {t('REGISTER.LOGIN_BTN')}
                   </Button>
                 </Form>
               </Card.Body>
@@ -132,14 +144,14 @@ function Register() {
 
         <Modal show={showTermsModal} onHide={handleCloseTermsModal}>
           <Modal.Header closeButton>
-            <Modal.Title>Términos y condiciones</Modal.Title>
+            <Modal.Title>{t('TERMS_AND_CONDITIONS.TITLE')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <TermsAndConditions />
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseTermsModal}>
-              Cerrar
+              {t('TERMS_AND_CONDITIONS.CLOSE_BTN')}
             </Button>
           </Modal.Footer>
         </Modal>
