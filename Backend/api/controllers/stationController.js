@@ -105,7 +105,6 @@ const stations = [
 // Función para obtener un empleado por su ID
 const getAllStations = async (req, res) => {
     try {
-        // Retornar la tienda encontrada
         return res.json(stations);
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
@@ -116,14 +115,9 @@ const getAllStations = async (req, res) => {
 
 const getNearbyStations = async (req, res) => {
     try {
-        // Obtener el ID del empleado
         const { lat, lon, radius } = req.query;
 
-        // Buscar el empleado en la base de datos
-        //const station = await Station.findById(id);
 
-        console.log(lat, lon, radius)
-        // Retornar la tienda encontrada
         return res.json(findStationsInRange(stations, lat, lon, radius));
     } catch (error) {
         console.error('Error al obtener la estación:', error);
