@@ -1,0 +1,7 @@
+.nav-tabs .nav-link {
+    color: #980100;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #980100; /* Asegura que la pestaña activa también tenga el color */
+  }

@@ -26,7 +26,9 @@
   "DASHBOARD": {
     "CONFIGURATION_BTN": "Configure dashboard",
     "DRAG_AND_DROP_INFO": "Drag and drop widgets into the dashboard",
-    "SHOW_OPTIONS_BTN": "Show {{num}} charts"
+    "SHOW_OPTIONS_BTN": "Show {{num}} charts",
+    "CUSTOMIZE_SEARCH_BTN": "Perform a custom search"
+
   },
   "LOGIN": {
     "TITLE": "Log in",
@@ -97,169 +99,179 @@
   },
   "INFERRED_DATA": {
     "Report_Id": {
-        "label": "Report ID",
-        "measure": ""
+      "label": "Report ID",
+      "measure": ""
     },
     "Observatory_Number_2": {
-        "label": "Observatory Number 2",
-        "measure": ""
+      "label": "Observatory Number 2",
+      "measure": ""
     },
     "Observatory_Number": {
-        "label": "Observatory Number",
-        "measure": ""
+      "label": "Observatory Number",
+      "measure": ""
     },
     "Date": {
-        "label": "Date",
-        "measure": ""
+      "label": "Date",
+      "measure": ""
     },
     "Time": {
-        "label": "Time",
-        "measure": ""
+      "label": "Time",
+      "measure": ""
     },
     "Quadratic_Error_Orthogonality_Celestial_Sphere_1": {
-        "label": "Quadratic Error of Orthogonality in the Celestial Sphere 1",
-        "measure": ""
+      "label": "Quadratic Error of Orthogonality in the Celestial Sphere 1",
+      "measure": ""
     },
     "Quadratic_Error_Orthogonality_Celestial_Sphere_2": {
-        "label": "Quadratic Error of Orthogonality in the Celestial Sphere 2",
-        "measure": ""
+      "label": "Quadratic Error of Orthogonality in the Celestial Sphere 2",
+      "measure": ""
     },
     "Frames_Used": {
-        "label": "Frames Used",
-        "measure": ""
+      "label": "Frames Used",
+      "measure": ""
     },
     "Station_Adjustment_2_Start": {
-        "label": "Station 2 Adjustment Start",
-        "measure": ""
+      "label": "Station 2 Adjustment Start",
+      "measure": ""
     },
     "Station_Adjustment_2_End": {
-        "label": "Station 2 Adjustment End",
-        "measure": ""
+      "label": "Station 2 Adjustment End",
+      "measure": ""
     },
     "Dihedral_Angle_Between_Trajectory_Planes": {
-        "label": "Dihedral Angle Between Trajectory Planes",
-        "measure": ""
+      "label": "Dihedral Angle Between Trajectory Planes",
+      "measure": ""
     },
     "Static_Weight": {
-        "label": "Static Weight",
-        "measure": ""
+      "label": "Static Weight",
+      "measure": ""
     },
     "Errors_AR_DE_Radiants": {
-        "label": "Errors AR/DE in Radiants",
-        "measure": ""
+      "label": "Errors AR/DE in Radiants",
+      "measure": ""
     },
     "Astronomical_Coordinates_Radiant_Ecliptic_Date": {
-        "label": "Astronomical Coordinates of Radiant (Ecliptic Date)",
-        "measure": ""
+      "label": "Astronomical Coordinates of Radiant (Ecliptic Date)",
+      "measure": ""
     },
     "Astronomical_Coordinates_Radiant_J2000": {
-        "label": "Astronomical Coordinates of Radiant (J2000)",
-        "measure": ""
+      "label": "Astronomical Coordinates of Radiant (J2000)",
+      "measure": ""
     },
     "Azimuth": {
-        "label": "Azimuth",
-        "measure": ""
+      "label": "Azimuth",
+      "measure": ""
     },
     "Zenith_Distance": {
-        "label": "Zenith Distance",
-        "measure": ""
+      "label": "Zenith Distance",
+      "measure": ""
     },
     "Trajectory_Start_Station_1": {
-        "label": "Trajectory Start at Station 1",
-        "measure": ""
+      "label": "Trajectory Start at Station 1",
+      "measure": ""
     },
     "Trajectory_End_Station_1": {
-        "label": "Trajectory End at Station 1",
-        "measure": ""
+      "label": "Trajectory End at Station 1",
+      "measure": ""
     },
     "Trajectory_Start_Station_2": {
-        "label": "Trajectory Start at Station 2",
-        "measure": ""
+      "label": "Trajectory Start at Station 2",
+      "measure": ""
     },
     "Trajectory_End_Station_2": {
-        "label": "Trajectory End at Station 2",
-        "measure": ""
+      "label": "Trajectory End at Station 2",
+      "measure": ""
     },
     "Expected_Impact": {
-        "label": "Expected Impact",
-        "measure": ""
+      "label": "Expected Impact",
+      "measure": ""
     },
     "Distance_Received_Station_1": {
-        "label": "Distance Received at Station 1",
-        "measure": "Km"
+      "label": "Distance Received at Station 1",
+      "measure": "Km"
     },
     "Height_Error_Station_1": {
-        "label": "Height Error at Station 1",
-        "measure": "Km"
+      "label": "Height Error at Station 1",
+      "measure": "Km"
     },
     "Distance_Error_Station_1": {
-        "label": "Distance Error at Station 1",
-        "measure": "Km"
+      "label": "Distance Error at Station 1",
+      "measure": "Km"
     },
     "Distance_Received_Station_2": {
-        "label": "Distance Received at Station 2",
-        "measure": "Km"
+      "label": "Distance Received at Station 2",
+      "measure": "Km"
     },
     "Height_Error_Station_2": {
-        "label": "Height Error at Station 2",
-        "measure": "Km"
+      "label": "Height Error at Station 2",
+      "measure": "Km"
     },
     "Distance_Error_Station_2": {
-        "label": "Distance Error at Station 2",
-        "measure": "Km"
+      "label": "Distance Error at Station 2",
+      "measure": "Km"
     },
     "Trajectory_Time_Station_2": {
-        "label": "Trajectory Time at Station 2",
-        "measure": "s"
+      "label": "Trajectory Time at Station 2",
+      "measure": "s"
     },
     "Equation_Motion_Km": {
-        "label": "Equation of Motion in Km",
-        "measure": "Km"
+      "label": "Equation of Motion in Km",
+      "measure": "Km"
     },
     "Equation_Velocity_Gs": {
-        "label": "Equation of Velocity in Gs",
-        "measure": "Gs"
+      "label": "Equation of Velocity in Gs",
+      "measure": "Gs"
     },
     "Velocity_Error": {
-        "label": "Velocity Error",
-        "measure": "Km/s"
+      "label": "Velocity Error",
+      "measure": "Km/s"
     },
     "Initial_Velocity_Station_2": {
-        "label": "Initial Velocity at Station 2",
-        "measure": "Km/s"
+      "label": "Initial Velocity at Station 2",
+      "measure": "Km/s"
     },
     "Acceleration_Km": {
-        "label": "Acceleration in Km",
-        "measure": "Km/s²"
+      "label": "Acceleration in Km",
+      "measure": "Km/s²"
     },
     "Acceleration_Gs": {
-        "label": "Acceleration in Gs",
-        "measure": "Gs/s"
+      "label": "Acceleration in Gs",
+      "measure": "Gs/s"
     },
     "Report_Path": {
-        "label": "Report Path",
-        "measure": ""
+      "label": "Report Path",
+      "measure": ""
     },
     "Parametric_Equation_Id": {
-        "label": "Parametric Equation ID",
-        "measure": ""
+      "label": "Parametric Equation ID",
+      "measure": ""
     },
     "Latitude": {
-        "label": "Latitude",
-        "measure": "°"
+      "label": "Latitude",
+      "measure": "°"
     },
     "Longitude": {
-        "label": "Longitude",
-        "measure": "°"
+      "label": "Longitude",
+      "measure": "°"
     }
-},
-"REPORT": {
-  "TITLE":"Informe bólido {{id}}",
-  "SUMMARY_TAB":"Summary",
-  "INFERRED_DATA_TAB":"Inferred Data",
-  "MAP_TAB":"Map",
-  "ACTIVE_RAIN_TAB":"Active Rain",
-  "STATIONS": "Stations",
-  "TRAJECTORY":"Trajectory"
-} 
+  },
+  "REPORT": {
+    "TITLE": "Informe bólido {{id}}",
+    "SUMMARY_TAB": "Summary",
+    "INFERRED_DATA_TAB": "Inferred Data",
+    "MAP_TAB": "Map",
+    "ACTIVE_RAIN_TAB": "Active Rain",
+    "STATIONS": "Stations",
+    "TRAJECTORY": "Trajectory",
+    "TRAJECTORY2": "Trayectoria 2"
+  },
+  "CUSTOMIZE_SEARCH": {
+        "HEIGHT": "Height",
+        "LATLON": "Latitude/Longitude",
+        "LATITUDE": "Latitude",
+        "LONGITUDE": "Longitude",
+        "SEARCH_RADIUS": "Search Radius",
+        "RANGE_DATE": "Date Range",
+        "SEARCH_BTN": "Search"
+    }
 }

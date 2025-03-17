@@ -114,10 +114,10 @@ const Profile = () => {
                                 disabled={true}
                             />
                         </Form.Group>
-                         <Button variant="primary" type="submit" className='mr-2 mt-4' disabled={true}>
+                         <Button style={{backgroundColor:'#980100', borderColor: '#980100'}} type="submit" className='mr-2 mt-4' disabled={true}>
                             {t('PROFILE.UPDATE_BTN')}
                         </Button>
-                        <Button variant="danger" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
+                        <Button variant="secondary" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
                             {t('PROFILE.DELETE_BTN')}
                         </Button>
                     </Form>

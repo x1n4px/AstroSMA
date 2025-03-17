@@ -181,8 +181,12 @@ function Dashboard() {
   return (
     <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
-        <Button variant='primary' onClick={handleOpenSettingsModal}>
+        <Button style={{backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
           {t('DASHBOARD.CONFIGURATION_BTN')}
+        </Button>
+
+        <Button style={{backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to="/customize-search">
+          {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
         </Button>
 
         <div className="d-none d-xl-block">

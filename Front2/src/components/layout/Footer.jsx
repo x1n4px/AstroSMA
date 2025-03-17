@@ -8,7 +8,7 @@ const Footer = () => {
     const { t } = useTranslation(['text']);
 
     return (
-        <footer className="bg-primary text-white py-3">
+        <footer className=" text-white py-3"  style={{backgroundColor: '#980100'}}>
             <Container>
                 <Row className="justify-content-between align-items-center">
                     <Col md={4} className="text-center text-md-start mb-3 mb-md-0">

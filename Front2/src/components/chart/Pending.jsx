@@ -4,8 +4,8 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
-const PendienteChart = ({ data }) => {
-    if (!data || data.length < 2) {
+function PendienteChart  ({ data })  {
+    if (!Array.isArray(data) || data.length < 2) {
         return <p>Se requieren al menos dos puntos para mostrar la pendiente.</p>;
     }
 

@@ -99,17 +99,18 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
           <DraggableChartSetting key={chartId} id={index} moveChartSetting={moveChartSetting}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Form.Check
+                style={{ accentColor: '#980100' }}
                 type="checkbox"
                 label={`Mostrar Gráfica ${dictionary[chartId]}`}
                 checked={settings[chartId]}
                 onChange={() => handleCheckboxChange(chartId)}
               />
               <div style={{ marginLeft: 'auto' }}>
-                <Button variant="outline-primary" size="sm" onClick={() => handleMoveUp(index)}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{fill: "#0d6ffc"}}><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg> Subir
+                <Button style={{ backgroundColor: 'transparent', borderColor: '#980100', color: 'black' }} size="sm" onClick={() => handleMoveUp(index)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "#980100" }}><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg> Subir
                 </Button>
-                <Button variant="outline-primary" size="sm" onClick={() => handleMoveDown(index)} style={{ marginLeft: '5px' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{fill: "#0d6ffc"}}><path d="M11.178 19.569a.998.998 0 0 0 1.644 0l9-13A.999.999 0 0 0 21 5H3a1.002 1.002 0 0 0-.822 1.569l9 13z"></path></svg> Bajar
+                <Button style={{ backgroundColor: 'transparent', borderColor: '#980100', color: 'black', marginLeft: '5px' }} size="sm" onClick={() => handleMoveDown(index)} >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "#980100" }}><path d="M11.178 19.569a.998.998 0 0 0 1.644 0l9-13A.999.999 0 0 0 21 5H3a1.002 1.002 0 0 0-.822 1.569l9 13z"></path></svg> Bajar
                 </Button>
               </div>
             </div>
@@ -120,7 +121,7 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
         <Button variant="secondary" onClick={onHide}>
           Cerrar
         </Button>
-        <Button variant="primary" onClick={handleSave}>
+        <Button style={{ backgroundColor: '#980100', borderColor: '#980100',  }} onClick={handleSave}>
           Guardar
         </Button>
       </Modal.Footer>

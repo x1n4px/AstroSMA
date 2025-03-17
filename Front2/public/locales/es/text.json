@@ -26,7 +26,8 @@
     "DASHBOARD": {
         "CONFIGURATION_BTN": "Configurar panel de control",
         "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
-        "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos"
+        "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
+        "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada"
     },
     "LOGIN": {
         "TITLE": "Iniciar sesión",
@@ -260,6 +261,16 @@
         "MAP_TAB": "Mapa",
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
-        "TRAJECTORY": "Trayectoria"
+        "TRAJECTORY": "Trayectoria",
+        "TRAJECTORY2": "Pendiente"
+    },
+    "CUSTOMIZE_SEARCH": {
+        "HEIGHT": "Altura",
+        "LATLON": "Latitud/Longitud",
+        "LATITUDE": "Latitud",
+        "LONGITUDE": "Longitud",
+        "SEARCH_RADIUS": "Radio de Búsqueda",
+        "RANGE_DATE": "Rango de Fechas",
+        "SEARCH_BTN": "Buscar"
     }
 }

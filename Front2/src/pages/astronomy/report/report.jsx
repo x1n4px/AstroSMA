@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Tabs, Tab, Container, Row, Col, Form } from 'react-bootstrap';
+import { Tabs, Tab, Alert, Container, Row, Col, Form } from 'react-bootstrap';
 import { useParams, Link } from "react-router-dom";
-
+import '@/assets/customTabs.css'
 
 
 import SummaryReport from '@/pages/astronomy/report/pages/summaryReport';
@@ -9,11 +9,23 @@ import InferredDataReport from '@/pages/astronomy/report/pages/inferredDataRepor
 import MapReport from '@/pages/astronomy/report/pages/mapReport';
 import StationReport from '@/pages/astronomy/report/pages/stationReport';
 import GlobeWithObject from '@/components/three/GlobeWithObject.jsx'
-
+import GlobeWithComet from '@/components/three/BolideSlopeChart.jsx';
+import Pending from '@/components/chart/Pending.jsx'
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
+const pointA = {
+    lat: 40.4168,
+    lon: -3.7038,
+    altitude: 120,
+};
+
+const pointB = {
+    lat: 41.3851,
+    lon: 2.1734,
+    altitude: 45,
+};
 
 const data = {
     "Report_Id": 1,
@@ -55,8 +67,8 @@ const data = {
     "Parametric_Equation_Id": 789,
     "Latitude": 38.086827,
     "Longitude": -5.994165
-  };
-  
+};
+
 
 const data2 = [
     {
@@ -98,6 +110,7 @@ const Report = () => {
                 className="mb-3"
                 mountOnEnter // Montar el contenido solo cuando se selecciona la pestaña
                 unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
+
             >
                 <Tab eventKey="summary" title={t('REPORT.SUMMARY_TAB')}>
                     <SummaryReport />
@@ -109,7 +122,9 @@ const Report = () => {
                     <MapReport data={data} data2={data2} />
                 </Tab>
                 <Tab eventKey="active_rain" title={t('REPORT.ACTIVE_RAIN_TAB')}>
-
+                    <Alert variant="warning">
+                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
+                    </Alert>
                 </Tab>
                 {/* <Tab eventKey="station" title={t('REPORT.STATIONS')}>
                     <StationReport />
@@ -117,6 +132,48 @@ const Report = () => {
 
                 <Tab eventKey="trajectory" title={t('REPORT.TRAJECTORY')}>
                     <GlobeWithObject />
+                </Tab>
+                <Tab eventKey="trajectory2" title={t('REPORT.TRAJECTORY2')}>
+                    <Container>
+                        <Row className="mb-4">
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Punto A - Latitud:</Form.Label>
+                                    <Form.Control type="text" value={pointA.lat} readOnly />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Punto A - Longitud:</Form.Label>
+                                    <Form.Control type="text" value={pointA.lon} readOnly />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Punto A - Altitud:</Form.Label>
+                                    <Form.Control type="text" value={pointA.altitude} readOnly />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Punto B - Latitud:</Form.Label>
+                                    <Form.Control type="text" value={pointB.lat} readOnly />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Punto B - Longitud:</Form.Label>
+                                    <Form.Control type="text" value={pointB.lon} readOnly />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.Label>Punto B - Altitud:</Form.Label>
+                                    <Form.Control type="text" value={pointB.altitude} readOnly />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col>
+                                <div >
+                                    {/* <GlobeWithComet pointA={pointA} pointB={pointB} /> */}
+                                    <Pending data={data2} />
+                                </div>
+                            </Col>
+                        </Row>
+                    </Container>
                 </Tab>
             </Tabs>
         </div>

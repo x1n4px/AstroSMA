@@ -67,7 +67,7 @@ function GlobeAndComet() {
         ]}
       >
         <sphereGeometry args={[0.1, 16, 16]} />
-        <meshBasicMaterial color="red" />
+        <meshBasicMaterial color="l" />
       </mesh>
       <OrbitControls />
     </>
