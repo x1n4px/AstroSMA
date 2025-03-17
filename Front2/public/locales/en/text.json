@@ -28,7 +28,21 @@
     "DRAG_AND_DROP_INFO": "Drag and drop widgets into the dashboard",
     "SHOW_OPTIONS_BTN": "Show {{num}} charts",
     "CUSTOMIZE_SEARCH_BTN": "Perform a custom search"
-
+  },
+  "DASHBOARD_MODAL": {
+    "TITLE": "Dashboard menu",
+    "SEARCH_RANGE": "Search range",
+    "SHOW_GRAPH": "Show graph {{name}}",
+    "BTN_CLOSE": "Close",
+    "BTN_SAVE": "Save",
+    "SEARCH_RANGE_OPTION": {
+      "LAST_10": "Last 10 bolides",
+      "LAST_25": "Last 25 bolides",
+      "LAST_50": "Last 50 bolides",
+      "LAST_6_MONTHS": "Last 6 months",
+      "LAST_YEAR": "Last year",
+      "LAST_5_YEAR": "Last 5 years"
+    }
   },
   "LOGIN": {
     "TITLE": "Log in",
@@ -266,12 +280,12 @@
     "TRAJECTORY2": "Trayectoria 2"
   },
   "CUSTOMIZE_SEARCH": {
-        "HEIGHT": "Height",
-        "LATLON": "Latitude/Longitude",
-        "LATITUDE": "Latitude",
-        "LONGITUDE": "Longitude",
-        "SEARCH_RADIUS": "Search Radius",
-        "RANGE_DATE": "Date Range",
-        "SEARCH_BTN": "Search"
-    }
+    "HEIGHT": "Height",
+    "LATLON": "Latitude/Longitude",
+    "LATITUDE": "Latitude",
+    "LONGITUDE": "Longitude",
+    "SEARCH_RADIUS": "Search Radius",
+    "RANGE_DATE": "Date Range",
+    "SEARCH_BTN": "Search"
+  }
 }

@@ -47,7 +47,7 @@ function HorizontalBarChart({ data }) {
       .attr('x', 0)
       .attr('height', y.bandwidth())
       .attr('width', (d) => x(d.value))
-      .attr('fill', 'steelblue');
+      .attr('fill', '#980100');
   }, [data]);
 
   return (

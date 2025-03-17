@@ -37,7 +37,7 @@ function ScatterPlot({ data }) {
       .attr('cx', (d) => x(d.longitude))
       .attr('cy', (d) => y(d.latitude))
       .attr('r', 5)
-      .attr('fill', 'steelblue');
+      .attr('fill', '#980100');
   }, [data]);
 
   return (

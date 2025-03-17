@@ -39,6 +39,16 @@ function GlobeAndComet() {
     return geometry;
   }, [cometTrajectory]);
 
+  // Referencia a los controles de órbita
+  const orbitControlsRef = useRef();
+
+  // Imprimir la posición de la cámara en cada fotograma
+  useFrame(({ camera }) => {
+    if (orbitControlsRef.current) {
+      const { x, y, z } = camera.position;
+    }
+  });
+
   useFrame(({ clock }) => {
     const elapsedTime = clock.getElapsedTime();
     setRotation(elapsedTime * 0.5);
@@ -51,14 +61,17 @@ function GlobeAndComet() {
       <ambientLight intensity={0.9} />
       <pointLight position={[10, 10, 10]} />
       <Stars />
+      {/* Globo */}
       <mesh>
         <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial map={globeTexture} />
       </mesh>
+      {/* Trayectoria del cometa */}
       <line>
         <lineBasicMaterial color="cyan" />
         <primitive object={trajectoryGeometry} />
       </line>
+      {/* Cometa */}
       <mesh
         position={[
           3 * Math.cos(rotation),
@@ -67,16 +80,25 @@ function GlobeAndComet() {
         ]}
       >
         <sphereGeometry args={[0.1, 16, 16]} />
-        <meshBasicMaterial color="l" />
+        <meshBasicMaterial color="red" />
       </mesh>
-      <OrbitControls />
+      {/* Controles de órbita */}
+      <OrbitControls
+        ref={orbitControlsRef} // Referencia a los controles
+        target={[0, 0, 0]} // Enfocar en el centro (España)
+        minDistance={5} // Distancia mínima de la cámara
+        maxDistance={20} // Distancia máxima de la cámara
+      />
     </>
   );
 }
 
 function GlobeWithComet() {
   return (
-    <Canvas style={{ width: 'auto', height: '100vh', backgroundColor: 'black' }} camera={{ position: [0, 0, 10], fov: 50 }}>
+    <Canvas
+      style={{ width: 'auto', height: '100vh', backgroundColor: 'black' }}
+      camera={{ position: [11, 8.5, 2.20], fov: 50 }} // Posición de la cámara para enfocar en España
+    >
       <GlobeAndComet />
     </Canvas>
   );

@@ -39,6 +39,7 @@ function BarChart({ data }) {
       .nice()
       .range([innerHeight, 0]);
 
+
     // Ejes
     g.append('g').attr('transform', `translate(0,${innerHeight})`).call(d3.axisBottom(x));
     g.append('g').call(d3.axisLeft(y));
@@ -53,7 +54,7 @@ function BarChart({ data }) {
       .attr('y', (d) => y(d.value))
       .attr('width', x.bandwidth())
       .attr('height', (d) => innerHeight - y(d.value))
-      .attr('fill', 'steelblue');
+      .attr('fill', '#980100');
   }, [data]);
 
   return (

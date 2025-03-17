@@ -37,7 +37,7 @@ function BubbleMapChart({ data }) {
         .attr('cx', (d) => projection([d.longitude, d.latitude])[0])
         .attr('cy', (d) => projection([d.longitude, d.latitude])[1])
         .attr('r', (d) => Math.sqrt(d.value) * 5)
-        .attr('fill', 'steelblue')
+        .attr('fill', '#980100')
         .attr('opacity', 0.7);
     });
   }, [data]);

@@ -29,6 +29,21 @@
         "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
         "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada"
     },
+    "DASHBOARD_MODAL": {
+        "TITLE": "Opciones del panel de control",
+        "SEARCH_RANGE": "Rango de búsqueda",
+        "SHOW_GRAPH": "Mostrar gráfico {{name}}",
+        "BTN_CLOSE": "Cerrar",
+        "BTN_SAVE": "Guardar",
+        "SEARCH_RANGE_OPTION": {
+            "LAST_10": "Últimos 10 bolidos",
+            "LAST_25": "Últimos 25 bolidos",
+            "LAST_50": "Últimos 50 bolidos",
+            "LAST_6_MONTHS": "Últimos 6 meses",
+            "LAST_YEAR": "Último año",
+            "LAST_5_YEAR": "Últimos 5 años"
+        }
+    },
     "LOGIN": {
         "TITLE": "Iniciar sesión",
         "EMAIL": "Correo Electrónico",

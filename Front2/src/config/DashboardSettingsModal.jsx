@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Card } from 'react-bootstrap';
 import { useDrag, useDrop } from 'react-dnd';
+import '@/assets/customCheckbox.css'
 
+// Internationalization
+import { useTranslation } from 'react-i18next';
 const ItemTypes = {
   CHART_SETTING: 'chartSetting',
 };
 
 const DraggableChartSetting = ({ id, children, moveChartSetting }) => {
+
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART_SETTING,
     item: { id },
@@ -32,14 +36,17 @@ const DraggableChartSetting = ({ id, children, moveChartSetting }) => {
   );
 };
 
-function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initialOrder }) {
+function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initialOrder, searchRange, setsearchRange }) {
+  const { t } = useTranslation(['text']);
   const [settings, setSettings] = useState(initialSettings);
   const [order, setOrder] = useState(initialOrder);
+  const [selectedSearchRange, setSelectedSearchRange] = useState(searchRange); // Cambiado a searchRange
 
   useEffect(() => {
     setSettings(initialSettings);
     setOrder(initialOrder);
-  }, [initialSettings, initialOrder]);
+    setSelectedSearchRange(searchRange);
+  }, [initialSettings, initialOrder, searchRange]);
 
   const handleCheckboxChange = (chartId) => {
     setSettings((prevSettings) => ({
@@ -75,7 +82,8 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
   };
 
   const handleSave = () => {
-    onSave(settings, order);
+    onSave(settings, order, selectedSearchRange); // Pasa selectedSearchRange
+    setsearchRange(selectedSearchRange); // Cambiado a selectedSearchRange
     onHide();
   };
 
@@ -92,16 +100,28 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Configuración del Dashboard</Modal.Title>
+        <Modal.Title>{t('DASHBOARD_MODAL.TITLE')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Form.Group className="mb-3">
+          <Form.Label>{t('DASHBOARD_MODAL.SEARCH_RANGE')}</Form.Label>
+          <Form.Select value={selectedSearchRange} onChange={(e) => setSelectedSearchRange(e.target.value)}>
+            <option value="1">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_10')}</option>
+            <option value="2">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_25')}</option>
+            <option value="3">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_50')}</option>
+            <option value="4">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_6_MONTHS')}</option>
+            <option value="5">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_YEAR')}</option>
+            <option value="6">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_5_YEAR')}</option>
+          </Form.Select>
+        </Form.Group>
+
         {order.map((chartId, index) => (
           <DraggableChartSetting key={chartId} id={index} moveChartSetting={moveChartSetting}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <Form.Check
                 style={{ accentColor: '#980100' }}
                 type="checkbox"
-                label={`Mostrar Gráfica ${dictionary[chartId]}`}
+                label={t('DASHBOARD_MODAL.SHOW_GRAPH', { name: dictionary[chartId] })}
                 checked={settings[chartId]}
                 onChange={() => handleCheckboxChange(chartId)}
               />
@@ -121,7 +141,7 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
         <Button variant="secondary" onClick={onHide}>
           Cerrar
         </Button>
-        <Button style={{ backgroundColor: '#980100', borderColor: '#980100',  }} onClick={handleSave}>
+        <Button style={{ backgroundColor: '#980100', borderColor: '#980100', }} onClick={handleSave}>
           Guardar
         </Button>
       </Modal.Footer>

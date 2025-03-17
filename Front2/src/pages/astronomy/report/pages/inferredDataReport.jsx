@@ -24,13 +24,21 @@ function InferredDataReport({ data }) {
                     <Form.Label>{t(`INFERRED_DATA.${key}.label`)}</Form.Label>
                   </Col>
                   <Col xs={12} md={6}>
-                    <Form.Group className="d-flex align-items-center">
+
+
+                    <Form.Group className="d-flex align-items-center ">
                       <Form.Control
                         type="text"
-                        value={`${value} ${t(`INFERRED_DATA.${key}.measure`)}`}
+                        value={`${value}`}
                         readOnly
-                        className="flex-grow-1"
+                        className="form-control flex-grow-1"
                       />
+                      {t(`INFERRED_DATA.${key}.measure`) &&
+                        <div class="input-group-append">
+                          <span class="input-group-text" id="basic-addon2">{t(`INFERRED_DATA.${key}.measure`)}</span>
+                        </div>
+                      }
+
                     </Form.Group>
                   </Col>
                 </Row>
@@ -38,9 +46,10 @@ function InferredDataReport({ data }) {
             ))}
             {pair.length === 1 && <Col xs={12} md={6}></Col>}
           </Row>
-        ))}
-      </Col>
-    </div>
+        ))
+        }
+      </Col >
+    </div >
   );
 }
 

@@ -37,7 +37,7 @@ function SizeBarChart({ data }) {
       .attr('y', (d) => y(d.count))
       .attr('width', x.bandwidth())
       .attr('height', (d) => innerHeight - y(d.count))
-      .attr('fill', 'steelblue');
+      .attr('fill', '#980100');
   }, [data]);
 
   return (

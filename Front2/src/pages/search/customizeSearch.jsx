@@ -131,6 +131,7 @@ const CustomizeSearch = () => {
 
     return (
         <Container className="my-4">
+            
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">

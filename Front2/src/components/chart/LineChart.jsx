@@ -33,7 +33,7 @@ function LineChart({ data }) {
       .x((d) => x(d.date))
       .y((d) => y(d.count));
 
-    g.append('path').datum(data).attr('fill', 'none').attr('stroke', 'steelblue').attr('stroke-width', 2).attr('d', line);
+    g.append('path').datum(data).attr('fill', 'none').attr('stroke', '#980100').attr('stroke-width', 2).attr('d', line);
   }, [data]);
 
   return (
