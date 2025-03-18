@@ -30,6 +30,7 @@
     "react-i18next": "^15.4.1",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^6.30.0",
+    "react-select": "^5.10.1",
     "three": "^0.174.0"
   },
   "devDependencies": {

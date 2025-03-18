@@ -6,6 +6,7 @@ const BolideRoute = require('./routes/bolideRoute')
 const AuthRoute = require('./routes/authRoute')
 const UserRoute = require('./routes/userRoute')
 const ReportZRoute = require('./routes/reportZRoute')
+const AuxiliaryRoute = require('./routes/auxiliaryRoute')
 app.use(cors());
 app.use(express.json());
 
@@ -18,6 +19,8 @@ app.use('/api', BolideRoute);
 app.use('/api', AuthRoute);
 app.use('/api', UserRoute);
 app.use('/api', ReportZRoute);
+app.use('/api', AuxiliaryRoute);
+
  
 const port = 3005;
 

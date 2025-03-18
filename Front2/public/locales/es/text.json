@@ -61,6 +61,8 @@
         "PASSWORD_CONFIRM": "Confirmar Contraseña",
         "REGISTER_BTN": "Registrarse",
         "LOGIN_BTN": "Iniciar sesión",
+        "INSTITUTION": "Institución",
+        "COUNTRY": "País",
         "ERROR": {
             "PASSWORDS_NOT_MATCH": "Las contraseñas no coinciden",
             "EMAIL_ALREADY_EXISTS": "El correo electrónico ya está registrado",
@@ -277,7 +279,14 @@
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
         "TRAJECTORY": "Trayectoria",
-        "TRAJECTORY2": "Pendiente"
+        "TRAJECTORY2": "Pendiente",
+        "ASSOCIATED_STATIONS": {
+            "TITLE": " Estaciones Asociadas",
+            "STATION_TITLE": "Estación {{id}}",
+            "STATION_LONGITUDE": "Longitud",
+            "STATION_LATITUDE": "Latitud",
+            "CUADRATURA_ERROR": "Error cuadration de ortogonalidad en la esfera celeste (en radianes)"
+        }
     },
     "CUSTOMIZE_SEARCH": {
         "HEIGHT": "Altura",

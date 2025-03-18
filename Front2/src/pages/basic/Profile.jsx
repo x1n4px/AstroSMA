@@ -3,6 +3,7 @@ import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { getUser } from '@/services/userService';
 
+
 const Profile = () => {
     const { t } = useTranslation(['text']);
     const [profile, setProfile] = useState({
@@ -15,11 +16,15 @@ const Profile = () => {
     const [success, setSuccess] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const rol = localStorage.getItem('rol');
+
+
+
     useEffect(() => {
         const fetchUserData = async () => {
             setLoading(true);
             try {
-                
+
                 const userData = await getUser();
                 setProfile(userData);
                 setLoading(false);
@@ -68,6 +73,7 @@ const Profile = () => {
 
     return (
         <Container>
+
             <Row className="justify-content-md-center mt-4">
                 <Col md={6}>
                     <h2>{t('PROFILE.TITLE')}</h2>
@@ -114,7 +120,7 @@ const Profile = () => {
                                 disabled={true}
                             />
                         </Form.Group>
-                         <Button style={{backgroundColor:'#980100', borderColor: '#980100'}} type="submit" className='mr-2 mt-4' disabled={true}>
+                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} type="submit" className='mr-2 mt-4' disabled={true}>
                             {t('PROFILE.UPDATE_BTN')}
                         </Button>
                         <Button variant="secondary" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>

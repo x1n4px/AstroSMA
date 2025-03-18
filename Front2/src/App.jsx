@@ -26,7 +26,8 @@ function App() {
     setIsLoading(false); // Finalizar la carga
   }, []);
 
-  const loginHandler = (token) => {
+  const loginHandler = (token, rol) => {
+    localStorage.setItem('rol', rol);
     localStorage.setItem('authToken', token);
     setIsAuthenticated(true);
   };

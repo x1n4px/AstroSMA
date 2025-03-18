@@ -20,3 +20,13 @@ export const getNearbyStation = async (lat, lon, radius) => {
         throw error;
     }
 }
+
+
+export const getAsocciatedStations = async (id) => {
+    try {
+        const response = await axios.get(`${apiUrl}/stations/associated/${id}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

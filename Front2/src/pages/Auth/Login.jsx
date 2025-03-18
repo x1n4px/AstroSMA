@@ -17,8 +17,8 @@ function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const token = await loginUser(email, password);
-      onLogin(token);
+      const {token, rol} = await loginUser(email, password);
+      onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {
       setError(<>

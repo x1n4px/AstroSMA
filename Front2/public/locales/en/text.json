@@ -61,6 +61,8 @@
     "PASSWORD_CONFIRM": "Confirm Password",
     "REGISTER_BTN": "Register",
     "LOGIN_BTN": "Log in",
+    "INSTITUTION": "Institution",
+    "COUNTRY": "Country",
     "ERROR": {
       "PASSWORDS_NOT_MATCH": "Passwords do not match",
       "EMAIL_ALREADY_EXISTS": "The email is already registered",
@@ -277,7 +279,14 @@
     "ACTIVE_RAIN_TAB": "Active Rain",
     "STATIONS": "Stations",
     "TRAJECTORY": "Trajectory",
-    "TRAJECTORY2": "Trayectoria 2"
+    "TRAJECTORY2": "Trayectoria 2",
+    "ASSOCIATED_STATIONS": {
+      "TITLE": "Associated Stations",
+      "STATION_TITLE": "Station {{id}}",
+      "STATION_LONGITUDE": "Longitude",
+      "STATION_LATITUDE": "Latitude",
+      "CUADRATURA_ERROR": "Quadrature Error"
+    }
   },
   "CUSTOMIZE_SEARCH": {
     "HEIGHT": "Height",

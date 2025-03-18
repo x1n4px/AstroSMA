@@ -125,38 +125,55 @@ const getNearbyStations = async (req, res) => {
     }
 };
 
+const getAsocciatedStations = async (req, res) => {
+    try {
+        const { id } = req.query;
+        console.log(id)
+        const arrayAleatorio = stations.sort(() => Math.random() - 0.5);
+        const associatedStations = arrayAleatorio.slice(0, 2);
+        console.log(associatedStations);
+        return res.json(associatedStations);
+
+    } catch (error) {
+        console.error('Error al obtener la estación:', error);
+        throw error;
+    }
+}
 
 
 function findStationsInRange(stations, refLat, refLon, radiusKm) {
     const EARTH_RADIUS_KM = 6371; // Radio de la Tierra en kilómetros
-  
+
     function calculateDistance(lat1, lon1, lat2, lon2) {
-      const dLat = degreesToRadians(lat2 - lat1);
-      const dLon = degreesToRadians(lon2 - lon1);
-  
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  
-      return EARTH_RADIUS_KM * c;
+        const dLat = degreesToRadians(lat2 - lat1);
+        const dLon = degreesToRadians(lon2 - lon1);
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(degreesToRadians(lat1)) * Math.cos(degreesToRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return EARTH_RADIUS_KM * c;
     }
-  
+
     function degreesToRadians(degrees) {
-      return degrees * (Math.PI / 180);
+        return degrees * (Math.PI / 180);
     }
-  
+
     return stations.filter(station => {
-      const distance = calculateDistance(refLat, refLon, station.lat, station.lon);
-      return distance <= radiusKm;
+        const distance = calculateDistance(refLat, refLon, station.lat, station.lon);
+        return distance <= radiusKm;
     });
-  }
-  
+}
+
+
+
 
 
 module.exports = {
-    getAllStations, 
-    getNearbyStations
+    getAllStations,
+    getNearbyStations,
+    getAsocciatedStations
 };

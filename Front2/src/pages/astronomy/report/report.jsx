@@ -11,6 +11,7 @@ import StationReport from '@/pages/astronomy/report/pages/stationReport';
 import GlobeWithObject from '@/components/three/GlobeWithObject.jsx'
 import GlobeWithComet from '@/components/three/BolideSlopeChart.jsx';
 import Pending from '@/components/chart/Pending.jsx'
+import AsocciatedStation from '@/pages/astronomy/report/pages/asocciatedStation.jsx'
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -99,7 +100,7 @@ const Report = () => {
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
     const [activeTab, setActiveTab] = useState('summary');
 
-
+    const reportId = data.Report_Id;
 
     return (
         <div className="p-4">
@@ -174,6 +175,12 @@ const Report = () => {
                             </Col>
                         </Row>
                     </Container>
+                </Tab>
+
+                <Tab eventKey="asocciatedStation" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
+
+
+                    <AsocciatedStation reportId={reportId} />
                 </Tab>
             </Tabs>
         </div>

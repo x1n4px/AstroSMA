@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col, Modal } from 'react-bootstrap';
-import TermsAndConditions from '@/components/legal/TermsAndCondition'; // Asegúrate de crear este componente
+import TermsAndConditions from '@/components/legal/TermsAndCondition';
 import { registerUser } from '@/services/authService';
 import { Link, useNavigate } from 'react-router-dom';
-
+import Select from 'react-select'; // Importa Select
+import {getCountry} from '@/services/auxiliaryService'; // Import
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -17,21 +18,32 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
-  const [showTermsModal, setShowTermsModal] = useState(false); // Estado para mostrar el modal
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
+  const [country, setCountry] = useState(''); // Estado para el país
+  const [institution, setInstitution] = useState(''); // Estado para la institución
+  const [selectedCountry, setSelectedCountry] = useState(null); // Estado para el país seleccionado
+  const [countryOptions, setCountryOptions] = useState([]); // Nuevo estado para las opciones de país
 
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      const countries = await getCountry();
+      setCountryOptions(countries.map(country => ({
+        value: country.id, // Asume que cada país tiene un 'code'
+        label: country.nombre, // Asume que cada país tiene un 'name'
+      })));
+    };
+    fetchCountries();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
-
     if (password !== confirmPassword) {
-      setError(
-        <>
-          {t('REGISTER.ERROR.PASSWORDS_NOT_MATCH')}
-        </>
-      );
+      setError(<>
+        {t('REGISTER.ERROR.PASSWORDS_NOT_MATCH')}
+      </>);
       return;
     }
 
@@ -43,16 +55,16 @@ function Register() {
     }
 
     try {
-      const token = await registerUser(email, password, firstName, lastName);
-      onLogin(token);
-      navigate('/dashboard');
+      const countryId = selectedCountry?.value;
+      const {token, rol} = await registerUser(email, password, firstName, lastName, countryId, institution); // Pasa país e institución
+      //onLogin(token, rol);
+      navigate('/login');
     } catch (error) {
+      console.log("error")
       setError(<>
         {t('REGISTER.ERROR.CREDENTIALS')}
       </>);
     }
-
-
   };
 
   const handleShowTermsModal = () => setShowTermsModal(true);
@@ -98,6 +110,25 @@ function Register() {
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">
+                    <Form.Label>{t('REGISTER.COUNTRY')}</Form.Label>
+                    <Select
+                      options={countryOptions}
+                      value={selectedCountry}
+                      onChange={(selectedOption) => setSelectedCountry(selectedOption)}
+                      placeholder={t('REGISTER.COUNTRY')}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>{t('REGISTER.INSTITUTION')}</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder={t('REGISTER.INSTITUTION')}
+                      value={institution}
+                      onChange={(e) => setInstitution(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
                     <Form.Label>{t('REGISTER.PASSWORD')}</Form.Label>
                     <Form.Control
                       type="password"
@@ -130,8 +161,8 @@ function Register() {
                     />
                   </Form.Group>
                   {error && <Alert variant="danger">{error}</Alert>}
-                  <Button variant="primary" type="submit" className="w-100">
-                  {t('REGISTER.REGISTER_BTN')}
+                  <Button style={{ backgroundColor: '#980100', border: '#980100' }} type="submit" className="w-100">
+                    {t('REGISTER.REGISTER_BTN')}
                   </Button>
                   <Button variant="outline-secondary" className="w-100 mt-2" as={Link} to="/login">
                     {t('REGISTER.LOGIN_BTN')}

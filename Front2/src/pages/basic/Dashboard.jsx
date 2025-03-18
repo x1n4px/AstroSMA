@@ -186,11 +186,9 @@ function Dashboard() {
   useEffect(() => {
     if (isInitialMount.current) {
       // Primera vez que se carga la página
-      console.log("Ar")
       isInitialMount.current = false; // Evita que se vuelva a ejecutar
     } else if (!showSettingsModal && searchRange !== previousSearchRange) {
       // Se ha cerrado el modal y searchRange ha cambiado
-      console.log("Afiur")
     }
   }, [showSettingsModal, searchRange, previousSearchRange]);
 
