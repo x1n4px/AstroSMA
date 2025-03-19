@@ -16,7 +16,8 @@
     "BTN_HOME": "Home",
     "BTN_STATIONS": "Stations",
     "BTN_LOGOUT": "Log out",
-    "BTN_PROFILE": "Profile"
+    "BTN_PROFILE": "Profile",
+    "BTN_ACTIVE_RAIN": " Active Rain"
   },
   "FOOTER": {
     "FOLLOW": "Follow us on our social media",
@@ -273,12 +274,13 @@
   },
   "REPORT": {
     "TITLE": "Informe bólido {{id}}",
+    "WARNING_BTN": "Report a problem",
     "SUMMARY_TAB": "Summary",
     "INFERRED_DATA_TAB": "Inferred Data",
     "MAP_TAB": "Map",
     "ACTIVE_RAIN_TAB": "Active Rain",
     "STATIONS": "Stations",
-    "TRAJECTORY": "Trajectory",
+    "TRAJECTORY": "Orbit",
     "PENDING": "Pending",
     "ASSOCIATED_STATIONS": {
       "TITLE": "Associated Stations",

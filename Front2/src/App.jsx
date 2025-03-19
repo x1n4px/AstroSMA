@@ -12,6 +12,7 @@ import Profile from '@/pages/basic/Profile';
 import Report from '@/pages/astronomy/report/report';
 import NotFound from '@/pages/basic/NotFound'; // Importa el componente NotFound
 import CustomizeSearch from './pages/search/customizeSearch';
+import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,6 +81,7 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="/report/:reportId" element={<Report />} />
           <Route path="/customize-search" element={<CustomizeSearch />} />
+          <Route path="/active-rain" element={<ActiveRain />} />
         </Route>
 
         {/* Ruta comodín para páginas no encontradas */}

@@ -16,7 +16,8 @@
         "BTN_HOME": "Inicio",
         "BTN_STATIONS": "Estaciones",
         "BTN_LOGOUT": "Cerrar sesión",
-        "BTN_PROFILE": "Perfil"
+        "BTN_PROFILE": "Perfil",
+        "BTN_ACTIVE_RAIN":"Lluvia Activa"
     },
     "FOOTER": {
         "FOLLOW": "Síguenos en nuestras redes sociales",
@@ -273,12 +274,13 @@
     },
     "REPORT": {
         "TITLE": "Informe bólido {{id}}",
+        "WARNING_BTN": "Informar error",
         "SUMMARY_TAB": "Resumen",
         "INFERRED_DATA_TAB": "Datos Inferidos",
         "MAP_TAB": "Mapa",
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
-        "TRAJECTORY": "Trayectoria",
+        "TRAJECTORY": "Órbita",
         "PENDING": "Pendiente",
         "ASSOCIATED_STATIONS": {
             "TITLE": " Estaciones Asociadas",
