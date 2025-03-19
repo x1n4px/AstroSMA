@@ -279,7 +279,7 @@
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
         "TRAJECTORY": "Trayectoria",
-        "TRAJECTORY2": "Pendiente",
+        "PENDING": "Pendiente",
         "ASSOCIATED_STATIONS": {
             "TITLE": " Estaciones Asociadas",
             "STATION_TITLE": "Estación {{id}}",

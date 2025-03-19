@@ -3,7 +3,15 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getNearbyStation } from '@/services/stationService';
 
-const ReportMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom = 11 }) => {
+const ReportMapChart = ({
+  data,
+  activePopUp,
+  lat = 36.7213,
+  lon = -4.4216,
+  lat2 = 38.1, // Nuevo punto
+  lon2 = -4.21, // Nuevo punto
+  zoom = 11,
+}) => {
   const [radius, setRadius] = useState(200);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,9 +48,9 @@ const ReportMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom 
   useEffect(() => {
     if (!map) return;
 
-    // Limpia todos los marcadores existentes
+    // Limpia todos los marcadores y líneas existentes
     map.eachLayer((layer) => {
-      if (layer instanceof L.Marker) {
+      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
         map.removeLayer(layer);
       }
     });
@@ -50,7 +58,7 @@ const ReportMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom 
     // Marcador con icono 'asteroide.png' para la posición original
     const originalMarker = L.marker([lat, lon], {
       icon: new L.Icon({
-        iconUrl: '/asteroide.png',
+        iconUrl: (lat2 != undefined) ? '/red-point.png':'/asteroide.png',
         iconSize: [25, 25],
       }),
     }).addTo(map);
@@ -78,7 +86,35 @@ const ReportMapChart = ({ data, activePopUp, lat = 36.7213, lon = -4.4216, zoom 
           </div>
         `);
     });
-  }, [map, stations, lat, lon]); // Dependencias: map, stations, lat, lon
+
+    // Agregar la lógica para los nuevos puntos y la línea
+    if (lat2 !== null && lon2 !== null) {
+      const marker2 = L.marker([lat2, lon2], {
+        icon: new L.Icon({
+          iconUrl: '/asteroide.png', // Puedes cambiar el icono si lo deseas
+          iconSize: [25, 25],
+        }),
+      }).addTo(map);
+
+      marker2.bindPopup(`
+        <div>
+          <p>Punto 2:</p>
+          <p>Latitud: ${lat2}, Longitud: ${lon2}</p>
+        </div>
+      `);
+
+      const polyline = L.polyline(
+        [
+          [lat, lon],
+          [lat2, lon2],
+        ],
+        { color: 'red' }
+      ).addTo(map);
+
+      // Ajustar el zoom para que la línea sea visible
+      map.fitBounds(polyline.getBounds());
+    }
+  }, [map, stations, lat, lon, lat2, lon2]); // Dependencias actualizadas
 
   return <div id="map" style={{ width: '100%', height: '500px' }}></div>;
 };

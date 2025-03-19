@@ -12,6 +12,7 @@ import GlobeWithObject from '@/components/three/GlobeWithObject.jsx'
 import GlobeWithComet from '@/components/three/BolideSlopeChart.jsx';
 import Pending from '@/components/chart/Pending.jsx'
 import AsocciatedStation from '@/pages/astronomy/report/pages/asocciatedStation.jsx'
+import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -126,15 +127,16 @@ const Report = () => {
                     <Alert variant="warning">
                         Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
                     </Alert>
+                    <ActiveRain />
                 </Tab>
-                {/* <Tab eventKey="station" title={t('REPORT.STATIONS')}>
+                 {/* <Tab eventKey="station" title={t('REPORT.STATIONS')}>
                     <StationReport />
-                </Tab> */}
+                </Tab>  */}
 
                 <Tab eventKey="trajectory" title={t('REPORT.TRAJECTORY')}>
                     <GlobeWithObject />
                 </Tab>
-                <Tab eventKey="trajectory2" title={t('REPORT.TRAJECTORY2')}>
+                <Tab eventKey="trajectory2" title={t('REPORT.PENDING')}>
                     <Container>
                         <Row className="mb-4">
                             <Col md={6}>
