@@ -16,7 +16,7 @@ const getAllReportZ = async (req, res) => {
 const getReportZ = async (req, res) => {
     try {
         const { id } = req.params;
-        const [report] = await pool.query('SELECT * FROM Informe_Z WHERE IdInforme = ?', [id]);
+        const [report] = await pool.query('SELECT iz.*, la.Lluvia_Identificador FROM Informe_Z iz JOIN Lluvia_activa la WHERE IdInforme = ?', [id]);
 
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
@@ -26,6 +26,10 @@ const getReportZ = async (req, res) => {
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
         const [orbitalElement] = await pool.query('select * from Elementos_Orbitales eo where eo.Informe_Z_IdInforme = ?', [id]);
+        const [trajectory] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
+        const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
+        const [activeShower] = await pool.query('SELECT * FROM Lluvia_activa WHERE Informe_Z_IdInforme = ?', [id]);
+        const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
 
         const response = {
             informe: report[0],
@@ -34,7 +38,11 @@ const getReportZ = async (req, res) => {
                 obs2.length > 0 ? transform(obs2[0]) : null  // Manejar el caso en que obs2 esté vacío
             ],
             zwo: zwo,
-            orbitalElement: orbitalElement
+            orbitalElement: orbitalElement,
+            trajectory: trajectory,
+            regressionTrajectory: regressionTrajectory,
+            activeShower: activeShower,
+            photometryReport: photometryReport
         };
 
         res.json(response);

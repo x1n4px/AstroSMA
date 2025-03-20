@@ -15,6 +15,7 @@ import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
 import PendingReport from '@/pages/astronomy/report/pages/pendingReport.jsx'
 import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport';
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
+import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 
 import { getReportZ } from '@/services/reportService.jsx'
 
@@ -59,6 +60,7 @@ const Report = () => {
     const [zwoData, setZwoData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [photometryData, setPhotometryData] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
@@ -78,6 +80,7 @@ const Report = () => {
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
+            setPhotometryData(response.photometryReport);
             setZwoData(response.zwo);
         } catch (err) {
             setError(err);
@@ -148,7 +151,7 @@ const Report = () => {
                     <Alert variant="warning">
                         Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
                     </Alert>
-                     <SummaryReport />
+                    <SummaryReport />
                     <MapReport report={reportData} observatory={observatoryData} />
                 </Tab>
                 <Tab eventKey="data" title={t('REPORT.INFERRED_DATA_TAB')}>
@@ -171,15 +174,12 @@ const Report = () => {
                     <Alert variant="warning">
                         Esta funcionalidad está parcialmente implementada. ¡Pronto estará disponible!
                     </Alert>
-                     <OrbitReport orbit={orbitalData} />
+                    <OrbitReport orbit={orbitalData} />
 
 
                 </Tab>
-                <Tab eventKey="pending" title={t('REPORT.PENDING')}>
-                    <Alert variant="warning">
-                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
-                    </Alert>
-                     <PendingReport reportData={reportData} />
+                <Tab eventKey="pending" title={t('REPORT.PENDING.TITLE')}>
+                    <PendingReport reportData={reportData} />
                 </Tab>
 
                 <Tab eventKey="point_adjust_and_trajectory" title={t('REPORT.ZWO')}>
@@ -187,12 +187,17 @@ const Report = () => {
                 </Tab>
 
                 <Tab eventKey="asocciatedStation" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
-                <Alert variant="warning">
+                    <Alert variant="warning">
                         Esta funcionalidad esta parcialmente, falta completar los datos
                     </Alert>
- 
+
                     <AsocciatedStation reportId={reportData} observatories={observatoryData} />
                 </Tab>
+                {Array.isArray(photometryData) && photometryData.length > 0 && (
+                    <Tab eventKey="photometry" title={t('REPORT.PHOTOMETRY.TITLE')}>
+                        <PhotometryReport photometryData={photometryData} />
+                    </Tab>
+                )}
             </Tabs>
 
             <Modal show={showModal} onHide={handleClose}>

@@ -305,7 +305,16 @@
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
         "TRAJECTORY": "Órbita",
-        "PENDING": "Pendiente",
+        "PENDING": {
+            "TITLE": "Trayectoria atmosférica",
+            "STATION_DETAILS": "Detalles de la estación {{id}}",
+            "START_COORDINATES":" Coordenadas de Inicio",
+            "INITIAL_DISTANCE":" Distancia Inicial",
+            "INITIAL_HEIGHT": "Altura Inicial",
+            "END_COORDINATES": " Coordenadas de Fin", 
+            "FINAL_DISTANCE":" Distancia Final",
+            "FINAL_HEIGHT": "Altura Final"
+        },
         "ZWO": "Ajuste de puntos y trayectoria",
         "ASSOCIATED_STATIONS": {
             "TITLE": " Estaciones Asociadas",
@@ -328,7 +337,10 @@
                     "Ar_Sexagesimal": "Ar Sexagesimal"
                 }
             }
-        }
+        },
+        "PHOTOMETRY" : {
+            "TITLE":"Informe de fotometría"
+        } 
     },
     "CUSTOMIZE_SEARCH": {
         "HEIGHT": "Altura",
@@ -354,17 +366,17 @@
                 "SIZE": "Tamaño del chip",
                 "ORIENTATION": "Orientación"
             },
-            "FILTER":"Filtro",
+            "FILTER": "Filtro",
             "HEIGHT": {
-                "TITLE":"Altura",
-                "MEASURE":"m"
+                "TITLE": "Altura",
+                "MEASURE": "m"
             }
         },
-        "SHOW_BUTTON":"Ver en el mapa",
+        "SHOW_BUTTON": "Ver en el mapa",
         "STATUS": {
-            "ACTIVE":"Activo",
-            "CONSTRUCTING":"En construcción",
-            "COLLABORATION":"Colaboración"
+            "ACTIVE": "Activo",
+            "CONSTRUCTING": "En construcción",
+            "COLLABORATION": "Colaboración"
         }
     }
 }

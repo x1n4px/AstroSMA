@@ -1,0 +1,64 @@
+2023-09-09::22:57:33::266	getNewComponentsDetailsJsonURL                    :35  	DEBUG	No Server Ip found
+
+2023-09-09::22:57:33::266	getNewComponentsDetailsJsonURL                    :43  	DEBUG	No Servertype found
+
+2023-09-09::22:57:33::267	performNewComponentsJsonDownload                  :2039	DEBUG	Successfully waited for new data
+
+2023-09-09::22:57:33::267	getNewComponentsDetailsJsonURL                    :35  	DEBUG	No Server Ip found
+
+2023-09-09::22:57:33::267	getNewComponentsDetailsJsonURL                    :43  	DEBUG	No Servertype found
+
+2023-09-09::22:57:33::267	ADDL::checkURLFormat                              :74  	DEBUG	No serverIp is found
+
+2023-09-09::22:57:33::268	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1607	DEBUG	hconnet - /drivers/installer/json/NewComponents.json
+
+2023-09-09::22:57:33::268	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1617	DEBUG	Setting INTERNET_OPTION_RECEIVE_TIMEOUT to 90000 milliseconds: Result = 1 0
+
+2023-09-09::22:57:33::268	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1621	DEBUG	Setting INTERNET_OPTION_SEND_TIMEOUT to 30000 milliseconds: Result = 1 0
+
+2023-09-09::22:57:33::268	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1623	DEBUG	Setting INTERNET_OPTION_RECEIVE_TIMEOUT to 30000 milliseconds: Result = 1 0
+
+2023-09-09::22:57:33::420	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1660	DEBUG	Filesize of NewComponents.json is 12266. Modified 2023-07-06 14:28:42.000 UTC
+
+2023-09-09::22:57:33::428	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1696	DEBUG	Filesize of NewComponents.json is 12266. Modified 2023-07-06 14:28:42.000 UTC
+
+2023-09-09::22:57:33::428	ADDL::downloadFileFromInternetIfUpdateAvaliable   :1700	DEBUG	Cached file up to date
+
+2023-09-09::22:57:33::436	IsSmartBlurAvailableIMPL                          :2207		CheckIfToolIsAvaliable for AMD PrivacyView
+
+2023-09-09::22:57:33::436	AdditionalApplications::CheckIfToolIsAvaliable    :665 		Check for display driver: 0 0 0 0
+
+2023-09-09::22:57:33::436	AdditionalApplications::CheckIfToolIsAvaliable    :666 		min required driver: 22 10 0 0
+
+2023-09-09::22:57:33::436	AdditionalApplications::CheckIfToolIsAvaliable    :667 		max required driver: 99 99 65535 65535
+
+2023-09-09::22:57:33::436	AdditionalApplications::CheckIfToolIsAvaliable    :677 		MinDriverVersion <= DisplayDriverVersion && DisplayDriverVersion <= MaxDriverVersion: ADDL::ADDL_IsThirdPartyToolAvailableReturnCodes::NotAvailable
+
+2023-09-09::22:57:35::558	getNewComponentsDetailsJsonURL                    :35  	DEBUG	No Server Ip found
+
+2023-09-09::22:57:35::558	getNewComponentsDetailsJsonURL                    :43  	DEBUG	No Servertype found
+
+2023-09-09::22:57:35::565	IsSmartBlurAvailableIMPL                          :2207		CheckIfToolIsAvaliable for AMD PrivacyView
+
+2023-09-09::22:57:35::565	AdditionalApplications::CheckIfToolIsAvaliable    :665 		Check for display driver: 0 0 0 0
+
+2023-09-09::22:57:35::565	AdditionalApplications::CheckIfToolIsAvaliable    :666 		min required driver: 22 10 0 0
+
+2023-09-09::22:57:35::565	AdditionalApplications::CheckIfToolIsAvaliable    :667 		max required driver: 99 99 65535 65535
+
+2023-09-09::22:57:35::565	AdditionalApplications::CheckIfToolIsAvaliable    :677 		MinDriverVersion <= DisplayDriverVersion && DisplayDriverVersion <= MaxDriverVersion: ADDL::ADDL_IsThirdPartyToolAvailableReturnCodes::NotAvailable
+
+2023-09-09::22:57:44::275	getNewComponentsDetailsJsonURL                    :35  	DEBUG	No Server Ip found
+
+2023-09-09::22:57:44::275	getNewComponentsDetailsJsonURL                    :43  	DEBUG	No Servertype found
+
+2023-09-09::22:57:44::281	IsSmartBlurAvailableIMPL                          :2207		CheckIfToolIsAvaliable for AMD PrivacyView
+
+2023-09-09::22:57:44::281	AdditionalApplications::CheckIfToolIsAvaliable    :665 		Check for display driver: 0 0 0 0
+
+2023-09-09::22:57:44::281	AdditionalApplications::CheckIfToolIsAvaliable    :666 		min required driver: 22 10 0 0
+
+2023-09-09::22:57:44::281	AdditionalApplications::CheckIfToolIsAvaliable    :667 		max required driver: 99 99 65535 65535
+
+2023-09-09::22:57:44::281	AdditionalApplications::CheckIfToolIsAvaliable    :677 		MinDriverVersion <= DisplayDriverVersion && DisplayDriverVersion <= MaxDriverVersion: ADDL::ADDL_IsThirdPartyToolAvailableReturnCodes::NotAvailable
+
