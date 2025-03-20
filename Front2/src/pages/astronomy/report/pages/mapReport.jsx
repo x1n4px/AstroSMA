@@ -1,10 +1,10 @@
 import React from 'react';
 import ReportMapChart from '@/components/map/ReportMap';
 
-function MapReport (data, data2) {
+function MapReport ({report, observatory}) {
     return (
         <div>
-            <ReportMapChart lat={data.lat} lon={data.lon} zoom={7} />
+            {/* <ReportMapChart report={report} lat={report.latitude} lon={report.longitude} observatory={observatory} zoom={7} /> */}
         </div>
     );
 };

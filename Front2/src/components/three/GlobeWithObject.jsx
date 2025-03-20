@@ -3,21 +3,14 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-function GlobeAndComet() {
+function GlobeAndComet({ orbitalElements }) { // Recibir orbitalElements como prop
   const [globeTexture, setGlobeTexture] = React.useState(null);
   const cometRef = useRef();
   const timeRef = useRef(0);
   const tailRef = useRef();
-  const scaleFactor = 0.5; // Factor de escala ajustado
+  const scaleFactor = 0.5;
   const earthRadius = 1;
-  const sunRadius = 5;
-
-  // Elementos orbitales del cometa 55P/Tempel-Tuttle (Leónidas)
-  const a = 20.32;
-  const e = 0.925;
-  const i = THREE.MathUtils.degToRad(262.3);
-  const Ω = THREE.MathUtils.degToRad(15.0);
-  const ω = THREE.MathUtils.degToRad(171.4);
+  const earthPosition = new THREE.Vector3(10, 0, 0); // Posición de la Tierra
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
@@ -25,6 +18,14 @@ function GlobeAndComet() {
   }, []);
 
   const cometTrajectory = useMemo(() => {
+    if (!orbitalElements) return [];
+
+    const a = parseFloat(orbitalElements.a.split(' ')[0]);
+    const e = parseFloat(orbitalElements.e.split(' ')[0]);
+    const i = THREE.MathUtils.degToRad(parseFloat(orbitalElements.i.split(' ')[0]));
+    const Ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.Omega_grados_votos_max_min.split(' ')[0].replace(/[^0-9.-]+/g, '')));
+    const ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.omega.split(' ')[0]));
+
     const points = [];
     const numPoints = 200;
 
@@ -52,18 +53,19 @@ function GlobeAndComet() {
       const Y = (sinΩ * cosω + cosΩ * sinω * cosi) * x + (-sinΩ * sinω + cosΩ * cosω * cosi) * y;
       const Z = (sinω * sini) * x + (cosω * sini) * y;
 
-      points.push(new THREE.Vector3(X * scaleFactor, Y * scaleFactor, Z * scaleFactor));
+      // Sumar la posición de la Tierra a cada punto de la órbita
+      points.push(new THREE.Vector3(X * scaleFactor, Y * scaleFactor, Z * scaleFactor).add(earthPosition));
     }
 
     return points;
-  }, [scaleFactor, a, e, i, Ω, ω]);
+  }, [scaleFactor, orbitalElements, earthPosition]);
 
   const trajectoryGeometry = useMemo(() => {
     return new THREE.BufferGeometry().setFromPoints(cometTrajectory);
   }, [cometTrajectory]);
 
   useFrame(({ clock }) => {
-    if (cometRef.current) {
+    if (cometRef.current && cometTrajectory.length > 0) {
       timeRef.current += 0.001;
       const index = Math.floor((timeRef.current % 1) * cometTrajectory.length);
       const { x, y, z } = cometTrajectory[index];
@@ -79,14 +81,9 @@ function GlobeAndComet() {
 
   return (
     <>
-      <ambientLight intensity={1} /> // Aumentar la intensidad
-      <pointLight position={[10, 10, 10]} intensity={1} /> // Aumentar la intensidad
+      <ambientLight intensity={1} />
+      <pointLight position={[10, 10, 10]} intensity={1} />
       <Stars />
-
-      {/* <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[sunRadius, 32, 32]} />
-        <meshBasicMaterial color="yellow" />
-      </mesh> */}
 
       <mesh position={[10, 0, 0]}>
         <sphereGeometry args={[earthRadius, 32, 32]} />
@@ -110,13 +107,13 @@ function GlobeAndComet() {
   );
 }
 
-function GlobeWithComet() {
+function GlobeWithComet({ orbitalElements }) { // Recibir orbitalElements como prop
   return (
     <Canvas
       style={{ width: '100%', height: '80%', backgroundColor: 'black' }}
-      camera={{ position: [11, 8.5, 15], fov: 60 }} // Ajustar la posición y el fov
+      camera={{ position: [11, 8.5, 15], fov: 60 }}
     >
-      <GlobeAndComet />
+      <GlobeAndComet orbitalElements={orbitalElements} /> // Pasar orbitalElements al componente GlobeAndComet
     </Canvas>
   );
 }

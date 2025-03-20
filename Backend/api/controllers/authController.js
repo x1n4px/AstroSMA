@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
         if (!passwordMatch) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
         res.json({ token, rol });
     } catch (error) {
         console.log("Error")

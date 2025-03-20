@@ -1,10 +1,16 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
-
+const token = localStorage.getItem('authToken');
 export const getAllBolide = async () => {
     try {
-        const response = await axios.get(`${API_URL}/bolide`);
+        const response = await axios.get(`${API_URL}/bolide`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching bolides:', error);
@@ -15,7 +21,13 @@ export const getAllBolide = async () => {
 
 export const getAllBolideLastSixMonths = async () => {
     try {
-        const response = await axios.get(`${API_URL}/bolide/months`);
+        const response = await axios.get(`${API_URL}/bolide/months`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
         return response.data.filteredData;
     } catch (error) {
         console.error('Error fetching bolides:', error);
@@ -25,7 +37,13 @@ export const getAllBolideLastSixMonths = async () => {
 
 export const getAllBolideLastSixMonthsWithInfo = async () => {
     try {
-        const response = await axios.get(`${API_URL}/bolide/months`);
+        const response = await axios.get(`${API_URL}/bolide/months`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
         return response.data;
     } catch (error) {
         console.error('Error fetching bolides:', error);
@@ -38,7 +56,13 @@ export const getAllBolideLastSixMonthsWithInfo = async () => {
 
 export const getBolideById = async (id) => {
     try {
-        const response = await axios.get(`${API_URL}/bolide/${id}`);
+        const response = await axios.get(`${API_URL}/bolide/${id}`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
         return [response.data];
     } catch (error) {
         console.error(`Error fetching bolides with ID: ${id}:`, error);

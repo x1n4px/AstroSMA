@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Accordion } from 'react-bootstrap';
-import { getBolideWithCustomSearch } from '@/services/bolideService';
+import { getReportzWithCustomSearch } from '@/services/reportService.jsx';
 import { TextureLoader } from 'three';
 import { Link } from 'react-router-dom';
 
@@ -73,14 +73,17 @@ const CustomizeSearch = () => {
     const [dateRangeChecked, setDateRangeChecked] = useState(false);
     const [startDate, setStartDate] = useState(getYearAgoDate());
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
-
+    const [reportData, setReportData] = useState([]);
     const [bolides, setBolides] = useState([]);
     const [searchButton, setSearchButton] = useState(false);
     const [mapResetKey, setMapResetKey] = useState(0);
+    const [actualPage, setActualPage] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const itemsPerPage = 50;
 
     const handleApplyFilters = async () => {
         try {
-            const response = await getBolideWithCustomSearch({
+            const response = await getReportzWithCustomSearch({
                 heightFilter,
                 latFilter,
                 lonFilter,
@@ -90,8 +93,10 @@ const CustomizeSearch = () => {
                 dateRangeChecked,
                 startDate,
                 endDate,
+                actualPage
             });
-            setBolides(response);
+            setReportData(response.reports);
+            setTotalItems(response.count[0].c);
             setSearchButton(true);
             setMapResetKey((prevKey) => prevKey + 1);
         } catch (error) {
@@ -129,9 +134,31 @@ const CustomizeSearch = () => {
         return yearAgo.toISOString().split('T')[0];
     }
 
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i);
+
+    const handlePageChange = (page) => {
+        setActualPage(page);
+        handleApplyFilters();
+    };
+
+    const handlePrevPage = () => {
+        if (actualPage > 0) {
+            setActualPage(actualPage - 1);
+            handleApplyFilters();
+        }
+    };
+
+    const handleNextPage = () => {
+        if (actualPage < totalPages - 1) {
+            setActualPage(actualPage + 1);
+            handleApplyFilters();
+        }
+    };
+
     return (
         <Container className="my-4">
-            
+
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
@@ -239,25 +266,38 @@ const CustomizeSearch = () => {
             {searchButton && (
                 <div className="mt-4 shadow rounded">
                     <h5 className="mb-3 fw-bold text-center pt-4" style={{ fontSize: '1.5em' }}>
-                        Se han encontrado un total de {bolides.length} resultados
+                        Se han encontrado un total de {totalItems} resultados
                     </h5>
                     <div className="p-3 rounded shadow-sm">
                         <Accordion defaultActiveKey="0">
-                            {dummyBolides.map((bolide, index) => (
-                                <Accordion.Item eventKey={index.toString()} key={bolide.id}>
+                            {reportData.map((report, index) => (
+                                <Accordion.Item eventKey={index.toString()} key={report.IdInforme}>
                                     <Accordion.Header>
-                                        {`ID: ${bolide.id} - Name: ${bolide.name} - Date: ${bolide.date}`}
+                                        {`ID: ${report.IdInforme} - Date: ${report.Fecha.substring(0, 10)}`}
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        <p>Velocity: {bolide.additionalData.velocity}</p>
-                                        <p>Altitude: {bolide.additionalData.altitude}</p>
-                                        <p>Location: {bolide.additionalData.location}</p>
-                                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to={`/report/${bolide.id}`}>Ver más</Button>
+                                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to={`/report/${report.IdInforme}`}>Ver más</Button>
                                     </Accordion.Body>
                                 </Accordion.Item>
                             ))}
                         </Accordion>
                     </div>
+
+                    <nav aria-label="Page navigation example ">
+                        <ul className="pagination justify-content-center py-4">
+                            <li className={`page-item ${actualPage === 0 ? 'disabled' : ''}`}>
+                                <button className="page-link" onClick={handlePrevPage}>Previous</button>
+                            </li>
+                            {pageNumbers.map((page) => (
+                                <li className={`page-item ${actualPage === page ? 'active' : ''}`} key={page}>
+                                    <button className="page-link" onClick={() => handlePageChange(page)}>{page + 1}</button>
+                                </li>
+                            ))}
+                            <li className={`page-item ${actualPage === totalPages - 1 ? 'disabled' : ''}`}>
+                                <button className="page-link" onClick={handleNextPage}>Next</button>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             )}
         </Container>

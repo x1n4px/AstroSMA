@@ -3,7 +3,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useNavigate } from 'react-router-dom';
 
-const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4.4216, zoom = 11, useStatinIcon=false }) => {
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
+const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4.4216, zoom = 11, useStatinIcon = false }) => {
+  const { t } = useTranslation(['text']);
   const navigate = useNavigate();
 
   // Función para determinar el color del marcador según el estado
@@ -33,7 +37,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
     data.forEach((punto) => {
       const marker = L.marker([punto.latitude, punto.longitude], {
         icon: new L.Icon({
-          iconUrl: (useStatinIcon ? '/antena.png':getMarkerColor(punto.state)),
+          iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(punto.state)),
           iconSize: [25, 25],
         }),
       }).addTo(map);
@@ -42,17 +46,18 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
       if (activePopUp) {
         marker.bindPopup(`
           <div>
-            <p>${punto.stationName}</p>
-            <p>${punto.description}</p>
-            <p>${punto.latitude}, ${punto.longitude}</p>
-            <p> Chip: ${punto.chipSize} , ${punto.chipOrientation}</p>
-            <p> Filtro: ${punto.filter} </p>
-            <img src="${punto.img}" alt="Imagen" width="250" height="auto" />
+            <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
+            <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
+            <p>${t('STATION.STATION.COORDINATES')}: ${punto.latitude}, ${punto.longitude}</p>
+            <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
+            <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
+            <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>
+            <img src="/station/${punto.stationName}.webp" alt="Imagen" width="250" height="auto" />
           </div>
         `);
       }
 
-      
+
     });
 
     // Limpieza al desmontar el componente

@@ -1,4 +1,5 @@
 const pool = require('../database/connection');
+const { transform } = require('../middlewares/convertSexagesimalToDecimal');
 
 /*
 const stations = [
@@ -109,22 +110,7 @@ const stations = [
 const getAllStations = async (req, res) => {
     try {
         const [stations] = await pool.query('SELECT * FROM Observatorio');
-        const convertedStations = stations.map((station) => ({
-            id: station.Número,
-            name: station.Nombre_Camara,
-            description: station.Descripción,
-            longitude: sexagesimalADecimal(station.Longitud_Sexagesimal), // Convertir y renombrar
-            latitude: sexagesimalADecimal(station.Latitud_Sexagesimal), // Convertir y renombrar
-            longitude_Radianes: station.Longitud_Radianes,
-            latitude_Radianes: station.Latitud_Radianes,
-            height: station.Altitud,
-            chipSize: station.Tamaño_Chip,
-            chipOrientation: station.Orientación_Chip,
-            filter: station.Máscara,
-            credit: station.Creditos,
-            stationName: station.Nombre_Observatorio,
-            state: station.Activo
-          }));
+        const convertedStations = transform(stations);
 
 
         return res.json(convertedStations);
@@ -134,31 +120,12 @@ const getAllStations = async (req, res) => {
     }
 };
 
-function sexagesimalADecimal(sexagesimal) {
-    if (!sexagesimal || typeof sexagesimal !== 'string') return null; // Validación de entrada
-
-    const partes = sexagesimal.trim().split(/\s+/); // Elimina espacios extra y divide correctamente
-    if (partes.length !== 3) return null; // Debe tener 3 partes: grados, minutos y segundos
-
-    let grados = parseFloat(partes[0]);
-    let minutos = Math.abs(parseFloat(partes[1])); // Asegurar que sean positivos
-    let segundos = Math.abs(parseFloat(partes[2]));
-
-    if (isNaN(grados) || isNaN(minutos) || isNaN(segundos)) return null; // Verifica que sean números
-    if (minutos >= 60 || segundos >= 60) return null; // Validación de rango
-
-    // Convertir a decimal
-    let decimal = Math.abs(grados) + (minutos / 60) + (segundos / 3600);
-
-    // Mantener el signo de los grados
-    return grados < 0 ? -decimal : decimal;
-}
 
 
 const getNearbyStations = async (req, res) => {
     try {
         const { lat, lon, radius } = req.query;
-
+        const [stations] = await pool.query('SELECT * FROM Observatorio');
 
         return res.json(findStationsInRange(stations, lat, lon, radius));
     } catch (error) {

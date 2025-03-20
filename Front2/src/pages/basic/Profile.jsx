@@ -26,6 +26,7 @@ const Profile = () => {
             try {
 
                 const userData = await getUser();
+                console.log(userData);
                 setProfile(userData);
                 setLoading(false);
             } catch (err) {

@@ -17,7 +17,7 @@
         "BTN_STATIONS": "Estaciones",
         "BTN_LOGOUT": "Cerrar sesión",
         "BTN_PROFILE": "Perfil",
-        "BTN_ACTIVE_RAIN":"Lluvia Activa"
+        "BTN_ACTIVE_RAIN": "Lluvia Activa"
     },
     "FOOTER": {
         "FOLLOW": "Síguenos en nuestras redes sociales",
@@ -310,7 +310,7 @@
             "TITLE": "Ajuste de Puntos y Trayectoria",
             "GRAPHIC": "Gráfico",
             "TABLE": {
-                "TITLE":"Puntos de la trayectoria",
+                "TITLE": "Puntos de la trayectoria",
                 "HEADER": {
                     "DATE": "Fecha",
                     "HOUR": "Hora",
@@ -330,5 +330,33 @@
         "SEARCH_RADIUS": "Radio de Búsqueda",
         "RANGE_DATE": "Rango de Fechas",
         "SEARCH_BTN": "Buscar"
+    },
+    "STATION": {
+        "TITLE": "Mapa de estaciones espaciales",
+        "DESCRIPTION": "La red de bólidos y Meteoros de la Universidad de Málaga",
+        "LOADING_MSG": "Cargando estaciones...",
+        "ERROR_MSG": "Error al cargar estaciones",
+        "STATION_LIST": "Lista de estaciones",
+        "STATION": {
+            "NAME": "Nombre",
+            "ALTITUDE": "Altitud",
+            "DESCRIPTION": "Descripción",
+            "COORDINATES": "Coordenadas",
+            "CHIP": {
+                "SIZE": "Tamaño del chip",
+                "ORIENTATION": "Orientación"
+            },
+            "FILTER":"Filtro",
+            "HEIGHT": {
+                "TITLE":"Altura",
+                "MEASURE":"m"
+            }
+        },
+        "SHOW_BUTTON":"Ver en el mapa",
+        "STATUS": {
+            "ACTIVE":"Activo",
+            "CONSTRUCTING":"En construcción",
+            "COLLABORATION":"Colaboración"
+        }
     }
 }

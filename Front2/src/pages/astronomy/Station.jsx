@@ -3,7 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, ListGroup, Badge } from 'react-bootstrap';
 import { getStations } from '@/services/stationService';
 
+
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
 function Station() {
+    const { t } = useTranslation(['text']);
+
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,16 +60,16 @@ function Station() {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>Mapa de Estaciones Espaciales</h1>
+            <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>{t('STATION.TITLE')}</h1>
             <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
-                La Red de detección de Bólidos y Meteoros de la Universidad de Málaga...
+                {t('STATION.DESCRIPTION')}
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
                 {loading ? (
-                    <p>Cargando mapa...</p>
+                    <p>{t('STATION.LOADING_MSG')}</p>
                 ) : error ? (
-                    <p>Error al cargar el mapa.</p>
+                    <p>{t('STATION.ERROR_MSG')}</p>
                 ) : (
                     <StationMapChart
                         ref={(ref) => {
@@ -82,12 +88,12 @@ function Station() {
                 )}
             </div>
 
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>Lista de Estaciones</h2>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>{t('STATION.STATION_LIST')}</h2>
             <div>
                 {loading ? (
-                    <p>Cargando estaciones...</p>
+                    <p>{t('STATION.ERROR_MSG')}</p>
                 ) : error ? (
-                    <p>Error al cargar estaciones.</p>
+                    <p>{t('STATION.ERROR_MSG')}</p>
                 ) : (
                     <ListGroup>
                         {stations.map((station) => (
@@ -108,11 +114,11 @@ function Station() {
                                         bg={station.state === 0 ? 'success' : station.state === 1 ? 'warning' : 'primary'}
                                         className="text-capitalize"
                                     >
-                                        {station.state === 0 ? 'Activo' : station.state === 1 ? 'En construcción' : 'Colaboración'}
-                                    </Badge>
+                                       {station.state === 0 ? t('STATION.STATUS.ACTIVE') : station.state === 1 ? t('STATION.STATUS.CONSTRUCTING') : t('STATION.STATUS.COLLABORATION')}
+                                        </Badge>
                                 </div>
                                 <Button variant="outline-primary" size="sm" onClick={() => cambiarDato(station.latitude, station.longitude, 10)}>
-                                    Ver en mapa
+                                {t('STATION.SHOW_BUTTON')}
                                 </Button>
                             </ListGroup.Item>
                         ))}

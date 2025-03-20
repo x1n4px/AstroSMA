@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { isTokenExpired } from '@/auth/auth.jsx'
+
 import Login from '@/pages/Auth/Login';
 import Dashboard from '@/pages/basic/Dashboard';
 import Layout from '@/layout/Layout';
@@ -18,9 +20,15 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Estado para manejar la carga inicial
 
+
+
   // Verificar el token al cargar la aplicación
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    if (isTokenExpired(token)) {
+      localStorage.removeItem('authToken');
+    }
+
     if (token) {
       setIsAuthenticated(true);
     }
@@ -28,8 +36,10 @@ function App() {
   }, []);
 
   const loginHandler = (token, rol) => {
+    const currentTime = new Date().toISOString();
     localStorage.setItem('rol', rol);
     localStorage.setItem('authToken', token);
+    localStorage.setItem('loginTime', currentTime);
     setIsAuthenticated(true);
   };
 

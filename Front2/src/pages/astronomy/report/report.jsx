@@ -14,6 +14,7 @@ import AsocciatedStation from '@/pages/astronomy/report/pages/asocciatedStation.
 import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
 import PendingReport from '@/pages/astronomy/report/pages/pendingReport.jsx'
 import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport';
+import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 
 import { getReportZ } from '@/services/reportService.jsx'
 
@@ -22,49 +23,6 @@ import { saveReportAdvice } from '@/services/reportService.jsx';
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
-
-
-const data = {
-    "Report_Id": 1,
-    "Observatory_Number_2": 123,
-    "Observatory_Number": 456,
-    "Date": "2023-10-15",
-    "Time": "14:30:00",
-    "Quadratic_Error_Orthogonality_Celestial_Sphere_1": 0.01,
-    "Quadratic_Error_Orthogonality_Celestial_Sphere_2": 0.02,
-    "Frames_Used": 100,
-    "Station_Adjustment_2_Start": "2023-10-15 14:00:00",
-    "Station_Adjustment_2_End": "2023-10-15 14:30:00",
-    "Dihedral_Angle_Between_Trajectory_Planes": 45.5,
-    "Static_Weight": 10.2,
-    "Errors_AR_DE_Radiants": 0.03,
-    "Astronomical_Coordinates_Radiant_Ecliptic_Date": "120° 30'",
-    "Astronomical_Coordinates_Radiant_J2000": "121° 15'",
-    "Azimuth": 90.5,
-    "Zenith_Distance": 45.0,
-    "Trajectory_Start_Station_1": "2023-10-15 14:00:00",
-    "Trajectory_End_Station_1": "2023-10-15 14:30:00",
-    "Trajectory_Start_Station_2": "2023-10-15 14:00:00",
-    "Trajectory_End_Station_2": "2023-10-15 14:30:00",
-    "Expected_Impact": "2023-10-15 14:35:00",
-    "Distance_Received_Station_1": 100.5,
-    "Height_Error_Station_1": 0.1,
-    "Distance_Error_Station_1": 0.2,
-    "Distance_Received_Station_2": 105.0,
-    "Height_Error_Station_2": 0.15,
-    "Distance_Error_Station_2": 0.25,
-    "Trajectory_Time_Station_2": "00:30:00",
-    "Equation_Motion_Km": "y = 2x + 1",
-    "Equation_Velocity_Gs": "v = 3t + 2",
-    "Velocity_Error": 0.05,
-    "Initial_Velocity_Station_2": 10.5,
-    "Acceleration_Km": 2.0,
-    "Acceleration_Gs": 1.5,
-    "Report_Path": "/informes/1",
-    "Parametric_Equation_Id": 789,
-    "Latitude": 38.086827,
-    "Longitude": -5.994165
-};
 
 
 const data2 = [
@@ -95,30 +53,31 @@ const Report = () => {
     const params = useParams();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
     const [activeTab, setActiveTab] = useState('summary');
-    const reportId = data.IdInforme;
+    const [reportData, setReportData] = useState(null);
+    const [observatoryData, setObservatoryData] = useState(null);
+    const [orbitalData, setOrbitalData] = useState(null);
+    const [zwoData, setZwoData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         id: 0,
         descripcion: '',
         tab: '',
-        report_id: reportId
+        report_id: 0
     });
 
-    const [reportData, setReportData] = useState(null);
-    const [observatoryData, setObservatoryData] = useState(null);
-    const [zwoData, setZwoData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
 
     const fetchReportData = async (id) => {
         setLoading(true);
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.IdInforme)
+            console.log(response)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
+            setOrbitalData(response.orbitalElement);
             setZwoData(response.zwo);
         } catch (err) {
             setError(err);
@@ -186,8 +145,11 @@ const Report = () => {
 
             >
                 <Tab eventKey="summary" title={t('REPORT.SUMMARY_TAB')}>
-                    <SummaryReport />
-                    <MapReport data={reportData} data2={observatoryData} />
+                    <Alert variant="warning">
+                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
+                    </Alert>
+                     <SummaryReport />
+                    <MapReport report={reportData} observatory={observatoryData} />
                 </Tab>
                 <Tab eventKey="data" title={t('REPORT.INFERRED_DATA_TAB')}>
                     <InferredDataReport data={reportData} />
@@ -206,13 +168,18 @@ const Report = () => {
                 </Tab>  */}
 
                 <Tab eventKey="trajectory" title={t('REPORT.TRAJECTORY')}>
-                    <div style={{ width: '100%', height: '80vh' }}>
-                        <GlobeWithObject />
-                    </div>
+                    <Alert variant="warning">
+                        Esta funcionalidad está parcialmente implementada. ¡Pronto estará disponible!
+                    </Alert>
+                     <OrbitReport orbit={orbitalData} />
+
 
                 </Tab>
                 <Tab eventKey="pending" title={t('REPORT.PENDING')}>
-                    <PendingReport data2={data2} />
+                    <Alert variant="warning">
+                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
+                    </Alert>
+                     <PendingReport data2={data2} />
                 </Tab>
 
                 <Tab eventKey="point_adjust_and_trajectory" title={t('REPORT.ZWO')}>
@@ -220,8 +187,10 @@ const Report = () => {
                 </Tab>
 
                 <Tab eventKey="asocciatedStation" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
-
-
+                <Alert variant="warning">
+                        Esta funcionalidad esta parcialmente, falta completar los datos
+                    </Alert>
+ 
                     <AsocciatedStation reportId={reportData} observatories={observatoryData} />
                 </Tab>
             </Tabs>

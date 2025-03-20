@@ -4,7 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import { getNearbyStation } from '@/services/stationService';
 
 const ReportMapChart = ({
-  data,
+  report,
+  observatory,
   activePopUp,
   lat = 36.7213,
   lon = -4.4216,
@@ -71,7 +72,7 @@ const ReportMapChart = ({
     `);
 
     // Marcadores para las estaciones
-    stations.forEach((station) => {
+    observatory.forEach((station) => {
       L.marker([station.lat, station.lon], {
         icon: new L.Icon({
           iconUrl: '/antena.png',
