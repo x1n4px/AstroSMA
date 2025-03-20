@@ -5,6 +5,9 @@ import { useTranslation } from 'react-i18next';
 function InferredDataReport({ data }) {
   const { t } = useTranslation(['text']);
 
+
+  console.log(data)
+
   const dataPairs = [];
   const entries = Object.entries(data);
 

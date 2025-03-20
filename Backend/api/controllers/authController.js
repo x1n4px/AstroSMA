@@ -8,14 +8,27 @@ const registerUser = async (req, res) => {
     try {
         const { email, password, name, surname, countryId, institution } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const rol = '00000000'
-        const [result] = await pool.query('INSERT INTO user (email, password, name, surname, country_id, institution, rol ) VALUES (?, ?, ?, ?, ?, ?, ?)', [email, hashedPassword, name, surname, countryId, institution, rol]);
-        const userId = result.insertId; // Obtener el ID del usuario insertado
+        const rol = '00000000';
+
+        // Obtener el último ID
+        const [lastIdResult] = await pool.query('SELECT MAX(id) AS maxId FROM user');
+        console.log(lastIdResult[0].maxId);
+        const lastId = lastIdResult[0].maxId || 0; // Obtener el valor maxId, o 0 si no hay registros
+
+        const newId = lastId + 1; // Generar el nuevo ID
+        console.log(
+            'INSERT INTO user (id, email, password, name, surname, pais_id, institucion, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [newId, email, hashedPassword, name, surname, countryId, institution, rol]
+        );
+        await pool.query(
+            'INSERT INTO user (id, email, password, name, surname, pais_id, institucion, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [newId, email, hashedPassword, name, surname, countryId, institution, rol]
+        );
 
         // Generar el token JWT
-        const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: newId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(201).json({ token, rol }); // Devolver el token
+        res.status(201).json({ token, rol });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

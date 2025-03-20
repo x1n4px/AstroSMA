@@ -12,4 +12,18 @@ const pool = mysql.createPool({
     queueLimit: 0
 }).promise(); // Habilitar promesas en el pool
 
+// Función para probar la conexión
+async function testConnection() {
+    try {
+        const connection = await pool.getConnection();
+        console.log('✅ Conexión establecida correctamente');
+        connection.release(); // Liberar la conexión
+    } catch (err) {
+        console.error('❌ Error al conectar con MySQL:', err);
+    }
+}
+
+// Ejecutar prueba de conexión
+testConnection();
+
 module.exports = pool; // Exportamos directamente el pool con soporte para async/await

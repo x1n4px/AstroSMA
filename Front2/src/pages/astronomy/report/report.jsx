@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button } from 'react-bootstrap';
 import { useParams, Link } from "react-router-dom";
 import '@/assets/customTabs.css'
@@ -13,6 +13,11 @@ import GlobeWithComet from '@/components/three/BolideSlopeChart.jsx';
 import AsocciatedStation from '@/pages/astronomy/report/pages/asocciatedStation.jsx'
 import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
 import PendingReport from '@/pages/astronomy/report/pages/pendingReport.jsx'
+import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport';
+
+import { getReportZ } from '@/services/reportService.jsx'
+
+import { saveReportAdvice } from '@/services/reportService.jsx';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -90,7 +95,7 @@ const Report = () => {
     const params = useParams();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
     const [activeTab, setActiveTab] = useState('summary');
-    const reportId = data.Report_Id;
+    const reportId = data.IdInforme;
 
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
@@ -100,9 +105,44 @@ const Report = () => {
         report_id: reportId
     });
 
+    const [reportData, setReportData] = useState(null);
+    const [observatoryData, setObservatoryData] = useState(null);
+    const [zwoData, setZwoData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchReportData = async (id) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await getReportZ(id); // Ajusta la URL del endpoint
+            console.log(response.IdInforme)
+            setReportData(response.informe);
+            setObservatoryData(response.observatorios);
+            setZwoData(response.zwo);
+        } catch (err) {
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (id && id !== '-1') {
+            fetchReportData(id);
+            setLoading(false);
+        }
+    }, [id]);
+
     const handleClose = () => {
         // Procesar los datos del formulario aquí
         console.log('Datos del formulario:', formData);
+        try {
+            saveReportAdvice(formData);
+        } catch (error) {
+            console.error('Error al guardar el informe:', error);
+
+        }
         setShowModal(false);
     };
 
@@ -119,7 +159,7 @@ const Report = () => {
         <div className="p-4">
             <Row className="justify-content-between align-items-center">
                 <Col xs="auto">
-                    <h1>{t('REPORT.TITLE', { id: reportId })}</h1>
+                    <h1>{t('REPORT.TITLE', { id: reportData?.IdInforme || 'Cargando...' })}</h1>
                 </Col>
                 <Col xs="auto">
                     <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
@@ -147,10 +187,10 @@ const Report = () => {
             >
                 <Tab eventKey="summary" title={t('REPORT.SUMMARY_TAB')}>
                     <SummaryReport />
-                    <MapReport data={data} data2={data2} />
+                    <MapReport data={reportData} data2={observatoryData} />
                 </Tab>
                 <Tab eventKey="data" title={t('REPORT.INFERRED_DATA_TAB')}>
-                    <InferredDataReport data={data} />
+                    <InferredDataReport data={reportData} />
                 </Tab>
                 {/* <Tab eventKey="map" title={t('REPORT.MAP_TAB')}>
                    
@@ -167,60 +207,64 @@ const Report = () => {
 
                 <Tab eventKey="trajectory" title={t('REPORT.TRAJECTORY')}>
                     <div style={{ width: '100%', height: '80vh' }}>
-                    <GlobeWithObject />
-                        </div>
-                  
+                        <GlobeWithObject />
+                    </div>
+
                 </Tab>
                 <Tab eventKey="pending" title={t('REPORT.PENDING')}>
                     <PendingReport data2={data2} />
                 </Tab>
 
+                <Tab eventKey="point_adjust_and_trajectory" title={t('REPORT.ZWO')}>
+                    <PointAdjustReport zwoAdjustmentPoints={zwoData} />
+                </Tab>
+
                 <Tab eventKey="asocciatedStation" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
 
 
-                    <AsocciatedStation reportId={reportId} />
+                    <AsocciatedStation reportId={reportData} observatories={observatoryData} />
                 </Tab>
             </Tabs>
 
             <Modal show={showModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>{t('REPORT.TITLE', { id: id })}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formTab">
-              <Form.Label>Pestaña</Form.Label>
-              <Form.Control as="select" name="tab" value={formData.tab} onChange={handleChange}>
-                <option value="SUMMARY_TAB">{t('REPORT.SUMMARY_TAB')}</option>
-                <option value="INFERRED_DATA_TAB">{t('REPORT.INFERRED_DATA_TAB')}</option>
-                <option value="MAP_TAB">{t('REPORT.MAP_TAB')}</option>
-                <option value="ACTIVE_RAIN_TAB">{t('REPORT.ACTIVE_RAIN_TAB')}</option>
-                <option value="STATIONS">{t('REPORT.STATIONS')}</option>
-                <option value="TRAJECTORY">{t('REPORT.TRAJECTORY')}</option>
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="formDescripcion">
-              <Form.Label>Descripción del error</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-              />
-            </Form.Group>
-            {/* Agrega aquí otros campos del formulario */}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            {t('DASHBOARD_MODAL.BTN_CLOSE')}
-          </Button>
-          <Button style={{backgroundColor: '#980100', border: '#980100'}} onClick={handleClose}>
-          {t('DASHBOARD_MODAL.BTN_SAVE')}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+                <Modal.Header closeButton>
+                    <Modal.Title>{t('REPORT.TITLE', { id: id })}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formTab">
+                            <Form.Label>Pestaña</Form.Label>
+                            <Form.Control as="select" name="tab" value={formData.tab} onChange={handleChange}>
+                                <option value="SUMMARY_TAB">{t('REPORT.SUMMARY_TAB')}</option>
+                                <option value="INFERRED_DATA_TAB">{t('REPORT.INFERRED_DATA_TAB')}</option>
+                                <option value="MAP_TAB">{t('REPORT.MAP_TAB')}</option>
+                                <option value="ACTIVE_RAIN_TAB">{t('REPORT.ACTIVE_RAIN_TAB')}</option>
+                                <option value="STATIONS">{t('REPORT.STATIONS')}</option>
+                                <option value="TRAJECTORY">{t('REPORT.TRAJECTORY')}</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="formDescripcion">
+                            <Form.Label>Descripción del error</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                name="descripcion"
+                                value={formData.descripcion}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+                        {/* Agrega aquí otros campos del formulario */}
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        {t('DASHBOARD_MODAL.BTN_CLOSE')}
+                    </Button>
+                    <Button style={{ backgroundColor: '#980100', border: '#980100' }} onClick={handleClose}>
+                        {t('DASHBOARD_MODAL.BTN_SAVE')}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

@@ -7,6 +7,7 @@ const AuthRoute = require('./routes/authRoute')
 const UserRoute = require('./routes/userRoute')
 const ReportZRoute = require('./routes/reportZRoute')
 const AuxiliaryRoute = require('./routes/auxiliaryRoute')
+const DashboardRoute = require('./routes/dashboardRoute')
 app.use(cors());
 app.use(express.json());
 
@@ -20,6 +21,7 @@ app.use('/api', AuthRoute);
 app.use('/api', UserRoute);
 app.use('/api', ReportZRoute);
 app.use('/api', AuxiliaryRoute);
+app.use('/api', DashboardRoute);
 
  
 const port = 3005;

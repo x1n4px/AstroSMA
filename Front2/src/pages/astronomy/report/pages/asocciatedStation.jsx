@@ -5,7 +5,7 @@ import { Form, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 
-const AssociatedStation = ({ reportId }) => {
+const AssociatedStation = ({ reportId, observatories }) => {
     const { t } = useTranslation(['text']);
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);

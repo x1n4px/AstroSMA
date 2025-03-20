@@ -115,161 +115,177 @@
     ]
   },
   "INFERRED_DATA": {
-    "Report_Id": {
-      "label": "Report ID",
+    "IdInforme": {
+      "label": "ID del Informe",
       "measure": ""
     },
-    "Observatory_Number_2": {
-      "label": "Observatory Number 2",
+    "Observatorio_Número2": {
+      "label": "Número del Observatorio 2",
       "measure": ""
     },
-    "Observatory_Number": {
-      "label": "Observatory Number",
+    "Observatorio_Número": {
+      "label": "Número del Observatorio",
       "measure": ""
     },
-    "Date": {
-      "label": "Date",
+    "Fecha": {
+      "label": "Fecha",
       "measure": ""
     },
-    "Time": {
-      "label": "Time",
+    "Hora": {
+      "label": "Hora",
       "measure": ""
     },
-    "Quadratic_Error_Orthogonality_Celestial_Sphere_1": {
-      "label": "Quadratic Error of Orthogonality in the Celestial Sphere 1",
+    "Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1": {
+      "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 1",
       "measure": ""
     },
-    "Quadratic_Error_Orthogonality_Celestial_Sphere_2": {
-      "label": "Quadratic Error of Orthogonality in the Celestial Sphere 2",
+    "Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2": {
+      "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 2",
       "measure": ""
     },
-    "Frames_Used": {
-      "label": "Frames Used",
+    "Fotogramas_usados": {
+      "label": "Fotogramas Usados",
+      "measure": "fotogramas"
+    },
+    "Ajuste_estación_2_Inicio": {
+      "label": "Ajuste de Estación 2 - Inicio",
       "measure": ""
     },
-    "Station_Adjustment_2_Start": {
-      "label": "Station 2 Adjustment Start",
+    "Ajuste_estación_2_Final": {
+      "label": "Ajuste de Estación 2 - Fin",
       "measure": ""
     },
-    "Station_Adjustment_2_End": {
-      "label": "Station 2 Adjustment End",
+    "Ángulo_diedro_entre_planos_trayectoria": {
+      "label": "Ángulo Diedro entre Planos de Trayectoria",
+      "measure": "°"
+    },
+    "Peso_estadístico": {
+      "label": "Peso Estático",
+      "measure": "Kg"
+    },
+    "Errores_AR_DE_radiante": {
+      "label": "Errores AR/DE en Radianes",
+      "measure": "radianes"
+    },
+    "Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha": {
+      "label": "Coordenadas Astronómicas del Radiante (Eclíptica - Fecha)",
       "measure": ""
     },
-    "Dihedral_Angle_Between_Trajectory_Planes": {
-      "label": "Dihedral Angle Between Trajectory Planes",
-      "measure": ""
-    },
-    "Static_Weight": {
-      "label": "Static Weight",
-      "measure": ""
-    },
-    "Errors_AR_DE_Radiants": {
-      "label": "Errors AR/DE in Radiants",
-      "measure": ""
-    },
-    "Astronomical_Coordinates_Radiant_Ecliptic_Date": {
-      "label": "Astronomical Coordinates of Radiant (Ecliptic Date)",
-      "measure": ""
-    },
-    "Astronomical_Coordinates_Radiant_J2000": {
-      "label": "Astronomical Coordinates of Radiant (J2000)",
+    "Coordenadas_astronómicas_del_radiante_J200": {
+      "label": "Coordenadas Astronómicas del Radiante (J2000)",
       "measure": ""
     },
     "Azimuth": {
-      "label": "Azimuth",
+      "label": "Azimut",
+      "measure": "°"
+    },
+    "Dist_Cenital": {
+      "label": "Distancia Cenital",
+      "measure": "°"
+    },
+    "Inicio_de_la_trayectoria_Estacion_1": {
+      "label": "Inicio de la Trayectoria en Estación 1",
       "measure": ""
     },
-    "Zenith_Distance": {
-      "label": "Zenith Distance",
+    "Fin_de_la_trayectoria_Estacion_1": {
+      "label": "Fin de la Trayectoria en Estación 1",
       "measure": ""
     },
-    "Trajectory_Start_Station_1": {
-      "label": "Trajectory Start at Station 1",
+    "Inicio_de_la_trayectoria_Estacion_2": {
+      "label": "Inicio de la Trayectoria en Estación 2",
       "measure": ""
     },
-    "Trajectory_End_Station_1": {
-      "label": "Trajectory End at Station 1",
+    "Fin_de_la_trayectoria_Estacion_2": {
+      "label": "Fin de la Trayectoria en Estación 2",
       "measure": ""
     },
-    "Trajectory_Start_Station_2": {
-      "label": "Trajectory Start at Station 2",
+    "Impacto_previsible": {
+      "label": "Impacto Previsible",
       "measure": ""
     },
-    "Trajectory_End_Station_2": {
-      "label": "Trajectory End at Station 2",
-      "measure": ""
-    },
-    "Expected_Impact": {
-      "label": "Expected Impact",
-      "measure": ""
-    },
-    "Distance_Received_Station_1": {
-      "label": "Distance Received at Station 1",
+    "Distancia_recorrida_Estacion_1": {
+      "label": "Distancia Recibida en Estación 1",
       "measure": "Km"
     },
-    "Height_Error_Station_1": {
-      "label": "Height Error at Station 1",
+    "Error_alturas_Estacion_1": {
+      "label": "Error de Altura en Estación 1",
+      "measure": "m"
+    },
+    "Error_distancia_Estacion_1": {
+      "label": "Error de Distancia en Estación 1",
       "measure": "Km"
     },
-    "Distance_Error_Station_1": {
-      "label": "Distance Error at Station 1",
+    "Distancia_recorrida_Estacion_2": {
+      "label": "Distancia Recibida en Estación 2",
       "measure": "Km"
     },
-    "Distance_Received_Station_2": {
-      "label": "Distance Received at Station 2",
+    "Error_alturas_Estacion_2": {
+      "label": "Error de Altura en Estación 2",
+      "measure": "m"
+    },
+    "Error_distancia_Estacion_2": {
+      "label": "Error de Distancia en Estación 2",
       "measure": "Km"
     },
-    "Height_Error_Station_2": {
-      "label": "Height Error at Station 2",
-      "measure": "Km"
-    },
-    "Distance_Error_Station_2": {
-      "label": "Distance Error at Station 2",
-      "measure": "Km"
-    },
-    "Trajectory_Time_Station_2": {
-      "label": "Trajectory Time at Station 2",
+    "Tiempo_trayectoria_en_estacion_2": {
+      "label": "Tiempo de Trayectoria en Estación 2",
       "measure": "s"
     },
-    "Equation_Motion_Km": {
-      "label": "Equation of Motion in Km",
-      "measure": "Km"
-    },
-    "Equation_Velocity_Gs": {
-      "label": "Equation of Velocity in Gs",
-      "measure": "Gs"
-    },
-    "Velocity_Error": {
-      "label": "Velocity Error",
-      "measure": "Km/s"
-    },
-    "Initial_Velocity_Station_2": {
-      "label": "Initial Velocity at Station 2",
-      "measure": "Km/s"
-    },
-    "Acceleration_Km": {
-      "label": "Acceleration in Km",
-      "measure": "Km/s²"
-    },
-    "Acceleration_Gs": {
-      "label": "Acceleration in Gs",
-      "measure": "Gs/s"
-    },
-    "Report_Path": {
-      "label": "Report Path",
+    "Ecuacion_del_movimiento_en_Kms": {
+      "label": "Ecuación del Movimiento",
       "measure": ""
     },
-    "Parametric_Equation_Id": {
-      "label": "Parametric Equation ID",
+    "Ecuacion_del_movimiento_en_gs": {
+      "label": "Ecuación de la Velocidad",
+      "measure": ""
+    },
+    "Error_Velocidad": {
+      "label": "Error en la Velocidad",
+      "measure": "Km/s"
+    },
+    "Velocidad_Inicial_Estacion_2": {
+      "label": "Velocidad Inicial en Estación 2",
+      "measure": "Km/s"
+    },
+    "Aceleración_en_Kms": {
+      "label": "Aceleración",
+      "measure": "Km/s²"
+    },
+    "Aceleración_en_gs": {
+      "label": "Aceleración en Gs",
+      "measure": "Gs/s"
+    },
+    "Ruta_del_informe": {
+      "label": "Ruta del Informe",
+      "measure": ""
+    },
+    "Ecuacion_parametrica_IdEc": {
+      "label": "ID de la Ecuación Paramétrica",
       "measure": ""
     },
     "Latitude": {
-      "label": "Latitude",
+      "label": "Latitud",
       "measure": "°"
     },
     "Longitude": {
-      "label": "Longitude",
+      "label": "Longitud",
       "measure": "°"
+    },
+    "Velocidad_media": {
+      "label": "Velocidad Media",
+      "measure": "Km/s"
+    },
+    "Tiempo_Estacion_1": {
+      "label": "Tiempo en Estación 1",
+      "measure": "s"
+    },
+    "Meteoro_Identificador": {
+      "label": "Identificador del Meteoro",
+      "measure": ""
+    },
+    "Método_utilizado": {
+      "label": "Método Utilizado",
+      "measure": ""
     }
   },
   "REPORT": {
@@ -282,12 +298,28 @@
     "STATIONS": "Stations",
     "TRAJECTORY": "Orbit",
     "PENDING": "Pending",
+    "ZWO": "Point adjust and Trajectory",
     "ASSOCIATED_STATIONS": {
       "TITLE": "Associated Stations",
       "STATION_TITLE": "Station {{id}}",
       "STATION_LONGITUDE": "Longitude",
       "STATION_LATITUDE": "Latitude",
       "CUADRATURA_ERROR": "Quadrature Error"
+    },
+    "POINT_ADJUST": {
+      "TITLE": "Ajuste de Puntos y Trayectoria",
+      "GRAPHIC": "Gráfico",
+      "TABLE": {
+        "TITLE": "Puntos de la trayectoria",
+        "HEADER": {
+          "DATE": "Fecha",
+          "HOUR": "Hora",
+          "Ar_Grados": "Ar Grados",
+          "De_Grados": "De Grados",
+          "De_Sexagesimal": "De Sexagesimal",
+          "Ar_Sexagesimal": "Ar Sexagesimal"
+        }
+      }
     }
   },
   "CUSTOMIZE_SEARCH": {

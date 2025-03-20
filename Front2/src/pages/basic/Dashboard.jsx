@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import DashboardSettingsModal from '../../config/DashboardSettingsModal';
 import { useDrag, useDrop } from 'react-dnd';
 
+import { getGeneral } from '@/services/dashboardService.jsx';
+
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -160,6 +162,12 @@ function Dashboard() {
   const [previousSearchRange, setPreviousSearchRange] = useState(1);
   const isInitialMount = useRef(true);
 
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+
+
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -183,14 +191,28 @@ function Dashboard() {
     setChartsToShow(parseInt(event.target.value));
   };
 
+
+  const fetchData = async () => {
+    try {
+      const response = await getGeneral(searchRange);
+      setData(response.data);
+      setLoading(false);
+    } catch (error) {
+      setError(error);
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (isInitialMount.current) {
-      // Primera vez que se carga la página
-      isInitialMount.current = false; // Evita que se vuelva a ejecutar
+      fetchData();
+      isInitialMount.current = false;
     } else if (!showSettingsModal && searchRange !== previousSearchRange) {
-      // Se ha cerrado el modal y searchRange ha cambiado
+      fetchData();
+      setPreviousSearchRange(searchRange); // Actualizar previousSearchRange
     }
   }, [showSettingsModal, searchRange, previousSearchRange]);
+
 
   return (
     <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
@@ -244,7 +266,7 @@ function Dashboard() {
                 <>
                   <Card.Title>Gráfica 2</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <LineChart data={lineData} />
+                    <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} />
                   </div>
                 </>
               );
@@ -274,7 +296,7 @@ function Dashboard() {
                 <>
                   <Card.Title>Gráfica 5</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <ScatterPlot data={scatterData} />
+                    <ScatterPlot data={scatterData} xVariable={'latitude'} yVariable={'longitude'} />
                   </div>
                 </>
               );
@@ -298,15 +320,18 @@ function Dashboard() {
             case 7:
               chartComponent = (
                 <>
-                  <Card.Title>Listado infomes con antigiro</Card.Title>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <ListGroup>
-                      {listItems.map((item) => (
-                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
-                          Informe {item.title}
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
+                  <Card.Title>Listado infomes con excentricidad superior al 0.90</Card.Title>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: '300px' }}>
+                  <ListGroup>
+                    {data &&
+                      data
+                        .filter((item) => parseFloat(item.e) > 0.90) // Filtrar aquí
+                        .map((item) => (
+                          <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
+                            Informe {item.IdInforme}
+                          </ListGroup.Item>
+                        ))}
+                  </ListGroup>
                   </div>
                 </>
               );
