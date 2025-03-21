@@ -22,14 +22,7 @@ const ItemTypes = {
   CHART: 'chart',
 };
 
-const chartData = [
-  { label: 'A', value: 30 },
-  { label: 'B', value: 50 },
-  { label: 'C', value: 80 },
-  { label: 'D', value: 40 },
-  { label: 'E', value: 60 },
-  { label: 'F', value: 90 },
-];
+ 
 
 const scatterData = [
   { latitude: 40.7128, longitude: -74.0060 }, // Nueva York
@@ -105,7 +98,6 @@ const starMapData = [
 
 
 const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
-
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART,
     item: { id },
@@ -131,7 +123,7 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
 
   return (
     <Col ref={(node) => drag(drop(node))} xs={12} md={6} lg={4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
-      <div className='shadow-sm bg-white rounded p-4'>
+      <div className="shadow-sm bg-white rounded p-4">
         <Card.Body>
           {children}
         </Card.Body>
@@ -163,6 +155,7 @@ function Dashboard() {
   const isInitialMount = useRef(true);
 
   const [data, setData] = useState(null);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -194,8 +187,10 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const response = await getGeneral(searchRange);
-      setData(response.data);
+      const responseD = await getGeneral(searchRange);
+      console.log(responseD);
+      setData(responseD.generalInfo);
+      setChartData(responseD.barChartData)
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -211,7 +206,7 @@ function Dashboard() {
       fetchData();
       setPreviousSearchRange(searchRange); // Actualizar previousSearchRange
     }
-  }, [showSettingsModal, searchRange, previousSearchRange]);
+  }, [showSettingsModal, searchRange, previousSearchRange, chartsToShow]);
 
 
   return (
@@ -254,9 +249,12 @@ function Dashboard() {
             case 1:
               chartComponent = (
                 <>
-                  <Card.Title > Gráfica 1</Card.Title>
+                  <Card.Title >{t('DASHBOARD.GRAPH.FIRST.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <BarChart data={chartData} />
+                    <BarChart data={chartData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -264,9 +262,12 @@ function Dashboard() {
             case 2:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 2</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.SECOND.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} />
+                    <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -274,9 +275,12 @@ function Dashboard() {
             case 3:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 3</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.THIRD.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <PieChart data={pieData} />
+                    <PieChart data={pieData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -284,9 +288,12 @@ function Dashboard() {
             case 4:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 4</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.FOURTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.FOURTH.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <SizeBarChart data={sizeBarData} />
+                    <SizeBarChart data={sizeBarData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -294,9 +301,12 @@ function Dashboard() {
             case 5:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 5</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.FIFTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.FIFTH.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <ScatterPlot data={scatterData} xVariable={'latitude'} yVariable={'longitude'} />
+                    <ScatterPlot data={scatterData} xVariable={'latitude'} yVariable={'longitude'} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -304,7 +314,10 @@ function Dashboard() {
             case 6:
               chartComponent = (
                 <>
-                  <Card.Title>Listado informe Z lluvia A</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
                     <ListGroup>
                       {listItems.map((item) => (
@@ -339,9 +352,12 @@ function Dashboard() {
             case 8:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 8</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.SEVENTH.DESCRIPTION')}
+                  </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <HorizontalBarChart data={horizontalBarChartData} />
+                    <HorizontalBarChart data={horizontalBarChartData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );

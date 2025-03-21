@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Button, Form, Card } from 'react-bootstrap';
 import { useDrag, useDrop } from 'react-dnd';
 import '@/assets/customCheckbox.css'
-
 // Internationalization
 import { useTranslation } from 'react-i18next';
+
+ 
 const ItemTypes = {
   CHART_SETTING: 'chartSetting',
 };
@@ -88,8 +89,8 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
   };
 
   const dictionary = {
-    1: 'Bar chart',
-    2: 'Line chart',
+    1: `${t('DASHBOARD.GRAPH.FIRST.TITLE')}`,
+    2: `${t('DASHBOARD.GRAPH.SECOND.TITLE')}`,
     3: 'Pie chart',
     4: 'Size bar chart',
     5: 'Scatter plot',

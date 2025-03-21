@@ -28,7 +28,37 @@
         "CONFIGURATION_BTN": "Configurar panel de control",
         "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
         "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
-        "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada"
+        "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada",
+        "GRAPH": {
+            "FIRST": {
+                "TITLE": "Velocidad média de los meteoros",
+                "DESCRIPTION": "Gráfico de líneas: Para mostrar la velocidad media de los meteoros detectados por las estaciones (Velocidad_media en Informe_Radiante)."
+            },
+            "SECOND": {
+                "TITLE": "Error en la trayectoria",
+                "DESCRIPTION": "Gráfico de barras agrupadas: Comparar los valores de Error_distancia_Estacion_1 y Error_distancia_Estacion_2"
+            },
+            "THIRD": {
+                "TITLE": "Magnitud fotométrica de los meteoros",
+                "DESCRIPTION": "Diagrama de caja y bigotes: Para analizar la dispersión de Masa_fotometrica, MagMax y MagMin en Informe_Fotometria."
+            },
+            "FOURTH": {
+                "TITLE": "Asociación de meteoros con lluvias conocidas",
+                "DESCRIPTION": "Gráfico de pastel o barras apiladas: Para mostrar cuántos meteoros están asociados a lluvias (Lluvia_Asociada en Informe_Radiante)."
+            },
+            "FIFTH": {
+                "TITLE": "Distribución de meteoros por estación",
+                "DESCRIPTION": "Gráfico de barras: Para mostrar la cantidad de meteoros detectados por cada estación (Estacion_Observadora en Informe_Radiante)."
+            },
+            "SIXTH": {
+                "TITLE": "Distribución de meteoros por lluvia",
+                "DESCRIPTION": "Gráfico de barras: Para mostrar la cantidad de meteoros detectados por cada lluvia (Lluvia_Identificador en Informe_Radiante)."
+            },
+            "SEVENTH": {
+                "TITLE": "Distribución angular de los meteoros",
+                "DESCRIPTION": "Diagrama polar: Representar Distancia_angular_grados de Informe_Radiante"
+            }
+        } 
     },
     "DASHBOARD_MODAL": {
         "TITLE": "Opciones del panel de control",
