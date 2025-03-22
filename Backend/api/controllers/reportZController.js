@@ -1,6 +1,5 @@
 const pool = require('../database/connection');
-const { transform } = require('../middlewares/convertSexagesimalToDecimal');
-
+const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -30,6 +29,8 @@ const getReportZ = async (req, res) => {
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [activeShower] = await pool.query('SELECT * FROM Lluvia_activa WHERE Informe_Z_IdInforme = ?', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
+        const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
+        const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
 
         const response = {
             informe: report[0],
@@ -42,7 +43,8 @@ const getReportZ = async (req, res) => {
             trajectory: trajectory,
             regressionTrajectory: regressionTrajectory,
             activeShower: activeShower,
-            photometryReport: photometryReport
+            photometryReport: photometryReport,
+            mapReport: mapReport
         };
 
         res.json(response);
@@ -82,6 +84,79 @@ const getReportzWithCustomSearch = async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
+
+
+
+const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs2Lat, obs2Lon) => {
+
+    const toRadians = (deg) => deg * (Math.PI / 180);
+    const toDegrees = (rad) => rad * (180 / Math.PI);
+
+   
+    // Función para calcular el punto medio entre dos observatorios
+    const puntoMedio = (lat1, lon1, lat2, lon2) => {
+        let lat1Rad = toRadians(lat1);
+        let lon1Rad = toRadians(lon1);
+        let lat2Rad = toRadians(lat2);
+        let lon2Rad = toRadians(lon2);
+
+        let dLon = lon2Rad - lon1Rad;
+        let bx = Math.cos(lat2Rad) * Math.cos(dLon);
+        let by = Math.cos(lat2Rad) * Math.sin(dLon);
+
+        let latMed = Math.atan2(Math.sin(lat1Rad) + Math.sin(lat2Rad),
+            Math.sqrt((Math.cos(lat1Rad) + bx) ** 2 + by ** 2));
+        let lonMed = lon1Rad + Math.atan2(by, Math.cos(lat1Rad) + bx);
+
+        return {
+            latitude: toDegrees(latMed),
+            longitude: toDegrees(lonMed)
+        };
+    };
+
+    // Función para calcular desplazamiento usando azimut y distancia cenital
+    const haversineOffset = (lat, lon, azimuth, distanceKm) => {
+        const R = 6371; // Radio de la Tierra en km
+        let latRad = toRadians(lat);
+        let lonRad = toRadians(lon);
+        let azimuthRad = toRadians(azimuth);
+        let distanceRad = distanceKm / R;
+
+        // Nueva latitud
+        let newLat = Math.asin(Math.sin(latRad) * Math.cos(distanceRad) +
+            Math.cos(latRad) * Math.sin(distanceRad) * Math.cos(azimuthRad));
+
+        // Nueva longitud
+        let newLon = lonRad + Math.atan2(
+            Math.sin(azimuthRad) * Math.sin(distanceRad) * Math.cos(latRad),
+            Math.cos(distanceRad) - Math.sin(latRad) * Math.sin(newLat)
+        );
+
+        return {
+            latitude: toDegrees(newLat),
+            longitude: toDegrees(newLon)
+        };
+    };
+
+
+    // Convertir coordenadas del primer observatorio
+    const latObs1 = convertSexagesimalToDecimal(obs1Lat);
+    const lonObs1 = convertSexagesimalToDecimal(obs1Lon);
+
+    // Convertir coordenadas del segundo observatorio
+    const latObs2 = convertSexagesimalToDecimal(obs2Lat);
+    const lonObs2 = convertSexagesimalToDecimal(obs2Lon);
+
+    // Calcular punto medio
+    const { latitude, longitude } = puntoMedio(latObs1, lonObs1, latObs2, lonObs2);
+
+    // Convertir distancia cenital a kilómetros (suponiendo altura de entrada de 100 km)
+    const alturaEntradaKm = 100;
+    const distanciaKm = Math.tan(toRadians(distanciaCenital)) * alturaEntradaKm;
+
+    // Calcular la nueva posición
+    return haversineOffset(latitude, longitude, azimut, distanciaKm);
+}
 
 
 
