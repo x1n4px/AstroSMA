@@ -1,0 +1,40 @@
+.custom-button {
+  background-color: #980100 !important; /* Color de fondo */
+  border-color: #980100 !important; /* Color del borde */
+  color: white !important; /* Color del texto */
+  width: 40px; /* Ancho inicial (compacto) */
+  height: 40px; /* Alto inicial */
+  border-radius: 50%; /* Forma circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease; /* Transición suave */
+  overflow: hidden; /* Oculta el texto inicialmente */
+  white-space: nowrap; /* Evita el salto de línea */
+  padding: 0; /* Elimina el padding por defecto */
+}
+
+.custom-button:hover {
+  width: 100%; /* Ancho expandido */
+  border-radius: 20px; /* Bordes redondeados al expandir */
+}
+
+.custom-button svg {
+  opacity: 1; /* SVG visible inicialmente */
+  transition: opacity 0.3s ease; /* Transición para el SVG */
+}
+
+.custom-button:hover svg {
+  opacity: 0; /* Oculta el SVG al hacer hover */
+}
+
+.custom-button span {
+  opacity: 0; /* Texto oculto inicialmente */
+  transition: opacity 0.3s ease; /* Transición para el texto */
+  margin-left: 8px; /* Espacio entre el ícono y el texto */
+  position: absolute; /* Posiciona el texto sobre el SVG */
+}
+
+.custom-button:hover span {
+  opacity: 1; /* Muestra el texto al hacer hover */
+}

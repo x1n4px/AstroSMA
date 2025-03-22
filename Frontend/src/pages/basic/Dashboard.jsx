@@ -4,8 +4,10 @@ import { Link } from 'react-router-dom';
 import DashboardSettingsModal from '../../config/DashboardSettingsModal';
 import { useDrag, useDrop } from 'react-dnd';
 
-import { getGeneral } from '@/services/dashboardService.jsx';
+import '@/assets/customExpandModalButton.css'
 
+import { getGeneral } from '@/services/dashboardService.jsx';
+import ChartModal from '@/components/modal/ChartModal';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -17,12 +19,12 @@ import PieChart from '../../components/chart/PieChart';
 import ScatterPlot from '../../components/chart/ScatterPlot';
 import SizeBarChart from '../../components/chart/SizeBarChart';
 import HorizontalBarChart from '../../components/chart/HorizontalBarChart';
+import GroupedBarChart from '../../components/chart/GroupedBarChart';
 
 const ItemTypes = {
   CHART: 'chart',
 };
 
- 
 
 const scatterData = [
   { latitude: 40.7128, longitude: -74.0060 }, // Nueva York
@@ -42,20 +44,7 @@ const scatterData = [
   { latitude: 28.6139, longitude: 77.2090 }, // Nueva Delhi
 ];
 
-const lineData = [
-  { date: new Date('2023-01-01'), count: 10 },
-  { date: new Date('2023-02-01'), count: 15 },
-  { date: new Date('2023-03-01'), count: 20 },
-  { date: new Date('2023-04-01'), count: 25 },
-  { date: new Date('2023-05-01'), count: 30 },
-  { date: new Date('2023-06-01'), count: 35 },
-  { date: new Date('2023-07-01'), count: 40 },
-  { date: new Date('2023-08-01'), count: 45 },
-  { date: new Date('2023-09-01'), count: 50 },
-  { date: new Date('2023-10-01'), count: 55 },
-  { date: new Date('2023-11-01'), count: 60 },
-  { date: new Date('2023-12-01'), count: 65 },
-];
+
 
 const sizeBarData = [
   { sizeRange: 'Pequeño', count: 30 },
@@ -64,12 +53,6 @@ const sizeBarData = [
   { sizeRange: 'Muy Grande', count: 10 },
 ];
 
-const pieData = [
-  { composition: 'Rocoso', count: 40 },
-  { composition: 'Metálico', count: 30 },
-  { composition: 'Hielo', count: 20 },
-  { composition: 'Orgánico', count: 10 },
-];
 
 const listItems = [
   { id: 1, title: '20250215', path: '/report/1' },
@@ -85,19 +68,12 @@ const horizontalBarChartData = [
   { label: 'Región Delta', value: 120 },
 ];
 
-const starMapData = [
-  { ra: 0, dec: 89, mag: 1 }, // Estrella cerca del polo norte
-  { ra: 180, dec: 80, mag: 2 },
-  { ra: 90, dec: 70, mag: 3 },
-  { ra: 270, dec: 60, mag: 4 },
-  { ra: 45, dec: 50, mag: 5 },
-  { ra: 135, dec: 40, mag: 6 },
-  { ra: 225, dec: 30, mag: 7 },
-  { ra: 315, dec: 20, mag: 8 },
-];
+
 
 
 const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
+  const [showModal, setShowModal] = useState(false);
+
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART,
     item: { id },
@@ -126,8 +102,17 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
       <div className="shadow-sm bg-white rounded p-4">
         <Card.Body>
           {children}
+          <Button  className="custom-button mt-2" onClick={() => setShowModal(true)} >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{fill: "rgb(255, 255, 255)"}}><path d="M5 12H3v9h9v-2H5zm7-7h7v7h2V3h-9z"></path></svg>
+          <span>Ver en pantalla completa</span>
+          </Button>
         </Card.Body>
       </div>
+
+      {/* Modal para esta tarjeta */}
+      <ChartModal show={showModal} onHide={() => setShowModal(false)}>
+        {children}
+      </ChartModal>
     </Col>
   );
 };
@@ -136,17 +121,9 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({
-    1: true,
-    2: true,
-    3: true,
-    4: true,
-    5: true,
-    6: true,
-    7: true,
-    8: true,
-    9: false
-  });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: false });
+  const [selectedChart, setSelectedChart] = useState(null);
+  const [showChartModal, setShowChartModal] = useState(false);
 
   const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
   const [chartsToShow, setChartsToShow] = useState(4);
@@ -154,13 +131,12 @@ function Dashboard() {
   const [previousSearchRange, setPreviousSearchRange] = useState(1);
   const isInitialMount = useRef(true);
 
-  const [data, setData] = useState(null);
+  //const [data, setData] = useState(null);
   const [chartData, setChartData] = useState([]);
+  const [pieChartData, setPieChartData] = useState([]);
+  const [groupChartData, setGroupChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
-
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -169,6 +145,16 @@ function Dashboard() {
     setChartVisibility(newSettings);
     setChartOrder(newOrder);
   };
+
+  const handleOpenChartModal = (chartComponent) => {
+    setSelectedChart(chartComponent);
+    setShowChartModal(true);
+  }
+
+  const handleCloseChartModal = () => {
+    setShowChartModal(false);
+    setSelectedChart(null);
+  }
 
   const moveChart = useCallback((dragIndex, hoverIndex) => {
     setChartOrder((prevCharts) => {
@@ -189,8 +175,10 @@ function Dashboard() {
     try {
       const responseD = await getGeneral(searchRange);
       console.log(responseD);
-      setData(responseD.generalInfo);
+      //setData(responseD.data);
       setChartData(responseD.barChartData)
+      setPieChartData(responseD.pieChartData[0]);
+      setGroupChartData(responseD.groupChartData);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -209,13 +197,14 @@ function Dashboard() {
   }, [showSettingsModal, searchRange, previousSearchRange, chartsToShow]);
 
 
+
+
   return (
     <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
         <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
           {t('DASHBOARD.CONFIGURATION_BTN')}
         </Button>
-
 
 
 
@@ -253,9 +242,10 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
                     <BarChart data={chartData} key={`key-${chartsToShow}`} />
                   </div>
+                  
                 </>
               );
               break;
@@ -266,8 +256,9 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SECOND.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    {/* <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} key={`key-${chartsToShow}`} /> */}
+                    <GroupedBarChart data={groupChartData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -275,12 +266,13 @@ function Dashboard() {
             case 3:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.THIRD.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <PieChart data={pieData} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%'  }}>
+                    <SizeBarChart data={sizeBarData} key={`key-${chartsToShow}`} />
+
                   </div>
                 </>
               );
@@ -288,12 +280,12 @@ function Dashboard() {
             case 4:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.FOURTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.FOURTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.FOURTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <SizeBarChart data={sizeBarData} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%'  }}>
+                    <PieChart data={pieChartData} key={`key-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -301,7 +293,7 @@ function Dashboard() {
             case 5:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.FIFTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.FIFTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.FIFTH.DESCRIPTION')}
                   </Card.Subtitle>
@@ -314,7 +306,7 @@ function Dashboard() {
             case 6:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
                   </Card.Subtitle>
@@ -335,16 +327,16 @@ function Dashboard() {
                 <>
                   <Card.Title>Listado infomes con excentricidad superior al 0.90</Card.Title>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: '300px' }}>
-                  <ListGroup>
-                    {data &&
+                    <ListGroup>
+                      {/* {data &&
                       data
                         .filter((item) => parseFloat(item.e) > 0.90) // Filtrar aquí
                         .map((item) => (
                           <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
                             Informe {item.IdInforme}
                           </ListGroup.Item>
-                        ))}
-                  </ListGroup>
+                        ))} */}
+                    </ListGroup>
                   </div>
                 </>
               );
@@ -352,7 +344,7 @@ function Dashboard() {
             case 8:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SEVENTH.DESCRIPTION')}
                   </Card.Subtitle>
@@ -377,7 +369,7 @@ function Dashboard() {
           }
 
           return (
-            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} >
+            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow}>
               {chartComponent}
             </DraggableChart>
           );

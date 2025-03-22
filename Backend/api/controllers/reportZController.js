@@ -1,4 +1,6 @@
 const pool = require('../database/connection');
+const { extraerUserId } = require('../middlewares/extractJWT')
+
 const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 
 // Función para obtener un empleado por su ID
@@ -14,8 +16,10 @@ const getAllReportZ = async (req, res) => {
 
 const getReportZ = async (req, res) => {
     try {
+        const token = req.header('x-token');
+        const user_id = extraerUserId(token);
         const { id } = req.params;
-        const [report] = await pool.query('SELECT iz.*, la.Lluvia_Identificador FROM Informe_Z iz JOIN Lluvia_activa la WHERE IdInforme = ?', [id]);
+        const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
 
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
@@ -27,10 +31,12 @@ const getReportZ = async (req, res) => {
         const [orbitalElement] = await pool.query('select * from Elementos_Orbitales eo where eo.Informe_Z_IdInforme = ?', [id]);
         const [trajectory] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
-        const [activeShower] = await pool.query('SELECT * FROM Lluvia_activa WHERE Informe_Z_IdInforme = ?', [id]);
+        const [activeShower] = await pool.query('SELECT la.*, l.* FROM Lluvia_activa la JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador WHERE la.Informe_Z_IdInforme = ? GROUP BY la.Lluvia_Identificador', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
+        const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]); 
+
 
         const response = {
             informe: report[0],
@@ -44,7 +50,8 @@ const getReportZ = async (req, res) => {
             regressionTrajectory: regressionTrajectory,
             activeShower: activeShower,
             photometryReport: photometryReport,
-            mapReport: mapReport
+            mapReport: mapReport,
+            advice: advice
         };
 
         res.json(response);
@@ -57,14 +64,19 @@ const getReportZ = async (req, res) => {
 const saveReportAdvice = async (req, res) => {
     try {
         const { formData } = req.body;
+        const token = req.header('x-token');
 
-        console.log(formData);
-
-        res.json({ message: 'ok' });
+        const user_id = extraerUserId(token);
+        
+        const { Description, Tab, Informe_Z_Id } = formData;
+        const Id = parseInt(Informe_Z_Id);
+    
+        await pool.execute(`INSERT INTO Informe_Error (Informe_Z_Id, Tab, Description, user_Id) VALUES (${Id}, '${Tab.toString()}', '${Description.toString()}', ${user_id})`);
+        res.json({ message: 'Informe de error guardado correctamente' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
+};
 
 
 const getReportzWithCustomSearch = async (req, res) => {
@@ -92,7 +104,7 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
     const toRadians = (deg) => deg * (Math.PI / 180);
     const toDegrees = (rad) => rad * (180 / Math.PI);
 
-   
+
     // Función para calcular el punto medio entre dos observatorios
     const puntoMedio = (lat1, lon1, lat2, lon2) => {
         let lat1Rad = toRadians(lat1);

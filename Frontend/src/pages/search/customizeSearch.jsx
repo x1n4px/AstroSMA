@@ -283,18 +283,54 @@ const CustomizeSearch = () => {
                         </Accordion>
                     </div>
 
-                    <nav aria-label="Page navigation example ">
+                    <nav aria-label="Page navigation example">
                         <ul className="pagination justify-content-center py-4">
+                            {/* Botón "Previous" */}
                             <li className={`page-item ${actualPage === 0 ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={handlePrevPage}>Previous</button>
+                                <button className="page-link" onClick={handlePrevPage}>
+                                    Previous
+                                </button>
                             </li>
-                            {pageNumbers.map((page) => (
-                                <li className={`page-item ${actualPage === page ? 'active' : ''}`} key={page}>
-                                    <button className="page-link" onClick={() => handlePageChange(page)}>{page + 1}</button>
-                                </li>
-                            ))}
+
+                            {/* Mostrar solo 10 páginas a la vez */}
+                            {(() => {
+                                const visiblePages = 10; // Número máximo de páginas visibles
+                                const halfVisible = Math.floor(visiblePages / 2); // Mitad de las páginas visibles
+
+                                // Calcular el rango de páginas a mostrar
+                                let startPage = Math.max(0, actualPage - halfVisible);
+                                let endPage = Math.min(totalPages - 1, actualPage + halfVisible);
+
+                                // Ajustar el rango si estamos cerca de los extremos
+                                if (actualPage < halfVisible) {
+                                    endPage = Math.min(visiblePages - 1, totalPages - 1);
+                                } else if (actualPage > totalPages - halfVisible - 1) {
+                                    startPage = Math.max(totalPages - visiblePages, 0);
+                                }
+
+                                // Generar los números de página visibles
+                                const pages = [];
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pages.push(
+                                        <li
+                                            className={`page-item ${actualPage === i ? 'active' : ''}`}
+                                            key={i}
+                                        >
+                                            <button className="page-link" onClick={() => handlePageChange(i)}>
+                                                {i + 1}
+                                            </button>
+                                        </li>
+                                    );
+                                }
+
+                                return pages;
+                            })()}
+
+                            {/* Botón "Next" */}
                             <li className={`page-item ${actualPage === totalPages - 1 ? 'disabled' : ''}`}>
-                                <button className="page-link" onClick={handleNextPage}>Next</button>
+                                <button className="page-link" onClick={handleNextPage}>
+                                    Next
+                                </button>
                             </li>
                         </ul>
                     </nav>

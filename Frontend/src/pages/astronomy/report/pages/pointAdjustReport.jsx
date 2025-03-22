@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Button, Form, Table } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Table, Accordion } from "react-bootstrap";
 import "chart.js/auto";
 import LineChart from '@/components/chart/LineChart';
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
 
-const PointAdjustReport = ({zwoAdjustmentPoints}) => {
-  const { t } = useTranslation(['text']);
-
+const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
+    const { t } = useTranslation(['text']);
+    console.log(trajectoryData)
     // Datos simulados para la tabla de puntos
     const [puntos, setPuntos] = useState([
         { id: 1, x: 10, y: 20, z: 5 },
@@ -41,86 +41,171 @@ const PointAdjustReport = ({zwoAdjustmentPoints}) => {
     return (
         <div>
             <Container>
-                <h2>{t('REPORT.POINT_ADJUST.TITLE')}</h2>
-                <Row>
-                    <h4>{t('REPORT.POINT_ADJUST.GRAPHIC')}</h4>
-                    <LineChart data={zwoAdjustmentPoints} xVariable={'X'} yVariable={'Y'} />
-                </Row>
-                <Row>
+                <Accordion defaultActiveKey="0">
+                    <Accordion.Item eventKey="0">
+                        <Accordion.Header>
+                            ZWO
+                        </Accordion.Header>
+                        <Accordion.Body>
 
-                    <h4>{t('REPORT.POINT_ADJUST.TABLE.TITLE')}</h4>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.DATE')}</th>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.HOUR')}</th>
-                                <th>X</th>
-                                <th>Y</th>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.Ar_Grados')}</th>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.De_Grados')}</th>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.Ar_Sexagesimal')}</th>
-                                <th>{t('REPORT.POINT_ADJUST.TABLE.HEADER.De_Sexagesimal')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {zwoAdjustmentPoints.map((p) => (
-                                <tr key={p.dateObs}>
-                                    <td>
-                                        <Form.Control
-                                            type="string"
-                                            value={new Date(p.Fecha).toLocaleDateString()}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="string"
-                                            value={new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="number"
-                                            value={p.X}
-                                            onChange={(e) => ajustarPunto(p.id, "x", e.target.value)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="number"
-                                            value={p.Y}
-                                            onChange={(e) => ajustarPunto(p.id, "y", e.target.value)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="number"
-                                            value={p.Ar_Grados}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="number"
-                                            value={p.De_Grados}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="text"
-                                            value={p.Ar_Sexagesimal}
-                                        />
-                                    </td>
-                                    <td>
-                                        <Form.Control
-                                            type="text"
-                                            value={p.De_Sexagesimal}
-                                        />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Row>
-              
+
+                            <h2>{t('REPORT.POINT_ADJUST.ZWO.TITLE')}</h2>
+                            <Row>
+                                <h4>{t('REPORT.POINT_ADJUST.ZWO.GRAPHIC')}</h4>
+                                <LineChart data={zwoAdjustmentPoints} xVariable={'X'} yVariable={'Y'} />
+                            </Row>
+                            <Row>
+
+                                <h4>{t('REPORT.POINT_ADJUST.ZWO.TABLE.TITLE')}</h4>
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.DATE')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.HOUR')}</th>
+                                            <th>X</th>
+                                            <th>Y</th>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Grados')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Grados')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Sexagesimal')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Sexagesimal')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {zwoAdjustmentPoints.map((p) => (
+                                            <tr key={p.dateObs}>
+                                                <td>
+                                                    <Form.Control
+                                                        type="string"
+                                                        value={new Date(p.Fecha).toLocaleDateString()}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="string"
+                                                        value={new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={p.X}
+                                                        onChange={(e) => ajustarPunto(p.id, "x", e.target.value)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={p.Y}
+                                                        onChange={(e) => ajustarPunto(p.id, "y", e.target.value)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={p.Ar_Grados}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="number"
+                                                        value={p.De_Grados}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={p.Ar_Sexagesimal}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={p.De_Sexagesimal}
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </Row>
+                        </Accordion.Body>
+                    </Accordion.Item>
+                    <Accordion.Item eventKey="1">
+                        <Accordion.Header>
+                        {t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')}
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <Table>
+                                <thead>
+                                    <tr>
+                                        <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.DATE')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.HOUR')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.t')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.s')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.v')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {regressionTrajectory.map((point, index) => (
+                                        <tr key={index}>
+                                            <td>{point.Fecha}</td>
+                                            <td>{point.Hora}</td>
+                                            <td>{point.t}</td>
+                                            <td>{point.s}</td>
+                                            <td>{point.v_Kms}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </Accordion.Body>
+                    </Accordion.Item>
+
+
+                    <Accordion.Item eventKey="2">
+                        <Accordion.Header>
+                        {t('REPORT.POINT_ADJUST.TRAJECTORY.TITLE')}
+                        </Accordion.Header>
+                        <Accordion.Body>
+                            <Table striped bordered hover>
+                                <thead>
+                                    <tr>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DATE')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.HOUR')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI')}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', {id: '1'})}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', {id: '1'})}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', {id: '2'})}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', {id: '2'})}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {trajectoryData.map((p) => (
+                                        <tr key={p.id}>
+                                            <td>{p.Fecha.toString().substring(0, 10)}</td>
+                                            <td>{p.Hora}</td>
+                                            <td>{p.s}</td>
+                                            <td>{p.t}</td>
+                                            <td>{p.v}</td>
+                                            <td>{p.lambda}</td>
+                                            <td>{p.phi}</td>
+                                            <td>{p.AR_Estacion_1}</td>
+                                            <td>{p.De_Estacion_1}</td>
+                                            <td>{p.Ar_Estacion_2}</td>
+                                            <td>{p.De_Estacion_2}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+
+                        </Accordion.Body>
+                    </Accordion.Item>
+                </Accordion>
+
+
             </Container>
             {/* <ScatterPlot data={zwoAdjustmentPoints} xVariable={'x'} yVariable={'y'} />
 

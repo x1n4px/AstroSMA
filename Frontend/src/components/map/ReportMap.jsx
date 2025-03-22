@@ -3,16 +3,19 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getNearbyStation } from '@/services/stationService';
 
+// Internationalization
+import { useTranslation } from 'react-i18next';
+
 const ReportMapChart = ({
-  report,
   observatory,
   activePopUp,
   lat = 36.7213,
   lon = -4.4216,
-  lat2 = 38.1, // Nuevo punto
-  lon2 = -4.21, // Nuevo punto
+  lat2, // Nuevo punto
+  lon2, // Nuevo punto
   zoom = 11,
 }) => {
+  const { t } = useTranslation(['text']);
   const [radius, setRadius] = useState(200);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,8 +75,8 @@ const ReportMapChart = ({
     `);
 
     // Marcadores para las estaciones
-    observatory.forEach((station) => {
-      L.marker([station.lat, station.lon], {
+    observatory.forEach((punto) => {
+      L.marker([punto.latitude, punto.longitude], {
         icon: new L.Icon({
           iconUrl: '/antena.png',
           iconSize: [25, 25],
@@ -81,18 +84,22 @@ const ReportMapChart = ({
       })
         .addTo(map)
         .bindPopup(`
-          <div>
-            <p>Estación: ${station.title || 'Desconocida'}</p>
-            <p>Latitud: ${station.lat}, Longitud: ${station.lon}</p>
+           <div>
+            <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
+            <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
+            <p>${t('STATION.STATION.COORDINATES')}: ${punto.latitude.toString().substring(0, 8)}, ${punto.longitude.toString().substring(0, 8)}</p>
+            <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
+            <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
+            <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>
+            <img src="/station/${punto.stationName}.webp" alt="Imagen" width="250" height="auto" />
           </div>
         `);
     });
 
-    // Agregar la lógica para los nuevos puntos y la línea
-    if (lat2 !== null && lon2 !== null) {
+    if (lat2 !== undefined && lon2 !== undefined) {
       const marker2 = L.marker([lat2, lon2], {
         icon: new L.Icon({
-          iconUrl: '/asteroide.png', // Puedes cambiar el icono si lo deseas
+          iconUrl: '/asteroide.png',  
           iconSize: [25, 25],
         }),
       }).addTo(map);
@@ -112,7 +119,6 @@ const ReportMapChart = ({
         { color: 'red' }
       ).addTo(map);
 
-      // Ajustar el zoom para que la línea sea visible
       map.fitBounds(polyline.getBounds());
     }
   }, [map, stations, lat, lon, lat2, lon2]); // Dependencias actualizadas

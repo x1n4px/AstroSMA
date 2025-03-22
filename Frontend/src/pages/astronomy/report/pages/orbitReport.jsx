@@ -3,7 +3,6 @@ import { Container, Table } from 'react-bootstrap';
 import GlobeWithObject from '@/components/three/GlobeWithObject.jsx';
 
 const OrbitReport = ({ orbit }) => {
-    console.log(orbit);
     const data = orbit[0];
 
     return (

@@ -26,48 +26,32 @@ import { useTranslation } from 'react-i18next';
 
 
 
-const data2 = [
-    {
-        id: 1,
-        lat: 40.4168,
-        lon: -3.7038,
-        title: 'Estación 1',
-        date: '2023-10-27',
-        video: '',
-        height: 83,
-        state: 0
-    },
-    {
-        id: 2,
-        lat: 41.3851,
-        lon: 2.1734,
-        title: 'Estación 2',
-        date: '2023-10-27',
-        video: '',
-        height: 30,
-        state: 0
-    },
-];
-
 const Report = () => {
     const { t } = useTranslation(['text']);
     const params = useParams();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
-    const [activeTab, setActiveTab] = useState('summary');
+    const [activeTab, setActiveTab] = useState('SUMMARY_TAB');
     const [reportData, setReportData] = useState(null);
-    const [observatoryData, setObservatoryData] = useState(null);
+    const [observatoryData, setObservatoryData] = useState([]);
     const [orbitalData, setOrbitalData] = useState(null);
+    const [mapReportData, setMapReportData] = useState(null);
     const [zwoData, setZwoData] = useState(null);
+    const [regressionTrajectory, setRegressionTrajectory] = useState(null);
+    const [trajectoryData, setTrajectoryData] = useState(null);
+    const [activeShowerData, setActiveShowerData] = useState(null);
+    const [adviceData, setAdviceData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
+    const rol = localStorage.getItem('rol');
+
+
 
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
-        id: 0,
-        descripcion: '',
-        tab: '',
-        report_id: 0
+        Description: '',
+        Tab: '',
+        Informe_Z_Id: id
     });
 
 
@@ -81,6 +65,11 @@ const Report = () => {
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
             setPhotometryData(response.photometryReport);
+            setMapReportData(response.mapReport);
+            setRegressionTrajectory(response.regressionTrajectory);
+            setTrajectoryData(response.trajectory);
+            setAdviceData(response.advice);
+            setActiveShowerData(response.activeShower);
             setZwoData(response.zwo);
         } catch (err) {
             setError(err);
@@ -96,15 +85,20 @@ const Report = () => {
         }
     }, [id]);
 
-    const handleClose = () => {
+    const handleCloseSave = () => {
         // Procesar los datos del formulario aquí
         console.log('Datos del formulario:', formData);
         try {
-            saveReportAdvice(formData);
+            const response = saveReportAdvice(formData);
+            console.log(response)
         } catch (error) {
             console.error('Error al guardar el informe:', error);
 
         }
+        setShowModal(false);
+    };
+
+    const handleClose = () => {
         setShowModal(false);
     };
 
@@ -115,7 +109,23 @@ const Report = () => {
     };
 
 
+    const getTabAdvice = (tabKey) => {
+        const tabMap = {
+            'SUMMARY_TAB': 'SUMMARY_TAB',
+            'INFERRED_DATA_TAB': 'INFERRED_DATA_TAB',
+            'MAP_TAB': 'MAP_TAB',
+            'ACTIVE_RAIN_TAB': 'ACTIVE_RAIN_TAB',
+            'STATIONS': 'STATIONS',
+            'TRAJECTORY': 'TRAJECTORY',
+            'PENDING_TAB': 'PENDING_TAB',
+            'ZWO': 'ZWO',
+            'PHOTOMETRY': 'PHOTOMETRY',
+            'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
 
+        };
+        const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '0');
+        return adviceForTab;
+    };
 
     return (
         <div className="p-4">
@@ -147,54 +157,111 @@ const Report = () => {
                 unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
 
             >
-                <Tab eventKey="summary" title={t('REPORT.SUMMARY_TAB')}>
-                    <Alert variant="warning">
-                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
-                    </Alert>
-                    <SummaryReport />
-                    <MapReport report={reportData} observatory={observatoryData} />
+                <Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
+                    {getTabAdvice('SUMMARY_TAB').map(advice => (
+                        <Alert key={advice.Id} variant="warning" className="d-flex justify-content-between align-items-center">
+                            <div>
+                                ID: {advice.Id} - {advice.Description}
+                            </div>
+                            {rol === '10000000' && (
+                                <div>
+                                    <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} className="me-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(59, 252, 0);" }}><path d="m10 15.586-3.293-3.293-1.414 1.414L10 18.414l9.707-9.707-1.414-1.414z"></path></svg>
+                                    </Button>
+                                    <Button style={{ backgroundColor: 'transparent', border: 'transparent' }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(0, 0, 0, 1);" }}><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg>
+                                    </Button>
+                                </div>
+                            )}
+                        </Alert>
+                    ))}
+
+                    <SummaryReport data={reportData} />
+
                 </Tab>
-                <Tab eventKey="data" title={t('REPORT.INFERRED_DATA_TAB')}>
+                <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
+                    {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Id} - {advice.Description}
+                        </Alert>
+                    ))}
                     <InferredDataReport data={reportData} />
                 </Tab>
-                {/* <Tab eventKey="map" title={t('REPORT.MAP_TAB')}>
-                   
-                </Tab> */}
-                {/* <Tab eventKey="active_rain" title={t('REPORT.ACTIVE_RAIN_TAB')}>
-                    <Alert variant="warning">
-                        Esta funcionalidad aún no está implementada. ¡Pronto estará disponible!
-                    </Alert>
-                    <ActiveRain reportData={reportData} />
-                </Tab> */}
-                {/* <Tab eventKey="station" title={t('REPORT.STATIONS')}>
-                    <StationReport />
-                </Tab>  */}
-
-                <Tab eventKey="trajectory" title={t('REPORT.TRAJECTORY')}>
-                    <Alert variant="warning">
-                        Esta funcionalidad está parcialmente implementada. ¡Pronto estará disponible!
-                    </Alert>
-                    <OrbitReport orbit={orbitalData} />
-
-
+                <Tab eventKey="MAP_TAB" title={t('REPORT.MAP_TAB')}>
+                    {getTabAdvice('MAP_TAB').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Id} - {advice.Description}
+                        </Alert>
+                    ))}
+                    <MapReport report={mapReportData} observatory={observatoryData} />
                 </Tab>
-                <Tab eventKey="pending" title={t('REPORT.PENDING.TITLE')}>
+                <Tab eventKey="ACTIVE_RAIN_TAB" title={t('REPORT.ACTIVE_RAIN_TAB')}>
+                    {getTabAdvice('ACTIVE_RAIN_TAB').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Id} - {advice.Description}
+                        </Alert>
+                    ))}
+                    <ActiveRain reportData={reportData} activeShowerData={activeShowerData} />
+                </Tab>
+                {/* <Tab eventKey="STATIONS" title={t('REPORT.STATIONS')}>
+                    {getTabAdvice('STATIONS').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Description} - Funcionalidad por definir!
+                        </Alert>
+                    ))}
+                    {!getTabAdvice('STATIONS').length && (
+                        <Alert variant="warning">
+                            Funcionalidad por definir!
+                        </Alert>
+                    )}
+                     <StationReport /> 
+                </Tab> */}
+
+                <Tab eventKey="TRAJECTORY" title={t('REPORT.TRAJECTORY')}>
+                    {getTabAdvice('TRAJECTORY').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Description} - Funcionalidad por definir!
+                        </Alert>
+                    ))}
+                    <OrbitReport orbit={orbitalData} />
+                </Tab>
+                <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>
+                    {getTabAdvice('PENDING_TAB').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Description} - Funcionalidad por definir!
+                        </Alert>
+                    ))}
                     <PendingReport reportData={reportData} />
                 </Tab>
 
-                <Tab eventKey="point_adjust_and_trajectory" title={t('REPORT.ZWO')}>
-                    <PointAdjustReport zwoAdjustmentPoints={zwoData} />
+                <Tab eventKey="ZWO" title={t('REPORT.ZWO')}>
+                    {getTabAdvice('ZWO').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Description} - Funcionalidad por definir!
+                        </Alert>
+                    ))}
+                    <PointAdjustReport zwoAdjustmentPoints={zwoData} regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
                 </Tab>
 
-                <Tab eventKey="asocciatedStation" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
+                {/* <Tab eventKey="ASSOCIATED_STATIONS" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
+                    {getTabAdvice('ASSOCIATED_STATIONS').map(advice => (
+                        <Alert key={advice.Id} variant="warning">
+                            ID: {advice.Description} - Funcionalidad por definir!
+                        </Alert>
+                    ))}
                     <Alert variant="warning">
                         Esta funcionalidad esta parcialmente, falta completar los datos
                     </Alert>
 
                     <AsocciatedStation reportId={reportData} observatories={observatoryData} />
-                </Tab>
+                </Tab> */}
                 {Array.isArray(photometryData) && photometryData.length > 0 && (
-                    <Tab eventKey="photometry" title={t('REPORT.PHOTOMETRY.TITLE')}>
+                    <Tab eventKey="PHOTOMETRY" title={t('REPORT.PHOTOMETRY.TITLE')}>
+                        {getTabAdvice('PHOTOMETRY').map(advice => (
+                            <Alert key={advice.Id} variant="warning">
+                                ID: {advice.Description} - Funcionalidad por definir!
+                            </Alert>
+                        ))}
                         <PhotometryReport photometryData={photometryData} />
                     </Tab>
                 )}
@@ -208,22 +275,26 @@ const Report = () => {
                     <Form>
                         <Form.Group controlId="formTab">
                             <Form.Label>Pestaña</Form.Label>
-                            <Form.Control as="select" name="tab" value={formData.tab} onChange={handleChange}>
+                            <Form.Control as="select" name="Tab" value={formData.Tab} onChange={handleChange}>
                                 <option value="SUMMARY_TAB">{t('REPORT.SUMMARY_TAB')}</option>
                                 <option value="INFERRED_DATA_TAB">{t('REPORT.INFERRED_DATA_TAB')}</option>
                                 <option value="MAP_TAB">{t('REPORT.MAP_TAB')}</option>
                                 <option value="ACTIVE_RAIN_TAB">{t('REPORT.ACTIVE_RAIN_TAB')}</option>
                                 <option value="STATIONS">{t('REPORT.STATIONS')}</option>
                                 <option value="TRAJECTORY">{t('REPORT.TRAJECTORY')}</option>
+                                <option value="PENDING_TAB">{t('REPORT.PENDING.TITLE')}</option>
+                                <option value="ZWO">{t('REPORT.ZWO')}</option>
+                                <option value="ASSOCIATED_STATIONS">{t('REPORT.ASSOCIATED_STATIONS.TITLE')}</option>
+                                <option value="PHOTOMETRY">{t('REPORT.PHOTOMETRY.TITLE')}</option>
                             </Form.Control>
                         </Form.Group>
-                        <Form.Group controlId="formDescripcion">
+                        <Form.Group controlId="formDescription">
                             <Form.Label>Descripción del error</Form.Label>
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                name="descripcion"
-                                value={formData.descripcion}
+                                name="Description"
+                                value={formData.Description}
                                 onChange={handleChange}
                             />
                         </Form.Group>
@@ -234,7 +305,7 @@ const Report = () => {
                     <Button variant="secondary" onClick={handleClose}>
                         {t('DASHBOARD_MODAL.BTN_CLOSE')}
                     </Button>
-                    <Button style={{ backgroundColor: '#980100', border: '#980100' }} onClick={handleClose}>
+                    <Button style={{ backgroundColor: '#980100', border: '#980100' }} onClick={handleCloseSave}>
                         {t('DASHBOARD_MODAL.BTN_SAVE')}
                     </Button>
                 </Modal.Footer>

@@ -14,7 +14,7 @@ import Profile from '@/pages/basic/Profile';
 import Report from '@/pages/astronomy/report/report';
 import NotFound from '@/pages/basic/NotFound'; // Importa el componente NotFound
 import CustomizeSearch from './pages/search/customizeSearch';
-import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx';
+import ActiveRain from '@/pages/astronomy/activeShower.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
