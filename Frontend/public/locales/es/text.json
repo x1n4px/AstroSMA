@@ -413,7 +413,50 @@
         "LONGITUDE": "Longitud",
         "SEARCH_RADIUS": "Radio de Búsqueda",
         "RANGE_DATE": "Rango de Fechas",
-        "SEARCH_BTN": "Buscar"
+        "SEARCH_BTN": "Buscar",
+        "REPORT_Z": "Informe de dos estaciones (Informe Z)",
+        "REPORT_RADIANT": "Informe de una estación (Informe radiante)",
+        "REPORT_PHOTOMETRY": "Informe de fotometría",
+        "SHOW_BUTTON": "Ver más",
+        "REPORT_TYPE": {
+            "TITLE": "Tipo de informe",
+            "SELECT": {
+                "ALL_TYPES": "Todos los tipos",
+                "REPORT_Z": "Informe de dos estaciones (Informe Z)",
+                "REPORT_RADIANT": "Informe de una estación (Informe radiante)",
+                "REPORT_PHOTOMETRY": "Informe de fotometría",
+                "REPORT_UNION": "Disponga de todos los informes"
+            }
+        },
+        "MODAL": {
+            "REPORT_Z": {
+                "TITLE": "Informes de dos estaciones (Infome Z)",
+                "ID":"Id",
+                "DATE": "Fecha",
+                "HOUR": "Hora",
+                "STATION_1": "Estación 1",
+                "STATION_2": "Estación 2"
+            },
+            "REPORT_RADIANT": {
+                "TITLE": "Infomes de una estación (Informe radiante)",
+                "ID":"Id",
+                "DATE": "Fecha",
+                "HOUR": "Hora",
+                "STATION": "Estación",
+                "ASSOCIATED_RAIN": "Lluvia asociada",
+                "ESTIMATED_TRAJECTORY": "Trayectoria estimada",
+                "ANGULAR_DISTANCE": "Distancia angular ( {{measure}} )",
+                "ANGULAR_VELOCITY":"Velocidad angular (°/s)"
+            },
+            "REPORT_PHOTOMETRY": {
+                "TITLE": "Infomes de fotometría",
+                "ID":"Id",
+                "DATE": "Fecha",
+                "HOUR": "Hora",
+                "VISIBLE_STARS": "Estrellas visibles",
+                "STAR_USED_IN_REGRESSION": "Estrella utilizada en la regresión"
+            }
+        }
     },
     "STATION": {
         "TITLE": "Mapa de estaciones espaciales",

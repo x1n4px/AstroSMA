@@ -1,66 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Accordion } from 'react-bootstrap';
-import { getReportzWithCustomSearch } from '@/services/reportService.jsx';
+import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
 import { TextureLoader } from 'three';
 import { Link } from 'react-router-dom';
+import { formatDate } from '@/pipe/formatDate.jsx'
+import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
+import CheckIcon from '@/assets/icon/check';
+import CrossIcon from '@/assets/icon/cross';
 
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
 
-const dummyBolides = [
-    {
-        id: 1,
-        name: 'Bolide A',
-        date: '2023-01-15',
-        additionalData: {
-            velocity: '25 km/s',
-            altitude: '80 km',
-            location: '40.7128° N, 74.0060° W',
-        },
-    },
-    {
-        id: '2',
-        name: 'Bolide B',
-        date: '2023-02-20',
-        additionalData: {
-            velocity: '30 km/s',
-            altitude: '90 km',
-            location: '34.0522° N, 118.2437° W',
-        },
-    },
-    {
-        id: '3',
-        name: 'Bolide C',
-        date: '2023-03-25',
-        additionalData: {
-            velocity: '28 km/s',
-            altitude: '85 km',
-            location: '51.5074° N, 0.1278° W',
-        },
-    },
-    {
-        id: '4',
-        name: 'Bolide D',
-        date: '2023-04-30',
-        additionalData: {
-            velocity: '32 km/s',
-            altitude: '95 km',
-            location: '48.8566° N, 2.3522° E',
-        },
-    },
-    {
-        id: '5',
-        name: 'Bolide E',
-        date: '2023-05-05',
-        additionalData: {
-            velocity: '27 km/s',
-            altitude: '82 km',
-            location: '35.6895° N, 139.6917° E',
-        },
-    },
-];
 
 const CustomizeSearch = () => {
     const { t } = useTranslation(['text']);
@@ -79,11 +31,16 @@ const CustomizeSearch = () => {
     const [mapResetKey, setMapResetKey] = useState(0);
     const [actualPage, setActualPage] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
+    const [reportType, setReportType] = useState('1'); // Estado para el tipo de informe
     const itemsPerPage = 50;
+
+    const [modalReport, setModalReport] = useState(null); // Estado para el informe del modal
+    const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
+
 
     const handleApplyFilters = async () => {
         try {
-            const response = await getReportzWithCustomSearch({
+            const response = await getBolideWithCustomSearch({
                 heightFilter,
                 latFilter,
                 lonFilter,
@@ -93,10 +50,12 @@ const CustomizeSearch = () => {
                 dateRangeChecked,
                 startDate,
                 endDate,
-                actualPage
+                actualPage,
+                reportType
             });
-            setReportData(response.reports);
-            setTotalItems(response.count[0].c);
+            console.log(response)
+            setReportData(response.data);
+            setTotalItems(response.totalItems);
             setSearchButton(true);
             setMapResetKey((prevKey) => prevKey + 1);
         } catch (error) {
@@ -156,6 +115,15 @@ const CustomizeSearch = () => {
         }
     };
 
+    const handleShowModal = (report) => {
+        setModalReport(report);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+    };
+
     return (
         <Container className="my-4">
 
@@ -166,7 +134,10 @@ const CustomizeSearch = () => {
                             type="checkbox"
                             label={t('CUSTOMIZE_SEARCH.HEIGHT')}
                             checked={heightChecked}
-                            onChange={(e) => setAlturaChecked(e.target.checked)}
+                            onChange={(e) => {
+                                setAlturaChecked(e.target.checked);
+                                setAlturaFilter('');
+                              }}
                             className="me-2"
                         />
                     </Col>
@@ -255,6 +226,23 @@ const CustomizeSearch = () => {
                         />
                     </Col>
                 </Row>
+                <Row className="mb-3">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
+                        <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex align-items-center">
+                        <Form.Select
+                            value={ratioFilter}
+                            onChange={(e) => setReportType(e.target.value)}
+                        >
+                            <option value="1" >{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
+                            <option value="2">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_Z')}</option>
+                            <option value="3">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_RADIANT')}</option>
+                            <option value="4">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_PHOTOMETRY')}</option>
+                            <option value="5">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_UNION')}</option>
+                        </Form.Select>
+                    </Col>
+                </Row>
                 <Row>
                     <Col xs={12} md={4}>
                         <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleApplyFilters}>
@@ -265,23 +253,33 @@ const CustomizeSearch = () => {
             </Card>
             {searchButton && (
                 <div className="mt-4 shadow rounded">
-                    <h5 className="mb-3 fw-bold text-center pt-4" style={{ fontSize: '1.5em' }}>
-                        Se han encontrado un total de {totalItems} resultados
-                    </h5>
-                    <div className="p-3 rounded shadow-sm">
-                        <Accordion defaultActiveKey="0">
+                    {/* <h5 className="mb-3 fw-bold text-center pt-4" style={{ fontSize: '1.5em' }}>
+                        Se han encontrado un total de {reportData.length} resultados
+                    </h5> */}
+                    <div className="p-3 rounded shadow-sm mt-4">
+                        <ul className="list-group">
                             {reportData.map((report, index) => (
-                                <Accordion.Item eventKey={index.toString()} key={report.IdInforme}>
-                                    <Accordion.Header>
-                                        {`ID: ${report.IdInforme} - Date: ${report.Fecha.substring(0, 10)}`}
-                                    </Accordion.Header>
-                                    <Accordion.Body>
-                                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to={`/report/${report.IdInforme}`}>Ver más</Button>
-                                    </Accordion.Body>
-                                </Accordion.Item>
+                                <li className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" key={report.IdInforme}>
+                                    <div>
+                                        <strong>{formatDate(report.Fecha)} {report.Hora.substring(0, 8)}</strong>
+                                    </div>
+                                    <div className="d-inline-flex gap-3">
+                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_Z')}: {report.hasReportZ ? <CheckIcon /> : <CrossIcon />}</div>
+                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_RADIANT')}: {report.hasReportRadiant ? <CheckIcon /> : <CrossIcon />} </div>
+                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_PHOTOMETRY')}: {report.hasReportPhotometry ? <CheckIcon /> : <CrossIcon />}</div>
+                                    </div>
+                                    <div>
+                                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100', marginTop: '5px' }} onClick={() => handleShowModal(report)}>
+                                            {t('CUSTOMIZE_SEARCH.SHOW_BUTTON')}
+                                        </Button>
+                                    </div>
+                                </li>
                             ))}
-                        </Accordion>
+                        </ul>
                     </div>
+
+                    <CustomizeSearchModal report={modalReport} show={showModal} onHide={handleCloseModal} />
+
 
                     <nav aria-label="Page navigation example">
                         <ul className="pagination justify-content-center py-4">

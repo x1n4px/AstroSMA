@@ -2,6 +2,9 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const token = localStorage.getItem('authToken');
+
+
+
 export const getAllBolide = async () => {
     try {
         const response = await axios.get(`${API_URL}/bolide`,
@@ -90,7 +93,7 @@ export const getLastTWoBolide = async () => {
 }
 
 
-export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate }) => {
+export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType }) => {
     try {
         const response = await axios.get(`${API_URL}/bolide/search`, {
             params: {
@@ -102,7 +105,27 @@ export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFi
                 latLonChecked,
                 dateRangeChecked,
                 startDate,
-                endDate
+                endDate,
+                actualPage,
+                reportType
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error en la petición:', error);
+        throw error;
+    }
+};
+ 
+
+export const getReportData = async ({ IDs_Informe_Radiante, IDs_Informe_Fotometria, IDs_Informe_Z }) => {
+    try {
+        const response = await axios.get(`${API_URL}/bolide/search/reports`, {
+            params: {
+                IDs_Informe_Radiante,
+                IDs_Informe_Fotometria,
+                IDs_Informe_Z
             }
         });
 

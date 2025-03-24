@@ -11,6 +11,7 @@ router.get('/bolide/months', BolideController.getAllBolideLastSixMonths);
 router.get('/bolide/comparation', BolideController.getBolideCompareLastTen);
 router.get('/bolide/comparation/two', BolideController.getBolideCompareLastTwo);
 router.get('/bolide/search', BolideController.getBolideWithCustomSearch);
+router.get('/bolide/search/reports', BolideController.getReportData);
 
 router.get('/bolide/:id', BolideController.getBolideById);
 module.exports = router;
