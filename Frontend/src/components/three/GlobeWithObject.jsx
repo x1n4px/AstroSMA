@@ -3,14 +3,14 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
-function GlobeAndComet({ orbitalElements }) { // Recibir orbitalElements como prop
+function GlobeAndComet({ orbitalElements }) {
   const [globeTexture, setGlobeTexture] = React.useState(null);
   const cometRef = useRef();
   const timeRef = useRef(0);
   const tailRef = useRef();
-  const scaleFactor = 0.5;
+  const scaleFactor = 1;
   const earthRadius = 1;
-  const earthPosition = new THREE.Vector3(10, 0, 0); // Posición de la Tierra
+  const earthPosition = new THREE.Vector3(10, 0, 0);
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
@@ -23,8 +23,18 @@ function GlobeAndComet({ orbitalElements }) { // Recibir orbitalElements como pr
     const a = parseFloat(orbitalElements.a.split(' ')[0]);
     const e = parseFloat(orbitalElements.e.split(' ')[0]);
     const i = THREE.MathUtils.degToRad(parseFloat(orbitalElements.i.split(' ')[0]));
-    const Ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.Omega_grados_votos_max_min.split(' ')[0].replace(/[^0-9.-]+/g, '')));
+
+    // Extraer el número dentro de los paréntesis para Omega
+    const omegaString = orbitalElements.Omega_grados_votos_max_min;
+    const omegaMatch = omegaString.match(/\(([^)]+)\)/); // Busca el contenido dentro de los paréntesis
+    const omegaValue = omegaMatch ? parseFloat(omegaMatch[1]) : NaN; // Parsea el número o NaN si no se encuentra
+    const Ω = THREE.MathUtils.degToRad(omegaValue);
+
     const ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.omega.split(' ')[0]));
+
+    console.log("a:", a, "e:", e, "i:", i, "Ω:", Ω, "ω:", ω); // Imprimir valores para depuración
+
+    if (isNaN(Ω)) return []; // Si Omega es NaN, retornar un arreglo vacío
 
     const points = [];
     const numPoints = 200;
@@ -53,9 +63,9 @@ function GlobeAndComet({ orbitalElements }) { // Recibir orbitalElements como pr
       const Y = (sinΩ * cosω + cosΩ * sinω * cosi) * x + (-sinΩ * sinω + cosΩ * cosω * cosi) * y;
       const Z = (sinω * sini) * x + (cosω * sini) * y;
 
-      // Sumar la posición de la Tierra a cada punto de la órbita
       points.push(new THREE.Vector3(X * scaleFactor, Y * scaleFactor, Z * scaleFactor).add(earthPosition));
     }
+
 
     return points;
   }, [scaleFactor, orbitalElements, earthPosition]);
@@ -107,13 +117,14 @@ function GlobeAndComet({ orbitalElements }) { // Recibir orbitalElements como pr
   );
 }
 
-function GlobeWithComet({ orbitalElements }) { // Recibir orbitalElements como prop
+function GlobeWithComet({ orbitalElements }) {
+  console.log("orbitalElements:", orbitalElements); // Agrega esta línea
   return (
     <Canvas
       style={{ width: '100%', height: '80%', backgroundColor: 'black' }}
       camera={{ position: [11, 8.5, 15], fov: 60 }}
     >
-      <GlobeAndComet orbitalElements={orbitalElements} /> // Pasar orbitalElements al componente GlobeAndComet
+      <GlobeAndComet orbitalElements={orbitalElements} />
     </Canvas>
   );
 }

@@ -28,7 +28,7 @@ const getReportZ = async (req, res) => {
         const [obs1] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número]);
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
-        const [orbitalElement] = await pool.query('select * from Elementos_Orbitales eo where eo.Informe_Z_IdInforme = ?', [id]);
+        const [orbitalElement] = await pool.query('select eo.*, iz.Fecha, iz.Hora from Elementos_Orbitales eo JOIN Informe_Z iz ON iz.IdInforme = eo.Informe_Z_IdInforme where eo.Informe_Z_IdInforme = ?', [id]);
         const [trajectory] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [activeShower] = await pool.query('SELECT la.*, l.* FROM Lluvia_activa la JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador WHERE la.Informe_Z_IdInforme = ? GROUP BY la.Lluvia_Identificador', [id]);
@@ -36,7 +36,7 @@ const getReportZ = async (req, res) => {
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
         const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]); 
-
+        const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
 
         const response = {
             informe: report[0],
@@ -51,7 +51,8 @@ const getReportZ = async (req, res) => {
             activeShower: activeShower,
             photometryReport: photometryReport,
             mapReport: mapReport,
-            advice: advice
+            advice: advice,
+            observatoryName: observatory_name[0].Nombre_Observatorio,
         };
 
         res.json(response);

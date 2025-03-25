@@ -10,7 +10,9 @@
         "PASSWORD": "Contraseña",
         "UPDATE_BTN": "Actualizar",
         "DELETE_BTN": "Eliminar",
-        "TITLE": "Información de Perfil"
+        "TITLE": "Información de Perfil",
+        "INSTITUTION": "Institución",
+        "COUNTRY": "País"
     },
     "NAVBAR": {
         "BTN_HOME": "Inicio",
@@ -328,6 +330,7 @@
     },
     "REPORT": {
         "TITLE": "Informe Z {{id}}",
+        "TITLE_RADIAN": "Informe radiante {{id}}",
         "WARNING_BTN": "Informar error",
         "SUMMARY_TAB": "Resumen",
         "INFERRED_DATA_TAB": "Datos Inferidos",
@@ -403,7 +406,81 @@
             }
         },
         "PHOTOMETRY": {
-            "TITLE": "Informe de fotometría"
+            "TITLE": "Informe de fotometría {{id}}",
+            "INPUT": {
+                "DATE":"Fecha",
+                "HOUR":"Hora",
+                "VISIBLE_STARS":"Estrellas visibles",
+                "STAR_USED_IN_REGRESSION":"Estrella utilizada en la regresión",
+                "BOUGER_LINE_EXTERNAL":"Línea de Bouger externa",
+                "BOUGER_LINE_ZERO":"Línea de Bouger cero",
+                "REGRESSION_STANDART_ERROR":"Error estándar de la regresión",
+                "STANDART_ZERO_POINT":"Estándar de punto cero",
+                "STANDART_ERROR_EXTERNAL_COEFF":"Error estándar del coeficiente externo",
+                "PATH_PARABOLA_COEFF":"Coeficiente de la parábola del camino"
+            },
+            "REGRESSION_DATA_TAB": {
+                "TITLE": "Datos de regresión",
+                "START_ID": "Id de la estrella",
+                "AIR_MASS": "Masa de aire",
+                "CATALOG_MAGNITUDE": "Magnitud del catálogo",
+                "INSTRUMENTAL_MAGNITUDE": "Magnitud instrumental"
+            },
+            "METEOR_DATA": {
+                "TITLE": "Datos del meteoro",
+                "X_START": "X (Inicio)",
+                "Y_START": "Y (Inicio)",
+                "X_END": "X (Fin)",
+                "Y_END": "Y (Fin)",
+                "AIR_MASS_START": "Masa de aire (Inicio)",
+                "AIR_MASS_END": "Masa de aire (Fin)",
+                "DISTANCE_START": "Distancia (Inicio)",
+                "DISTANCE_END": "Distancia (Fin)"
+            },
+            "ADJUSTEMENT_POINT": {
+                "TITLE": "Ajuste de puntos",
+                "T":"t",
+                "DISTANCE":"Distancia",
+                "MC": "Mc",
+                "MA": "Ma"
+            }
+        },
+        "VIDEO": {
+            "TITLE": "Vídeo"
+        },
+        "ACTIVE_RAIN": {
+            "TITLE": "Lluvias activas",
+            "NO_ACTIVE_RAIN": "No hay lluvias activas",
+            "TABLE": {
+                "ID": "Identificador",
+                "NAME": "Nombre",
+                "START_DATE": "Fecha de Inicio",
+                "END_DATE": "Fecha de Fin",
+                "MINIMUM_DISTANCE": "Distancia Mínima {{it}}",
+                "DISTANCE": "Distancia",
+                "SHOW_BUTTON": "Ver lluvia"
+            }
+        },
+        "ESTIMATED_TRAJECTORY": {
+            "TITLE": "Trayectoria estimada",
+            "VELOCITY": "Velocidad",
+            "INITIAL_LON": "Longitud (Inicio)",
+            "INITIAL_LAT": "Latitud (Inicio)",
+            "FINAL_LON": "Longitud (Final)",
+            "FINAL_LAT": "Latitud (Final)",
+            "INITIAL_ALT": "Altitud (Inicio)",
+            "FINAL_ALT": "Altitud (Final)",
+            "INITIAL_DIST": "Distancia (Inicio)",
+            "FINAL_DIST": "Distancia (Final)",
+            "RECOR": "Recorrido",
+            "E": "e",
+            "T": "t"
+        },
+        "ANGULAR_VELOCITY": {
+            "TITLE": "Velocidad angular",
+            "HI": "hi",
+            "SHOWER": "lluvia",
+            "METEOR": "meteoro"
         }
     },
     "CUSTOMIZE_SEARCH": {
@@ -431,7 +508,7 @@
         "MODAL": {
             "REPORT_Z": {
                 "TITLE": "Informes de dos estaciones (Infome Z)",
-                "ID":"Id",
+                "ID": "Id",
                 "DATE": "Fecha",
                 "HOUR": "Hora",
                 "STATION_1": "Estación 1",
@@ -439,18 +516,18 @@
             },
             "REPORT_RADIANT": {
                 "TITLE": "Infomes de una estación (Informe radiante)",
-                "ID":"Id",
+                "ID": "Id",
                 "DATE": "Fecha",
                 "HOUR": "Hora",
                 "STATION": "Estación",
                 "ASSOCIATED_RAIN": "Lluvia asociada",
                 "ESTIMATED_TRAJECTORY": "Trayectoria estimada",
                 "ANGULAR_DISTANCE": "Distancia angular ( {{measure}} )",
-                "ANGULAR_VELOCITY":"Velocidad angular (°/s)"
+                "ANGULAR_VELOCITY": "Velocidad angular (°/s)"
             },
             "REPORT_PHOTOMETRY": {
                 "TITLE": "Infomes de fotometría",
-                "ID":"Id",
+                "ID": "Id",
                 "DATE": "Fecha",
                 "HOUR": "Hora",
                 "VISIBLE_STARS": "Estrellas visibles",

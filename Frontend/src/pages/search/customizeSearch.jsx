@@ -206,7 +206,9 @@ const CustomizeSearch = () => {
                             type="checkbox"
                             label={t('CUSTOMIZE_SEARCH.RANGE_DATE')}
                             checked={dateRangeChecked}
-                            onChange={(e) => setDateRangeChecked(e.target.checked)}
+                            onChange={(e) => {
+                                setDateRangeChecked(e.target.checked)
+                            }}
                             className="me-2"
                         />
                     </Col>

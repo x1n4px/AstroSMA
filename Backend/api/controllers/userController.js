@@ -9,7 +9,7 @@ const getUser = async (req, res) => {
         const token = req.header('x-token');
 
         const id = extraerUserId(token);
-        const [rows] = await pool.query('SELECT id,email,name,surname FROM user WHERE id = ?', [id]);
+        const [rows] = await pool.query('SELECT u.id, u.email, u.name, u.surname, u.institucion , p.nombre as countryName FROM `user` u JOIN pais p ON p.id = u.pais_id WHERE u.id = ?', [id]);
         const user = rows[0];
         res.json(user);
     } catch (error) {

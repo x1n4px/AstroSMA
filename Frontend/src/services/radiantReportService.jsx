@@ -2,15 +2,18 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = localStorage.getItem('authToken');
+
+
 export const saveReportAdvice = async (formData) => {
     try {
-        const response = await axios.post(`${apiUrl}/reportz/advice`,  {formData} ,
+        const response = await axios.post(`${apiUrl}/radiant-report/advice`,  {formData} ,
             {
                 headers: {
                     'x-token': token, // Agrega el token como encabezado x-token
                 },
             }
         );
+        console.log(response)
         return response.data;
 
     } catch (error) {
@@ -19,9 +22,9 @@ export const saveReportAdvice = async (formData) => {
 };
 
 
-export const getReportZ = async (id) => {
+export const getRadiantReport = async (id) => {
     try {
-        const response = await axios.get(`${apiUrl}/reportz/${id}`, {
+        const response = await axios.get(`${apiUrl}/radiant-report/${id}`, {
             headers: {
                 'x-token': token, // Agrega el token como encabezado x-token
             },

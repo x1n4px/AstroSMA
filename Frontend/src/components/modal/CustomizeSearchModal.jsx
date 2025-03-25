@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { formatDate } from '@/pipe/formatDate.jsx'
 import { getReportData } from '@/services/bolideService.jsx';
+import { useParams, Link } from "react-router-dom";
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
+
 const CustomizeSearchModal = ({ report, show, onHide }) => {
     const { t } = useTranslation(['text']);
+    
     const [reportZData, setReportZData] = React.useState([]);
     const [reportRadiantData, setReportRadiantData] = React.useState([]);
     const [reportPhotometryData, setReportPhotometryData] = React.useState([]);
@@ -114,7 +116,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                                         <td>{item.Velocidad_angular_grad_sec}</td>
                                         <td>
                                             <Link
-                                                to={`/report/${item.IdInforme}`}
+                                                to={`/radiant-report/${item.Identificador}`}
                                                 className="btn btn-primary btn-sm"
                                                 style={{ backgroundColor: '#980100', borderColor: '#980100' }}
                                                 target="_blank"
@@ -154,7 +156,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                                         <td>{item.Estrellas_usadas_para_regresion}</td>
                                         <td>
                                             <Link
-                                                to={`/report/${item.IdInforme}`}
+                                                to={`/photometry-report/${item.Identificador}`}
                                                 className="btn btn-primary btn-sm"
                                                 style={{ backgroundColor: '#980100', borderColor: '#980100' }}
                                                 target="_blank"

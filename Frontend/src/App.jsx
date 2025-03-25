@@ -13,8 +13,11 @@ import Bolide from '@/pages/astronomy/bolide';
 import Profile from '@/pages/basic/Profile';
 import Report from '@/pages/astronomy/report/report';
 import NotFound from '@/pages/basic/NotFound'; // Importa el componente NotFound
-import CustomizeSearch from './pages/search/customizeSearch';
+import CustomizeSearch from '@/pages/search/customizeSearch';
 import ActiveRain from '@/pages/astronomy/activeShower.jsx';
+import RadiantReport from '@/pages/astronomy/report/radiantReport';
+import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -92,6 +95,9 @@ function App() {
           <Route path="/report/:reportId" element={<Report />} />
           <Route path="/customize-search" element={<CustomizeSearch />} />
           <Route path="/active-rain" element={<ActiveRain />} />
+          <Route path="/radiant-report/:reportId" element={<RadiantReport />} />
+          <Route path="/photometry-report/:reportId" element={<PhotometryReport/>} />
+          {/* Otras rutas protegidas */}
         </Route>
 
         {/* Ruta comodín para páginas no encontradas */}

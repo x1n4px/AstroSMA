@@ -80,6 +80,15 @@ const Profile = () => {
                     <h2>{t('PROFILE.TITLE')}</h2>
                     {/* {error && <Alert variant="danger">{error}</Alert>} */}
                     {success && <Alert variant="success">{success}</Alert>}
+                    <Form.Group controlId="formEmail">
+                        <Form.Label>{t('PROFILE.EMAIL')}</Form.Label>
+                        <Form.Control
+                            type="email"
+                            name="email"
+                            value={profile.email}
+                            readOnly
+                        />
+                    </Form.Group>
                     <Form onSubmit={handleSubmit}>
                         <Form.Group controlId="formName">
                             <Form.Label>{t('PROFILE.NAME')}</Form.Label>
@@ -101,17 +110,28 @@ const Profile = () => {
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="formEmail">
-                            <Form.Label>{t('PROFILE.EMAIL')}</Form.Label>
+                        <Form.Group controlId="formInstitution">
+                            <Form.Label>{t('PROFILE.INSTITUTION')}</Form.Label>
                             <Form.Control
-                                type="email"
-                                name="email"
-                                value={profile.email}
-                                readOnly
+                                type="text"
+                                name="institucion"
+                                value={profile.institucion}
+                                onChange={handleChange}
                             />
                         </Form.Group>
 
-                        <Form.Group controlId="formPassword">
+                        <Form.Group controlId="formCountry">
+                            <Form.Label>{t('PROFILE.COUNTRY')}</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="country"
+                                value={profile.countryName}
+                                onChange={handleChange}
+                            />
+                        </Form.Group>
+
+
+                        {/* <Form.Group controlId="formPassword">
                             <Form.Label>{t('PROFILE.PASSWORD')}</Form.Label>
                             <Form.Control
                                 type="password"
@@ -120,13 +140,15 @@ const Profile = () => {
                                 onChange={handleChange}
                                 disabled={true}
                             />
-                        </Form.Group>
-                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} type="submit" className='mr-2 mt-4' disabled={true}>
-                            {t('PROFILE.UPDATE_BTN')}
-                        </Button>
-                        <Button variant="secondary" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
-                            {t('PROFILE.DELETE_BTN')}
-                        </Button>
+                        </Form.Group> */}
+                        <div className="d-flex mb-4">
+                            {/* <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} type="submit" className='mr-2 mt-4' disabled={true}>
+                                {t('PROFILE.UPDATE_BTN')}
+                            </Button>
+                            <Button variant="secondary" onClick={handleDeleteAccount} className="mx-2 mt-4" disabled={true}>
+                                {t('PROFILE.DELETE_BTN')}
+                            </Button> */}
+                        </div>
                     </Form>
                 </Col>
             </Row>

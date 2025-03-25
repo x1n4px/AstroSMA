@@ -2,8 +2,13 @@ import React from 'react';
 import { Container, Table } from 'react-bootstrap';
 import GlobeWithObject from '@/components/three/GlobeWithObject.jsx';
 
+ 
+
 const OrbitReport = ({ orbit }) => {
     const data = orbit[0];
+    console.log(data)
+
+    
 
     return (
         <Container>
@@ -24,7 +29,7 @@ const OrbitReport = ({ orbit }) => {
                 </tbody>
             </Table>
             <div style={{ width: '100%', height: '80vh' }}>
-                <GlobeWithObject orbitalElements={orbit[0]} />
+                <GlobeWithObject orbitalElements={data} />
             </div>
         </Container>
     );

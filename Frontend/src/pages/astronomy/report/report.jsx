@@ -7,15 +7,12 @@ import '@/assets/customTabs.css'
 import SummaryReport from '@/pages/astronomy/report/pages/summaryReport';
 import InferredDataReport from '@/pages/astronomy/report/pages/inferredDataReport';
 import MapReport from '@/pages/astronomy/report/pages/mapReport';
-import StationReport from '@/pages/astronomy/report/pages/stationReport';
-import GlobeWithObject from '@/components/three/GlobeWithObject.jsx'
-import GlobeWithComet from '@/components/three/BolideSlopeChart.jsx';
-import AsocciatedStation from '@/pages/astronomy/report/pages/asocciatedStation.jsx'
 import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
 import PendingReport from '@/pages/astronomy/report/pages/pendingReport.jsx'
 import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport';
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
+import VideoReport from '@/pages/astronomy/report/pages/videoReport';
 
 import { getReportZ } from '@/services/reportService.jsx'
 
@@ -43,6 +40,7 @@ const Report = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
+    const [observatoryName, setObservatoryName] = useState('');
     const rol = localStorage.getItem('rol');
 
 
@@ -60,7 +58,6 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -71,6 +68,7 @@ const Report = () => {
             setAdviceData(response.advice);
             setActiveShowerData(response.activeShower);
             setZwoData(response.zwo);
+            setObservatoryName(response.observatoryName);
         } catch (err) {
             setError(err);
         } finally {
@@ -87,7 +85,6 @@ const Report = () => {
 
     const handleCloseSave = () => {
         // Procesar los datos del formulario aquí
-        console.log('Datos del formulario:', formData);
         try {
             const response = saveReportAdvice(formData);
             console.log(response)
@@ -178,6 +175,7 @@ const Report = () => {
 
                     <SummaryReport data={reportData} />
 
+                    <VideoReport nombreCamara={observatoryName} />
                 </Tab>
                 <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
                     {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
@@ -201,7 +199,7 @@ const Report = () => {
                             ID: {advice.Id} - {advice.Description}
                         </Alert>
                     ))}
-                    <ActiveRain reportData={reportData} activeShowerData={activeShowerData} />
+                    <ActiveRain  activeShowerData={activeShowerData} reportType={'1'} />
                 </Tab>
                 {/* <Tab eventKey="STATIONS" title={t('REPORT.STATIONS')}>
                     {getTabAdvice('STATIONS').map(advice => (
@@ -262,9 +260,11 @@ const Report = () => {
                                 ID: {advice.Description} - Funcionalidad por definir!
                             </Alert>
                         ))}
-                        <PhotometryReport photometryData={photometryData} />
+                        <PhotometryReport photometryData={photometryData} isChild={true} />
                     </Tab>
                 )}
+
+                
             </Tabs>
 
             <Modal show={showModal} onHide={handleClose}>
