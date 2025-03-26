@@ -8,70 +8,32 @@ import '@/assets/customExpandModalButton.css'
 
 import { getGeneral } from '@/services/dashboardService.jsx';
 import ChartModal from '@/components/modal/ChartModal';
+import { formatDate } from '@/pipe/formatDate.jsx'
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
 // Chart
-import BarChart from '../../components/chart/BarChart';
-import LineChart from '../../components/chart/LineChart';
-import PieChart from '../../components/chart/PieChart';
-import ScatterPlot from '../../components/chart/ScatterPlot';
-import SizeBarChart from '../../components/chart/SizeBarChart';
-import HorizontalBarChart from '../../components/chart/HorizontalBarChart';
-import GroupedBarChart from '../../components/chart/GroupedBarChart';
+import BarChart from '@/components/chart/BarChart';
+import LineChart from '@/components/chart/LineChart';
+import PieChart from '@/components/chart/PieChart';
+import ScatterPlot from '@/components/chart/ScatterPlot';
+import SizeBarChart from '@/components/chart/SizeBarChart';
+import HorizontalBarChart from '@/components/chart/HorizontalBarChart';
+import GroupedBarChart from '@/components/chart/GroupedBarChart';
+import RoseChart from '@/components/chart/RoseChart';
+import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
+import BarChartWithError from '@/components/chart/BarChartWithError';
 
 const ItemTypes = {
   CHART: 'chart',
 };
 
 
-const scatterData = [
-  { latitude: 40.7128, longitude: -74.0060 }, // Nueva York
-  { latitude: 34.0522, longitude: -118.2437 }, // Los Ángeles
-  { latitude: 41.8781, longitude: -87.6298 }, // Chicago
-  { latitude: 51.5074, longitude: -0.1278 }, // Londres
-  { latitude: 48.8566, longitude: 2.3522 }, // París
-  { latitude: 35.6895, longitude: 139.6917 }, // Tokio
-  { latitude: -33.8688, longitude: 151.2093 }, // Sídney
-  { latitude: -22.9068, longitude: -43.1729 }, // Río de Janeiro
-  { latitude: 37.7749, longitude: -122.4194 }, // San Francisco
-  { latitude: 52.5200, longitude: 13.4050 }, // Berlín
-  { latitude: 43.6532, longitude: -79.3832 }, // Toronto
-  { latitude: 19.4326, longitude: -99.1332 }, // Ciudad de México
-  { latitude: 25.7617, longitude: -80.1918 }, // Miami
-  { latitude: 39.9042, longitude: 116.4074 }, // Pekín
-  { latitude: 28.6139, longitude: 77.2090 }, // Nueva Delhi
-];
 
 
 
-const sizeBarData = [
-  { sizeRange: 'Pequeño', count: 30 },
-  { sizeRange: 'Mediano', count: 50 },
-  { sizeRange: 'Grande', count: 20 },
-  { sizeRange: 'Muy Grande', count: 10 },
-];
-
-
-const listItems = [
-  { id: 1, title: '20250215', path: '/report/1' },
-  { id: 2, title: '20240908', path: '/report/2' },
-  { id: 3, title: '20240827', path: '/report/3' },
-  { id: 4, title: '20240821', path: '/report/4' },
-];
-
-const horizontalBarChartData = [
-  { label: 'Región Alfa', value: 180 },
-  { label: 'Región Beta', value: 150 },
-  { label: 'Región Gamma', value: 200 },
-  { label: 'Región Delta', value: 120 },
-];
-
-
-
-
-const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
+const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, showButton }) => {
   const [showModal, setShowModal] = useState(false);
 
   const [{ isDragging }, drag] = useDrag({
@@ -97,15 +59,22 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
     xlValue = 2; // Asegura que xlValue no sea menor que 2
   }
 
+  // Si doubleWidth es true, duplica el ancho
+  if (doubleWidth) {
+    xlValue *= 2;
+  }
+
   return (
-    <Col ref={(node) => drag(drop(node))} xs={12} md={6} lg={4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <Col ref={(node) => drag(drop(node))} xs={12} md={doubleWidth ? 12 : 6} lg={doubleWidth ? 8 : 4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
       <div className="shadow-sm bg-white rounded p-4">
         <Card.Body>
           {children}
-          <Button  className="custom-button mt-2" onClick={() => setShowModal(true)} >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{fill: "rgb(255, 255, 255)"}}><path d="M5 12H3v9h9v-2H5zm7-7h7v7h2V3h-9z"></path></svg>
-          <span>Ver en pantalla completa</span>
-          </Button>
+          {showButton && (
+            <Button className="custom-button mt-2" onClick={() => setShowModal(true)} >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(255, 255, 255)" }}><path d="M5 12H3v9h9v-2H5zm7-7h7v7h2V3h-9z"></path></svg>
+              <span>Ver en pantalla completa</span>
+            </Button>
+          )}
         </Card.Body>
       </div>
 
@@ -121,11 +90,11 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow }) => {
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: false });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true });
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartModal, setShowChartModal] = useState(false);
 
-  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
   const [chartsToShow, setChartsToShow] = useState(4);
   const [searchRange, setsearchRange] = useState(1);
   const [previousSearchRange, setPreviousSearchRange] = useState(1);
@@ -137,6 +106,15 @@ function Dashboard() {
   const [groupChartData, setGroupChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [monthObservationsFrequency, setMonthObservationsFrequency] = useState([]);
+  const [meteorInflowAzimuthDistribution, setMeteorInflowAzimuthDistribution] = useState([]);
+  const [relationBtwTrajectoryAngleAndDistance, setRelationBtwTrajectoryAngleAndDistance] = useState([]);
+  const [hourWithMoreDetection, setHourWithMoreDetection] = useState([]);
+  const [predictableImpact, setPredictableImpact] = useState([]);
+  const [excentricitiesOverNinety, setExcentricitiesOverNinety] = useState([]);
+  const [distanceWithErrorFromObservatory, setDistanceWithErrorFromObservatory] = useState([]); 
+  const [velocityDispersionVersusDihedralAngle, setVelocityDispersionVersusDihedralAngle] = useState([]);
+  const [lastReport, setLastReport] = useState([]);
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -179,6 +157,15 @@ function Dashboard() {
       setChartData(responseD.barChartData)
       setPieChartData(responseD.pieChartData[0]);
       setGroupChartData(responseD.groupChartData);
+      setMonthObservationsFrequency(responseD.monthObservationsFrequency);
+      setMeteorInflowAzimuthDistribution(responseD.meteorInflowAzimuthDistribution);
+      setRelationBtwTrajectoryAngleAndDistance(responseD.relationBtwTrajectoryAngleAndDistance);
+      setHourWithMoreDetection(responseD.hourWithMoreDetection);
+      setPredictableImpact(responseD.predictableImpact);
+      setExcentricitiesOverNinety(responseD.excentricitiesOverNinety);
+      setLastReport(responseD.lastReport);
+      setDistanceWithErrorFromObservatory(responseD.distanceWithErrorFromObservatory);
+      setVelocityDispersionVersusDihedralAngle(responseD.velocityDispersionVersusDihedralAngle);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -197,6 +184,10 @@ function Dashboard() {
   }, [showSettingsModal, searchRange, previousSearchRange, chartsToShow]);
 
 
+  const datosTransformados = monthObservationsFrequency.map(d => ({
+    ...d,
+    mes_anio: new Date(d.mes_anio),
+  }));
 
 
   return (
@@ -234,6 +225,8 @@ function Dashboard() {
           if (!chartVisibility[id]) return null;
 
           let chartComponent;
+          let doubleWidth = false;
+          let showButton = true;
           switch (id) {
             case 1:
               chartComponent = (
@@ -243,9 +236,9 @@ function Dashboard() {
                     {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <BarChart data={chartData} key={`key-${chartsToShow}`} />
+                    <BarChart data={chartData} key={`key-a1-${chartsToShow}`} />
                   </div>
-                  
+
                 </>
               );
               break;
@@ -257,8 +250,7 @@ function Dashboard() {
                     {t('DASHBOARD.GRAPH.SECOND.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    {/* <LineChart data={data} xVariable={'Velocidad_media'} yVariable={'Tiempo_Estacion_1'} key={`key-${chartsToShow}`} /> */}
-                    <GroupedBarChart data={groupChartData} key={`key-${chartsToShow}`} />
+                    <ScatterPlot data={velocityDispersionVersusDihedralAngle} xVariable={'angle'} yVariable={'averageDistance'} key={`key-a2-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -270,8 +262,8 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.THIRD.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%'  }}>
-                    <SizeBarChart data={sizeBarData} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <LineChart data={datosTransformados} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
 
                   </div>
                 </>
@@ -284,8 +276,8 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.FOURTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%'  }}>
-                    <PieChart data={pieChartData} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <PieChart data={pieChartData} key={`key-a4-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -297,8 +289,8 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.FIFTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <ScatterPlot data={scatterData} xVariable={'latitude'} yVariable={'longitude'} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <BarChartWithError data={distanceWithErrorFromObservatory} key={`key-a5-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -310,11 +302,11 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1' , overflowY: 'auto', maxHeight: 'auto' }}>
                     <ListGroup>
-                      {listItems.map((item) => (
-                        <ListGroup.Item key={item.id} action as={Link} to={item.path}>
-                          Informe {item.title}
+                      {lastReport.map((item) => (
+                        <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
+                          {formatDate(item.Fecha)} - {item.Hora.toString().substring(0, 8)}
                         </ListGroup.Item>
                       ))}
                     </ListGroup>
@@ -325,17 +317,15 @@ function Dashboard() {
             case 7:
               chartComponent = (
                 <>
-                  <Card.Title>Listado infomes con excentricidad superior al 0.90</Card.Title>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: '300px' }}>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto' }}>
                     <ListGroup>
-                      {/* {data &&
-                      data
-                        .filter((item) => parseFloat(item.e) > 0.90) // Filtrar aquí
-                        .map((item) => (
+                      {excentricitiesOverNinety &&
+                        excentricitiesOverNinety.map((item) => (
                           <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
-                            Informe {item.IdInforme}
+                            {formatDate(item.Fecha)} - {item.Hora.toString().substring(0, 8)}
                           </ListGroup.Item>
-                        ))} */}
+                        ))}
                     </ListGroup>
                   </div>
                 </>
@@ -344,12 +334,12 @@ function Dashboard() {
             case 8:
               chartComponent = (
                 <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.SEVENTH.DESCRIPTION')}
+                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
-                    <HorizontalBarChart data={horizontalBarChartData} key={`key-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
                   </div>
                 </>
               );
@@ -357,19 +347,52 @@ function Dashboard() {
             case 9:
               chartComponent = (
                 <>
-                  <Card.Title>Gráfica 5</Card.Title>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' }}>
+                  <Card.Title>{t('DASHBOARD.GRAPH.NINTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                  </Card.Subtitle>
+                  <div style={{ overflow: 'hidden' }}>
+                    <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} />
+                  </div>
+                </>
+              );
+              doubleWidth = true;
+              showButton = false;
+              break;
 
+            case 10:
+              chartComponent = (
+                <>
+                  <Card.Title>{t('DASHBOARD.GRAPH.TENTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.TENTH.DESCRIPTION')}
+                  </Card.Subtitle>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <RoseChart data={meteorInflowAzimuthDistribution} angleVariable={'azimut_agrupado'} valueVariable={'cantidad'} key={`key-a10-${chartsToShow}`} />
                   </div>
                 </>
               );
               break;
+            case 11:
+              chartComponent = (
+                <>
+                  <Card.Title>{t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.ELEVENTH.DESCRIPTION')}
+                  </Card.Subtitle>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <ScatterPlot data={relationBtwTrajectoryAngleAndDistance} xVariable={'angle'} yVariable={'averageDistance'} key={`key-a11-${chartsToShow}`} />
+                  </div>
+                </>
+              );
+              break;
+           
             default:
               chartComponent = null;
           }
 
           return (
-            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow}>
+            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} doubleWidth={doubleWidth} showButton={showButton}>
               {chartComponent}
             </DraggableChart>
           );

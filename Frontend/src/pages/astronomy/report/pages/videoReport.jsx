@@ -1,6 +1,10 @@
 import React from 'react';
 
-const VideoReport = ({ nombreCamara }) => {
+const VideoReport = ({ report, nombreCamara }) => {
+
+  console.log("Nombre camara: ", nombreCamara)
+
+
   const formatearNombreCamara = (nomCam) => {
     let nombreFormateado = nomCam;
     nombreFormateado = nombreFormateado
@@ -28,10 +32,10 @@ const VideoReport = ({ nombreCamara }) => {
       .replace('Ò', 'O')
       .replace('Ù', 'U');
 
-    if (nombreFormateado === 'El Viso de Cordoba') {
+    if (nombreFormateado === 'El Viso de Córdoba') {
       nombreFormateado = 'El Viso';
     }
-    if (nombreFormateado === 'Satn Marti de Sesgueioles') {
+    if (nombreFormateado === 'Satn Martì de Sesgueioles') {
       nombreFormateado = 'Sant Marti de Sesgueioles';
     }
     return nombreFormateado;
@@ -50,20 +54,25 @@ const VideoReport = ({ nombreCamara }) => {
 
   const mostrarVideo = () => {
     // Simulación de la obtención de fecha y hora desde la base de datos
-    const fecha = '2023-10-26'; // Reemplaza con la lógica para obtener la fecha
-    const hora = '12:34:56'; // Reemplaza con la lógica para obtener la hora
+    if (report && report.Fecha && report.Hora) {
+      console.log(report)
 
-    const anio = '2021';
-    if (fecha.substring(0, 4) !== anio) {
-      return (
-        <div className="conjunto">
-          <h3 className="ayuda">
-            <a href={generarUrlVideo(fecha, hora)} target="_blank">
-              Meteor video
-            </a>
-          </h3>
-        </div>
-      );
+      const fecha = report.Fecha
+      const hora = report.Hora
+
+
+      const anio = fecha.substring(0, 4);
+      if (fecha.substring(0, 4) !== anio) {
+        return (
+          <div className="conjunto">
+            <h3 className="ayuda">
+              <a href={generarUrlVideo(fecha, hora)} target="_blank">
+                Meteor video
+              </a>
+            </h3>
+          </div>
+        );
+      }
     }
     return null;
   };

@@ -1,22 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Table, Button, Container, Row, Col } from "react-bootstrap";
-import { formatDate } from '@/pipe/formatDate.jsx'
-
-// Internationalization
+import { formatDate } from '@/pipe/formatDate.jsx';
 import { useTranslation } from 'react-i18next';
 
 const ActiveRain = ({ activeShowerData, reportType }) => {
     const { t } = useTranslation(['text']);
-    // reportType -> 1: 'reportZ' -> 2: 'Radiant Report'
     const [selectedShower, setSelectedShower] = useState(null);
-    console.log(activeShowerData)
+    const hasValidShowers = useMemo(() => {
+        if (!activeShowerData || activeShowerData.length === 0) return false;
+        return activeShowerData.some(shower => shower.src);
+    }, [activeShowerData]);
+
+    const allShowersEmpty = useMemo(() => {
+        if (!activeShowerData || activeShowerData.length === 0) return true;
+        return activeShowerData.every(shower => !shower.src);
+    }, [activeShowerData]);
+
     return (
         <Container>
             <Row>
                 <Col>
-
-
-
                     <div className="table-responsive mb-4">
                         {reportType === '1' && (
                             <Table striped bordered hover>
@@ -26,7 +29,7 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.NAME')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.START_DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.END_DATE')}</th>
-                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE',{it:''} )}</th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' })}</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -56,7 +59,9 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="3" className="text-center">{t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')}</td>
+                                            <td colSpan="6" className="text-center">
+                                                {hasValidShowers ? t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN') : t('REPORT.ACTIVE_RAIN.NO_SHOWERS_AVAILABLE')}
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -68,10 +73,10 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                 <thead className="thead-dark">
                                     <tr>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.ID')}</th>
-                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', {it: '(Ra of date)'})} </th>
-                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', {it: '(De of date)'})} </th>
-                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', {it: '(Closer Ra)'})} </th>
-                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', {it: '(Close De)'})} </th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Ra of date)' })}</th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(De of date)' })}</th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Closer Ra)' })}</th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Close De)' })}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.DISTANCE')}</th>
                                         <th></th>
                                     </tr>
@@ -103,14 +108,15 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="3" className="text-center">{t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')}</td>
+                                            <td colSpan="7" className="text-center">
+                                                {hasValidShowers ? t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN') : t('REPORT.ACTIVE_RAIN.NO_SHOWERS_AVAILABLE')}
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>
                             </Table>
                         )}
                     </div>
-
                 </Col>
             </Row>
 
@@ -132,6 +138,19 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                 Ocultar
                             </Button>
                         </div>
+                    </Col>
+                </Row>
+            )}
+
+            {allShowersEmpty && (
+                <Row>
+                    <Col>
+                        <h2 className="mb-3">
+                            {t('REPORT.ACTIVE_RAIN.NO_SHOWERS_WITH_DATA')}
+                        </h2>
+                        <p>
+                            {t('REPORT.ACTIVE_RAIN.NO_SHOWERS_WITH_DATA_DESC')}
+                        </p>
                     </Col>
                 </Row>
             )}

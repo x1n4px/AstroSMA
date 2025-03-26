@@ -37,28 +37,44 @@
                 "DESCRIPTION": "velocidad media de los meteoros"
             },
             "SECOND": {
-                "TITLE": "Error en la trayectoria",
-                "DESCRIPTION": "Gráfico de barras agrupadas: Comparar los valores de Error_distancia_Estacion_1 y Error_distancia_Estacion_2"
+                "TITLE": "Relación entre ángulo diédrico y velocidad media",
+                "DESCRIPTION": ""
             },
             "THIRD": {
-                "TITLE": "Magnitud fotométrica de los meteoros",
-                "DESCRIPTION": "Diagrama de caja y bigotes: Para analizar la dispersión de Masa_fotometrica, MagMax y MagMin en Informe_Fotometria."
+                "TITLE": " Frecuencia de observaciones por mes y año",
+                "DESCRIPTION": " Gráfico de líneas: Para mostrar la cantidad de meteoros detectados por mes y año"
             },
             "FOURTH": {
                 "TITLE": "Asociación de meteoros con lluvias conocidas",
                 "DESCRIPTION": "cuántos meteoros están asociados a lluvias"
             },
             "FIFTH": {
-                "TITLE": "Distribución de meteoros por estación",
-                "DESCRIPTION": "Gráfico de barras: Para mostrar la cantidad de meteoros detectados por cada estación (Estacion_Observadora en Informe_Radiante)."
+                "TITLE": "Altura medida por estación con error",
+                "DESCRIPTION": ""
             },
             "SIXTH": {
-                "TITLE": "Distribución de meteoros por lluvia",
-                "DESCRIPTION": "Gráfico de barras: Para mostrar la cantidad de meteoros detectados por cada lluvia (Lluvia_Identificador en Informe_Radiante)."
+                "TITLE": "Últimos informes de dos estaciones",
+                "DESCRIPTION": ""
             },
             "SEVENTH": {
-                "TITLE": "Distribución angular de los meteoros",
-                "DESCRIPTION": "Diagrama polar: Representar Distancia_angular_grados de Informe_Radiante"
+                "TITLE": "Informes con excentricidad superior al 90%",
+                "DESCRIPTION": ""
+            },
+            "EIGHTH": {
+                "TITLE": "Horas del día con más detecciones de meteoros",
+                "DESCRIPTION": ""
+            },
+            "NINTH": {
+                "TITLE": "Mapa de impactos previsibles",
+                "DESCRIPTION": ""
+            },
+            "TENTH": {
+                "TITLE": "Distribución de azimut de entrada de los meteoros",
+                "DESCRIPTION": ""
+            },
+            "ELEVENTH": {
+                "TITLE": "Relación entre ángulo de trayectoria y distancia recorrida",
+                "DESCRIPTION": ""
             }
         }
     },
@@ -329,7 +345,7 @@
         }
     },
     "REPORT": {
-        "TITLE": "Informe Z {{id}}",
+        "TITLE": "Informe de dos estaciones: {{date}} {{hour}}",
         "TITLE_RADIAN": "Informe radiante {{id}}",
         "WARNING_BTN": "Informar error",
         "SUMMARY_TAB": "Resumen",
@@ -406,18 +422,18 @@
             }
         },
         "PHOTOMETRY": {
-            "TITLE": "Informe de fotometría {{id}}",
+            "TITLE": "Informe de fotometría",
             "INPUT": {
-                "DATE":"Fecha",
-                "HOUR":"Hora",
-                "VISIBLE_STARS":"Estrellas visibles",
-                "STAR_USED_IN_REGRESSION":"Estrella utilizada en la regresión",
-                "BOUGER_LINE_EXTERNAL":"Línea de Bouger externa",
-                "BOUGER_LINE_ZERO":"Línea de Bouger cero",
-                "REGRESSION_STANDART_ERROR":"Error estándar de la regresión",
-                "STANDART_ZERO_POINT":"Estándar de punto cero",
-                "STANDART_ERROR_EXTERNAL_COEFF":"Error estándar del coeficiente externo",
-                "PATH_PARABOLA_COEFF":"Coeficiente de la parábola del camino"
+                "DATE": "Fecha",
+                "HOUR": "Hora",
+                "VISIBLE_STARS": "Estrellas visibles",
+                "STAR_USED_IN_REGRESSION": "Estrella utilizada en la regresión",
+                "BOUGER_LINE_EXTERNAL": "Línea de Bouger externa",
+                "BOUGER_LINE_ZERO": "Línea de Bouger cero",
+                "REGRESSION_STANDART_ERROR": "Error estándar de la regresión",
+                "STANDART_ZERO_POINT": "Estándar de punto cero",
+                "STANDART_ERROR_EXTERNAL_COEFF": "Error estándar del coeficiente externo",
+                "PATH_PARABOLA_COEFF": "Coeficiente de la parábola del camino"
             },
             "REGRESSION_DATA_TAB": {
                 "TITLE": "Datos de regresión",
@@ -439,8 +455,8 @@
             },
             "ADJUSTEMENT_POINT": {
                 "TITLE": "Ajuste de puntos",
-                "T":"t",
-                "DISTANCE":"Distancia",
+                "T": "t",
+                "DISTANCE": "Distancia",
                 "MC": "Mc",
                 "MA": "Ma"
             }
@@ -450,7 +466,10 @@
         },
         "ACTIVE_RAIN": {
             "TITLE": "Lluvias activas",
+            "NO_SHOWERS_WITH_DATA": "¡No hay lluvias con datos disponibles!",
+            "NO_SHOWERS_WITH_DATA_DESC": "Parece que las lluvias de meteoros actuales están disfrutando de un merecido descanso cósmico. ¡Vuelve pronto para ver si se despiertan!",
             "NO_ACTIVE_RAIN": "No hay lluvias activas",
+            "NO_SHOWERS_AVAILABLE": "No hay lluvias disponibles",
             "TABLE": {
                 "ID": "Identificador",
                 "NAME": "Nombre",
@@ -561,6 +580,72 @@
             "ACTIVE": "Activo",
             "CONSTRUCTING": "En construcción",
             "COLLABORATION": "Colaboración"
+        }
+    },
+    "ORBIT_REPORT": {
+        "ID": {
+            "label": "ID",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Fecha",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Hora",
+            "measure": ""
+        },
+        "CALCULATED_WITH": {
+            "label": "Calculado con",
+            "measure": ""
+        },
+        "VELOCITY_INF": {
+            "label": "Velocidad Inferida",
+            "measure": "Km/s"
+        },
+        "VELOCITY_GEOM": {
+            "label": "Velocidad Geométrica",
+            "measure": "Km/s"
+        },
+        "AR": {
+            "label": "AR",
+            "measure": "°"
+        },
+        "DE": {
+            "label": "DE",
+            "measure": "°"
+        },
+        "I": {
+            "label": "i",
+            "measure": "°"
+        },
+        "P": {
+            "label": "p",
+            "measure": "°"
+        },
+        "A": {
+            "label": "a",
+            "measure": "°"
+        },
+        "E": {
+            "label": "e",
+            "measure": ""
+        },
+        "Q": {
+            "label": "q",
+            "measure": "AU"
+        },
+        "T": {
+            "label": "T",
+            "measure": ""
+        },
+        "OMEGA": {
+            "label": "Omega",
+            "measure": "°"
+        },
+        "OMEGA_DEGREE": {
+            "label": "Omega grados votos max min",
+            "measure": "°"
         }
     },
     "SUMMARY_REPORT": {

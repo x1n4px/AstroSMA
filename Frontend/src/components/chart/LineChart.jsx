@@ -5,6 +5,9 @@ function LineChart({ data, xVariable, yVariable }) {
   const svgRef = useRef();
   const wrapperRef = useRef();
 
+
+  
+
   useEffect(() => {
     if (!data || data.length === 0 || !xVariable || !yVariable) {
       return; // No renderizar si faltan datos o variables
@@ -23,16 +26,19 @@ function LineChart({ data, xVariable, yVariable }) {
     svg.attr('width', width).attr('height', height);
     const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
 
+    // Comprobamos si los datos del eje X son fechas
     const isTimeVariable = data.some(d => d[xVariable] instanceof Date);
 
+    // Si los datos del eje X son fechas, usamos scaleTime, sino scaleLinear
     const x = isTimeVariable
       ? d3.scaleTime().domain(d3.extent(data, (d) => d[xVariable])).range([0, innerWidth])
       : d3.scaleLinear().domain(d3.extent(data, (d) => d[xVariable])).range([0, innerWidth]);
 
     const y = d3.scaleLinear().domain(d3.extent(data, (d) => d[yVariable])).range([innerHeight, 0]);
 
+    // Usamos d3.timeMonth.every(3) para ticks del eje X si son fechas
     const xAxis = isTimeVariable
-      ? d3.axisBottom(x).ticks(d3.timeMonth.every(3))
+      ? d3.axisBottom(x).ticks(d3.timeMonth.every(1)).tickFormat(d3.timeFormat('%Y-%m'))
       : d3.axisBottom(x).ticks(5).tickFormat(d3.format('.1f'));
 
     const yAxis = d3.axisLeft(y).ticks(5).tickFormat(d3.format('.1f'));

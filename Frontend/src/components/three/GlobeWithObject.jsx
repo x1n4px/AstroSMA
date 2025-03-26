@@ -1,20 +1,22 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 function GlobeAndComet({ orbitalElements }) {
   const [globeTexture, setGlobeTexture] = React.useState(null);
+  const [meteorTexture, setMeteorTexture] = useState(null);
   const cometRef = useRef();
   const timeRef = useRef(0);
   const tailRef = useRef();
-  const scaleFactor = 1;
-  const earthRadius = 1;
+  const scaleFactor = 20;
+  const earthRadius = 2;
   const earthPosition = new THREE.Vector3(10, 0, 0);
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load('/earthmap1k.jpg', setGlobeTexture);
+    loader.load('/meteorTexture.jpg', setMeteorTexture);
   }, []);
 
   const cometTrajectory = useMemo(() => {
@@ -32,12 +34,11 @@ function GlobeAndComet({ orbitalElements }) {
 
     const ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.omega.split(' ')[0]));
 
-    console.log("a:", a, "e:", e, "i:", i, "Ω:", Ω, "ω:", ω); // Imprimir valores para depuración
 
     if (isNaN(Ω)) return []; // Si Omega es NaN, retornar un arreglo vacío
 
     const points = [];
-    const numPoints = 200;
+    const numPoints = 2000;
 
     for (let j = 0; j <= numPoints; j++) {
       const M = (j / numPoints) * 2 * Math.PI;
@@ -76,7 +77,7 @@ function GlobeAndComet({ orbitalElements }) {
 
   useFrame(({ clock }) => {
     if (cometRef.current && cometTrajectory.length > 0) {
-      timeRef.current += 0.001;
+      timeRef.current += 0.00005;
       const index = Math.floor((timeRef.current % 1) * cometTrajectory.length);
       const { x, y, z } = cometTrajectory[index];
       cometRef.current.position.set(x, y, z);
@@ -93,8 +94,10 @@ function GlobeAndComet({ orbitalElements }) {
     <>
       <ambientLight intensity={1} />
       <pointLight position={[10, 10, 10]} intensity={1} />
-      <Stars />
 
+      <Stars />
+      <ambientLight intensity={0.5} /> {/* Luz ambiental general */}
+      <ambientLight intensity={1.5} position={[10, 0, 0]} /> {/* Luz ambiental específica para la Tierra */}
       <mesh position={[10, 0, 0]}>
         <sphereGeometry args={[earthRadius, 32, 32]} />
         <meshStandardMaterial map={globeTexture} />
@@ -105,13 +108,13 @@ function GlobeAndComet({ orbitalElements }) {
       </line>
 
       <mesh ref={cometRef}>
-        <sphereGeometry args={[0.1, 16, 16]} />
-        <meshBasicMaterial color="lightgray" />
+        <sphereGeometry args={[0.56, 16, 16]} />
+        <meshBasicMaterial map={meteorTexture} />
       </mesh>
-      <mesh ref={tailRef} position={[0, 0, 0]}>
-        <coneGeometry args={[0.05, 0.5, 32]} />
-        <meshBasicMaterial color="orange" />
-      </mesh>
+      {/* <mesh ref={tailRef} position={[0, 0, 0]}>
+        <coneGeometry args={[1, 1, 32]} />
+        <meshBasicMaterial color="red" />
+      </mesh> */}
       <OrbitControls target={[10, 0, 0]} minDistance={5} maxDistance={200} />
     </>
   );
@@ -122,7 +125,7 @@ function GlobeWithComet({ orbitalElements }) {
   return (
     <Canvas
       style={{ width: '100%', height: '80%', backgroundColor: 'black' }}
-      camera={{ position: [11, 8.5, 15], fov: 60 }}
+      camera={{ position: [11, 8.5, 15], fov: 100 }}
     >
       <GlobeAndComet orbitalElements={orbitalElements} />
     </Canvas>

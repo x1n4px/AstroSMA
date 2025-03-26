@@ -2,6 +2,19 @@ import React from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import Pending from '@/components/chart/Pending.jsx';
 import { useTranslation } from 'react-i18next';
+import SlopeMap from '@/components/map/SlopeMap';
+
+const startPoint = {
+    lat: 36.812487,  // Nueva York
+    lng: -4.523610,
+    elevation: 100000   // metros sobre el nivel del mar
+};
+
+const endPoint = {
+    lat: 36.965898,  // 1 km al norte
+    lng: -4.224782,
+    elevation: 60000  // 100 metros más alto
+};
 
 const PendingReport = ({ reportData }) => {
     const { t } = useTranslation(['text']);
@@ -165,7 +178,11 @@ const PendingReport = ({ reportData }) => {
             <Row>
                 <Col>
                     <div>
-                        <Pending data={data} />
+                        {/* <Pending data={data} /> */}
+
+                        <div style={{ width: 'auto', height: 'auto' }}>
+                            <SlopeMap startPoint={startPoint} endPoint={endPoint} />
+                        </div>
                     </div>
                 </Col>
             </Row>

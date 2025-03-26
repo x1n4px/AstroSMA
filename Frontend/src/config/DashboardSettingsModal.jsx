@@ -91,11 +91,15 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
   const dictionary = {
     1: `${t('DASHBOARD.GRAPH.FIRST.TITLE')}`,
     2: `${t('DASHBOARD.GRAPH.SECOND.TITLE')}`,
-    3: 'Pie chart',
-    4: 'Size bar chart',
-    5: 'Scatter plot',
-    6: 'List',
-    7: 'List'
+    3: `${t('DASHBOARD.GRAPH.THIRD.TITLE')}`,
+    4: `${t('DASHBOARD.GRAPH.FOURTH.TITLE')}`,
+    5: `${t('DASHBOARD.GRAPH.FIFTH.TITLE')}`,
+    6: `${t('DASHBOARD.GRAPH.SIXTH.TITLE')}`,
+    7: `${t('DASHBOARD.GRAPH.SEVENTH.TITLE')}`,
+    8: `${t('DASHBOARD.GRAPH.EIGHTH.TITLE')}`,
+    9: `${t('DASHBOARD.GRAPH.NINTH.TITLE')}`,
+    10: `${t('DASHBOARD.GRAPH.TENTH.TITLE')}`,
+    11: `${t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}`
   };
 
   return (

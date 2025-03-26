@@ -2,6 +2,8 @@ import React from 'react';
 import { Container, Row, Col, Card, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
+import { formatDate } from '@/pipe/formatDate';
+
 const SummaryReport = ({ data }) => {
     const { t } = useTranslation(['text']);
 
@@ -14,7 +16,7 @@ const SummaryReport = ({ data }) => {
 
                         <Form.Group className="mb-3" controlId="formDate">
                             <Form.Label>{t('SUMMARY_REPORT.DATE.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Fecha} readOnly className="form-control flex-grow-1" />
+                            <Form.Control type="text" value={formatDate(data?.Fecha)} readOnly className="form-control flex-grow-1" />
                             {t('SUMMARY_REPORT.DATE.measure') &&
                                 <div className="input-group-append">
                                     <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.DATE.measure')}</span>

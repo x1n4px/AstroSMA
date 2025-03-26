@@ -13,6 +13,7 @@ import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport'
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import VideoReport from '@/pages/astronomy/report/pages/videoReport';
+import {formatDate} from '@/pipe/formatDate.jsx';
 
 import { getReportZ } from '@/services/reportService.jsx'
 
@@ -87,7 +88,6 @@ const Report = () => {
         // Procesar los datos del formulario aquí
         try {
             const response = saveReportAdvice(formData);
-            console.log(response)
         } catch (error) {
             console.error('Error al guardar el informe:', error);
 
@@ -128,7 +128,9 @@ const Report = () => {
         <div className="p-4">
             <Row className="justify-content-between align-items-center">
                 <Col xs="auto">
-                    <h1>{t('REPORT.TITLE', { id: reportData?.IdInforme || 'Cargando...' })}</h1>
+                    {reportData && (
+                        <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0,8) })}</h1>
+                    )}
                 </Col>
                 <Col xs="auto">
                     <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
@@ -175,7 +177,7 @@ const Report = () => {
 
                     <SummaryReport data={reportData} />
 
-                    <VideoReport nombreCamara={observatoryName} />
+                    <VideoReport nombreCamara={observatoryName} report={reportData} />
                 </Tab>
                 <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
                     {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
@@ -199,7 +201,7 @@ const Report = () => {
                             ID: {advice.Id} - {advice.Description}
                         </Alert>
                     ))}
-                    <ActiveRain  activeShowerData={activeShowerData} reportType={'1'} />
+                    <ActiveRain activeShowerData={activeShowerData} reportType={'1'} />
                 </Tab>
                 {/* <Tab eventKey="STATIONS" title={t('REPORT.STATIONS')}>
                     {getTabAdvice('STATIONS').map(advice => (
@@ -264,7 +266,7 @@ const Report = () => {
                     </Tab>
                 )}
 
-                
+
             </Tabs>
 
             <Modal show={showModal} onHide={handleClose}>
