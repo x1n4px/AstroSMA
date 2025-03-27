@@ -4,17 +4,7 @@ import Pending from '@/components/chart/Pending.jsx';
 import { useTranslation } from 'react-i18next';
 import SlopeMap from '@/components/map/SlopeMap';
 
-const startPoint = {
-    lat: 36.812487,  // Nueva York
-    lng: -4.523610,
-    elevation: 100000   // metros sobre el nivel del mar
-};
 
-const endPoint = {
-    lat: 36.965898,  // 1 km al norte
-    lng: -4.224782,
-    elevation: 60000  // 100 metros más alto
-};
 
 const PendingReport = ({ reportData }) => {
     const { t } = useTranslation(['text']);
@@ -23,44 +13,45 @@ const PendingReport = ({ reportData }) => {
         return <p>{t('REPORT.PENDING.NO_DATA')}</p>; // Manejo de datos faltantes
     }
 
-    const parseCoordinates = (coordinates) => {
-        const parts = coordinates.split(' ');
-        return {
-            coordinates: `${parts[0]} ${parts[1]}`,
-            distance: parseFloat(parts[2]),
-            height: parseFloat(parts[3]),
-        };
-    };
-
-    const station1Start = parseCoordinates(reportData.Inicio_de_la_trayectoria_Estacion_1);
-    const station1End = parseCoordinates(reportData.Fin_de_la_trayectoria_Estacion_1);
-    const station2Start = parseCoordinates(reportData.Inicio_de_la_trayectoria_Estacion_2);
-    const station2End = parseCoordinates(reportData.Fin_de_la_trayectoria_Estacion_2);
-
+   
     const data = [
         {
             id: reportData.Observatorio_Número,
             name: t('REPORT.PENDING.STATION_1'),
-            start: station1Start.coordinates,
-            initialDistance: station1Start.distance,
-            initialHeight: station1Start.height,
-            end: station1End.coordinates,
-            finalDistance: station1End.distance,
-            finalHeight: station1End.height,
+            start: reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_1.longitude,
+            initialDistance: reportData.Inicio_de_la_trayectoria_Estacion_1.distance,
+            initialHeight: reportData.Inicio_de_la_trayectoria_Estacion_1.height,
+            end: reportData.Fin_de_la_trayectoria_Estacion_1.latitud + ' ' + reportData.Fin_de_la_trayectoria_Estacion_1.longitude,
+            finalDistance: reportData.Fin_de_la_trayectoria_Estacion_1.distance,
+            finalHeight: reportData.Fin_de_la_trayectoria_Estacion_1.height,
             time: reportData.Tiempo_Estacion_1
         },
         {
             id: reportData.Observatorio_Número2,
             name: t('REPORT.PENDING.STATION_2'),
-            start: station2Start.coordinates,
-            initialDistance: station2Start.distance,
-            initialHeight: station2Start.height,
-            end: station2End.coordinates,
-            finalDistance: station2End.distance,
-            finalHeight: station2End.height,
+            start: reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_2.longitude,
+            initialDistance: reportData.Inicio_de_la_trayectoria_Estacion_2.distance,
+            initialHeight: reportData.Inicio_de_la_trayectoria_Estacion_2.height,
+            end: reportData.Fin_de_la_trayectoria_Estacion_2.latitud + ' ' + reportData.Fin_de_la_trayectoria_Estacion_2.longitude,
+            finalDistance: reportData.Fin_de_la_trayectoria_Estacion_2.distance,
+            finalHeight: reportData.Fin_de_la_trayectoria_Estacion_2.height,
             time: reportData.Tiempo_trayectoria_en_estacion_2
         },
     ];
+
+    const startPoint = {
+        lat: reportData.Inicio_de_la_trayectoria_Estacion_1.latitude,  // Nueva York
+        lng: reportData.Inicio_de_la_trayectoria_Estacion_1.longitude,
+        elevation: reportData.Inicio_de_la_trayectoria_Estacion_1.height   // metros sobre el nivel del mar
+    };
+    
+    const endPoint = {
+        lat: reportData.Fin_de_la_trayectoria_Estacion_1.latitude,  // 1 km al norte
+        lng: reportData.Fin_de_la_trayectoria_Estacion_1.longitude,
+        elevation: reportData.Fin_de_la_trayectoria_Estacion_1.height  // 100 metros más alto
+    };
+
+    
 
     return (
         <Container>
@@ -69,54 +60,54 @@ const PendingReport = ({ reportData }) => {
                     <h4>{t('REPORT.PENDING.STATION_DETAILS', { id: data[0].id })}</h4>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.START_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={station1Start.coordinates} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_1.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={station1Start.distance} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.distance} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={station1Start.height} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.height} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.END_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={station1End.coordinates} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.latitud + ' ' + reportData.Fin_de_la_trayectoria_Estacion_1.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={station1End.distance} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.distance} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={station1End.height} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.height} readOnly />
                     </Form.Group>
                 </Col>
                 <Col xs={12} md={6}>
                     <h4>{t('REPORT.PENDING.STATION_DETAILS', { id: data[1].id })}</h4>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.START_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={station2Start.coordinates} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_2.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={station2Start.distance} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_2.distance} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={station2Start.height} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_2.height} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.END_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={station2End.coordinates} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.latitud + ' ' + reportData.Fin_de_la_trayectoria_Estacion_2.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={station2End.distance} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.distance} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={station2End.height} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.height} readOnly />
                     </Form.Group>
                 </Col>
             </Row>

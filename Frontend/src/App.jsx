@@ -18,7 +18,6 @@ import ActiveRain from '@/pages/astronomy/activeShower.jsx';
 import RadiantReport from '@/pages/astronomy/report/radiantReport';
 import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
 
-
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Estado para manejar la carga inicial

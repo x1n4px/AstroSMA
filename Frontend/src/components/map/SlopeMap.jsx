@@ -8,6 +8,8 @@ import { Line } from 'react-chartjs-2';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SlopeMap = ({ startPoint, endPoint }) => {
+    console.log(startPoint);
+    console.log(endPoint);
     const [distance, setDistance] = useState(0);
     const [slope, setSlope] = useState(0);
     const [slopeAngle, setSlopeAngle] = useState(0);
@@ -28,10 +30,10 @@ const SlopeMap = ({ startPoint, endPoint }) => {
         }
 
         const R = 6371e3;
-        const φ1 = startPoint.lat * Math.PI / 180;
-        const φ2 = endPoint.lat * Math.PI / 180;
-        const Δφ = (endPoint.lat - startPoint.lat) * Math.PI / 180;
-        const Δλ = (endPoint.lng - startPoint.lng) * Math.PI / 180;
+        const φ1 = parseFloat(startPoint.lat) * Math.PI / 180;
+        const φ2 = parseFloat(endPoint.lat) * Math.PI / 180;
+        const Δφ = (parseFloat(endPoint.lat) - parseFloat(startPoint.lat)) * Math.PI / 180;
+        const Δλ = (parseFloat(endPoint.lng) - parseFloat(startPoint.lng)) * Math.PI / 180;
 
         const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
@@ -39,7 +41,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
         const calculatedDistance = R * c;
         setDistance(calculatedDistance);
 
-        const elevationDifference = endPoint.elevation - startPoint.elevation;
+        const elevationDifference = parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation);
         const calculatedSlope = (elevationDifference / calculatedDistance) * 100;
         setSlope(calculatedSlope);
 
@@ -49,9 +51,9 @@ const SlopeMap = ({ startPoint, endPoint }) => {
         const numPoints = 10;
         const profile = Array.from({ length: numPoints + 1 }, (_, i) => {
             const fraction = i / numPoints;
-            const lat = startPoint.lat + fraction * (endPoint.lat - startPoint.lat);
-            const lng = startPoint.lng + fraction * (endPoint.lng - startPoint.lng);
-            const elevation = startPoint.elevation + fraction * (endPoint.elevation - startPoint.elevation);
+            const lat = parseFloat(startPoint.lat) + fraction * (parseFloat(endPoint.lat) - parseFloat(startPoint.lat));
+            const lng = parseFloat(startPoint.lng) + fraction * (parseFloat(endPoint.lng) - parseFloat(startPoint.lng));
+            const elevation = parseFloat(startPoint.elevation) + fraction * (parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation));
             const dist = fraction * calculatedDistance;
             return { distance: dist, elevation: elevation };
         });
@@ -59,7 +61,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
     };
 
     const chartData = {
-        labels: elevationProfile.map(point => `${(point.distance / 1000).toFixed(1)} km`),
+        labels: elevationProfile.map(point => `${point.distance.toFixed(2)} km`), // Display distance in meters
         datasets: [
             {
                 label: 'Perfil de Elevación',
@@ -82,7 +84,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
             tooltip: {
                 callbacks: {
                     label: (context) => {
-                        return `Elevación: ${context.raw} m`;
+                        return `Elevación: ${context.raw} km`;
                     },
                 },
             },
@@ -91,13 +93,13 @@ const SlopeMap = ({ startPoint, endPoint }) => {
             y: {
                 title: {
                     display: true,
-                    text: 'Elevación (metros)',
+                    text: 'Elevación (km)',
                 },
             },
             x: {
                 title: {
                     display: true,
-                    text: 'Distancia (km)',
+                    text: 'Distancia (km)', // Updated to meters
                 },
             },
         },
@@ -121,8 +123,8 @@ const SlopeMap = ({ startPoint, endPoint }) => {
         <div className="slope-map-container" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 2 }}>
                 <MapContainer
-                    center={startPoint ? [startPoint.lat, startPoint.lng] : [0, 0]}
-                    zoom={8}
+                    center={startPoint ? [parseFloat(startPoint.lat), parseFloat(startPoint.lng)] : [0, 0]}
+                    zoom={8} // Increased zoom level for better visibility of short distances
                     style={{ height: '500px', width: '100%' }}
                     ref={mapRef}
                 >
@@ -134,28 +136,28 @@ const SlopeMap = ({ startPoint, endPoint }) => {
                             />
                             <Polyline
                                 positions={[
-                                    [startPoint.lat, startPoint.lng],
-                                    [endPoint.lat, endPoint.lng],
+                                    [parseFloat(startPoint.lat), parseFloat(startPoint.lng)],
+                                    [parseFloat(endPoint.lat), parseFloat(endPoint.lng)],
                                 ]}
                                 color="blue"
                             />
-                            <Marker position={[startPoint.lat, startPoint.lng]} icon={startIcon}>
+                            <Marker position={[parseFloat(startPoint.lat), parseFloat(startPoint.lng)]} icon={startIcon}>
                                 <Popup>
                                     <div>
                                         <h4>Punto de Inicio</h4>
-                                        <p>Lat: {startPoint.lat.toFixed(6)}</p>
-                                        <p>Lng: {startPoint.lng.toFixed(6)}</p>
-                                        <p>Elevación: {startPoint.elevation.toFixed(1)} m</p>
+                                        <p>Lat: {startPoint.lat}</p>
+                                        <p>Lng: {startPoint.lng}</p>
+                                        <p>Elevación: {startPoint.elevation} m</p>
                                     </div>
                                 </Popup>
                             </Marker>
-                            <Marker position={[endPoint.lat, endPoint.lng]} icon={endIcon}>
+                            <Marker position={[parseFloat(endPoint.lat), parseFloat(endPoint.lng)]} icon={endIcon}>
                                 <Popup>
                                     <div>
                                         <h4>Punto Final</h4>
-                                        <p>Lat: {endPoint.lat.toFixed(6)}</p>
-                                        <p>Lng: {endPoint.lng.toFixed(6)}</p>
-                                        <p>Elevación: {endPoint.elevation.toFixed(1)} m</p>
+                                        <p>Lat: {endPoint.lat}</p>
+                                        <p>Lng: {endPoint.lng}</p>
+                                        <p>Elevación: {endPoint.elevation} m</p>
                                         <p>Distancia: {(distance / 1000).toFixed(2)} km</p>
                                         <p>Pendiente: {slope.toFixed(2)}% ({slopeAngle.toFixed(2)}°)</p>
                                     </div>
@@ -170,7 +172,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
                     <div style={{ flex: 1, marginRight: '10px' }}>
                         <h3>Información de la Ruta</h3>
                         <p><strong>Distancia:</strong> {(distance / 1000).toFixed(2)} km</p>
-                        <p><strong>Diferencia de elevación:</strong> {((endPoint.elevation - startPoint.elevation)/1000).toFixed(1)} Km</p>
+                        <p><strong>Diferencia de elevación:</strong> {((parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation))).toFixed(2)} m</p> {/* Corrected to meters */}
                         <p><strong>Pendiente promedio:</strong> {slope.toFixed(2)}%</p>
                     </div>
                     <div style={{ flex: 1 }}>
