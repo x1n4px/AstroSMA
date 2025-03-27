@@ -2,6 +2,7 @@ const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
 
 const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
+const {convertCoordinates} = require('../middlewares/convertCoordinates');
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -21,6 +22,16 @@ const getReportZ = async (req, res) => {
         const { id } = req.params;
         const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
 
+        const processedReports = report.map(report => {
+            return {
+                ...report,
+                Inicio_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
+                Fin_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
+                Inicio_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
+                Fin_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2))
+            };
+        });
+
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
@@ -35,11 +46,11 @@ const getReportZ = async (req, res) => {
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
-        const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]); 
+        const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
 
         const response = {
-            informe: report[0],
+            informe: processedReports[0],
             observatorios: [
                 obs1.length > 0 ? transform(obs1[0]) : null, // Manejar el caso en que obs1 esté vacío
                 obs2.length > 0 ? transform(obs2[0]) : null  // Manejar el caso en que obs2 esté vacío
@@ -68,10 +79,10 @@ const saveReportAdvice = async (req, res) => {
         const token = req.header('x-token');
 
         const user_id = extraerUserId(token);
-        
+
         const { Description, Tab, Informe_Z_Id } = formData;
         const Id = parseInt(Informe_Z_Id);
-    
+
         await pool.execute(`INSERT INTO Informe_Error (Informe_Z_Id, Tab, Description, user_Id) VALUES (${Id}, '${Tab.toString()}', '${Description.toString()}', ${user_id})`);
         res.json({ message: 'Informe de error guardado correctamente' });
     } catch (error) {
@@ -171,10 +182,33 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 }
 
 
+// Test function to verify the module is working
+const testing = async (req, res) => {
+    try {
+        const [reports] = await pool.query("SELECT * FROM Informe_Z WHERE IdInforme = 202");
+        
+        const processedReports = reports.map(report => {
+            return {
+                ...report,
+                Inicio_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
+                Fin_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
+                Inicio_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
+                Fin_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2))
+            };
+        });
+        
+        res.json(processedReports);
+    } catch (error) {
+        console.error('Error al obtener las estaciones:', error);
+        throw error;
+    }
+};
+
 
 module.exports = {
     getAllReportZ,
     getReportZ,
     saveReportAdvice,
-    getReportzWithCustomSearch
+    getReportzWithCustomSearch,
+    testing
 };
