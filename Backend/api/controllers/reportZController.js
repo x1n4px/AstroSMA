@@ -2,7 +2,7 @@ const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
 
 const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
-const {convertCoordinates} = require('../middlewares/convertCoordinates');
+const { convertCoordinates } = require('../middlewares/convertCoordinates');
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -25,10 +25,10 @@ const getReportZ = async (req, res) => {
         const processedReports = report.map(report => {
             return {
                 ...report,
-                Inicio_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
-                Fin_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
-                Inicio_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
-                Fin_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2))
+                Inicio_de_la_trayectoria_Estacion_1: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
+                Fin_de_la_trayectoria_Estacion_1: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
+                Inicio_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
+                Fin_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2))
             };
         });
 
@@ -185,19 +185,72 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 // Test function to verify the module is working
 const testing = async (req, res) => {
     try {
-        const [reports] = await pool.query("SELECT * FROM Informe_Z WHERE IdInforme = 202");
-        
-        const processedReports = reports.map(report => {
-            return {
-                ...report,
-                Inicio_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
-                Fin_de_la_trayectoria_Estacion_1:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
-                Inicio_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
-                Fin_de_la_trayectoria_Estacion_2:  (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2))
-            };
-        });
-        
-        res.json(processedReports);
+        const [reports] = await pool.query("SELECT * FROM Informe_Z WHERE IdInforme = 120");
+
+        const report = reports[0];
+        let diasExtra = 7;
+        let found = false;
+        let activeRains = [];
+        let activeShowers = [];
+
+        while (!found) {
+            const fechaInicio = new Date(report.Fecha);
+            fechaInicio.setDate(fechaInicio.getDate() - diasExtra);
+
+            const fechaFin = new Date(report.Fecha);
+            fechaFin.setDate(fechaFin.getDate() + diasExtra);
+
+            /** 🔹 1. Buscar lluvias activas en "Lluvia" */
+            const [rains] = await pool.query(
+                `SELECT * FROM Lluvia 
+                 WHERE (Fecha_Inicio BETWEEN ? AND ?) 
+                    OR (Fecha_Fin BETWEEN ? AND ?) 
+                    OR (? BETWEEN Fecha_Inicio AND Fecha_Fin)`,
+                [
+                    fechaInicio.toISOString().split('T')[0], fechaFin.toISOString().split('T')[0],
+                    fechaInicio.toISOString().split('T')[0], fechaFin.toISOString().split('T')[0],
+                    report.Fecha
+                ]
+            );
+
+            const fechaCompleta = new Date(report.Fecha);
+            const year = fechaCompleta.getFullYear();
+            const month = fechaCompleta.getMonth() + 1; // Los meses son 0-indexed
+            const day = fechaCompleta.getDate();
+
+            const firstD = year + '-' + (fechaCompleta.getMonth() - 1);
+            const secondD = year + '-' + (fechaCompleta.getMonth() + 1);
+            const fechaSuma15 = new Date(fechaCompleta);
+            fechaSuma15.setDate(fechaSuma15.getDate() + 15);
+
+            // Restar 15 días
+            const fechaResta15 = new Date(fechaCompleta);
+            fechaResta15.setDate(fechaResta15.getDate() - 15);
+
+            /** 🔹 2. Buscar meteor showers */
+            const [showers] = await pool.query(`SELECT ms.LP, ms.Activity, ms.SubDate 
+                                                    FROM meteor_showers ms 
+                                                    WHERE 
+                                                    ( 
+                                                        (Activity like '%annual%' AND SubDate >= ? AND SubDate <= ?)
+                                                        OR
+                                                        (SubDate BETWEEN ? AND ?)
+                                                        OR
+                                                        (Activity = 'annual' AND SubDate >= ? AND SubDate <= ?)
+                                                    );`, [firstD, secondD, fechaSuma15.toISOString().split('T')[0], fechaResta15.toISOString().split('T')[0], year, year]);
+
+
+            if (rains.length > 0 || filteredShowers.length > 0) {
+                activeRains = rains;
+                activeShowers = showers;
+                found = true;
+            } else {
+                diasExtra += 7;
+            }
+        }
+
+
+        res.json({ fecha: report.Fecha.toISOString().split('T')[0], activeRains, activeShowers, totalDays: diasExtra });
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
         throw error;
