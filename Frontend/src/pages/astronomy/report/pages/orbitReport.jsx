@@ -7,21 +7,20 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/pipe/formatDate'
 
 
-const OrbitReport = ({ orbit }) => {
+const OrbitReport = ({ orbit, observatory }) => {
     const { t } = useTranslation(['text']);
     const data = orbit[0];
-    console.log("Orbit Report: ", data)
-
+    
 
 
     return (
         <Container>
-           
+
 
             <Row className="mb-4">
                 <Col md={6}>
 
-                   
+
 
                     <Form.Group className="mb-3" controlId="formVelocityInf">
                         <Row className="align-items-center">
@@ -45,7 +44,7 @@ const OrbitReport = ({ orbit }) => {
 
                 </Col>
                 <Col md={6}>
- 
+
 
                     <Form.Group className="mb-3" controlId="formVelocityInf">
                         <Row className="align-items-center">
@@ -54,7 +53,7 @@ const OrbitReport = ({ orbit }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.Hora.substring(0,8)} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.Hora.substring(0, 8)} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.HOUR.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
@@ -286,7 +285,7 @@ const OrbitReport = ({ orbit }) => {
                             </Col>
                         </Row>
                     </Form.Group>
-                  
+
                     <Form.Group className="mb-3" controlId="formDihedralAngle">
                         <Row className="align-items-center">
                             <Col xs="auto">
@@ -313,9 +312,16 @@ const OrbitReport = ({ orbit }) => {
                     </Form.Group>
                 </Col>
             </Row>
-            <div style={{ width: '100%', height: '80vh' }}>
-                <GlobeWithObject orbitalElements={data} />
-            </div>
+            <>
+                 
+
+                    <div style={{ width: '100%', height: 'auto' }}>
+
+                        <GlobeWithObject orbitalElements={data} lat={observatory.latitude} lon={observatory.longitude} />
+
+                    </div>
+                 
+            </>
         </Container>
     );
 };

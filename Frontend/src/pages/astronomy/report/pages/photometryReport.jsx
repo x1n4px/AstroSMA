@@ -17,7 +17,6 @@ const PhotometryReport = ({ photometryData=[], isChild = false }) => {
 
     const params = useParams();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
-    console.log(id, isChild)
 
     const handleSelectChange = (event) => {
         setSelectedId(event.target.value);
@@ -28,7 +27,6 @@ const PhotometryReport = ({ photometryData=[], isChild = false }) => {
         const fetchData = async (id) => {
             try {
                 const response = await getPhotometryFromId(id);
-                console.log(response);
                 setPhotometryCData(response.photometry);
                 setRegressionData(response.regressionStart);
                 setMeteorData(response.meteor);

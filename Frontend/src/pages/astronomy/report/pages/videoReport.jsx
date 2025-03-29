@@ -2,7 +2,6 @@ import React from 'react';
 
 const VideoReport = ({ report, nombreCamara }) => {
 
-  console.log("Nombre camara: ", nombreCamara)
 
 
   const formatearNombreCamara = (nomCam) => {
@@ -55,7 +54,6 @@ const VideoReport = ({ report, nombreCamara }) => {
   const mostrarVideo = () => {
     // Simulación de la obtención de fecha y hora desde la base de datos
     if (report && report.Fecha && report.Hora) {
-      console.log(report)
 
       const fecha = report.Fecha
       const hora = report.Hora

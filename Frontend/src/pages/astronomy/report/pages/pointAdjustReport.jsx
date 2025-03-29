@@ -4,11 +4,11 @@ import "chart.js/auto";
 import LineChart from '@/components/chart/LineChart';
 // Internationalization
 import { useTranslation } from 'react-i18next';
+import formatDate from '@/pipe/formatDate.jsx'
 
 
 const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
     const { t } = useTranslation(['text']);
-    console.log(trajectoryData)
     // Datos simulados para la tabla de puntos
     const [puntos, setPuntos] = useState([
         { id: 1, x: 10, y: 20, z: 5 },
@@ -76,7 +76,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                                 <td>
                                                     <Form.Control
                                                         type="string"
-                                                        value={new Date(p.Fecha).toLocaleDateString()}
+                                                        value={formatDate(p.Fecha)}
                                                     />
                                                 </td>
                                                 <td>
@@ -148,7 +148,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                 <tbody>
                                     {regressionTrajectory.map((point, index) => (
                                         <tr key={index}>
-                                            <td>{point.Fecha}</td>
+                                            <td>{formatDate(point.Fecha)}</td>
                                             <td>{point.Hora}</td>
                                             <td>{point.t}</td>
                                             <td>{point.s}</td>
@@ -185,7 +185,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                 <tbody>
                                     {trajectoryData.map((p) => (
                                         <tr key={p.id}>
-                                            <td>{p.Fecha.toString().substring(0, 10)}</td>
+                                            <td>{formatDate(p.Fecha)}</td>
                                             <td>{p.Hora}</td>
                                             <td>{p.s}</td>
                                             <td>{p.t}</td>

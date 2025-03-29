@@ -31,7 +31,7 @@ const Report = () => {
     const [activeTab, setActiveTab] = useState('SUMMARY_TAB');
     const [reportData, setReportData] = useState(null);
     const [observatoryData, setObservatoryData] = useState([]);
-    const [orbitalData, setOrbitalData] = useState(null);
+    const [orbitalData, setOrbitalData] = useState([]);
     const [mapReportData, setMapReportData] = useState(null);
     const [zwoData, setZwoData] = useState(null);
     const [regressionTrajectory, setRegressionTrajectory] = useState(null);
@@ -59,6 +59,7 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
+            console.log(response)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -216,15 +217,16 @@ const Report = () => {
                     )}
                      <StationReport /> 
                 </Tab> */}
-
+                {orbitalData.length > 0 && (
                 <Tab eventKey="TRAJECTORY" title={t('REPORT.TRAJECTORY')}>
                     {getTabAdvice('TRAJECTORY').map(advice => (
                         <Alert key={advice.Id} variant="warning">
                             ID: {advice.Description} - Funcionalidad por definir!
                         </Alert>
                     ))}
-                    <OrbitReport orbit={orbitalData} />
+                    <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} />
                 </Tab>
+                )}
                 <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>
                     {getTabAdvice('PENDING_TAB').map(advice => (
                         <Alert key={advice.Id} variant="warning">

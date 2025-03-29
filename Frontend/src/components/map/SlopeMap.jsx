@@ -8,8 +8,6 @@ import { Line } from 'react-chartjs-2';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const SlopeMap = ({ startPoint, endPoint }) => {
-    console.log(startPoint);
-    console.log(endPoint);
     const [distance, setDistance] = useState(0);
     const [slope, setSlope] = useState(0);
     const [slopeAngle, setSlopeAngle] = useState(0);

@@ -13,7 +13,6 @@ export const getGeneral = async (option) => {
                 },
             }
         );
-        console.log(response.data);
         return response.data;
     } catch (error) {
         throw error;

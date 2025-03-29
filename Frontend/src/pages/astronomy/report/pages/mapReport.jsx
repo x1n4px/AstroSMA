@@ -6,8 +6,6 @@ import { useTranslation } from 'react-i18next';
 
 function MapReport({ report, observatory }) {
     const { t } = useTranslation(['text']);
-    console.log(report);
-    console.log(observatory);
     return (
         <div>
             <Row className="mb-3">
