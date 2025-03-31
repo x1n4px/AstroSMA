@@ -53,7 +53,29 @@ function transform(input) {
     }
 }
 
+function individuaConvertSexagesimalToDecimal(sexagesimalValue) {
+    if (!sexagesimalValue) return null; // Manejar valores nulos o indefinidos
+
+    // Reemplazar posibles separadores incorrectos y dividir en partes
+    const parts = sexagesimalValue.replace(/[^0-9.:+-]/g, '').split(':');
+
+    if (parts.length < 3) return null; // Validar el formato correcto
+
+    // Extraer grados, minutos y segundos
+    const degrees = parseFloat(parts[0]);
+    const minutes = parseFloat(parts[1]);
+    const seconds = parseFloat(parts[2]);
+
+    // Determinar el signo según el prefijo (si tiene)
+    const sign = sexagesimalValue.trim().startsWith('-') ? -1 : 1;
+
+    // Calcular el valor decimal
+    return parseFloat((sign * (Math.abs(degrees) + minutes / 60 + seconds / 3600)).toFixed(4));
+}
+
+
 module.exports = {
     convertSexagesimalToDecimal,
-    transform
+    transform, 
+    individuaConvertSexagesimalToDecimal
 };

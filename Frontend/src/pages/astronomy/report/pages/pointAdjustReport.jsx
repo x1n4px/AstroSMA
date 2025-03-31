@@ -57,7 +57,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                             <Row>
 
                                 <h4>{t('REPORT.POINT_ADJUST.ZWO.TABLE.TITLE')}</h4>
-                                <Table striped bordered hover>
+                                <Table hover>
                                     <thead>
                                         <tr>
                                             <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.DATE')}</th>
@@ -70,31 +70,20 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                         {zwoAdjustmentPoints.map((p) => (
                                             <tr key={p.dateObs}>
                                                 <td>
-                                                    <Form.Control
-                                                        type="string"
-                                                        value={formatDate(p.Fecha)}
-                                                    />
+                                                    {formatDate(p.Fecha)}
                                                 </td>
                                                 <td>
-                                                    <Form.Control
-                                                        type="string"
-                                                        value={new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                                    />
+                                                    {new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                                 </td>
-                                               
+
                                                 <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        value={p.Ar_Grados}
-                                                    />
+                                                    {p.Ar_Grados}
                                                 </td>
                                                 <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        value={p.De_Grados}
-                                                    />
+                                                    {p.De_Grados}
+
                                                 </td>
-                                                
+
                                             </tr>
                                         ))}
                                     </tbody>
@@ -104,10 +93,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                     </Accordion.Item>
                     <Accordion.Item eventKey="1">
                         <Accordion.Header>
-                        {t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')}
+                            {t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')}
                         </Accordion.Header>
                         <Accordion.Body>
-                            <Table>
+                            <Table hover>
                                 <thead>
                                     <tr>
                                         <th>{t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.DATE')}</th>
@@ -135,10 +124,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
 
                     <Accordion.Item eventKey="2">
                         <Accordion.Header>
-                        {t('REPORT.POINT_ADJUST.TRAJECTORY.TITLE')}
+                            {t('REPORT.POINT_ADJUST.TRAJECTORY.TITLE')}
                         </Accordion.Header>
                         <Accordion.Body>
-                            <Table striped bordered hover>
+                            <Table hover>
                                 <thead>
                                     <tr>
                                         <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DATE')}</th>
@@ -148,10 +137,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                         <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V')}</th>
                                         <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA')}</th>
                                         <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', {id: '1'})}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', {id: '1'})}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', {id: '2'})}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', {id: '2'})}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '1' })}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '1' })}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '2' })}</th>
+                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '2' })}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

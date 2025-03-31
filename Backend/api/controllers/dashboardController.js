@@ -114,7 +114,7 @@ const getGeneral = async (req, res) => {
                                       Fin_de_la_trayectoria_Estacion_1,
                                       Fin_de_la_trayectoria_Estacion_2
                                   FROM Ranked
-                                  WHERE rn = 1
+                                  WHERE rn = 1 AND (Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido' AND Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido' AND Fin_de_la_trayectoria_Estacion_1  NOT LIKE 'No medido' AND Fin_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido')
                                   ORDER BY Ángulo_diedro_entre_planos_trayectoria DESC
                                   LIMIT ?;`
       const excentricitiesOverNinetyQuery = `SELECT iz.IdInforme,iz.Fecha, iz.Hora, eo.e FROM Informe_Z iz JOIN Elementos_Orbitales eo ON eo.Informe_Z_IdInforme = iz.IdInforme WHERE CAST(SUBSTRING_INDEX(eo.e, ' ', 1) AS DECIMAL(10,8)) > 0.9 LIMIT ?`
@@ -141,10 +141,10 @@ const getGeneral = async (req, res) => {
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [limit]);
       const [observatoryData] = await pool.query(observatory);
 
-     
+
       const impactMapFormat = predictableImpact.map((item) => {
         return {
-          
+
           st1: {
             start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
             end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
@@ -196,12 +196,18 @@ const getGeneral = async (req, res) => {
       GROUP BY RangoVelocidad`;
 
 
-      const pieChartQuery = `WITH Fotometria AS (SELECT DISTINCT Meteoro_Identificador FROM Informe_Fotometria ${option >= 4 ? "WHERE Fecha >= ?" : ""}), 
-                               Radiante AS (SELECT DISTINCT Meteoro_Identificador FROM Informe_Radiante ${option >= 4 ? "WHERE Fecha >= ?" : ""}), 
-                               InformeZ AS (SELECT DISTINCT Meteoro_Identificador FROM Informe_Z ${option >= 4 ? "WHERE Fecha >= ?" : ""}) 
-                               SELECT (SELECT COUNT(*) FROM Fotometria) AS Meteoros_Fotometria, 
-                                      (SELECT COUNT(*) FROM Radiante) AS Meteoros_Radiante, 
-                                      (SELECT COUNT(*) FROM InformeZ) AS Meteoros_Z;`;
+      const pieChartQuery = `WITH conteo_meteoros AS (
+                              SELECT m.Identificador, COUNT(*) as ocurrencias
+                              FROM Meteoro m
+                              JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+                              ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
+                              GROUP BY m.Identificador
+                              HAVING COUNT(*) >= 1
+                              )
+                              SELECT COUNT(*) as cantidad_meteoros, ocurrencias
+                              FROM conteo_meteoros
+                              GROUP BY ocurrencias
+                              ORDER BY ocurrencias;`;
 
       const groupChartQuery = `SELECT "Distancia" AS Categoria, SUM(iz.Distancia_recorrida_Estacion_1) AS Distancia_1, 
                                   SUM(iz.Distancia_recorrida_Estacion_2) AS Distancia_2 
@@ -218,24 +224,45 @@ const getGeneral = async (req, res) => {
       const meteorInflowAzimuthDistributionQuery = `SELECT FLOOR(Azimut / 10) * 10 AS azimut_agrupado, COUNT(*) AS cantidad FROM Informe_Z GROUP BY azimut_agrupado ORDER BY azimut_agrupado;`
       const relationBtwTrajectoryAngleAndDistanceQuery = `SELECT Ángulo_diedro_entre_planos_trayectoria as angle, (Distancia_recorrida_Estacion_1 + Distancia_recorrida_Estacion_2) / 2 AS averageDistance FROM Informe_Z iz WHERE Distancia_recorrida_Estacion_1 IS NOT NULL AND Distancia_recorrida_Estacion_2 IS NOT NULL ${option >= 4 ? "AND iz.Fecha >= ?" : ""}`
       const hourWithMoreDetectionQuery = `SELECT CAST(Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, (CAST(Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z GROUP BY hora_numerica ORDER BY hora_numerica; `
-      const predictableImpactQuery = `SELECT CAST(SUBSTRING_INDEX(Impacto_previsible, ' ', 1) AS SIGNED) + 
-      (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(Impacto_previsible, ' ', 1), ':', -2) AS DECIMAL) / 60) +
-      (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(Impacto_previsible, ' ', 1), ':', -1) AS DECIMAL) / 3600) AS longitud,
-      CAST(SUBSTRING_INDEX(Impacto_previsible, ' ', -1) AS SIGNED) + 
-      (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(Impacto_previsible, ' ', -1), ':', -2) AS DECIMAL) / 60) +
-      (CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(Impacto_previsible, ' ', -1), ':', -1) AS DECIMAL) / 3600) AS latitud
-      FROM Informe_Z iz
-      WHERE Impacto_previsible IS NOT NULL ${option >= 4 ? "AND iz.Fecha >= ?" : ""}`
+      const predictableImpactQuery = `WITH Ranked AS (
+                                        SELECT 
+                                            m.Identificador, 
+                                            iz.Ángulo_diedro_entre_planos_trayectoria, 
+                                            iz.Inicio_de_la_trayectoria_Estacion_1,
+                                            iz.Inicio_de_la_trayectoria_Estacion_2,
+                                            iz.Fin_de_la_trayectoria_Estacion_1,
+                                            iz.Fin_de_la_trayectoria_Estacion_2,
+                                            iz.Fecha,
+                                            ROW_NUMBER() OVER (
+                                                PARTITION BY m.Identificador 
+                                                ORDER BY iz.Ángulo_diedro_entre_planos_trayectoria DESC
+                                            ) AS rn
+                                        FROM Meteoro m
+                                        JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+                                    )
+                                    SELECT 
+                                        Identificador, 
+                                        Inicio_de_la_trayectoria_Estacion_1,
+                                        Inicio_de_la_trayectoria_Estacion_2,
+                                        Fin_de_la_trayectoria_Estacion_1,
+                                        Fin_de_la_trayectoria_Estacion_2,
+                                        Fecha
+                                    FROM Ranked
+                                    WHERE rn = 1 ${option >= 4 ? "AND Fecha >= ?" : ""} AND (Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido' AND Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido' AND Fin_de_la_trayectoria_Estacion_1  NOT LIKE 'No medido' AND Fin_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido')
+                                    ORDER BY Ángulo_diedro_entre_planos_trayectoria DESC`
+
+
 
       const excentricitiesOverNinetyQuery = `SELECT iz.IdInforme,iz.Fecha, iz.Hora, eo.e FROM Informe_Z iz JOIN Elementos_Orbitales eo ON eo.Informe_Z_IdInforme = iz.IdInforme WHERE CAST(SUBSTRING_INDEX(eo.e, ' ', 1) AS DECIMAL(10,8)) > 0.9 ${option >= 4 ? "AND iz.Fecha >= ?" : ""}`
       const lastReportQuery = `SELECT iz.IdInforme, iz.Fecha, iz.Hora FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""} ORDER BY iz.Fecha DESC, iz.Hora DESC ;`
       const distanceWithErrorFromObservatoryQuery = `SELECT iz.Observatorio_Número , iz.Distancia_recorrida_Estacion_1, iz.Error_distancia_Estacion_1 FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""};`
       const velocityDispersionVersusDihedralAngleQuery = `SELECT Ángulo_diedro_entre_planos_trayectoria AS angle, Velocidad_media as averageDistance FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}`;
+      const observatory = 'SELECT * FROM Observatorio o ;'
 
 
 
       const [barChartData] = await pool.query(barChartQuery, [dateFilterValue]);
-      const [pieChartData] = await pool.query(pieChartQuery, [dateFilterValue, dateFilterValue, dateFilterValue]);
+      const [pieChartData] = await pool.query(pieChartQuery, [dateFilterValue]);
       const [groupChartDataUnformat] = await pool.query(groupChartQuery, [dateFilterValue, dateFilterValue, dateFilterValue]);
       const [monthObservationsFrequency] = await pool.query(monthObservationsFrequencyQuery);
       const [meteorInflowAzimuthDistribution] = await pool.query(meteorInflowAzimuthDistributionQuery);
@@ -246,7 +273,24 @@ const getGeneral = async (req, res) => {
       const [lastReport] = await pool.query(lastReportQuery, [dateFilterValue]);
       const [distanceWithErrorFromObservatory] = await pool.query(distanceWithErrorFromObservatoryQuery, [dateFilterValue]);
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [dateFilterValue]);
+      const [observatoryData] = await pool.query(observatory);
 
+      const impactMapFormat = predictableImpact.map((item) => {
+        return {
+          st1: {
+            start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
+            end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
+            id: item.Identificador
+          },
+          st2: {
+            start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
+            end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
+            id: item.Identificador
+          }
+        }
+      })
+
+      const observatoryDataFormatted = observatoryData.map(transform);
       const groupChartData = formatGroupBarChartData(groupChartDataUnformat);
 
 
@@ -258,11 +302,12 @@ const getGeneral = async (req, res) => {
         meteorInflowAzimuthDistribution,
         relationBtwTrajectoryAngleAndDistance,
         hourWithMoreDetection,
-        predictableImpact,
+        impactMapFormat,
         excentricitiesOverNinety,
         lastReport,
         distanceWithErrorFromObservatory,
-        velocityDispersionVersusDihedralAngle
+        velocityDispersionVersusDihedralAngle,
+        observatoryDataFormatted
       });
     }
   } catch (error) {

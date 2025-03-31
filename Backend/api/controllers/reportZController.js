@@ -1,7 +1,7 @@
 const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
 
-const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
+const { transform, convertSexagesimalToDecimal, individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
 
 // Función para obtener un empleado por su ID
@@ -41,7 +41,7 @@ const getReportZ = async (req, res) => {
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
         const [orbitalElement] = await pool.query('select eo.*, iz.Fecha, iz.Hora from Elementos_Orbitales eo JOIN Informe_Z iz ON iz.IdInforme = eo.Informe_Z_IdInforme where eo.Informe_Z_IdInforme = ?', [id]);
-        const [trajectory] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
+        const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [activeShower] = await pool.query('SELECT la.*, l.* FROM Lluvia_activa la JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador WHERE la.Informe_Z_IdInforme = ? GROUP BY la.Lluvia_Identificador', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
@@ -49,6 +49,20 @@ const getReportZ = async (req, res) => {
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
         const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
+
+        const trajectory = trajectoryPre.map (item =>{
+            return {
+                ...item,
+                lambda: individuaConvertSexagesimalToDecimal(item.lambda),
+                phi: individuaConvertSexagesimalToDecimal(item.phi),
+                AR_Estacion_1: individuaConvertSexagesimalToDecimal(item.AR_Estacion_1),
+                De_Estacion_1: individuaConvertSexagesimalToDecimal(item.De_Estacion_1),
+                Ar_Estacion_2: individuaConvertSexagesimalToDecimal(item.Ar_Estacion_2),
+                De_Estacion_2: individuaConvertSexagesimalToDecimal(item.De_Estacion_2),
+            }
+        } )
+       
+        console.log(trajectory)
 
         const response = {
             informe: processedReports[0],

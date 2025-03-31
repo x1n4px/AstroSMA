@@ -4,7 +4,6 @@ function convertCoordinates(input, fullReturn = true) {
 
     // Regex modificado para capturar los 4 valores
     const regex = /([-+]?\d+):([-+]?\d+):([-+]?\d*\.?\d+)\s+([-+]?\d+):([-+]?\d+):([-+]?\d*\.?\d+)\s+([-+]?\d*\.?\d+)\s+([-+]?\d*\.?\d+)/;
-
     function gmsToDecimal(degrees, minutes, seconds) {
         let sign = degrees < 0 || minutes < 0 || seconds < 0 ? -1 : 1;
         let decimal = Math.abs(degrees) + Math.abs(minutes) / 60 + Math.abs(seconds) / 3600;
