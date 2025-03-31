@@ -50,10 +50,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
 
 
                             <h2>{t('REPORT.POINT_ADJUST.ZWO.TITLE')}</h2>
-                            <Row>
+                            {/* <Row>
                                 <h4>{t('REPORT.POINT_ADJUST.ZWO.GRAPHIC')}</h4>
                                 <LineChart data={zwoAdjustmentPoints} xVariable={'X'} yVariable={'Y'} />
-                            </Row>
+                            </Row> */}
                             <Row>
 
                                 <h4>{t('REPORT.POINT_ADJUST.ZWO.TABLE.TITLE')}</h4>
@@ -62,12 +62,8 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                         <tr>
                                             <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.DATE')}</th>
                                             <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.HOUR')}</th>
-                                            <th>X</th>
-                                            <th>Y</th>
                                             <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Grados')}</th>
                                             <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Grados')}</th>
-                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Sexagesimal')}</th>
-                                            <th>{t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Sexagesimal')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -85,20 +81,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                                         value={new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                                                     />
                                                 </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        value={p.X}
-                                                        onChange={(e) => ajustarPunto(p.id, "x", e.target.value)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        value={p.Y}
-                                                        onChange={(e) => ajustarPunto(p.id, "y", e.target.value)}
-                                                    />
-                                                </td>
+                                               
                                                 <td>
                                                     <Form.Control
                                                         type="number"
@@ -111,18 +94,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                                         value={p.De_Grados}
                                                     />
                                                 </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="text"
-                                                        value={p.Ar_Sexagesimal}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="text"
-                                                        value={p.De_Sexagesimal}
-                                                    />
-                                                </td>
+                                                
                                             </tr>
                                         ))}
                                     </tbody>

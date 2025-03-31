@@ -41,12 +41,12 @@
                 "DESCRIPTION": ""
             },
             "THIRD": {
-                "TITLE": " Frecuencia de observaciones por mes y año",
+                "TITLE": " Frecuencia de detecciones por mes y año",
                 "DESCRIPTION": " Gráfico de líneas: Para mostrar la cantidad de meteoros detectados por mes y año"
             },
             "FOURTH": {
-                "TITLE": "Asociación de meteoros con lluvias conocidas",
-                "DESCRIPTION": "cuántos meteoros están asociados a lluvias"
+                "TITLE": "Distribución de Meteoros por Número de Estaciones",
+                "DESCRIPTION": ""
             },
             "FIFTH": {
                 "TITLE": "Altura medida por estación con error",
@@ -65,7 +65,7 @@
                 "DESCRIPTION": ""
             },
             "NINTH": {
-                "TITLE": "Mapa de impactos previsibles",
+                "TITLE": "Mapa de detección",
                 "DESCRIPTION": ""
             },
             "TENTH": {
@@ -175,19 +175,19 @@
             "label": "Número del Observatorio",
             "measure": ""
         },
-        "Fecha": {
+        "DATE": {
             "label": "Fecha",
             "measure": ""
         },
-        "Hora": {
+        "HOUR": {
             "label": "Hora",
             "measure": ""
         },
-        "Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1": {
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1": {
             "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 1",
             "measure": ""
         },
-        "Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2": {
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2": {
             "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 2",
             "measure": ""
         },
@@ -203,31 +203,35 @@
             "label": "Ajuste de Estación 2 - Fin",
             "measure": ""
         },
-        "Ángulo_diedro_entre_planos_trayectoria": {
+        "DIHEDRAL_ANGLE_BTW_PLANES": {
             "label": "Ángulo Diedro entre Planos de Trayectoria",
             "measure": "°"
         },
-        "Peso_estadístico": {
+        "STATISTICAL_WEIGHTS": {
             "label": "Peso Estático",
             "measure": "Kg"
         },
-        "Errores_AR_DE_radiante": {
-            "label": "Errores AR/DE en Radianes",
+        "Errores_AR_RADIANT": {
+            "label": "Errores AR en Radianes",
             "measure": "radianes"
         },
-        "Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha": {
+        "Errores_DE_RADIANT": {
+            "label": "Errores DE en Radianes",
+            "measure": "radianes"
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE": {
             "label": "Coordenadas Astronómicas del Radiante (Eclíptica - Fecha)",
             "measure": ""
         },
-        "Coordenadas_astronómicas_del_radiante_J200": {
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
             "label": "Coordenadas Astronómicas del Radiante (J2000)",
             "measure": ""
         },
-        "Azimuth": {
+        "AZIMUTH": {
             "label": "Azimut",
             "measure": "°"
         },
-        "Dist_Cenital": {
+        "ZENITHAL_DISTANCE": {
             "label": "Distancia Cenital",
             "measure": "°"
         },
@@ -279,11 +283,11 @@
             "label": "Tiempo de Trayectoria en Estación 2",
             "measure": "s"
         },
-        "Ecuacion_del_movimiento_en_Kms": {
+        "EQUATION_OF_MOTION_IN_KMS": {
             "label": "Ecuación del Movimiento",
             "measure": ""
         },
-        "Ecuacion_del_movimiento_en_gs": {
+        "EQUATION_OF_MOVEMENT_IN_GS": {
             "label": "Ecuación de la Velocidad",
             "measure": ""
         },
@@ -303,7 +307,7 @@
             "label": "Aceleración en Gs",
             "measure": "Gs/s"
         },
-        "Ruta_del_informe": {
+        "REPORT_ROUTE": {
             "label": "Ruta del Informe",
             "measure": ""
         },
@@ -338,11 +342,7 @@
         "Lluvia_Identificador": {
             "label": "Identificador de la Lluvia",
             "measure": ""
-        },
-        "Azimut": {
-            "label": "Azimut",
-            "measure": "°"
-        }
+        } 
     },
     "REPORT": {
         "TITLE": "Informe de dos estaciones: {{date}} {{hour}}",

@@ -3,55 +3,88 @@ import { Container, Row, Col, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 function InferredDataReport({ data }) {
-  const { t } = useTranslation(['text']);
-
-
-
-  const dataPairs = [];
-  const entries = Object.entries(data);
-
-  for (let i = 0; i < entries.length; i += 2) {
-    dataPairs.push(entries.slice(i, i + 2));
+  if (!data) {
+    return <div>Cargando datos...</div>; // O un mensaje de error si prefieres
   }
+  const { t } = useTranslation(['text']);
+  console.log(data)
+
 
   return (
-    <div>
-      <Col>
-        {dataPairs.map((pair, rowIndex) => (
-          <Row key={rowIndex} className="mb-3 align-items-center">
-            {pair.map(([key, value], index) => (
-              <Col key={key} xs={12} md={6}>
-                <Row className="align-items-center">
-                  <Col xs={12} md={6}>
-                    <Form.Label>{t(`INFERRED_DATA.${key}.label`)}</Form.Label>
-                  </Col>
-                  <Col xs={12} md={6}>
+    <Container>
+     
+      <Row className="mb-4">
+        <Col xs={12} md={6}>
 
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.DATE.label')}</Form.Label>
+            <Form.Control type="text" value={data.Fecha} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.AZIMUTH.label')}</Form.Label>
+            <Form.Control type="text" value={data.Azimut} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.DIHEDRAL_ANGLE_BTW_PLANES.label')}</Form.Label>
+            <Form.Control type="text" value={data.Ángulo_diedro_entre_planos_trayectoria} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.Errores_AR_RADIANT.label')}</Form.Label>
+            <Form.Control type="text" value={data.Errores_AR_DE_radiante?.split(" ")[0]} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1.label')}</Form.Label>
+            <Form.Control type="text" value={data.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE.label')}</Form.Label>
+            <Form.Control type="text" value={data.Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.EQUATION_OF_MOTION_IN_KMS.label')}</Form.Label>
+            <Form.Control type="text" value={data.Ecuacion_del_movimiento_en_Kms} readOnly />
+          </Form.Group>
+        </Col>
+        <Col xs={12} md={6}>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.HOUR.label')}</Form.Label>
+            <Form.Control type="text" value={data.Hora} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.ZENITHAL_DISTANCE.label')}</Form.Label>
+            <Form.Control type="text" value={data.Dist_Cenital} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.STATISTICAL_WEIGHTS.label')}</Form.Label>
+            <Form.Control type="text" value={data.Peso_estadístico} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.Errores_DE_RADIANT.label')}</Form.Label>
+            <Form.Control type="text" value={data.Errores_AR_DE_radiante?.split(" ")[1]} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2.label')}</Form.Label>
+            <Form.Control type="text" value={data.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200.label')}</Form.Label>
+            <Form.Control type="text" value={data.Coordenadas_astronómicas_del_radiante_J200} readOnly />
+          </Form.Group>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.EQUATION_OF_MOVEMENT_IN_GS.label')}</Form.Label>
+            <Form.Control type="text" value={data.Ecuacion_del_movimiento_en_gs} readOnly />
+          </Form.Group>
+        </Col>
 
-                    <Form.Group className="d-flex align-items-center ">
-                      <Form.Control
-                        type="text"
-                        value={`${value}`}
-                        readOnly
-                        className="form-control flex-grow-1"
-                      />
-                      {t(`INFERRED_DATA.${key}.measure`) &&
-                        <div class="input-group-append">
-                          <span class="input-group-text" id="basic-addon2">{t(`INFERRED_DATA.${key}.measure`)}</span>
-                        </div>
-                      }
+        <Col>
+          <Form.Group className="mb-2">
+            <Form.Label>{t('INFERRED_DATA.REPORT_ROUTE.label')}</Form.Label>
+            <Form.Control type="text" value={data.Ruta_del_informe} readOnly />
+          </Form.Group>
+        </Col>
+      </Row>
 
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Col>
-            ))}
-            {pair.length === 1 && <Col xs={12} md={6}></Col>}
-          </Row>
-        ))
-        }
-      </Col >
-    </div >
+    </Container >
   );
 }
 

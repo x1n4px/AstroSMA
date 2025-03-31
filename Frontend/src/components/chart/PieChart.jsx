@@ -21,9 +21,10 @@ function PieChart({ data }) {
       .append('g')
       .attr('transform', `translate(${width / 2},${height / 2})`);
 
-    const pieData = Object.entries(data).map(([composition, count]) => ({
-      composition,
-      count,
+    // Transformar los datos al formato requerido por d3.pie
+    const pieData = data.map((item) => ({
+      composition: `Num. Estaciones: ${item.ocurrencias}`,
+      count: item.cantidad_meteoros, // El valor de la porción es cantidad_meteoros
     }));
 
     const color = d3.scaleOrdinal().domain(pieData.map((d) => d.composition)).range(d3.schemeCategory10);

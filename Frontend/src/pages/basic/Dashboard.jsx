@@ -90,7 +90,7 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, sh
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: false, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false });
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartModal, setShowChartModal] = useState(false);
 
@@ -114,6 +114,7 @@ function Dashboard() {
   const [excentricitiesOverNinety, setExcentricitiesOverNinety] = useState([]);
   const [distanceWithErrorFromObservatory, setDistanceWithErrorFromObservatory] = useState([]); 
   const [velocityDispersionVersusDihedralAngle, setVelocityDispersionVersusDihedralAngle] = useState([]);
+  const [observatoryData, setObservatoryData] = useState([]); 
   const [lastReport, setLastReport] = useState([]);
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
@@ -152,20 +153,21 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const responseD = await getGeneral(searchRange);
-      console.log(responseD);
+      console.log(responseD.impactMapFormat);
       //setData(responseD.data);
       setChartData(responseD.barChartData)
-      setPieChartData(responseD.pieChartData[0]);
+      setPieChartData(responseD.pieChartData);
       setGroupChartData(responseD.groupChartData);
       setMonthObservationsFrequency(responseD.monthObservationsFrequency);
       setMeteorInflowAzimuthDistribution(responseD.meteorInflowAzimuthDistribution);
       setRelationBtwTrajectoryAngleAndDistance(responseD.relationBtwTrajectoryAngleAndDistance);
       setHourWithMoreDetection(responseD.hourWithMoreDetection);
-      setPredictableImpact(responseD.predictableImpact);
+      setPredictableImpact(responseD.impactMapFormat);
       setExcentricitiesOverNinety(responseD.excentricitiesOverNinety);
       setLastReport(responseD.lastReport);
       setDistanceWithErrorFromObservatory(responseD.distanceWithErrorFromObservatory);
       setVelocityDispersionVersusDihedralAngle(responseD.velocityDispersionVersusDihedralAngle);
+      setObservatoryData(responseD.observatoryDataFormatted);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -336,7 +338,7 @@ function Dashboard() {
                 <>
                   <Card.Title>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
+                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
                     <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
@@ -351,13 +353,12 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden' }}>
-                    <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
+                    <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
                   </div>
                 </>
               );
               doubleWidth = true;
-              showButton = false;
               break;
 
             case 10:

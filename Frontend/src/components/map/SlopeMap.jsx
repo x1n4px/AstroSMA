@@ -7,7 +7,8 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SlopeMap = ({ startPoint, endPoint }) => {
+const SlopeMap = ({ startPoint, endPoint, observatory }) => {
+    console.log(observatory)
     const [distance, setDistance] = useState(0);
     const [slope, setSlope] = useState(0);
     const [slopeAngle, setSlopeAngle] = useState(0);
@@ -59,7 +60,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
     };
 
     const chartData = {
-        labels: elevationProfile.map(point => `${point.distance.toFixed(2)} km`), // Display distance in meters
+        labels: elevationProfile.map(point => `${point.distance.toFixed(2)} km`),
         datasets: [
             {
                 label: 'Perfil de Elevación',
@@ -97,7 +98,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
             x: {
                 title: {
                     display: true,
-                    text: 'Distancia (km)', // Updated to meters
+                    text: 'Distancia (km)',
                 },
             },
         },
@@ -117,12 +118,19 @@ const SlopeMap = ({ startPoint, endPoint }) => {
         popupAnchor: [1, -34],
     });
 
+    const observatoryIcon = new L.Icon({
+        iconUrl: '/antena.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
+    });
+
     return (
         <div className="slope-map-container" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div style={{ flex: 2 }}>
                 <MapContainer
                     center={startPoint ? [parseFloat(startPoint.lat), parseFloat(startPoint.lng)] : [0, 0]}
-                    zoom={8} // Increased zoom level for better visibility of short distances
+                    zoom={8}
                     style={{ height: '500px', width: '100%' }}
                     ref={mapRef}
                 >
@@ -161,8 +169,21 @@ const SlopeMap = ({ startPoint, endPoint }) => {
                                     </div>
                                 </Popup>
                             </Marker>
+
+
                         </>
                     )}
+                    {observatory && observatory.map((station, index) => (
+                        <Marker key={index} position={[parseFloat(station.latitude), parseFloat(station.longitude)]} icon={observatoryIcon}>
+                            <Popup>
+                                <div>
+                                    <h4>Estación del Observatorio {index + 1}</h4>
+                                    <p>Lat: {station.latitude}</p>
+                                    <p>Lng: {station.longitude}</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ))}
                 </MapContainer>
             </div>
             <div style={{ flex: 1, padding: '20px' }}>
@@ -170,7 +191,7 @@ const SlopeMap = ({ startPoint, endPoint }) => {
                     <div style={{ flex: 1, marginRight: '10px' }}>
                         <h3>Información de la Ruta</h3>
                         <p><strong>Distancia:</strong> {(distance / 1000).toFixed(2)} km</p>
-                        <p><strong>Diferencia de elevación:</strong> {((parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation))).toFixed(2)} m</p> {/* Corrected to meters */}
+                        <p><strong>Diferencia de elevación:</strong> {((parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation))).toFixed(2)} m</p>
                         <p><strong>Pendiente promedio:</strong> {slope.toFixed(2)}%</p>
                     </div>
                     <div style={{ flex: 1 }}>

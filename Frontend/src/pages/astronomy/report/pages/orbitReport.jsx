@@ -42,6 +42,124 @@ const OrbitReport = ({ orbit, observatory }) => {
                         </Row>
                     </Form.Group>
 
+                    <Form.Group className="mb-3" controlId="formVelocityInf">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.VELOCITY_INF.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.Vel__Inf?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.VELOCITY_INF.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.VELOCITY_INF.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="formVelocityGeom">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.VELOCITY_GEOM.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.Vel__Geo?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.VELOCITY_GEOM.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.VELOCITY_GEOM.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="formAr">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.AR.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.Ar?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.AR.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.AR.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3" controlId="formE">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.E.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.e?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.E.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.E.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formQ">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.Q.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.q?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.Q.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.Q.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="formQ">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Form.Label className="mb-0">{t('ORBIT_REPORT.OMEGA.label')}</Form.Label>
+                            </Col>
+                            <Col>
+                                <div className="input-group">
+                                    <Form.Control type="text" value={data?.omega?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
+                                    {t('ORBIT_REPORT.OMEGA.measure') && (
+                                        <div className="input-group-append">
+                                            <span className="input-group-text" id="basic-addon2">
+                                                {t('ORBIT_REPORT.OMEGA.measure')}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Form.Group>
+                    
                 </Col>
                 <Col md={6}>
 
@@ -66,69 +184,6 @@ const OrbitReport = ({ orbit, observatory }) => {
                         </Row>
                     </Form.Group>
 
-
-                </Col>
-                <Col>
-                    <Form.Group className="mb-3" controlId="formVelocityInf">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.VELOCITY_INF.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.Vel__Inf} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.VELOCITY_INF.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.VELOCITY_INF.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="formVelocityGeom">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.VELOCITY_GEOM.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.Vel__Geo} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.VELOCITY_GEOM.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.VELOCITY_GEOM.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="formAr">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.AR.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.Ar} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.AR.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.AR.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-
                     <Form.Group className="mb-3" controlId="formDe">
                         <Row className="align-items-center">
                             <Col xs="auto">
@@ -136,7 +191,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.De} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.De?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.DE.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
@@ -156,7 +211,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.i} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.i?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.I.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
@@ -176,7 +231,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.p} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.p?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.P.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
@@ -196,50 +251,11 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.a} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.a?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.A.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
                                                 {t('ORBIT_REPORT.A.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-
-                    <Form.Group className="mb-3" controlId="formE">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.E.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.e} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.E.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.E.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formQ">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.Q.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.q} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.Q.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.Q.measure')}
                                             </span>
                                         </div>
                                     )}
@@ -254,7 +270,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                             <Col>
                                 <div className="input-group">
-                                    <Form.Control type="text" value={data?.T} readOnly className="form-control flex-grow-1" />
+                                    <Form.Control type="text" value={data?.T?.split(" ")[0]} readOnly className="form-control flex-grow-1" />
                                     {t('ORBIT_REPORT.T.measure') && (
                                         <div className="input-group-append">
                                             <span className="input-group-text" id="basic-addon2">
@@ -266,26 +282,6 @@ const OrbitReport = ({ orbit, observatory }) => {
                             </Col>
                         </Row>
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formQ">
-                        <Row className="align-items-center">
-                            <Col xs="auto">
-                                <Form.Label className="mb-0">{t('ORBIT_REPORT.OMEGA.label')}</Form.Label>
-                            </Col>
-                            <Col>
-                                <div className="input-group">
-                                    <Form.Control type="text" value={data?.omega} readOnly className="form-control flex-grow-1" />
-                                    {t('ORBIT_REPORT.OMEGA.measure') && (
-                                        <div className="input-group-append">
-                                            <span className="input-group-text" id="basic-addon2">
-                                                {t('ORBIT_REPORT.OMEGA.measure')}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </Col>
-                        </Row>
-                    </Form.Group>
-
                     <Form.Group className="mb-3" controlId="formDihedralAngle">
                         <Row className="align-items-center">
                             <Col xs="auto">
@@ -295,7 +291,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                                 <div className="input-group">
                                     <Form.Control
                                         type="text"
-                                        value={data?.Omega_grados_votos_max_min}
+                                        value={data?.Omega_grados_votos_max_min?.split(", ")[0]}
                                         readOnly
                                         className="form-control flex-grow-1"
                                     />
@@ -311,6 +307,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                         </Row>
                     </Form.Group>
                 </Col>
+                
             </Row>
             <>
                  
