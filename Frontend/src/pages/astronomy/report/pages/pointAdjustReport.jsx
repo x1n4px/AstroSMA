@@ -5,6 +5,7 @@ import LineChart from '@/components/chart/LineChart';
 // Internationalization
 import { useTranslation } from 'react-i18next';
 import formatDate from '@/pipe/formatDate.jsx'
+import truncateDecimal from '@/pipe/truncateDecimal';
 
 
 const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
@@ -77,10 +78,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                                 </td>
 
                                                 <td>
-                                                    {p.Ar_Grados}
+                                                    {truncateDecimal(p.Ar_Grados)}
                                                 </td>
                                                 <td>
-                                                    {p.De_Grados}
+                                                    {truncateDecimal(p.De_Grados)}
 
                                                 </td>
 
@@ -111,9 +112,9 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                         <tr key={index}>
                                             <td>{formatDate(point.Fecha)}</td>
                                             <td>{point.Hora}</td>
-                                            <td>{point.t}</td>
-                                            <td>{point.s}</td>
-                                            <td>{point.v_Kms}</td>
+                                            <td>{truncateDecimal(point.t)}</td>
+                                            <td>{truncateDecimal(point.s)}</td>
+                                            <td>{truncateDecimal(point.v_Kms)}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -148,15 +149,15 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                         <tr key={p.id}>
                                             <td>{formatDate(p.Fecha)}</td>
                                             <td>{p.Hora}</td>
-                                            <td>{p.s}</td>
-                                            <td>{p.t}</td>
-                                            <td>{p.v}</td>
-                                            <td>{p.lambda}</td>
-                                            <td>{p.phi}</td>
-                                            <td>{p.AR_Estacion_1}</td>
-                                            <td>{p.De_Estacion_1}</td>
-                                            <td>{p.Ar_Estacion_2}</td>
-                                            <td>{p.De_Estacion_2}</td>
+                                            <td>{truncateDecimal(p.s)}</td>
+                                            <td>{truncateDecimal(p.t)}</td>
+                                            <td>{truncateDecimal(p.v)}</td>
+                                            <td>{truncateDecimal(p.lambda)}</td>
+                                            <td>{truncateDecimal(p.phi)}</td>
+                                            <td>{truncateDecimal(p.AR_Estacion_1)}</td>
+                                            <td>{truncateDecimal(p.De_Estacion_1)}</td>
+                                            <td>{truncateDecimal(p.Ar_Estacion_2)}</td>
+                                            <td>{truncateDecimal(p.De_Estacion_2)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

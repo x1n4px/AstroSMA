@@ -130,27 +130,46 @@ const CustomizeSearch = () => {
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
-                        <Form.Check
-                            type="checkbox"
-                            label={t('CUSTOMIZE_SEARCH.HEIGHT')}
-                            checked={heightChecked}
-                            onChange={(e) => {
-                                setAlturaChecked(e.target.checked);
-                                setAlturaFilter('');
-                              }}
-                            className="me-2"
-                        />
+                        <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
                     </Col>
                     <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Control
-                            type="text"
-                            placeholder={t('CUSTOMIZE_SEARCH.HEIGHT')}
-                            value={heightFilter}
-                            onChange={(e) => setAlturaFilter(e.target.value)}
-                            disabled={!heightChecked}
-                        />
+                        <Form.Select
+                            value={ratioFilter}
+                            onChange={(e) => setReportType(e.target.value)}
+                        >
+                            <option value="1" >{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
+                            <option value="2">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_Z')}</option>
+                            <option value="3">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_RADIANT')}</option>
+                            <option value="4">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_PHOTOMETRY')}</option>
+                        </Form.Select>
                     </Col>
                 </Row>
+                {reportType === '2' && (
+                    <Row className="mb-3">
+                        <Col xs={12} md={3} className="d-flex align-items-center">
+                            <Form.Check
+                                type="checkbox"
+                                label={t('CUSTOMIZE_SEARCH.HEIGHT')}
+                                checked={heightChecked}
+                                onChange={(e) => {
+                                    setAlturaChecked(e.target.checked);
+                                    setAlturaFilter('');
+                                }}
+                                className="me-2"
+                            />
+                        </Col>
+                        <Col xs={12} md={9} className="d-flex align-items-center">
+                            <Form.Control
+                                type="text"
+                                placeholder={t('CUSTOMIZE_SEARCH.HEIGHT')}
+                                value={heightFilter}
+                                onChange={(e) => setAlturaFilter(e.target.value)}
+                                disabled={!heightChecked}
+                            />
+                        </Col>
+                    </Row>
+                )}
+                {reportType === '2' && (
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Check
@@ -179,6 +198,8 @@ const CustomizeSearch = () => {
                         />
                     </Col>
                 </Row>
+                )}
+                {reportType === '2' && (
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SEARCH_RADIUS')} (km):</Form.Label>
@@ -200,6 +221,7 @@ const CustomizeSearch = () => {
                         </Form.Select>
                     </Col>
                 </Row>
+                )}
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center"> {/* Aumenta el ancho de la columna */}
                         <Form.Check
@@ -228,27 +250,28 @@ const CustomizeSearch = () => {
                         />
                     </Col>
                 </Row>
-                <Row className="mb-3">
-                    <Col xs={12} md={3} className="d-flex align-items-center">
-                        <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
-                    </Col>
-                    <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Select
-                            value={ratioFilter}
-                            onChange={(e) => setReportType(e.target.value)}
-                        >
-                            <option value="1" >{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
-                            <option value="2">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_Z')}</option>
-                            <option value="3">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_RADIANT')}</option>
-                            <option value="4">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_PHOTOMETRY')}</option>
-                            <option value="5">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_UNION')}</option>
-                        </Form.Select>
-                    </Col>
-                </Row>
+
                 <Row>
                     <Col xs={12} md={4}>
                         <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleApplyFilters}>
                             {t('CUSTOMIZE_SEARCH.SEARCH_BTN')}
+                        </Button>
+
+                        <Button variant="secondary" className="ms-2" onClick={() => {
+                            setAlturaChecked(false);
+                            setLatLonChecked(false);
+                            setDateRangeChecked(false);
+                            setAlturaFilter('');
+                            setLatFilter('');
+                            setLonFilter('');
+                            setRadioBusqueda('');
+                            setStartDate(getYearAgoDate());
+                            setEndDate(new Date().toISOString().split('T')[0]);
+                            setSearchButton(false);
+                            setActualPage(0);
+                        }
+                        }>
+                            {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
                     </Col>
                 </Row>

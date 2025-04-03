@@ -37,7 +37,7 @@
                 "DESCRIPTION": "velocidad media de los meteoros"
             },
             "SECOND": {
-                "TITLE": "Relación entre ángulo diédrico y velocidad media",
+                "TITLE": "Último bólido detectado",
                 "DESCRIPTION": ""
             },
             "THIRD": {
@@ -167,14 +167,6 @@
             "label": "ID del Informe",
             "measure": ""
         },
-        "Observatorio_Número2": {
-            "label": "Número del Observatorio 2",
-            "measure": ""
-        },
-        "Observatorio_Número": {
-            "label": "Número del Observatorio",
-            "measure": ""
-        },
         "DATE": {
             "label": "Fecha",
             "measure": ""
@@ -189,18 +181,6 @@
         },
         "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2": {
             "label": "Error Cuadrático de Ortogonalidad en la Esfera Celeste 2",
-            "measure": ""
-        },
-        "Fotogramas_usados": {
-            "label": "Fotogramas Usados",
-            "measure": "fotogramas"
-        },
-        "Ajuste_estación_2_Inicio": {
-            "label": "Ajuste de Estación 2 - Inicio",
-            "measure": ""
-        },
-        "Ajuste_estación_2_Final": {
-            "label": "Ajuste de Estación 2 - Fin",
             "measure": ""
         },
         "DIHEDRAL_ANGLE_BTW_PLANES": {
@@ -235,54 +215,6 @@
             "label": "Distancia Cenital",
             "measure": "°"
         },
-        "Inicio_de_la_trayectoria_Estacion_1": {
-            "label": "Inicio de la Trayectoria en Estación 1",
-            "measure": ""
-        },
-        "Fin_de_la_trayectoria_Estacion_1": {
-            "label": "Fin de la Trayectoria en Estación 1",
-            "measure": ""
-        },
-        "Inicio_de_la_trayectoria_Estacion_2": {
-            "label": "Inicio de la Trayectoria en Estación 2",
-            "measure": ""
-        },
-        "Fin_de_la_trayectoria_Estacion_2": {
-            "label": "Fin de la Trayectoria en Estación 2",
-            "measure": ""
-        },
-        "Impacto_previsible": {
-            "label": "Impacto Previsible",
-            "measure": ""
-        },
-        "Distancia_recorrida_Estacion_1": {
-            "label": "Distancia Recibida en Estación 1",
-            "measure": "Km"
-        },
-        "Error_alturas_Estacion_1": {
-            "label": "Error de Altura en Estación 1",
-            "measure": "m"
-        },
-        "Error_distancia_Estacion_1": {
-            "label": "Error de Distancia en Estación 1",
-            "measure": "Km"
-        },
-        "Distancia_recorrida_Estacion_2": {
-            "label": "Distancia Recibida en Estación 2",
-            "measure": "Km"
-        },
-        "Error_alturas_Estacion_2": {
-            "label": "Error de Altura en Estación 2",
-            "measure": "m"
-        },
-        "Error_distancia_Estacion_2": {
-            "label": "Error de Distancia en Estación 2",
-            "measure": "Km"
-        },
-        "Tiempo_trayectoria_en_estacion_2": {
-            "label": "Tiempo de Trayectoria en Estación 2",
-            "measure": "s"
-        },
         "EQUATION_OF_MOTION_IN_KMS": {
             "label": "Ecuación del Movimiento",
             "measure": ""
@@ -290,22 +222,6 @@
         "EQUATION_OF_MOVEMENT_IN_GS": {
             "label": "Ecuación de la Velocidad",
             "measure": ""
-        },
-        "Error_Velocidad": {
-            "label": "Error en la Velocidad",
-            "measure": "Km/s"
-        },
-        "Velocidad_Inicial_Estacion_2": {
-            "label": "Velocidad Inicial en Estación 2",
-            "measure": "Km/s"
-        },
-        "Aceleración_en_Kms": {
-            "label": "Aceleración",
-            "measure": "Km/s²"
-        },
-        "Aceleración_en_gs": {
-            "label": "Aceleración en Gs",
-            "measure": "Gs/s"
         },
         "REPORT_ROUTE": {
             "label": "Ruta del Informe",
@@ -322,27 +238,7 @@
         "Longitude": {
             "label": "Longitud",
             "measure": "°"
-        },
-        "Velocidad_media": {
-            "label": "Velocidad Media",
-            "measure": "Km/s"
-        },
-        "Tiempo_Estacion_1": {
-            "label": "Tiempo en Estación 1",
-            "measure": "s"
-        },
-        "Meteoro_Identificador": {
-            "label": "Identificador del Meteoro",
-            "measure": ""
-        },
-        "Método_utilizado": {
-            "label": "Método Utilizado",
-            "measure": ""
-        },
-        "Lluvia_Identificador": {
-            "label": "Identificador de la Lluvia",
-            "measure": ""
-        } 
+        }
     },
     "REPORT": {
         "TITLE": "Informe de dos estaciones: {{date}} {{hour}}",
@@ -510,6 +406,7 @@
         "SEARCH_RADIUS": "Radio de Búsqueda",
         "RANGE_DATE": "Rango de Fechas",
         "SEARCH_BTN": "Buscar",
+        "CLEAR_BTN":"Limpiar",
         "REPORT_Z": "Informe de dos estaciones (Informe Z)",
         "REPORT_RADIANT": "Informe de una estación (Informe radiante)",
         "REPORT_PHOTOMETRY": "Informe de fotometría",
@@ -583,6 +480,10 @@
         }
     },
     "ORBIT_REPORT": {
+        "SELECT_OPT": {
+            "LABEL":"Selecciona un informe",
+            "PLACEHOLDER": "Selecciona un informe"
+        },
         "ID": {
             "label": "ID",
             "measure": ""

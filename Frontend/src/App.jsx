@@ -17,6 +17,7 @@ import CustomizeSearch from '@/pages/search/customizeSearch';
 import ActiveRain from '@/pages/astronomy/activeShower.jsx';
 import RadiantReport from '@/pages/astronomy/report/radiantReport';
 import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
+import QRLogin from './pages/Auth/QRLogin';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -75,6 +76,8 @@ function App() {
             )
           }
         />
+
+        <Route path='/qr-login' element={<QRLogin onLogin={loginHandler} />} />
 
         <Route
           path="/"

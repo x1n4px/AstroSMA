@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button } from 'react-bootstrap';
-import { useParams, Link } from "react-router-dom";
+import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button, Spinner } from 'react-bootstrap';
+import { useParams, Link, useNavigate } from "react-router-dom";
 import '@/assets/customTabs.css'
-
 
 import SummaryReport from '@/pages/astronomy/report/pages/summaryReport';
 import InferredDataReport from '@/pages/astronomy/report/pages/inferredDataReport';
@@ -13,6 +12,7 @@ import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport'
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import VideoReport from '@/pages/astronomy/report/pages/videoReport';
+import RotationReport from './pages/rotationReport';
 import { formatDate } from '@/pipe/formatDate.jsx';
 
 import { getReportZ } from '@/services/reportService.jsx'
@@ -27,8 +27,9 @@ import { useTranslation } from 'react-i18next';
 const Report = () => {
     const { t } = useTranslation(['text']);
     const params = useParams();
+    const navigate = useNavigate();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
-    const [activeTab, setActiveTab] = useState('INFERRED_DATA_TAB');
+    const [activeTab, setActiveTab] = useState('SUMMARY_TAB');
     const [reportData, setReportData] = useState(null);
     const [observatoryData, setObservatoryData] = useState([]);
     const [orbitalData, setOrbitalData] = useState([]);
@@ -42,8 +43,12 @@ const Report = () => {
     const [error, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
     const [observatoryName, setObservatoryName] = useState('');
+    const [reportGemini, setReportGemini] = useState(null);
     const rol = localStorage.getItem('rol');
 
+    const [resetCount, setResetCount] = useState(0);
+    const [cachedReport, setCachedReport] = useState(null);
+    const [generatingGemini, setGeneratingGemini] = useState(false);
 
 
     const [showModal, setShowModal] = useState(false);
@@ -54,12 +59,96 @@ const Report = () => {
     });
 
 
+    const GeminiSpinnerOverlay = () => {
+        const [size, setSize] = useState(100);
+        const [colorIndex, setColorIndex] = useState(0);
+        const colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
+
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setColorIndex((prev) => (prev + 1) % colors.length);
+                setSize((prev) => (prev % 150) + 50);
+            }, 800);
+
+            return () => clearInterval(interval);
+        }, []);
+
+        return (
+            <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgb(255, 255, 255)',
+                color: 'black',
+                zIndex: 9999,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <Spinner
+                    animation="border"
+                    variant={colors[colorIndex]}
+                    style={{
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        transition: 'all 0.5s ease'
+                    }}
+                />
+                <h3 className="mt-4 ">Generando análisis...</h3>
+                <p >Por favor espere, esto puede tomar unos momentos</p>
+
+                {/* <div className="mt-4" style={{ width: '300px' }}>
+                    <div className="progress">
+                        <div
+                            className="progress-bar progress-bar-striped progress-bar-animated"
+                            style={{ width: '100%' }}
+                        ></div>
+                    </div>
+                </div> */}
+
+                <Button
+                    variant="outline-danger"
+                    className="mt-4"
+                    onClick={() => navigate('/dashboard')}
+                >
+                    Cancelar generación
+                </Button>
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        console.log('ReportGemini:', reportGemini);
+        if (reportGemini === 'azd112') {
+            setActiveTab('INFERRED_DATA_TAB');
+        }
+    }, [reportGemini]);
+
+
+
+    useEffect(() => {
+        if (resetCount < 2) {
+            const timer = setTimeout(() => setResetCount(resetCount + 1), 10);
+            return () => clearTimeout(timer);
+        }
+    }, [resetCount]);
+
+    useEffect(() => {
+        if (!cachedReport) {
+            const newReport = getTabAdvice("SUMMARY_TAB"); // Obtén los datos una vez
+            setCachedReport(newReport);
+        }
+    }, [cachedReport]); // Solo se ejecuta si no hay un reporte almacenado
+
     const fetchReportData = async (id) => {
         setLoading(true);
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.observatorios)
+            //console.log(response.observatorios)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -127,6 +216,7 @@ const Report = () => {
 
     return (
         <Container>
+
             <Row className="mb-4">
 
                 <div className="p-4">
@@ -160,47 +250,49 @@ const Report = () => {
                         unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
 
                     >
-                        {/*<Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
-                             {getTabAdvice('SUMMARY_TAB').map(advice => (
-                                <Alert key={advice.Id} variant="warning" className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        ID: {advice.Id} - {advice.Description}
-                                    </div>
-                                    {rol === '10000000' && (
+                        {reportGemini !== 'azd112' && (
+                            <Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
+                                {getTabAdvice('SUMMARY_TAB').map(advice => (
+                                    <Alert key={advice.Id} variant="warning" className="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} className="me-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(59, 252, 0);" }}><path d="m10 15.586-3.293-3.293-1.414 1.414L10 18.414l9.707-9.707-1.414-1.414z"></path></svg>
-                                            </Button>
-                                            <Button style={{ backgroundColor: 'transparent', border: 'transparent' }}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(0, 0, 0, 1);" }}><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg>
-                                            </Button>
+                                            ID: {advice.Id} - {advice.Description}
                                         </div>
-                                    )}
-                                </Alert>
-                            ))} 
+                                        {rol === '10000000' && (
+                                            <div>
+                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} className="me-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(59, 252, 0);" }}><path d="m10 15.586-3.293-3.293-1.414 1.414L10 18.414l9.707-9.707-1.414-1.414z"></path></svg>
+                                                </Button>
+                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(0, 0, 0, 1);" }}><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg>
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </Alert>
+                                ))}
 
-                            <SummaryReport data={reportData} />
+                                <SummaryReport
+                                    data={reportData}
+                                    observatory={observatoryData}
+                                    orbitalElement={orbitalData}
+                                    reportGemini={reportGemini}
+                                    setReportGemini={setReportGemini}
+                                    onGeneratingStart={() => setGeneratingGemini(true)}
+                                    onGeneratingEnd={() => setGeneratingGemini(false)}
+                                />
 
 
-                        </Tab>*/}
+                            </Tab>
+                        )}
                         <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
-                            {/* {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
+                            {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
                                 <Alert key={advice.Id} variant="warning">
                                     ID: {advice.Id} - {advice.Description}
                                 </Alert>
-                            ))} */}
+                            ))}
                             <InferredDataReport data={reportData} />
                             {/* <VideoReport nombreCamara={observatoryName} report={reportData} /> */}
                         </Tab>
-                        {/* <Tab eventKey="MAP_TAB" title={t('REPORT.MAP_TAB')}>
-                    {getTabAdvice('MAP_TAB').map(advice => (
-                        <Alert key={advice.Id} variant="warning">
-                            ID: {advice.Id} - {advice.Description}
-                        </Alert>
-                    ))}
-                    <MapReport report={mapReportData} observatory={observatoryData} />
-                        </Tab> 
-                        */}
+
                         <Tab eventKey="ACTIVE_RAIN_TAB" title={t('REPORT.ACTIVE_RAIN_TAB')}>
                             {getTabAdvice('ACTIVE_RAIN_TAB').map(advice => (
                                 <Alert key={advice.Id} variant="warning">
@@ -209,19 +301,7 @@ const Report = () => {
                             ))}
                             <ActiveRain activeShowerData={activeShowerData} reportType={'1'} />
                         </Tab>
-                        {/* <Tab eventKey="STATIONS" title={t('REPORT.STATIONS')}>
-                    {getTabAdvice('STATIONS').map(advice => (
-                        <Alert key={advice.Id} variant="warning">
-                            ID: {advice.Description} - Funcionalidad por definir!
-                        </Alert>
-                    ))}
-                    {!getTabAdvice('STATIONS').length && (
-                        <Alert variant="warning">
-                            Funcionalidad por definir!
-                        </Alert>
-                    )}
-                     <StationReport /> 
-                </Tab> */}
+
                         {orbitalData.length > 0 && (
                             <Tab eventKey="TRAJECTORY" title={t('REPORT.TRAJECTORY')}>
                                 {getTabAdvice('TRAJECTORY').map(advice => (
@@ -239,6 +319,7 @@ const Report = () => {
                                 </Alert>
                             ))}
                             <PendingReport reportData={reportData} observatory={observatoryData} />
+                            <RotationReport data={reportData} />
                         </Tab>
 
                         <Tab eventKey="ZWO" title={t('REPORT.ZWO')}>
@@ -250,18 +331,7 @@ const Report = () => {
                             <PointAdjustReport zwoAdjustmentPoints={zwoData} regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
                         </Tab>
 
-                        {/* <Tab eventKey="ASSOCIATED_STATIONS" title={t('REPORT.ASSOCIATED_STATIONS.TITLE')}>
-                    {getTabAdvice('ASSOCIATED_STATIONS').map(advice => (
-                        <Alert key={advice.Id} variant="warning">
-                            ID: {advice.Description} - Funcionalidad por definir!
-                        </Alert>
-                    ))}
-                    <Alert variant="warning">
-                        Esta funcionalidad esta parcialmente, falta completar los datos
-                    </Alert>
 
-                    <AsocciatedStation reportId={reportData} observatories={observatoryData} />
-                </Tab> */}
                         {Array.isArray(photometryData) && photometryData.length > 0 && (
                             <Tab eventKey="PHOTOMETRY" title={t('REPORT.PHOTOMETRY.TITLE')}>
                                 {getTabAdvice('PHOTOMETRY').map(advice => (
@@ -321,6 +391,8 @@ const Report = () => {
                     </Modal>
                 </div>
             </Row>
+            {generatingGemini && <GeminiSpinnerOverlay />}
+
         </Container>
     );
 };

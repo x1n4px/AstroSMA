@@ -33,7 +33,9 @@ const ItemTypes = {
 
 
 
-const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, showButton }) => {
+
+
+const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fullWidth, showButton }) => {
   const [showModal, setShowModal] = useState(false);
 
   const [{ isDragging }, drag] = useDrag({
@@ -64,8 +66,13 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, sh
     xlValue *= 2;
   }
 
+  // Si fullWidth es true, ocupa todo el ancho
+  if (fullWidth) {
+    xlValue = 12;
+  }
+
   return (
-    <Col ref={(node) => drag(drop(node))} xs={12} md={doubleWidth ? 12 : 6} lg={doubleWidth ? 8 : 4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <Col ref={(node) => drag(drop(node))} xs={12} md={fullWidth ? 12 : doubleWidth ? 12 : 6} lg={fullWidth ? 12 : doubleWidth ? 16 : 4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
       <div className="shadow-sm bg-white rounded p-4">
         <Card.Body>
           {children}
@@ -90,11 +97,11 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, sh
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: false, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false });
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartModal, setShowChartModal] = useState(false);
 
-  const [chartOrder, setChartOrder] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  const [chartOrder, setChartOrder] = useState([2,1, 3, 4, 5, 6, 7, 9, 8, 10, 11]);
   const [chartsToShow, setChartsToShow] = useState(4);
   const [searchRange, setsearchRange] = useState(1);
   const [previousSearchRange, setPreviousSearchRange] = useState(1);
@@ -116,6 +123,7 @@ function Dashboard() {
   const [velocityDispersionVersusDihedralAngle, setVelocityDispersionVersusDihedralAngle] = useState([]);
   const [observatoryData, setObservatoryData] = useState([]); 
   const [lastReport, setLastReport] = useState([]);
+  const [lastReportMap, setLastReportMap] = useState([]);
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -153,7 +161,7 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const responseD = await getGeneral(searchRange);
-      console.log(responseD.impactMapFormat);
+      console.log(responseD.lastReportMap);
       //setData(responseD.data);
       setChartData(responseD.barChartData)
       setPieChartData(responseD.pieChartData);
@@ -168,6 +176,7 @@ function Dashboard() {
       setDistanceWithErrorFromObservatory(responseD.distanceWithErrorFromObservatory);
       setVelocityDispersionVersusDihedralAngle(responseD.velocityDispersionVersusDihedralAngle);
       setObservatoryData(responseD.observatoryDataFormatted);
+      setLastReportMap(responseD.lastReportMap);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -212,9 +221,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* <Alert variant="info" className="mb-3">
-        {t('DRAG_AND_DROP_INFO')}
-      </Alert> */}
 
       <Row className="justify-content-center mt-4 mx-1">
         <Button className="py-2" style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to="/customize-search">
@@ -228,6 +234,7 @@ function Dashboard() {
 
           let chartComponent;
           let doubleWidth = false;
+          let fullWidth = false;
           let showButton = true;
           switch (id) {
             case 1:
@@ -247,15 +254,17 @@ function Dashboard() {
             case 2:
               chartComponent = (
                 <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}</Card.Title>
+                   <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.SECOND.DESCRIPTION')}
+                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <ScatterPlot data={velocityDispersionVersusDihedralAngle} xVariable={'angle'} yVariable={'averageDistance'} key={`key-a2-${chartsToShow}`} />
+                  <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
+                    <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
                   </div>
                 </>
               );
+              fullWidth = true;
+              doubleWidth = false;
               break;
             case 3:
               chartComponent = (
@@ -358,6 +367,7 @@ function Dashboard() {
                   </div>
                 </>
               );
+              fullWidth = false;
               doubleWidth = true;
               break;
 
@@ -393,7 +403,7 @@ function Dashboard() {
           }
 
           return (
-            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} doubleWidth={doubleWidth} showButton={showButton}>
+            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} doubleWidth={doubleWidth} showButton={showButton} fullWidth={fullWidth}>
               {chartComponent}
             </DraggableChart>
           );

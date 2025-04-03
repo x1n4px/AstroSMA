@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { Table, Button, Container, Row, Col } from "react-bootstrap";
 import { formatDate } from '@/pipe/formatDate.jsx';
 import { useTranslation } from 'react-i18next';
+import truncateDecimal from '@/pipe/truncateDecimal';
+
 
 const ActiveRain = ({ activeShowerData, reportType }) => {
     const { t } = useTranslation(['text']);
@@ -41,7 +43,7 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                                 <td>{shower.Nombre}</td>
                                                 <td>{formatDate(shower.Fecha_Inicio)}</td>
                                                 <td>{formatDate(shower.Fecha_Fin)}</td>
-                                                <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria.toString().substring(0, 8)}</td>
+                                                <td>{truncateDecimal(shower.Distancia_mínima_entre_radianes_y_trayectoria)}</td>
                                                 <td>
                                                     {shower.src ? (
                                                         <Button

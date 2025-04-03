@@ -7,8 +7,8 @@ import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const SlopeMap = ({ startPoint, endPoint, observatory }) => {
-    console.log(observatory)
+const SlopeMap = ({ startPoint, endPoint, observatory, secondStartPoint, secondEndPoint }) => {
+    console.log(observatory);
     const [distance, setDistance] = useState(0);
     const [slope, setSlope] = useState(0);
     const [slopeAngle, setSlopeAngle] = useState(0);
@@ -105,14 +105,14 @@ const SlopeMap = ({ startPoint, endPoint, observatory }) => {
     };
 
     const startIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+        iconUrl: '/opacityOff.webp',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
     });
 
     const endIcon = new L.Icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+        iconUrl: '/opacityOff.webp',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
@@ -122,7 +122,7 @@ const SlopeMap = ({ startPoint, endPoint, observatory }) => {
         iconUrl: '/antena.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
-        popupAnchor: [1, -34]
+        popupAnchor: [1, -34],
     });
 
     return (
@@ -169,8 +169,38 @@ const SlopeMap = ({ startPoint, endPoint, observatory }) => {
                                     </div>
                                 </Popup>
                             </Marker>
-
-
+                        </>
+                    )}
+                    {secondStartPoint && secondEndPoint && (
+                        <>
+                            <Polyline
+                                positions={[
+                                    [parseFloat(secondStartPoint.lat), parseFloat(secondStartPoint.lng)],
+                                    [parseFloat(secondEndPoint.lat), parseFloat(secondEndPoint.lng)],
+                                ]}
+                                color="orange"
+                                dashArray="5, 10" // Dotted Line
+                            />
+                            <Marker position={[parseFloat(secondStartPoint.lat), parseFloat(secondStartPoint.lng)]} icon={startIcon}>
+                                <Popup>
+                                    <div>
+                                        <h4>Segundo Punto de Inicio</h4>
+                                        <p>Lat: {secondStartPoint.lat}</p>
+                                        <p>Lng: {secondStartPoint.lng}</p>
+                                        <p>Elevación: {secondStartPoint.elevation} m</p>
+                                    </div>
+                                </Popup>
+                            </Marker>
+                            <Marker position={[parseFloat(secondEndPoint.lat), parseFloat(secondEndPoint.lng)]} icon={endIcon}>
+                                <Popup>
+                                    <div>
+                                        <h4>Segundo Punto Final</h4>
+                                        <p>Lat: {secondEndPoint.lat}</p>
+                                        <p>Lng: {secondEndPoint.lng}</p>
+                                        <p>Elevación: {secondEndPoint.elevation} m</p>
+                                    </div>
+                                </Popup>
+                            </Marker>
                         </>
                     )}
                     {observatory && observatory.map((station, index) => (
@@ -186,29 +216,7 @@ const SlopeMap = ({ startPoint, endPoint, observatory }) => {
                     ))}
                 </MapContainer>
             </div>
-            <div style={{ flex: 1, padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <div style={{ flex: 1, marginRight: '10px' }}>
-                        <h3>Información de la Ruta</h3>
-                        <p><strong>Distancia:</strong> {(distance / 1000).toFixed(2)} km</p>
-                        <p><strong>Diferencia de elevación:</strong> {((parseFloat(endPoint.elevation) - parseFloat(startPoint.elevation))).toFixed(2)} m</p>
-                        <p><strong>Pendiente promedio:</strong> {slope.toFixed(2)}%</p>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <h3>Clasificación de Pendiente</h3>
-                        <p>
-                            {Math.abs(slope) < 2 ? 'Plano' :
-                                Math.abs(slope) < 5 ? 'Suave' :
-                                    Math.abs(slope) < 10 ? 'Moderado' :
-                                        Math.abs(slope) < 15 ? 'Empinado' : 'Muy empinado'}
-                        </p>
-                        <p>
-                            {slope > 0 ? 'Subida' : 'Bajada'}
-                        </p>
-                    </div>
-                </div>
-                <Line data={chartData} options={chartOptions} />
-            </div>
+
         </div>
     );
 };

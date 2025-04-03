@@ -55,6 +55,18 @@ const loginUser = async (req, res) => {
     }
 };
 
+const QRLoginUser = async (req, res) => {
+    try {
+        const { path } = req.body;
+        const token = jwt.sign({ userId: path }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        const rol = '00000000';
+        res.json({ token, rol });
+    } catch (error) {
+        console.log("Error")
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const renewToken = async (req, res = response) => {
     const uid = req.uid;
     // Generar el token - JWT
@@ -67,4 +79,4 @@ const renewToken = async (req, res = response) => {
 }
 
 
-module.exports = { registerUser, loginUser, renewToken };
+module.exports = { registerUser, loginUser, renewToken, QRLoginUser };

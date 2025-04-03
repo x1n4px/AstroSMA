@@ -1,7 +1,7 @@
 const pool = require('../database/connection');
 
-
-
+const { isPointInRadius } = require('../middlewares/isPointInRadius')
+const { individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal.js')
 
 const testing = async (req, res) => {
   try {
@@ -123,11 +123,12 @@ const getBolideWithCustomSearch = async (req, res) => {
     let totalItems = 0;
     let allBolides = []; // Usar let en lugar de const
     let totalItemsResult = [];
-
+    let params = [];
+    let query = ``;
     switch (reportType) {
       case '1':
         // Obtener todos los bólidos sin filtros
-        let query = `
+        query = `
         SELECT m.*, 
           CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ,
           CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant,
@@ -135,45 +136,138 @@ const getBolideWithCustomSearch = async (req, res) => {
           GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
           GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
           GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-          ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''}
-          
         FROM Meteoro m 
         LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
         LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
-        INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador
-        GROUP BY m.Identificador
-        LIMIT 50 OFFSET ?`;
+        INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador`;
+        // Agregar filtro por rango de fechas si está activado
+        if (dateRangeChecked === 'true' && startDate && endDate) {
+          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
+          params.push(startDate, endDate);
+        }
+        // Agregar LIMIT y OFFSET
+        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
+        params.push(offs);
 
 
-
-        [allBolides] = await pool.query(query, [offs]);
+        [allBolides] = await pool.query(query, params);
         [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
+
+
+        console.log(allBolides)
+
         totalItems = totalItemsResult[0]['count(*)'];
         break;
       case '2':
         // Obtener todos los bólidos con Informe_Z
-        [allBolides] = await pool.query(`SELECT m.*, 1 AS hasReportZ, CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} FROM Meteoro m INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador GROUP BY m.Identificador LIMIT 50 OFFSET ?`, [offs]);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador');
+        query = `SELECT m.*, 1 AS hasReportZ, 
+              CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 
+              CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry,
+              GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
+               GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
+              GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
+              ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
+              FROM Meteoro m INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
+              LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
+              LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador  `;
+
+
+        // Agregar filtro por rango de fechas si está activado
+        if (dateRangeChecked === 'true' && startDate && endDate) {
+          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
+          params.push(startDate, endDate);
+        }
+
+        // Agregar LIMIT y OFFSET
+        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
+        params.push(offs);
+
+
+        // Ejecutar la consulta
+        [allBolides] = await pool.query(query, params);
+
+
+
+        if ((latLonChecked === 'true' && latFilter && lonFilter && ratioFilter) ||
+          (heightChecked === 'true' && heightFilter)) {
+
+          allBolides = allBolides.filter(bolide => {
+            const [latDMS, lonDMS, distance, altitude] = bolide.Inicio_de_la_trayectoria_Estacion_1.split(" ");
+            const lonF = individuaConvertSexagesimalToDecimal(latDMS);
+            const latF = individuaConvertSexagesimalToDecimal(lonDMS);
+            const altitudeF = parseFloat(altitude); // Convertimos la altitud a número
+
+            console.log(latF, lonF, latFilter, lonFilter, ratioFilter, altitudeF, heightFilter);
+
+            const isInRadius = latLonChecked === 'true' && latFilter && lonFilter && ratioFilter
+              ? isPointInRadius(latFilter, lonFilter, ratioFilter * 1000, latF, lonF)
+              : true;
+
+            const isInHeight = heightChecked === 'true' && heightFilter
+              ? altitudeF <= heightFilter
+              : true;
+
+            return isInRadius && isInHeight;
+          });
+        }
+
+
+
+
+
+        [totalItemsResult] = await pool.query(`SELECT 
+                                                COUNT(DISTINCT m.Identificador) AS total_meteoros
+                                                FROM Meteoro m 
+                                                INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
+                                                LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
+                                                LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador;
+                                                `);
         totalItems = totalItemsResult[0]['count(*)'];
         break;
       case '3':
         // Obtener todos los bólidos con Informe Radiante
-        [allBolides] = await pool.query(`SELECT m.*, CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 1 AS hasReportRadiant, CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador GROUP BY m.Identificador LIMIT 50 OFFSET ?`, [offs]);
+        query = `SELECT m.*, 
+          CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 1 AS hasReportRadiant, 
+          CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, 
+          GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, 
+          GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
+          GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
+          ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
+          FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
+          INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
+          LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
+        if (dateRangeChecked === 'true' && startDate && endDate) {
+          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
+          params.push(startDate, endDate);
+        }
+        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
+        params.push(offs);
+        [allBolides] = await pool.query(query, params);
         [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Radiante i ON m.Identificador = i.Identificador');
         totalItems = totalItemsResult[0]['count(*)'];
         break;
       case '4':
         // Obtener todos los bólidos con Informe Fotometría
-        [allBolides] = await pool.query(`SELECT m.*, CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 1 AS hasReportPhotometry, GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador GROUP BY m.Identificador LIMIT 50 OFFSET ?`, [offs]);
+        query = `SELECT m.*, 
+        CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 
+        CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 1 AS hasReportPhotometry,
+         GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
+         GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
+         ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
+         FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
+         LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
+         INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
+        if (dateRangeChecked === 'true' && startDate && endDate) {
+          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
+          params.push(startDate, endDate);
+        }
+        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
+        params.push(offs);
+        [allBolides] = await pool.query(query, params);
         [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
         totalItems = totalItemsResult[0]['count(*)'];
         break;
-      case '5':
-        // Obtener todos los bólidos con todos los informes
-        [allBolides] = await pool.query(`SELECT m.*, CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador GROUP BY m.Identificador LIMIT 50 OFFSET ?`, [offs]);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m ');
-        totalItems = totalItemsResult[0]['count(*)'];
-        break;
+
       default:
         // Obtener todos los bólidos sin filtros
         [allBolides] = await pool.query(`SELECT * FROM Meteoro LIMIT 50 OFFSET ?`, [offs]);

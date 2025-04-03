@@ -121,6 +121,7 @@ const getGeneral = async (req, res) => {
       const lastReportQuery = `SELECT iz.IdInforme, iz.Fecha, iz.Hora FROM Informe_Z iz ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT ?;`
       const distanceWithErrorFromObservatoryQuery = `SELECT iz.Observatorio_Número , iz.Distancia_recorrida_Estacion_1, iz.Error_distancia_Estacion_1 FROM Informe_Z iz LIMIT ?;`
       const velocityDispersionVersusDihedralAngleQuery = `SELECT Ángulo_diedro_entre_planos_trayectoria AS angle, Velocidad_media as averageDistance FROM Informe_Z LIMIT ?`;
+      const lastReportMapQuery = `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`;
 
 
       const observatory = 'SELECT * FROM Observatorio o ;'
@@ -140,7 +141,30 @@ const getGeneral = async (req, res) => {
       const [distanceWithErrorFromObservatory] = await pool.query(distanceWithErrorFromObservatoryQuery, [limit]);
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [limit]);
       const [observatoryData] = await pool.query(observatory);
+      const [lastReportMapUNF] = await pool.query(lastReportMapQuery);
 
+      const lastReportMap = lastReportMapUNF.map((item) => {
+        return {
+          AUX: {
+            Fecha: item.Fecha,
+            Hora: item.Hora,
+            IdInforme: item.IdInforme
+          },
+          MAP_DATA: {
+            st1: {
+              start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
+              end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
+              id: item.IdInforme
+            },
+            st2: {
+              start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
+              end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
+              id: item.IdInforme
+            }
+          }
+          
+        }
+      })
 
       const impactMapFormat = predictableImpact.map((item) => {
         return {
@@ -179,7 +203,8 @@ const getGeneral = async (req, res) => {
         lastReport,
         distanceWithErrorFromObservatory,
         velocityDispersionVersusDihedralAngle,
-        observatoryDataFormatted
+        observatoryDataFormatted,
+        lastReportMap
       });
     } else {
       // Casos sin límite (opción 4 o default)
@@ -258,7 +283,7 @@ const getGeneral = async (req, res) => {
       const distanceWithErrorFromObservatoryQuery = `SELECT iz.Observatorio_Número , iz.Distancia_recorrida_Estacion_1, iz.Error_distancia_Estacion_1 FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""};`
       const velocityDispersionVersusDihedralAngleQuery = `SELECT Ángulo_diedro_entre_planos_trayectoria AS angle, Velocidad_media as averageDistance FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}`;
       const observatory = 'SELECT * FROM Observatorio o ;'
-
+      const lastReportMapQuery = `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`;
 
 
       const [barChartData] = await pool.query(barChartQuery, [dateFilterValue]);
@@ -274,6 +299,7 @@ const getGeneral = async (req, res) => {
       const [distanceWithErrorFromObservatory] = await pool.query(distanceWithErrorFromObservatoryQuery, [dateFilterValue]);
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [dateFilterValue]);
       const [observatoryData] = await pool.query(observatory);
+      const [lastReportMap] = await pool.query(lastReportMapQuery);
 
       const impactMapFormat = predictableImpact.map((item) => {
         return {
@@ -307,7 +333,8 @@ const getGeneral = async (req, res) => {
         lastReport,
         distanceWithErrorFromObservatory,
         velocityDispersionVersusDihedralAngle,
-        observatoryDataFormatted
+        observatoryDataFormatted,
+        lastReportMap
       });
     }
   } catch (error) {

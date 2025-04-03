@@ -3,7 +3,7 @@ import { Container, Row, Col, Form } from 'react-bootstrap';
 import Pending from '@/components/chart/Pending.jsx';
 import { useTranslation } from 'react-i18next';
 import SlopeMap from '@/components/map/SlopeMap';
-
+import truncateDecimal from '@/pipe/truncateDecimal';
 
 
 const PendingReport = ({ reportData, observatory }) => {
@@ -52,6 +52,18 @@ const PendingReport = ({ reportData, observatory }) => {
         elevation: reportData.Fin_de_la_trayectoria_Estacion_1.height  // 100 metros más alto
     };
 
+    const secondStartPoint = {
+        lat: reportData.Inicio_de_la_trayectoria_Estacion_2.latitude,  // Nueva York
+        lng: reportData.Inicio_de_la_trayectoria_Estacion_2.longitude,
+        elevation: reportData.Inicio_de_la_trayectoria_Estacion_2.height   // metros sobre el nivel del mar
+    };
+
+    const secondEndPoint = {
+        lat: reportData.Fin_de_la_trayectoria_Estacion_2.latitude,  // 1 km al norte
+        lng: reportData.Fin_de_la_trayectoria_Estacion_2.longitude,
+        elevation: reportData.Fin_de_la_trayectoria_Estacion_2.height  // 100 metros más alto
+    };
+
 
 
     return (
@@ -61,54 +73,54 @@ const PendingReport = ({ reportData, observatory }) => {
                     <h4>{t('REPORT.PENDING.STATION_DETAILS', { id: data[0].id })}</h4>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.START_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_1.longitude} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ', ' + reportData.Inicio_de_la_trayectoria_Estacion_1.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.END_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Fin_de_la_trayectoria_Estacion_1.longitude} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.latitude + ', ' + reportData.Fin_de_la_trayectoria_Estacion_1.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.distance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Inicio_de_la_trayectoria_Estacion_1.distance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.distance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Fin_de_la_trayectoria_Estacion_1.distance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.height} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Inicio_de_la_trayectoria_Estacion_1.height)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_1.height} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Fin_de_la_trayectoria_Estacion_1.height)} readOnly />
                     </Form.Group>
                 </Col>
                 <Col xs={12} md={6}>
                     <h4>{t('REPORT.PENDING.STATION_DETAILS', { id: data[1].id })}</h4>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.START_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ' ' + reportData.Inicio_de_la_trayectoria_Estacion_2.longitude} readOnly />
+                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_1.latitude + ', ' + reportData.Inicio_de_la_trayectoria_Estacion_2.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.END_COORDINATES')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.latitude + ' ' + reportData.Fin_de_la_trayectoria_Estacion_2.longitude} readOnly />
+                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.latitude + ', ' + reportData.Fin_de_la_trayectoria_Estacion_2.longitude} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_2.distance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Inicio_de_la_trayectoria_Estacion_2.distance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_DISTANCE')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.distance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Fin_de_la_trayectoria_Estacion_2.distance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.INITIAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Inicio_de_la_trayectoria_Estacion_2.height} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Inicio_de_la_trayectoria_Estacion_2.height)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>{t('REPORT.PENDING.FINAL_HEIGHT')}</Form.Label>
-                        <Form.Control type="text" value={reportData.Fin_de_la_trayectoria_Estacion_2.height} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Fin_de_la_trayectoria_Estacion_2.height)} readOnly />
                     </Form.Group>
                 </Col>
             </Row>
@@ -117,34 +129,34 @@ const PendingReport = ({ reportData, observatory }) => {
                 <Col md={6}>
                     <Form.Group className="mb-2">
                         <Form.Label>Distancia viajada (Estacion 1)</Form.Label>
-                        <Form.Control type="text" value={data[0].initialDistance - data[0].finalDistance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(data[0].initialDistance - data[0].finalDistance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>Tiempo viajada (Estacion 1)</Form.Label>
-                        <Form.Control type="text" value={data[0].time} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(data[0].time)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>Velocidad media</Form.Label>
-                        <Form.Control type="text" value={reportData.Velocidad_media} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Velocidad_media)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>Velocidad inicial (velocidad 2)</Form.Label>
-                        <Form.Control type="text" value={reportData.Velocidad_Inicial_Estacion_2} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Velocidad_Inicial_Estacion_2)} readOnly />
                     </Form.Group>
 
                 </Col>
                 <Col md={6}>
                     <Form.Group className="mb-2">
                         <Form.Label>Distancia viajada (Estacion 2)</Form.Label>
-                        <Form.Control type="text" value={data[1].initialDistance - data[1].finalDistance} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(data[1].initialDistance - data[1].finalDistance)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>Tiempo viajada (Estacion 2)</Form.Label>
-                        <Form.Control type="text" value={data[1].time} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(data[1].time)} readOnly />
                     </Form.Group>
                     <Form.Group className="mb-2">
                         <Form.Label>Aceleracion en Km/Sec²</Form.Label>
-                        <Form.Control type="text" value={reportData.Aceleración_en_Kms} readOnly />
+                        <Form.Control type="text" value={truncateDecimal(reportData.Aceleración_en_Kms)} readOnly />
                     </Form.Group>
                 </Col>
             </Row>
@@ -153,9 +165,11 @@ const PendingReport = ({ reportData, observatory }) => {
                     <div>
                         {/* <Pending data={data} /> */}
 
-                        <div style={{ width: 'auto', height: 'auto' }}>
-                            <SlopeMap startPoint={startPoint} endPoint={endPoint} observatory={observatory} />
+                        <div style={{ width: 'auto', height: 'auto', marginBlock: '20px' }}>
+                            <SlopeMap startPoint={startPoint} endPoint={endPoint} observatory={observatory} date={data.Fecha} secondStartPoint={secondStartPoint} secondEndPoint={secondEndPoint} />
                         </div>
+                        
+                        
                     </div>
                 </Col>
             </Row>

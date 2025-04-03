@@ -1,129 +1,104 @@
-import React from 'react';
-import { Container, Row, Col, Card, Form } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
-
-import { formatDate } from '@/pipe/formatDate';
-
-const SummaryReport = ({ data }) => {
-    const { t } = useTranslation(['text']);
+import React, { useState, useEffect } from 'react';
+import { Container } from 'react-bootstrap';
+import DOMPurify from 'dompurify';
+import { GeminiEndpoint } from '@/services/geminiService.jsx';
+import '@/assets/loader.css'
 
 
+
+const SummaryReport = ({ data, observatory, orbitalElement, reportGemini, setReportGemini, onGeneratingStart, onGeneratingEnd,   }) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Función para sanitizar y extraer el contenido
+  const getSanitizedContent = () => {
+    try {
+      if (reportGemini === 'azd112') return null;
+
+      if (!reportGemini?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return '';
+      }
+
+      let rawHtml = reportGemini.candidates[0].content.parts[0].text;
+      rawHtml = rawHtml.replace(/^```html\s*/i, '');
+      rawHtml = rawHtml.replace(/\s*```$/i, '');
+      return DOMPurify.sanitize(rawHtml);
+
+    } catch (error) {
+      console.error('Error processing Gemini response:', error);
+      return '';
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      if (onGeneratingStart) onGeneratingStart();
+      try {
+        console.log('entra 2')
+        if (!reportGemini) {
+          const response = await GeminiEndpoint(data, observatory, orbitalElement);
+          console.log('Gemini response:', response);
+          setReportGemini(response);
+        }
+      } catch (e) {
+        console.log('entra')
+        setError(e.message);
+        setReportGemini('azd112');
+      } finally {
+        console.log('entra 3')
+        setLoading(false);
+        if (onGeneratingEnd) onGeneratingEnd();
+      }
+    };
+
+    if (data) {
+      fetchData();
+    }
+  }, [data, observatory, orbitalElement]);
+
+
+  if (error) {
     return (
-        <div>
-            <Container>
-                <Row className="mb-4">
-                    <Col md={6}>
-
-                        <Form.Group className="mb-3" controlId="formDate">
-                            <Form.Label>{t('SUMMARY_REPORT.DATE.label')}</Form.Label>
-                            <Form.Control type="text" value={formatDate(data?.Fecha)} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.DATE.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.DATE.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formHour">
-                            <Form.Label>{t('SUMMARY_REPORT.HOUR.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Hora} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.HOUR.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.HOUR.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formFirstObservatory">
-                            <Form.Label>{t('SUMMARY_REPORT.FIRST_OBSERVATORY.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Observatorio_Número} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.FIRST_OBSERVATORY.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.FIRST_OBSERVATORY.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formSecondObservatory">
-                            <Form.Label>{t('SUMMARY_REPORT.SECOND_OBSERVATORY.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Observatorio_Número2} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.SECOND_OBSERVATORY.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.SECOND_OBSERVATORY.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formUsedFrames">
-                            <Form.Label>{t('SUMMARY_REPORT.USED_FRAMES.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Fotogramas_usados} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.USED_FRAMES.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.USED_FRAMES.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-
-
-                    </Col>
-                    <Col md={6}>
-
-                        <Form.Group className="mb-3" controlId="formDihedralAngle">
-                            <Form.Label>{t('SUMMARY_REPORT.DIHEDRAL_ANGLE.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Ángulo_diedro_entre_planos_trayectoria} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.DIHEDRAL_ANGLE.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.DIHEDRAL_ANGLE.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formCoordinatesToDate">
-                            <Form.Label>{t('SUMMARY_REPORT.COORDINATES_TO_DATE.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.COORDINATES_TO_DATE.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.COORDINATES_TO_DATE.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formCoordinatesToJ2000">
-                            <Form.Label>{t('SUMMARY_REPORT.COORDINATES_J2000.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Coordenadas_astronómicas_del_radiante_J200} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.COORDINATES_J2000.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.COORDINATES_J2000.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formAzimuth">
-                            <Form.Label>{t('SUMMARY_REPORT.AZIMUTH.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Azimut} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.AZIMUTH.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.AZIMUTH.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formZenithalDistance">
-                            <Form.Label>{t('SUMMARY_REPORT.ZENITH_DISTANCE.label')}</Form.Label>
-                            <Form.Control type="text" value={data?.Dist_Cenital} readOnly className="form-control flex-grow-1" />
-                            {t('SUMMARY_REPORT.ZENITH_DISTANCE.measure') &&
-                                <div className="input-group-append">
-                                    <span className="input-group-text" id="basic-addon2">{t('SUMMARY_REPORT.ZENITH_DISTANCE.measure')}</span>
-                                </div>
-                            }
-                        </Form.Group>
-
-                    </Col>
-                </Row>
-            </Container>
+      <Container className="py-4">
+        <div className="alert alert-danger">
+          Error: {error}
+          <button
+            className="btn btn-sm btn-outline-danger ms-3"
+            onClick={() => window.location.reload()}
+          >
+            Reintentar
+          </button>
         </div>
+      </Container>
     );
+  }
+
+  const cleanHtml = getSanitizedContent();
+
+  if (!cleanHtml) {
+    return (
+      <Container className="py-4">
+        <div className="alert alert-warning">
+          No se pudo generar el contenido del reporte o la respuesta está vacía.
+        </div>
+      </Container>
+    );
+  }
+
+  return (
+    <Container className="py-4">
+      <div
+        dangerouslySetInnerHTML={{ __html: cleanHtml }}
+        style={{
+          lineHeight: 1.6,
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+        }}
+        className="gemini-content"
+      />
+    </Container>
+  );
 };
 
 export default SummaryReport;

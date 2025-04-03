@@ -31,3 +31,14 @@ export const registerUser = async (email, password, name, surname, countryId, in
         throw error;
     }
 }
+
+export const QRLogin = async (path) => {
+    try {
+        const response = await axios.post(`${apiUrl}/QRlogin`, {
+            path: path
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

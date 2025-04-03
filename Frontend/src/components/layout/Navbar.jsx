@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Navbar as BootstrapNavbar, Nav, Container, Button } from 'react-bootstrap';
+import { Navbar as BootstrapNavbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
 const Navbar = () => {
-  const { t } = useTranslation(['text']);
+  const { t, i18n } = useTranslation(['text']);
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
 
@@ -15,6 +15,11 @@ const Navbar = () => {
     navigate('/');
     window.location.reload();
   };
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
 
   return (
     <BootstrapNavbar style={{backgroundColor: '#980100'}}  expand="lg" expanded={expanded} >
@@ -32,8 +37,34 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/active-rain" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_ACTIVE_RAIN')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
-            <Nav.Link as={Link} to="/profile" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_PROFILE')}</Nav.Link>
-            <Button variant="outline-light" onClick={handleLogout}>{t('NAVBAR.BTN_LOGOUT')}</Button>
+            <Dropdown style={{ marginRight: '1rem' }}>
+              <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
+                {t('NAVBAR.BTN_PROFILE')}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item as={Link} to="/profile" onClick={() => setExpanded(false)}>
+                  {t('NAVBAR.BTN_PROFILE')}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleLogout}>
+                  {t('NAVBAR.BTN_LOGOUT')}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
+                <img src={`/flag/${i18n.language}.webp`} alt={i18n.language.toUpperCase()} style={{ width: '20px' }} />
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu style={{ minWidth: 'auto' }}>
+                <Dropdown.Item onClick={() => changeLanguage('es')}>
+                  <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px' }} />
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('en')}>
+                  <img src="/flag/en.webp" alt="English" style={{ width: '20px' }} />
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>

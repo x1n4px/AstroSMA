@@ -109,7 +109,7 @@ const stations = [
 // Función para obtener un empleado por su ID
 const getAllStations = async (req, res) => {
     try {
-        const [stations] = await pool.query('SELECT * FROM Observatorio');
+        const [stations] = await pool.query('SELECT * FROM Observatorio ORDER BY Activo ASC');
         const convertedStations = transform(stations);
 
 
