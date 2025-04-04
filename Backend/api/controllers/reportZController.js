@@ -21,7 +21,6 @@ const getReportZ = async (req, res) => {
         const user_id = extraerUserId(token);
         const { id } = req.params;
         const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
-        console.log(report[0])
         const processedReports = report.map(report => {
             return {
                 ...report,
@@ -61,8 +60,18 @@ const getReportZ = async (req, res) => {
                 De_Estacion_2: individuaConvertSexagesimalToDecimal(item.De_Estacion_2),
             }
         } )
+
+        const [showers] = await pool.query(
+            `SELECT ms.Code, ms.Status, MAX(ms.SubDate) AS SubDate
+             FROM meteor_showers ms 
+             WHERE MONTH(ms.SubDate) = MONTH(?)  
+             AND YEAR(ms.SubDate) = YEAR(?)
+             AND ms.Code != ""
+             GROUP BY ms.Code, ms.Status
+             ORDER BY SubDate DESC;`,
+            [report[0].Fecha, report[0].Fecha]
+        );
        
-        console.log(trajectory)
 
         const response = {
             informe: processedReports[0],
@@ -79,6 +88,7 @@ const getReportZ = async (req, res) => {
             mapReport: mapReport,
             advice: advice,
             observatoryName: observatory_name[0].Nombre_Observatorio,
+            ...(activeShower.length === 0 && { showers: showers })
         };
 
         res.json(response);
@@ -200,63 +210,35 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 // Test function to verify the module is working
 const testing = async (req, res) => {
     try {
-        const [reports] = await pool.query("SELECT * FROM Informe_Z WHERE IdInforme = 120");
+        const [reports] = await pool.query("SELECT * FROM Informe_Z ORDER BY IdInforme DESC LIMIT 1");
 
         const report = reports[0];
         let diasExtra = 7;
         let found = false;
-        let activeRains = [];
         let activeShowers = [];
-
+        
         while (!found) {
             const fechaInicio = new Date(report.Fecha);
             fechaInicio.setDate(fechaInicio.getDate() - diasExtra);
-
+        
             const fechaFin = new Date(report.Fecha);
             fechaFin.setDate(fechaFin.getDate() + diasExtra);
-
-            /** 🔹 1. Buscar lluvias activas en "Lluvia" */
-            const [rains] = await pool.query(
-                `SELECT * FROM Lluvia 
-                 WHERE (Fecha_Inicio BETWEEN ? AND ?) 
-                    OR (Fecha_Fin BETWEEN ? AND ?) 
-                    OR (? BETWEEN Fecha_Inicio AND Fecha_Fin)`,
-                [
-                    fechaInicio.toISOString().split('T')[0], fechaFin.toISOString().split('T')[0],
-                    fechaInicio.toISOString().split('T')[0], fechaFin.toISOString().split('T')[0],
-                    report.Fecha
-                ]
+        
+            
+        
+            /** 🔹 2. Buscar meteor showers con la nueva consulta */
+            const [showers] = await pool.query(
+                `SELECT ms.Code, ms.Status, MAX(ms.SubDate) AS SubDate
+                 FROM meteor_showers ms 
+                 WHERE MONTH(ms.SubDate) = MONTH(?)  
+                 AND YEAR(ms.SubDate) = YEAR(?)
+                 AND ms.Code != ""
+                 GROUP BY ms.Code, ms.Status
+                 ORDER BY SubDate DESC;`,
+                [report.Fecha, report.Fecha]
             );
-
-            const fechaCompleta = new Date(report.Fecha);
-            const year = fechaCompleta.getFullYear();
-            const month = fechaCompleta.getMonth() + 1; // Los meses son 0-indexed
-            const day = fechaCompleta.getDate();
-
-            const firstD = year + '-' + (fechaCompleta.getMonth() - 1);
-            const secondD = year + '-' + (fechaCompleta.getMonth() + 1);
-            const fechaSuma15 = new Date(fechaCompleta);
-            fechaSuma15.setDate(fechaSuma15.getDate() + 15);
-
-            // Restar 15 días
-            const fechaResta15 = new Date(fechaCompleta);
-            fechaResta15.setDate(fechaResta15.getDate() - 15);
-
-            /** 🔹 2. Buscar meteor showers */
-            const [showers] = await pool.query(`SELECT ms.LP, ms.Activity, ms.SubDate 
-                                                    FROM meteor_showers ms 
-                                                    WHERE 
-                                                    ( 
-                                                        (Activity like '%annual%' AND SubDate >= ? AND SubDate <= ?)
-                                                        OR
-                                                        (SubDate BETWEEN ? AND ?)
-                                                        OR
-                                                        (Activity = 'annual' AND SubDate >= ? AND SubDate <= ?)
-                                                    );`, [firstD, secondD, fechaSuma15.toISOString().split('T')[0], fechaResta15.toISOString().split('T')[0], year, year]);
-
-
-            if (rains.length > 0 || filteredShowers.length > 0) {
-                activeRains = rains;
+        
+            if (showers.length > 0) {
                 activeShowers = showers;
                 found = true;
             } else {
@@ -265,7 +247,7 @@ const testing = async (req, res) => {
         }
 
 
-        res.json({ fecha: report.Fecha.toISOString().split('T')[0], activeRains, activeShowers, totalDays: diasExtra });
+        res.json({ fecha: report.Fecha.toISOString().split('T')[0], activeShowers, totalDays: diasExtra });
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
         throw error;

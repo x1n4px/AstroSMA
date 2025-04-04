@@ -31,6 +31,7 @@
         "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
         "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
         "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada",
+        "SHOW_PEPORT_BTN": "Mostrar informe",
         "GRAPH": {
             "FIRST": {
                 "TITLE": "Velocidad média de los meteoros",
@@ -364,6 +365,8 @@
             "TITLE": "Lluvias activas",
             "NO_SHOWERS_WITH_DATA": "¡No hay lluvias con datos disponibles!",
             "NO_SHOWERS_WITH_DATA_DESC": "Parece que las lluvias de meteoros actuales están disfrutando de un merecido descanso cósmico. ¡Vuelve pronto para ver si se despiertan!",
+            "AIU_TITLE": "Tabla de lluvias activas de la IAU",
+            "IMO_TITLE": "Tabla de lluvias activas de la IMO",
             "NO_ACTIVE_RAIN": "No hay lluvias activas",
             "NO_SHOWERS_AVAILABLE": "No hay lluvias disponibles",
             "TABLE": {

@@ -3,9 +3,9 @@ import { Table, Button, Container, Row, Col } from "react-bootstrap";
 import { formatDate } from '@/pipe/formatDate.jsx';
 import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
+import formatShowerState from '@/pipe/formatShowerState';
 
-
-const ActiveRain = ({ activeShowerData, reportType }) => {
+const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
     const { t } = useTranslation(['text']);
     const [selectedShower, setSelectedShower] = useState(null);
     const hasValidShowers = useMemo(() => {
@@ -22,6 +22,7 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
         <Container>
             <Row>
                 <Col>
+                <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.IMO_TITLE')}</h2>
                     <div className="table-responsive mb-4">
                         {reportType === '1' && (
                             <Table striped bordered hover>
@@ -84,7 +85,7 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeShowerData.length > 0 ? (
+                                    {activeShowerData.length > 0  ? (
                                         activeShowerData.map((shower, index) => (
                                             <tr key={index}>
                                                 <td>{shower.Lluvia_Identificador}</td>
@@ -144,7 +145,43 @@ const ActiveRain = ({ activeShowerData, reportType }) => {
                 </Row>
             )}
 
-            {allShowersEmpty && (
+          
+
+            <Row>
+                <Col>
+                    <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.AIU_TITLE')}</h2>
+                    <div className="table-responsive mb-4">
+                        <Table striped bordered hover>
+                            <thead className="thead-dark">
+                                <tr>
+                                    <th scope="col">Code</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">SubDate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {AIUShowerData.length > 0 ? (
+                                    AIUShowerData.map((shower, index) => (
+                                        <tr key={index}>
+                                            <td>{shower.Code}</td>
+                                            <td>{formatShowerState(shower.Status)}</td>
+                                            <td>{formatDate(shower.SubDate)}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="text-center">
+                                            {t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')}
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </Table>
+                    </div>
+                </Col>
+            </Row>
+
+            {(AIUShowerData.length === 0 && activeShowerData.length === 0) && (
                 <Row>
                     <Col>
                         <h2 className="mb-3">

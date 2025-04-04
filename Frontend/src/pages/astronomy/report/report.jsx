@@ -38,6 +38,7 @@ const Report = () => {
     const [regressionTrajectory, setRegressionTrajectory] = useState(null);
     const [trajectoryData, setTrajectoryData] = useState(null);
     const [activeShowerData, setActiveShowerData] = useState(null);
+    const [AIUShowerData, setAIUShowerData] = useState([]);
     const [adviceData, setAdviceData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -121,7 +122,6 @@ const Report = () => {
     };
 
     useEffect(() => {
-        console.log('ReportGemini:', reportGemini);
         if (reportGemini === 'azd112') {
             setActiveTab('INFERRED_DATA_TAB');
         }
@@ -148,7 +148,7 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.informe)
+            console.log(response.showers)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -159,6 +159,7 @@ const Report = () => {
             setAdviceData(response.advice);
             setActiveShowerData(response.activeShower);
             setZwoData(response.zwo);
+            setAIUShowerData(response.showers);
             setObservatoryName(response.observatoryName);
         } catch (err) {
             setError(err);
@@ -299,7 +300,7 @@ const Report = () => {
                                     ID: {advice.Id} - {advice.Description}
                                 </Alert>
                             ))}
-                            <ActiveRain activeShowerData={activeShowerData} reportType={'1'} />
+                            <ActiveRain activeShowerData={activeShowerData} reportType={'1'} AIUShowerData={AIUShowerData} />
                         </Tab>
 
                         {orbitalData.length > 0 && (

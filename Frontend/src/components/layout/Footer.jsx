@@ -8,7 +8,7 @@ const Footer = () => {
     const { t } = useTranslation(['text']);
 
     return (
-        <footer className=" text-white py-3"  style={{backgroundColor: '#980100'}}>
+        <footer className=" text-white py-3" style={{ backgroundColor: '#980100' }}>
             <Container>
                 <Row className="justify-content-between align-items-center">
                     <Col md={4} className="text-center text-md-start mb-3 mb-md-0">
@@ -47,6 +47,17 @@ const Footer = () => {
                     <Col md={4} className="text-center text-md-end">
                         <p className="mb-0">{t('FOOTER.CONTACT_TEXT')} <a href="mailto:astromalaga@gmail.com" className="text-white">{t('FOOTER.CONTACT_INFO')}</a></p>
                     </Col>
+
+                    <Col md={4} className="text-center text-md-end">
+                        <p className="mb-0">
+                            {t('FOOTER.CONTACT_TEXT')}
+                            <a href="mailto:astromalaga@gmail.com" className="text-white">{t('FOOTER.CONTACT_INFO')}</a>
+                        </p>
+                        <p className="mb-0 mt-2">Desarrollado por Ignacio Fernández Contreras</p>
+                        <p className="mb-0 small">Basado en el trabajo de José Ignacio García Escobar</p>
+
+                    </Col>
+
                 </Row>
             </Container>
         </footer>

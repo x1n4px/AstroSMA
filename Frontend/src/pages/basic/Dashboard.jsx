@@ -261,10 +261,14 @@ function Dashboard() {
                   <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
                     <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
                   </div>
+                  <Button className="mt-2 w-100" style={{background: '#980100', border: '#980100'}} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
+                    <span>{t('DASHBOARD.SHOW_PEPORT_BTN')}</span>
+                  </Button>
                 </>
               );
               fullWidth = true;
               doubleWidth = false;
+              showButton = false;
               break;
             case 3:
               chartComponent = (
