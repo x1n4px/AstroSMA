@@ -36,18 +36,15 @@ const SummaryReport = ({ data, observatory, orbitalElement, reportGemini, setRep
       setError(null);
       if (onGeneratingStart) onGeneratingStart();
       try {
-        console.log('entra 2')
         if (!reportGemini) {
           const response = await GeminiEndpoint(data, observatory, orbitalElement);
           console.log('Gemini response:', response);
           setReportGemini(response);
         }
       } catch (e) {
-        console.log('entra')
         setError(e.message);
         setReportGemini('azd112');
       } finally {
-        console.log('entra 3')
         setLoading(false);
         if (onGeneratingEnd) onGeneratingEnd();
       }

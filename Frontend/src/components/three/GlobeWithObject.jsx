@@ -36,19 +36,16 @@ function solveHyperbolicOrbit(M, e) {
   return F;
 }
 
-// Función para calcular la posición de la Tierra en su órbita según la fecha
 function calculateEarthPosition(date) {
-  // Convertir la fecha a días desde el equinoccio de primavera (aproximado)
   const dt = new Date(date);
   const startOfYear = new Date(dt.getFullYear(), 0, 0);
   const diff = date - startOfYear;
   const dayOfYear = diff / (1000 * 60 * 60 * 24);
+  console.log(date)
+  console.log('Day of Year:', dayOfYear);
   
-  // Calcular la anomalía media (simplificado)
   const M = (dayOfYear / 365.25) * 2 * Math.PI;
-  
-  // Órbita terrestre (aproximación circular)
-  const earthOrbitRadius = 30; // Distancia Tierra-Sol en unidades de escena
+  const earthOrbitRadius = 30;
   const x = earthOrbitRadius * Math.cos(M);
   const z = earthOrbitRadius * Math.sin(M);
   
@@ -62,20 +59,17 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
   const cometRef = useRef();
   const timeRef = useRef(0);
   const tailRef = useRef();
-  const scaleFactor = 20;
   const earthRadius = 2;
   
-  // Calcular posición de la Tierra según la fecha
   const earthPosition = useMemo(() => calculateEarthPosition(date), [date]);
 
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load('/earthmap1k.jpg', setGlobeTexture);
     loader.load('/meteorTexture.jpg', setMeteorTexture);
-    loader.load('/sunTexture.jpg', setSunTexture); // Necesitarás una textura para el Sol
+    loader.load('/sunTexture.jpg', setSunTexture);
   }, []);
 
-  // Generar puntos para la órbita terrestre
   const earthOrbitPoints = useMemo(() => {
     const points = [];
     const earthOrbitRadius = 30;
@@ -98,22 +92,26 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
   const cometTrajectory = useMemo(() => {
     if (!orbitalElements) return null;
 
-    const a = parseFloat(orbitalElements.a.split(' ')[0]);
+    const a = parseFloat(orbitalElements.a.split(' ')[0]) * 40;
     const e = parseFloat(orbitalElements.e.split(' ')[0]);
-    const i = THREE.MathUtils.degToRad(parseFloat(orbitalElements.i.split(' ')[0]));
 
+    // Ángulo de inclinación (i)
+    const i_values = orbitalElements.i.split(' ');
+    const i_deg = parseFloat(i_values[0]);
+    const i_deg_rad = THREE.MathUtils.degToRad(i_deg);
+    
+    // Longitud del nodo ascendente (Ω)
     const omegaString = orbitalElements.Omega_grados_votos_max_min;
     const omegaMatch = omegaString.match(/\(([^)]+)\)/);
-    const omegaValue = omegaMatch ? parseFloat(omegaMatch[1]) : NaN;
-    const Ω = THREE.MathUtils.degToRad(omegaValue);
-
+    const Ω = omegaMatch ? THREE.MathUtils.degToRad(parseFloat(omegaMatch[1])-25) : 0; // VALOR N VALIDO
+    
+    // Argumento del perihelio (ω)
     const ω = THREE.MathUtils.degToRad(parseFloat(orbitalElements.omega.split(' ')[0]));
 
-    if (isNaN(Ω) || isNaN(a) || isNaN(e) || isNaN(i) || isNaN(ω)) return null;
+    if (isNaN(a) || isNaN(e) || isNaN(i_deg_rad) || isNaN(Ω) || isNaN(ω)) return null;
 
     const points = [];
-    const numPoints = 2000;
-
+    const numPoints = 1000;
     const M_max = e > 1 ? Math.acosh((10 + e) / e) : 2 * Math.PI;
 
     for (let j = 0; j <= numPoints; j++) {
@@ -121,6 +119,7 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
       let x, y;
 
       if (e < 1) {
+        // Órbita elíptica
         let E = M;
         let F;
         do {
@@ -131,33 +130,31 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
         x = a * (Math.cos(E) - e);
         y = a * Math.sqrt(1 - e * e) * Math.sin(E);
       } else {
+        // Órbita hiperbólica
         const F = solveHyperbolicOrbit(M, e);
         x = a * (e - Math.cosh(F));
         y = a * Math.sqrt(e * e - 1) * Math.sinh(F);
       }
 
-      const cosΩ = Math.cos(Ω);
-      const sinΩ = Math.sin(Ω);
-      const cosi = Math.cos(i);
-      const sini = Math.sin(i);
-      const cosω = Math.cos(ω);
-      const sinω = Math.sin(ω);
+      const position = new THREE.Vector3(x, 0, y);
+      
+      // Aplicar transformaciones en el orden correcto:
+      // 1. Argumento del perihelio (ω) - rotación alrededor del eje Z
+      position.applyAxisAngle(new THREE.Vector3(0, 0, 1), ω);
+      
+      // 2. Inclinación (i) - rotación alrededor del eje X
+      position.applyAxisAngle(new THREE.Vector3(1, 0, 0), i_deg_rad);
+      
+      // 3. Longitud del nodo ascendente (Ω) - rotación alrededor del eje Z
+      position.applyAxisAngle(new THREE.Vector3(0, 0, 1), Ω);
 
-      const X = (cosΩ * cosω - sinΩ * sinω * cosi) * x + (-cosΩ * sinω - sinΩ * cosω * cosi) * y;
-      const Y = (sinΩ * cosω + cosΩ * sinω * cosi) * x + (-sinΩ * sinω + cosΩ * cosω * cosi) * y;
-      const Z = (sinω * sini) * x + (cosω * sini) * y;
-
-      // Añadir la posición de la Tierra a la posición del cometa
-      points.push(new THREE.Vector3(
-        X * scaleFactor + earthPosition.x,
-        Y * scaleFactor + earthPosition.y,
-        Z * scaleFactor + earthPosition.z
-      ));
+      points.push(position);
     }
 
     return points;
-  }, [scaleFactor, orbitalElements, earthPosition]);
+  }, [orbitalElements]);
 
+  // Resto del componente permanece igual...
   const trajectoryGeometry = useMemo(() => {
     return cometTrajectory ? new THREE.BufferGeometry().setFromPoints(cometTrajectory) : null;
   }, [cometTrajectory]);
@@ -168,9 +165,10 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
       const index = Math.floor((timeRef.current % 1) * cometTrajectory.length);
       const { x, y, z } = cometTrajectory[index];
       cometRef.current.position.set(x, y, z);
+      
       if (tailRef.current) {
         tailRef.current.position.set(x, y, z);
-        tailRef.current.lookAt(earthPosition.x, earthPosition.y, earthPosition.z);
+        tailRef.current.lookAt(0, 0, 0);
       }
     }
   });
@@ -184,43 +182,43 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
       <ambientLight intensity={5} />
       <pointLight position={[0, 0, 0]} intensity={1.5} color={0xffffff} />
       
-      {/* Sol */}
       <mesh position={[0, 0, 0]}>
         <sphereGeometry args={[5, 32, 32]} />
         <meshBasicMaterial map={sunTexture} />
       </mesh>
       
-      {/* Órbita terrestre */}
       <line geometry={earthOrbitGeometry}>
         <lineBasicMaterial attach="material" color="yellow" linewidth={1} />
       </line>
       
       <Stars />
       
-      {/* Tierra */}
       <group position={earthPosition}>
         <mesh>
           <sphereGeometry args={[earthRadius, 32, 32]} />
           <meshStandardMaterial map={globeTexture} />
         </mesh>
         
-        {/* Estación en la Tierra */}
         <mesh position={stationPosition}>
           <sphereGeometry args={[0.1, 16, 16]} />
           <meshBasicMaterial color="red" />
         </mesh>
       </group>
       
-      {/* Trayectoria del cometa */}
       <line geometry={trajectoryGeometry}>
         <lineBasicMaterial attach="material" color="cyan" linewidth={2} />
       </line>
 
-      {/* Cometa */}
-      <mesh ref={cometRef}>
-        <sphereGeometry args={[0.56, 16, 16]} />
-        <meshBasicMaterial map={meteorTexture} />
-      </mesh>
+      <group ref={cometRef}>
+        <mesh>
+          <sphereGeometry args={[0.56, 16, 16]} />
+          <meshBasicMaterial map={meteorTexture} />
+        </mesh>
+        <mesh ref={tailRef} position={[0.5, 0, 0]}>
+          <coneGeometry args={[0.3, 1.5, 16]} />
+          <meshBasicMaterial color={0x66ccff} transparent opacity={0.7} />
+        </mesh>
+      </group>
       
       <OrbitControls 
         target={[earthPosition.x, earthPosition.y, earthPosition.z]} 
@@ -231,7 +229,7 @@ function GlobeAndComet({ orbitalElements, lat, lon, date }) {
   );
 }
 
-function GlobeWithComet({ orbitalElements, lat, lon, date = new Date() }) {
+function GlobeWithComet({ orbitalElements, lat, lon, reportDate }) {
   const areOrbitalElementsValid = (elements) => {
     if (!elements) return false;
 
@@ -265,7 +263,7 @@ function GlobeWithComet({ orbitalElements, lat, lon, date = new Date() }) {
             orbitalElements={orbitalElements} 
             lat={lat} 
             lon={lon} 
-            date={date instanceof Date ? date : new Date(date)} 
+            date={reportDate instanceof Date ? reportDate : new Date(reportDate)} 
           />
         </Canvas>
       ) : (

@@ -2,10 +2,10 @@ import axios from 'axios';
 import { stringify } from "flatted";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const iaModel = import.meta.env.VITE_GEMINI_MODEL;
 const language = localStorage.getItem('i18nextLng') || 'es';
 
 export const GeminiEndpoint = async (data, observatory, orbitalElement) => {
-    console.log(language)
     const tx2 = `
     Dado el texto de ejemplo: 
     A las 20:19 del 31 de enero ha sido detectado un bólido por las estaciones de Masquefa (UMA/SMA/E.Reina), Mataró (UMA/SMA/J.Lopesino), Segorbe (UMA/SMA/J.Castellano) Y Sant Martí de Sesgueioles (UMA/SMA/F.Grau), integradas en la Red UMA/SMA.
@@ -28,12 +28,13 @@ export const GeminiEndpoint = async (data, observatory, orbitalElement) => {
     Además, aquí tienes el reporte completo, no para mostrarlo, solo para que lo revises y lo uses como referencia: ${JSON.stringify(data)}
 
     Genera un texto similar al anterior, ya que es para una web de astronomía, hazlo en formato html, no generes tablas de ningún tipo, solo texto. Necesito que cada vez que marques una posicion gps indiques cerca de que ciudad se encuentra (es muy importante que esto sea correcto). Los datos orbitales están para que los muestres, además indiques que tipo de órbita tienen.
-    Asegúrate de que el texto generado tenga formato html. El lenguaje del texto generado es ${language}.
-    `
+    Asegúrate de que el texto generado tenga formato html. El lenguaje del texto generado es ${language}.`;
+
+ 
 
     try {
         const geminiResponse = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${iaModel}:generateContent?key=${apiKey}`,
             {
                 contents: [
                     {

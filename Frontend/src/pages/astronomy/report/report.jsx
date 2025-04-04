@@ -148,7 +148,7 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            //console.log(response.observatorios)
+            console.log(response.informe)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -309,7 +309,7 @@ const Report = () => {
                                         ID: {advice.Description} - Funcionalidad por definir!
                                     </Alert>
                                 ))}
-                                <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} />
+                                <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} reportDate={formatDate(reportData.Fecha)} />
                             </Tab>
                         )}
                         <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>

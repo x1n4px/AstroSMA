@@ -21,7 +21,7 @@ const getReportZ = async (req, res) => {
         const user_id = extraerUserId(token);
         const { id } = req.params;
         const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
-
+        console.log(report[0])
         const processedReports = report.map(report => {
             return {
                 ...report,

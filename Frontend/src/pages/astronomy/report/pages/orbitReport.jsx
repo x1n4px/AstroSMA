@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { formatDate } from '@/pipe/formatDate'
 
 
-const OrbitReport = ({ orbit, observatory }) => {
+const OrbitReport = ({ orbit, observatory, reportDate }) => {
     const { t } = useTranslation(['text']);
     const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0); // Usamos el índice en lugar del ID
     const selectedOrbit = orbit[selectedOrbitIndex];
@@ -104,7 +104,7 @@ const OrbitReport = ({ orbit, observatory }) => {
                     </Row>
 
                     <div style={{ width: '100%', height: 'auto' }}>
-                        <GlobeWithObject key={selectedOrbit.Ar} orbitalElements={selectedOrbit} lat={observatory.latitude} lon={observatory.longitude} />
+                        <GlobeWithObject key={selectedOrbit.Ar} orbitalElements={selectedOrbit} lat={observatory.latitude} lon={observatory.longitude} reportDate={reportDate} />
                     </div>
                 </>
             )}
