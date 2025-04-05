@@ -28,7 +28,7 @@ const getReportZ = async (req, res) => {
                 Fin_de_la_trayectoria_Estacion_1: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
                 Inicio_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
                 Fin_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2)),
-                Impacto_previsible: (convertCoordinates(report.Impacto_previsible+ " 0.0 0.0", false))
+                Impacto_previsible: (convertCoordinates(report.Impacto_previsible + " 0.0 0.0", false))
             };
         });
 
@@ -49,7 +49,7 @@ const getReportZ = async (req, res) => {
         const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
 
-        const trajectory = trajectoryPre.map (item =>{
+        const trajectory = trajectoryPre.map(item => {
             return {
                 ...item,
                 lambda: individuaConvertSexagesimalToDecimal(item.lambda),
@@ -59,7 +59,7 @@ const getReportZ = async (req, res) => {
                 Ar_Estacion_2: individuaConvertSexagesimalToDecimal(item.Ar_Estacion_2),
                 De_Estacion_2: individuaConvertSexagesimalToDecimal(item.De_Estacion_2),
             }
-        } )
+        })
 
         const [showers] = await pool.query(
             `SELECT ms.Code, ms.Status, MAX(ms.SubDate) AS SubDate
@@ -71,7 +71,7 @@ const getReportZ = async (req, res) => {
              ORDER BY SubDate DESC;`,
             [report[0].Fecha, report[0].Fecha]
         );
-       
+
 
         const response = {
             informe: processedReports[0],
@@ -207,52 +207,113 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 }
 
 
-// Test function to verify the module is working
+
+
 const testing = async (req, res) => {
     try {
-        const [reports] = await pool.query("SELECT * FROM Informe_Z ORDER BY IdInforme DESC LIMIT 1");
+        const [reports] = await pool.query(`
+            SELECT iz.IdInforme, iz.Fecha
+            FROM Informe_Z iz
+            LEFT JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme
+            WHERE la.Informe_Z_IdInforme IS NULL
+            ORDER BY IdInforme DESC;
+        `);
 
-        const report = reports[0];
-        let diasExtra = 7;
-        let found = false;
-        let activeShowers = [];
-        
-        while (!found) {
-            const fechaInicio = new Date(report.Fecha);
-            fechaInicio.setDate(fechaInicio.getDate() - diasExtra);
-        
-            const fechaFin = new Date(report.Fecha);
-            fechaFin.setDate(fechaFin.getDate() + diasExtra);
-        
-            
-        
-            /** 🔹 2. Buscar meteor showers con la nueva consulta */
-            const [showers] = await pool.query(
-                `SELECT ms.Code, ms.Status, MAX(ms.SubDate) AS SubDate
-                 FROM meteor_showers ms 
-                 WHERE MONTH(ms.SubDate) = MONTH(?)  
-                 AND YEAR(ms.SubDate) = YEAR(?)
-                 AND ms.Code != ""
-                 GROUP BY ms.Code, ms.Status
-                 ORDER BY SubDate DESC;`,
-                [report.Fecha, report.Fecha]
-            );
-        
-            if (showers.length > 0) {
-                activeShowers = showers;
-                found = true;
-            } else {
-                diasExtra += 7;
+        const UMBRAL_GRADOS = 5; // Umbral de sensibilidad
+
+        // Funciones auxiliares
+        const toRadians = deg => deg * Math.PI / 180;
+        const toDegrees = rad => rad * 180 / Math.PI;
+
+        function cosDist(ar1, de1, ar2, de2) {
+            const α1 = toRadians(ar1);
+            const δ1 = toRadians(de1);
+            const α2 = toRadians(ar2);
+            const δ2 = toRadians(de2);
+
+            return Math.sin(δ1) * Math.sin(δ2) +
+                Math.cos(δ1) * Math.cos(δ2) * Math.cos(α1 - α2);
+        }
+
+        const calcularProbabilidad = (distanciaMediaDeg, umbral) => {
+            if (distanciaMediaDeg <= umbral) {
+                return 1; // Si está dentro del umbral, la probabilidad es 1 (100%)
             }
+            // Probabilidad disminuye de forma exponencial más suavemente
+            const decayFactor = Math.exp(-(distanciaMediaDeg - umbral) / umbral);
+            return( decayFactor*100).toFixed(2)+ " %";
+        };
+        
+
+        let result = [];
+
+        // Usamos for...of para esperar las promesas
+        for (const report of reports) {
+            // Obtener los datos de los puntos zwo para el informe
+            const [zwoData] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Puntos_ZWO.Informe_Z_IdInforme = ?', [report.IdInforme]);
+            // Obtener los datos de las lluvias para la fecha del informe
+             
+            const [shower] = await pool.query(`
+                SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra, ms.De
+                FROM meteor_showers ms
+                WHERE ms.Code != ""
+                AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
+                GROUP BY ms.Code, ms.Status
+                ORDER BY ms.SubDate DESC;
+            `, [report.Fecha, report.Fecha]);
+            
+           
+
+
+           
+
+            // Aquí realizamos el cálculo de la distancia angular con los puntos zwo y las lluvias
+            const resultado = shower.map(lluvia => {
+                const cosValues = zwoData.map((punto) => { 
+                    return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De); 
+                });
+
+                const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
+
+                // Clamp del valor entre -1 y 1 para evitar errores numéricos con acos
+                const clamped = Math.min(Math.max(mediaCos, -1), 1);
+                const distanciaMediaRad = Math.acos(clamped);
+                const distanciaMediaDeg = toDegrees(distanciaMediaRad);
+
+                // Calculamos la probabilidad en base a la distancia
+                const probabilidad = calcularProbabilidad(distanciaMediaDeg, UMBRAL_GRADOS);
+
+                return {
+                    code: lluvia.Code,
+                    date: lluvia.SubDate,
+                    activity: lluvia.Activity,
+                    'cos(d)': mediaCos,
+                    d_Rad: distanciaMediaRad,
+                    d_Deg: distanciaMediaDeg.toFixed(2),
+                    //probabilidad: probabilidad
+                };
+            });
+
+            // Agregamos los resultados del informe y las lluvias con sus cálculos
+            result.push({
+                IdInforme: report.IdInforme,
+                fechaInforme: report.Fecha,
+                showers: resultado // Incluimos los resultados de las lluvias
+            });
         }
 
 
-        res.json({ fecha: report.Fecha.toISOString().split('T')[0], activeShowers, totalDays: diasExtra });
+        // Responde con el resultado adecuado
+        res.json({ fecha: reports[0].Fecha.toISOString().split('T')[0], result });
+
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
-        throw error;
+        res.status(500).json({ error: 'Error al obtener las estaciones' });
     }
 };
+
+
+
 
 
 module.exports = {
