@@ -388,7 +388,10 @@
                 "END_DATE": "終了日",
                 "MINIMUM_DISTANCE": "最小距離 {{it}}",
                 "DISTANCE": "距離",
-                "SHOW_BUTTON": "流星群を表示"
+                "SHOW_BUTTON": "流星群を表示",
+                "STATUS":"ステータス",
+                "DATE":"日付",
+                "MEMBERSHIP_VALUE":"会員価値"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -605,5 +608,10 @@
             "label": "天頂距離",
             "measure": ""
         }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "アクティブ",
+        "INACTIVE": "非アクティブ",
+        "PENDING": "保留"
     }
 }

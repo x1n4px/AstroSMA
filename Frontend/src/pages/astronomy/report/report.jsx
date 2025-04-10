@@ -150,7 +150,7 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.slopeMap)
+            console.log(response.showers)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);

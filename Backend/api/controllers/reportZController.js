@@ -96,7 +96,10 @@ const getReportZ = async (req, res) => {
             [report[0].Fecha, report[0].Fecha]
         );
 
+        let IMOS = await IMOShowers(report[0].IdInforme);
+        let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
 
+        console.log(IAUS)
         const response = {
             informe: processedReports[0],
             observatorios: [
@@ -107,13 +110,13 @@ const getReportZ = async (req, res) => {
             orbitalElement: orbitalElement,
             trajectory: trajectory,
             regressionTrajectory: regressionTrajectory,
-            activeShower: activeShower,
+            activeShower: IMOS,
             photometryReport: photometryReport,
             mapReport: mapReport,
             advice: advice,
             observatoryName: observatory_name[0].Nombre_Observatorio,
             slopeMap: slopeMap,
-            ...(activeShower.length === 0 && { showers: showers })
+            showers: IAUS
         };
 
         res.json(response);
@@ -295,6 +298,7 @@ function membershipPerihelion(bolideValue, showerValue) {
 
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
+    console.log(bolide, shower)
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
     const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
     const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
@@ -309,90 +313,188 @@ function calculateMembership(bolide, shower) {
 
     // Escalar a valor entre 1 y 9
     const finalValue = Math.round(totalMembership * 8) + 1;
-
+    console.log(pertenenciaDMRTV, membershipE, membershipA, membershipQ, totalMembership, finalValue)
     return finalValue;
+}
+
+
+async function IMOShowers(id) {
+    const [reports] = await pool.query(`
+        SELECT iz.IdInforme, iz.Fecha 
+        FROM Informe_Z iz 
+        WHERE iz.IdInforme = ?
+    `, [id]);
+
+    const report = reports[0];
+    if (!report) return [];
+
+    const [orbital] = await pool.query(`
+        SELECT 
+            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
+            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
+            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
+            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
+            SUBSTRING_INDEX(eo.De, ' ', 1) AS De 
+        FROM Elementos_Orbitales eo 
+        WHERE eo.Informe_Z_IdInforme = ?;
+    `, [report.IdInforme]);
+
+    const [lluvias] = await pool.query(`
+        SELECT la.* , l.*
+        FROM Lluvia_activa la  
+        LEFT JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
+        LEFT JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador AND l.Año = la.Lluvia_Año 
+        WHERE iz.IdInforme = ?;
+    `, [report.IdInforme]);
+
+    let lluvias_datos = [];
+
+    for (const lluvia of lluvias) {
+        const idLimpio = lluvia.Lluvia_Identificador.replace(/[^a-zA-Z]/g, '');
+
+        const [lluviaData] = await pool.query(`
+            SELECT 
+                ms.Code, 
+                AVG(Ra) AS Ar, 
+                AVG(De) AS De, 
+                AVG(E) AS e, 
+                AVG(A) AS a, 
+                AVG(Q) AS q
+            FROM meteor_showers ms 
+            WHERE ms.Code LIKE ?;
+        `, [idLimpio]);
+
+        const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');
+
+        if (code === idLimpio) {
+            lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
+
+        }
+
+        lluvias_datos.push({
+            ...lluviaData[0],
+            ...lluvia
+        });
+    }
+    const result = [];
+
+    for (const rs of lluvias_datos) {
+        for (const ob of orbital) {
+            const membership = calculateMembership(ob, rs);
+            result.push({
+                ...rs,
+                membership
+            });
+        }
+    }
+
+    return result;
+}
+
+
+async function IAUShowers(id, date) {
+    const [reports] = await pool.query(`
+        SELECT iz.IdInforme, iz.Fecha 
+        FROM Informe_Z iz 
+        WHERE iz.IdInforme = ?
+    `, [id]);
+    const UMBRAL_GRADOS = 5; // Umbral de sensibilidad
+
+    // Funciones auxiliares
+    const toRadians = deg => deg * Math.PI / 180;
+    const toDegrees = rad => rad * 180 / Math.PI;
+
+    function cosDist(ar1, de1, ar2, de2) {
+        const α1 = toRadians(ar1);
+        const δ1 = toRadians(de1);
+        const α2 = toRadians(ar2);
+        const δ2 = toRadians(de2);
+
+        return Math.sin(δ1) * Math.sin(δ2) +
+            Math.cos(δ1) * Math.cos(δ2) * Math.cos(α1 - α2);
+    }
+
+    const calcularProbabilidad = (distanciaMediaDeg, umbral) => {
+        if (distanciaMediaDeg <= umbral) {
+            return 1; // Si está dentro del umbral, la probabilidad es 1 (100%)
+        }
+        // Probabilidad disminuye de forma exponencial más suavemente
+        const decayFactor = Math.exp(-(distanciaMediaDeg - umbral) / umbral);
+        return (decayFactor * 100).toFixed(2) + " %";
+    };
+
+
+    const report = reports[0];
+    const [zwoData] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Puntos_ZWO.Informe_Z_IdInforme = ?', [report.IdInforme]);
+    if (!report) return [];
+
+    const [orbital] = await pool.query(`
+        SELECT 
+            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
+            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
+            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
+            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
+            SUBSTRING_INDEX(eo.De, ' ', 1) AS De 
+        FROM Elementos_Orbitales eo 
+        WHERE eo.Informe_Z_IdInforme = ?;
+    `, [report.IdInforme]);
+
+    const [lluvias] = await pool.query(`
+        SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
+                FROM meteor_showers ms
+                WHERE ms.Code != ""
+                AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
+                GROUP BY ms.Code, ms.Status
+                ORDER BY ms.SubDate DESC;
+    `, [report.Fecha, report.Fecha]);
+
+    let lluvias_datos = [];
+
+    for (const lluvia of lluvias) {
+        const cosValues = zwoData.map((punto) => {
+            return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
+        });
+
+        const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
+
+        // Clamp del valor entre -1 y 1 para evitar errores numéricos con acos
+        const clamped = Math.min(Math.max(mediaCos, -1), 1);
+        const distanciaMediaRad = Math.acos(clamped);
+        const distanciaMediaDeg = toDegrees(distanciaMediaRad);
+
+        lluvias_datos.push({
+            ...lluvia,
+            'Distancia_mínima_entre_radianes_y_trayectoria': distanciaMediaDeg.toFixed(2),
+        });
+    }
+    const result = [];
+
+    for (const rs of lluvias_datos) {
+        for (const ob of orbital) {
+            const membership = calculateMembership(ob, rs);
+            result.push({
+                ...rs,
+                membership
+            });
+        }
+    }
+
+
+
+    return result;
 }
 
 
 
 
-
 const testing = async (req, res) => {
     try {
-
-        const [reports] = await pool.query(` SELECT iz.IdInforme, iz.Fecha FROM Informe_Z iz WHERE iz.IdInforme = 4`);
-        const report = reports[0];  // Aquí obtienes el primer elemento del array
-
-        const [orbital] = await pool.query(`SELECT SUBSTRING_INDEX(eo.e, ' ',1) as e, SUBSTRING_INDEX(eo.a,' ',1) as a, SUBSTRING_INDEX(eo.q,' ', 1) as q, SUBSTRING_INDEX(eo.Ar, ' ',1) as Ar, SUBSTRING_INDEX(eo.De, ' ',1) as De FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [report.IdInforme]);
-        const [lluvias] = await pool.query(`
-            SELECT la.* 
-            FROM Lluvia_activa la  
-            JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
-            WHERE iz.IdInforme = ?;
-        `, [report.IdInforme]);
-        
-        let lluvias_datos = [];
-        
-        for (const lluvia of lluvias) {
-            // Remover caracteres no alfabéticos de Lluvia_Identificador
-            let id = lluvia.Lluvia_Identificador.replace(/[^a-zA-Z]/g, '');
-            
-            // Obtener los datos de lluvia
-            const [lluviaData] = await pool.query(`
-                SELECT ms.Code, AVG(Ra) AS Ar, AVG(De) AS De, AVG(E) AS e, AVG(A) AS a, AVG(Q) AS q 
-                FROM meteor_showers ms 
-                WHERE ms.Code LIKE ?;
-            `, [id]);
-        
-            // Extraer el Code del resultado
-            const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');  // Asegurarse de que Code esté limpio
-        
-            // Comprobar si los identificadores coinciden
-            if (code === id) {
-                // Si coinciden, añadimos el valor de Distancia_mínima_entre_radianes_y_trayectoria
-                lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
-            }
-        
-            // Añadir los datos de la lluvia con la distancia mínima
-            lluvias_datos.push(lluviaData[0]);
-        }
-        
-        let result = [];
-
-        for(const rs of lluvias_datos) {
-            for(const ob of orbital) {
-                const membership = calculateMembership(ob, rs);
-                result.push({
-                    rs: rs,
-                    ob: ob,
-                    membership
-                });
-            }
-        }
-         
-
-
-
-        res.json({ result });
-
-    } catch (error) {
-        console.error('Error al obtener las estaciones:', error);
-        res.status(500).json({ error: 'Error al obtener las estaciones' });
-    }
-};
-
-
-/*
-const testing = async (req, res) => {
-    try {
+        let id = 4;
         const [reports] = await pool.query(`
-            SELECT iz.IdInforme, iz.Fecha
-            FROM Informe_Z iz
-            WHERE iz.IdInforme = 4
-        `);
-
-        const [orbital] = await pool.query(`SELECT eo.e, eo.a, eo.q, eo.Ar, eo.De FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [reports[0].IdInforme]);
-
+            SELECT iz.IdInforme, iz.Fecha 
+            FROM Informe_Z iz 
+            WHERE iz.IdInforme = ?
+        `, [id]);
         const UMBRAL_GRADOS = 5; // Umbral de sensibilidad
 
         // Funciones auxiliares
@@ -415,75 +517,76 @@ const testing = async (req, res) => {
             }
             // Probabilidad disminuye de forma exponencial más suavemente
             const decayFactor = Math.exp(-(distanciaMediaDeg - umbral) / umbral);
-            return( decayFactor*100).toFixed(2)+ " %";
+            return (decayFactor * 100).toFixed(2) + " %";
         };
-        
-
-        let result = [];
-
-        // Usamos for...of para esperar las promesas
-        for (const report of reports) {
-            // Obtener los datos de los puntos zwo para el informe
-            const [zwoData] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Puntos_ZWO.Informe_Z_IdInforme = ?', [report.IdInforme]);
-            // Obtener los datos de las lluvias para la fecha del informe
-             
-            const [shower] = await pool.query(`
-                SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra, ms.De
-                FROM meteor_showers ms
-                WHERE ms.Code != ""
-                AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
-                GROUP BY ms.Code, ms.Status
-                ORDER BY ms.SubDate DESC;
-            `, [report.Fecha, report.Fecha]);
-            
-           
 
 
-           
+        const report = reports[0];
+        const [zwoData] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Puntos_ZWO.Informe_Z_IdInforme = ?', [report.IdInforme]);
+        if (!report) return [];
 
-            // Aquí realizamos el cálculo de la distancia angular con los puntos zwo y las lluvias
-            const resultado = shower.map(lluvia => {
-                const cosValues = zwoData.map((punto) => { 
-                    return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De); 
+        const [orbital] = await pool.query(`
+            SELECT 
+                SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
+                SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
+                SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
+                SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
+                SUBSTRING_INDEX(eo.De, ' ', 1) AS De 
+            FROM Elementos_Orbitales eo 
+            WHERE eo.Informe_Z_IdInforme = ?;
+        `, [report.IdInforme]);
+
+        const [lluvias] = await pool.query(`
+            SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
+                    FROM meteor_showers ms
+                    WHERE ms.Code != ""
+                    AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
+                    GROUP BY ms.Code, ms.Status
+                    ORDER BY ms.SubDate DESC;
+        `, [report.Fecha, report.Fecha]);
+
+        let lluvias_datos = [];
+
+        for (const lluvia of lluvias) {
+            const cosValues = zwoData.map((punto) => {
+                return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
+            });
+
+            const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
+
+            // Clamp del valor entre -1 y 1 para evitar errores numéricos con acos
+            const clamped = Math.min(Math.max(mediaCos, -1), 1);
+            const distanciaMediaRad = Math.acos(clamped);
+            const distanciaMediaDeg = toDegrees(distanciaMediaRad);
+
+            lluvias_datos.push({
+                ...lluvia,
+                'Distancia_mínima_entre_radianes_y_trayectoria': distanciaMediaDeg.toFixed(2),
+            });
+        }
+        const result = [];
+
+        for (const rs of lluvias_datos) {
+            for (const ob of orbital) {
+                const membership = calculateMembership(ob, rs);
+                result.push({
+                    ...rs,
+                    membership
                 });
-
-                const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
-
-                // Clamp del valor entre -1 y 1 para evitar errores numéricos con acos
-                const clamped = Math.min(Math.max(mediaCos, -1), 1);
-                const distanciaMediaRad = Math.acos(clamped);
-                const distanciaMediaDeg = toDegrees(distanciaMediaRad);
-
-                // Calculamos la probabilidad en base a la distancia
-                const probabilidad = calcularProbabilidad(distanciaMediaDeg, UMBRAL_GRADOS);
-
-                return {
-                    code: lluvia.Code,
-                    date: lluvia.SubDate,
-                    activity: lluvia.Activity,
-                    d: distanciaMediaDeg.toFixed(2),
-                    //probabilidad: probabilidad
-                };
-            });
-
-            // Agregamos los resultados del informe y las lluvias con sus cálculos
-            result.push({
-                IdInforme: report.IdInforme,
-                fechaInforme: report.Fecha,
-                showers: resultado // Incluimos los resultados de las lluvias
-            });
+            }
         }
 
 
-        // Responde con el resultado adecuado
-        res.json({ orbital, result });
+
+
+
+        res.json({ result });
 
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
         res.status(500).json({ error: 'Error al obtener las estaciones' });
     }
-};*/
-
+};
 
 
 

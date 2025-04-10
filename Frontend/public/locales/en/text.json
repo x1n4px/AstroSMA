@@ -388,7 +388,10 @@
                 "END_DATE": "End Date",
                 "MINIMUM_DISTANCE": "Minimum Distance {{it}}",
                 "DISTANCE": "Distance",
-                "SHOW_BUTTON": "View shower"
+                "SHOW_BUTTON": "View shower",
+                "STATUS":"Status",
+                "DATE":"Date",
+                "MEMBERSHIP_VALUE":"Membership value"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -605,5 +608,10 @@
             "label": "Zenith distance",
             "measure": ""
         }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "PENDING": "Pending"
     }
 }

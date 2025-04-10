@@ -33,6 +33,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.START_DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.END_DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' })}</th>
+                                        <th scope="col"><th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</th></th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -40,11 +41,12 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                     {activeShowerData && activeShowerData.length > 0 ? ( // Add this check
                                         activeShowerData.map((shower, index) => (
                                             <tr key={index}>
-                                                <td>{shower.Lluvia_Identificador}</td>
+                                                <td>{shower.Identificador}</td>
                                                 <td>{shower.Nombre}</td>
                                                 <td>{formatDate(shower.Fecha_Inicio)}</td>
                                                 <td>{formatDate(shower.Fecha_Fin)}</td>
                                                 <td>{truncateDecimal(shower.Distancia_mínima_entre_radianes_y_trayectoria)}</td>
+                                                <td>{shower.membership}</td>
                                                 <td>
                                                     {shower.src ? (
                                                         <Button
@@ -81,6 +83,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Closer Ra)' })}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Close De)' })}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.DISTANCE')}</th>
+                                        
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -94,6 +97,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                                 <td>{shower.De_de_la_fecha}</td>
                                                 <td>{shower.Ar_más_cercano}</td>
                                                 <td>{shower.De_más_cercano}</td>
+                                                
                                                 <td>
                                                     {shower.src ? (
                                                         <Button
@@ -152,9 +156,12 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                         <Table striped bordered hover>
                             <thead className="thead-dark">
                                 <tr>
-                                    <th scope="col">Code</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">SubDate</th>
+                                    <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.ID')}</th>
+                                    <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.STATUS')}</th>
+                                    <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.DATE')}</th>
+                                    <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' })}</th>
+                                    <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -162,8 +169,23 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                     AIUShowerData.map((shower, index) => (
                                         <tr key={index}>
                                             <td>{shower.Code}</td>
-                                            <td>{formatShowerState(shower.Status)}</td>
+                                            <td>{formatShowerState(shower.Status, t)}</td>
                                             <td>{formatDate(shower.SubDate)}</td>
+                                            <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria} </td>
+                                            <td>{shower.membership}</td>
+                                            <td>
+                                                    {shower.src ? (
+                                                        <Button
+                                                            style={{ backgroundColor: '#980100', border: '#980100' }}
+                                                            onClick={() => setSelectedShower(shower)}
+                                                            size="sm"
+                                                        >
+                                                            {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
+                                                        </Button>
+                                                    ) : (
+                                                        <span className="text-muted"></span>
+                                                    )}
+                                                </td>
                                         </tr>
                                     ))
                                 ) : (

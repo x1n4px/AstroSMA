@@ -390,7 +390,10 @@
                 "END_DATE": "Fecha de Fin",
                 "MINIMUM_DISTANCE": "Distancia Mínima {{it}}",
                 "DISTANCE": "Distancia",
-                "SHOW_BUTTON": "Ver lluvia"
+                "SHOW_BUTTON": "Ver lluvia",
+                "STATUS":"Estado",
+                "DATE":"Fecha",
+                "MEMBERSHIP_VALUE":"Valor de Membresía"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -607,5 +610,10 @@
             "label": "Distancia cenital",
             "measure": ""
         }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "Activo",
+        "INACTIVE": "Inactivo",
+        "PENDING": "Pendiente"
     }
 }

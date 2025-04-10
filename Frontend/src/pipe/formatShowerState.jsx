@@ -1,11 +1,16 @@
-const formatShowerState = (state) => {
+// En tu componente de React donde usas formatShowerState:
+import React from 'react';
+
+
+// Tu función formatShowerState modificada:
+const formatShowerState = (state, t) => {
     switch (state) {
         case '1':
-            return 'established';
+            return t('SHOWER_STATE.ACTIVE');
         case '0':
-            return 'nominated';
+            return t('SHOWER_STATE.INACTIVE');
         default:
-            return 'nothing';
+            return t('SHOWER_STATE.PENDING');
     }
 };
 
