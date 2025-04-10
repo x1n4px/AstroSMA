@@ -9,6 +9,7 @@ import truncateDecimal from '@/pipe/truncateDecimal';
 
 
 const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
+    
     const { t } = useTranslation(['text']);
     // Datos simulados para la tabla de puntos
     const [puntos, setPuntos] = useState([
@@ -51,10 +52,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
 
 
                             <h2>{t('REPORT.POINT_ADJUST.ZWO.TITLE')}</h2>
-                            {/* <Row>
-                                <h4>{t('REPORT.POINT_ADJUST.ZWO.GRAPHIC')}</h4>
-                                <LineChart data={zwoAdjustmentPoints} xVariable={'X'} yVariable={'Y'} />
-                            </Row> */}
+                            
                             <Row>
 
                                 <h4>{t('REPORT.POINT_ADJUST.ZWO.TABLE.TITLE')}</h4>
@@ -69,7 +67,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                     </thead>
                                     <tbody>
                                         {zwoAdjustmentPoints.map((p) => (
-                                            <tr key={p.dateObs}>
+                                            <tr key={p.Fecha + p.X}>
                                                 <td>
                                                     {formatDate(p.Fecha)}
                                                 </td>
@@ -109,7 +107,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                 </thead>
                                 <tbody>
                                     {regressionTrajectory.map((point, index) => (
-                                        <tr key={index}>
+                                        <tr key={point.Fecha+point.t}>
                                             <td>{formatDate(point.Fecha)}</td>
                                             <td>{point.Hora}</td>
                                             <td>{truncateDecimal(point.t)}</td>
@@ -146,7 +144,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                 </thead>
                                 <tbody>
                                     {trajectoryData.map((p) => (
-                                        <tr key={p.id}>
+                                        <tr key={p.Fecha+p.s}>
                                             <td>{formatDate(p.Fecha)}</td>
                                             <td>{p.Hora}</td>
                                             <td>{truncateDecimal(p.s)}</td>

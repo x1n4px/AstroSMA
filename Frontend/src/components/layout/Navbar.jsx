@@ -63,6 +63,9 @@ const Navbar = () => {
                 <Dropdown.Item onClick={() => changeLanguage('en')}>
                   <img src="/flag/en.webp" alt="English" style={{ width: '20px' }} />
                 </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('jp')}>
+                  <img src="/flag/jp.webp" alt="日本語" style={{ width: '20px' }} />
+                </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </Nav>

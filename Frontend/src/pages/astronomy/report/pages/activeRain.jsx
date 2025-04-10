@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import formatShowerState from '@/pipe/formatShowerState';
 
-const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
+const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
     const { t } = useTranslation(['text']);
     const [selectedShower, setSelectedShower] = useState(null);
     const hasValidShowers = useMemo(() => {

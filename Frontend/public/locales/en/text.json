@@ -31,6 +31,8 @@
         "DRAG_AND_DROP_INFO": "Drag and drop widgets on the dashboard",
         "SHOW_OPTIONS_BTN": "Show {{num}} graphs",
         "CUSTOMIZE_SEARCH_BTN": "Perform a custom search",
+        "SHOW_REPORT_BTN":"Show report",
+        "SHOW_FULL_SCREEN": "Show full screen",
         "GRAPH": {
             "FIRST": {
                 "TITLE": "Average speed of meteors",
@@ -250,6 +252,11 @@
         "ACTIVE_RAIN_TAB": "Active Rain",
         "STATIONS": "Stations",
         "TRAJECTORY": "Orbit",
+        "ASSOCIATED_DOWNLOAD_LINK": {
+            "TITLE": "Associated reports",
+            "DESCRIPTION": "Download the associated reports",
+            "LINK": "Download report {{name}} ( {{cty}} Software)"
+        },
         "PENDING": {
             "TITLE": "Atmospheric trajectory",
             "STATION_DETAILS": "Station details {{id}}",

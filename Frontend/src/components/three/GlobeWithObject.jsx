@@ -41,8 +41,6 @@ function calculateEarthPosition(date) {
   const startOfYear = new Date(dt.getFullYear(), 0, 0);
   const diff = date - startOfYear;
   const dayOfYear = diff / (1000 * 60 * 60 * 24);
-  console.log(date)
-  console.log('Day of Year:', dayOfYear);
   
   const M = (dayOfYear / 365.25) * 2 * Math.PI;
   const earthOrbitRadius = 30;

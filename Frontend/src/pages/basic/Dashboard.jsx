@@ -97,11 +97,11 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fu
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false, 12: true, 13:true });
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartModal, setShowChartModal] = useState(false);
 
-  const [chartOrder, setChartOrder] = useState([2,1, 3, 4, 5, 6, 7, 9, 8, 10, 11]);
+  const [chartOrder, setChartOrder] = useState([2, 12, 3, 4, 6, 5, 9, 7, 8, 10, 11, 1, 13]);
   const [chartsToShow, setChartsToShow] = useState(4);
   const [searchRange, setsearchRange] = useState(1);
   const [previousSearchRange, setPreviousSearchRange] = useState(1);
@@ -119,9 +119,10 @@ function Dashboard() {
   const [hourWithMoreDetection, setHourWithMoreDetection] = useState([]);
   const [predictableImpact, setPredictableImpact] = useState([]);
   const [excentricitiesOverNinety, setExcentricitiesOverNinety] = useState([]);
-  const [distanceWithErrorFromObservatory, setDistanceWithErrorFromObservatory] = useState([]); 
+  const [distanceWithErrorFromObservatory, setDistanceWithErrorFromObservatory] = useState([]);
   const [velocityDispersionVersusDihedralAngle, setVelocityDispersionVersusDihedralAngle] = useState([]);
-  const [observatoryData, setObservatoryData] = useState([]); 
+  const [observatoryData, setObservatoryData] = useState([]);
+  const [showerPerYearData, setShowerPerYearData] = useState([]);
   const [lastReport, setLastReport] = useState([]);
   const [lastReportMap, setLastReportMap] = useState([]);
 
@@ -161,7 +162,7 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const responseD = await getGeneral(searchRange);
-      console.log(responseD.lastReportMap);
+      console.log(responseD.showerPerYearData);
       //setData(responseD.data);
       setChartData(responseD.barChartData)
       setPieChartData(responseD.pieChartData);
@@ -177,6 +178,7 @@ function Dashboard() {
       setVelocityDispersionVersusDihedralAngle(responseD.velocityDispersionVersusDihedralAngle);
       setObservatoryData(responseD.observatoryDataFormatted);
       setLastReportMap(responseD.lastReportMap);
+      setShowerPerYearData(responseD.showerPerYearData);
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -254,15 +256,15 @@ function Dashboard() {
             case 2:
               chartComponent = (
                 <>
-                   <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
                     <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
                   </div>
-                  <Button className="mt-2 w-100" style={{background: '#980100', border: '#980100'}} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
-                    <span>{t('DASHBOARD.SHOW_PEPORT_BTN')}</span>
+                  <Button className="mt-2 w-100" style={{ background: '#980100', border: '#980100' }} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
+                    <span>{t('DASHBOARD.SHOW_REPORT_BTN')}</span>
                   </Button>
                 </>
               );
@@ -317,7 +319,7 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1' , overflowY: 'auto', maxHeight: 'auto' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto' }}>
                     <ListGroup>
                       {lastReport.map((item) => (
                         <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
@@ -401,7 +403,34 @@ function Dashboard() {
                 </>
               );
               break;
-           
+            case 12:
+              chartComponent = (
+                <>
+                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
+                  </Card.Subtitle>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <GroupedBarChart data={showerPerYearData} />
+                  </div>
+                </>
+              );
+              break;
+
+            case 13:
+              chartComponent = (
+                <>
+                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFTH.TITLE')}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
+                  </Card.Subtitle>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                    <ScatterPlot data={showerPerYearData} xVariable="Lluvia_Año" yVariable="Lluvia_Identificador" />
+                  </div>
+                </>
+              );
+              break;
+
             default:
               chartComponent = null;
           }

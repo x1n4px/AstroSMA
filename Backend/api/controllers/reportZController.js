@@ -48,6 +48,30 @@ const getReportZ = async (req, res) => {
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
         const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
+        const [slopeMapUNF] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz WHERE iz.IdInforme = ?;`, [id]);
+
+        const slopeMap = slopeMapUNF.map((item) => {
+            return {
+              AUX: {
+                Fecha: item.Fecha,
+                Hora: item.Hora,
+                IdInforme: item.IdInforme
+              },
+              MAP_DATA: {
+                st1: {
+                  start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
+                  end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
+                  id: item.IdInforme
+                },
+                st2: {
+                  start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
+                  end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
+                  id: item.IdInforme
+                }
+              }
+              
+            }
+          })
 
         const trajectory = trajectoryPre.map(item => {
             return {
@@ -88,6 +112,7 @@ const getReportZ = async (req, res) => {
             mapReport: mapReport,
             advice: advice,
             observatoryName: observatory_name[0].Nombre_Observatorio,
+            slopeMap: slopeMap,
             ...(activeShower.length === 0 && { showers: showers })
         };
 

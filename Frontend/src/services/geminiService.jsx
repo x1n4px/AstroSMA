@@ -12,7 +12,7 @@ export const GeminiEndpoint = async (data, observatory, orbitalElement) => {
     El meteoroide comenzó sobre el Mediterráneo, al noreste de la isla de Mallorca. a 75Km de altitud. Recorrió 36 Km en dirección sureste a una velocidad de 67.320Km/h y se desintegró en el interior a una altura de 50Km. (Mapa en portada.)
     La órbita de procedencia tenía una inclinación de 24º.18, semieje mayor a=1.78U.S y excentricidad e=0.44.
 
-    Es importantisimo que si los datos de entrada son incoherentes con datos propios de bólidos, se notifique claramente en el texto generado (indicalo en la cabecera). No hay que notificar si no hay datos incoherentes, solo si los hay.
+    Es importantisimo que si los datos de entrada son incoherentes con datos propios de bólidos, se notifique claramente en el texto generado (indicalo en la cabecera). No hay que notificar si no hay datos incoherentes, solo si los hay. Es importante que no generes un aviso si la excentricidad de la órbita es hiperbólica, ya que esto no es un error, es un dato correcto.
     Genera un texto similar al anterior, pero con los datos de entrada que te he proporcionado.
     Datos de entrada:
     Fecha: ${data.Fecha}

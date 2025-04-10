@@ -124,6 +124,7 @@ const getGeneral = async (req, res) => {
       const lastReportMapQuery = `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`;
 
 
+
       const observatory = 'SELECT * FROM Observatorio o ;'
 
 
@@ -142,6 +143,7 @@ const getGeneral = async (req, res) => {
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [limit]);
       const [observatoryData] = await pool.query(observatory);
       const [lastReportMapUNF] = await pool.query(lastReportMapQuery);
+      const [showerPerYearData] = await pool.query(`SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador;`);
 
       const lastReportMap = lastReportMapUNF.map((item) => {
         return {
@@ -204,7 +206,8 @@ const getGeneral = async (req, res) => {
         distanceWithErrorFromObservatory,
         velocityDispersionVersusDihedralAngle,
         observatoryDataFormatted,
-        lastReportMap
+        lastReportMap,
+        showerPerYearData
       });
     } else {
       // Casos sin límite (opción 4 o default)
@@ -300,6 +303,8 @@ const getGeneral = async (req, res) => {
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [dateFilterValue]);
       const [observatoryData] = await pool.query(observatory);
       const [lastReportMap] = await pool.query(lastReportMapQuery);
+      const [showerPerYearData] = await pool.query(`SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador;`);
+
 
       const impactMapFormat = predictableImpact.map((item) => {
         return {
@@ -334,7 +339,8 @@ const getGeneral = async (req, res) => {
         distanceWithErrorFromObservatory,
         velocityDispersionVersusDihedralAngle,
         observatoryDataFormatted,
-        lastReportMap
+        lastReportMap,
+        showerPerYearData
       });
     }
   } catch (error) {

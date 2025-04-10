@@ -13,6 +13,7 @@ import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import VideoReport from '@/pages/astronomy/report/pages/videoReport';
 import RotationReport from './pages/rotationReport';
+import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
 
 import { getReportZ } from '@/services/reportService.jsx'
@@ -43,6 +44,7 @@ const Report = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
+    const [slopeMapData, setSlopeMapData] = useState(null);
     const [observatoryName, setObservatoryName] = useState('');
     const [reportGemini, setReportGemini] = useState(null);
     const rol = localStorage.getItem('rol');
@@ -148,7 +150,7 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.showers)
+            console.log(response.slopeMap)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -160,6 +162,7 @@ const Report = () => {
             setActiveShowerData(response.activeShower);
             setZwoData(response.zwo);
             setAIUShowerData(response.showers);
+            setSlopeMapData(response.slopeMap);
             setObservatoryName(response.observatoryName);
         } catch (err) {
             setError(err);
@@ -209,7 +212,7 @@ const Report = () => {
             'ZWO': 'ZWO',
             'PHOTOMETRY': 'PHOTOMETRY',
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
-
+            'ASSOCIATED_DOWNLOAD_LINK': 'ASSOCIATED_DOWNLOAD_LINK'
         };
         const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '0');
         return adviceForTab;
@@ -319,7 +322,7 @@ const Report = () => {
                                     ID: {advice.Description} - Funcionalidad por definir!
                                 </Alert>
                             ))}
-                            <PendingReport reportData={reportData} observatory={observatoryData} />
+                            <PendingReport reportData={reportData} observatory={observatoryData} slopeMapData={slopeMapData} />
                             <RotationReport data={reportData} />
                         </Tab>
 
@@ -343,6 +346,10 @@ const Report = () => {
                                 <PhotometryReport photometryData={photometryData} isChild={true} />
                             </Tab>
                         )}
+
+                        <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
+                            <AssociatedDownloadReport />
+                        </Tab>
 
 
                     </Tabs>

@@ -147,6 +147,7 @@ export default function BolideMap3D({
         }
     }, [startPoint2, endPoint2])
 
+
     return (
         <div style={{ width: '100%', height: '800px', backgroundColor: 'black' }}>
             <Canvas 
@@ -171,7 +172,7 @@ export default function BolideMap3D({
                         end={end2}
                         startAlt={startPoint2.alt}
                         endAlt={endPoint2.alt}
-                        color="orange"
+                        color="#FF4D00"
                     />
                 </RotationGroup>
 

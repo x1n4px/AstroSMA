@@ -32,6 +32,7 @@
         "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
         "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada",
         "SHOW_PEPORT_BTN": "Mostrar informe",
+        "SHOW_FULL_SCREEN": "Ver Pantalla completa",
         "GRAPH": {
             "FIRST": {
                 "TITLE": "Velocidad média de los meteoros",
@@ -251,6 +252,11 @@
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
         "STATIONS": "Estaciones",
         "TRAJECTORY": "Órbita",
+        "ASSOCIATED_DOWNLOAD_LINK": {
+            "TITLE": "Descargar informe asociado",
+            "DESCRIPTION": "Descargar el informe asociado a la lluvia activa",
+            "LINK": "Descargar {{name}} ( {{cty}} Software)"
+        },
         "PENDING": {
             "TITLE": "Trayectoria atmosférica",
             "STATION_DETAILS": "Detalles de la estación {{id}}",

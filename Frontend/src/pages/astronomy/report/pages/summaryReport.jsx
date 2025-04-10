@@ -38,7 +38,6 @@ const SummaryReport = ({ data, observatory, orbitalElement, reportGemini, setRep
       try {
         if (!reportGemini) {
           const response = await GeminiEndpoint(data, observatory, orbitalElement);
-          console.log('Gemini response:', response);
           setReportGemini(response);
         }
       } catch (e) {
