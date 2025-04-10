@@ -380,6 +380,8 @@
             "NO_SHOWERS_WITH_DATA": "利用可能なデータのある流星群はありません！",
             "NO_SHOWERS_WITH_DATA_DESC": "現在の流星群は宇宙で休暇を楽しんでいるようです。起きるまでしばらくお待ちください！",
             "NO_ACTIVE_RAIN": "活動中の流星群なし",
+            "AIU_TITLE": "IAUアクティブ降雨表",
+            "IMO_TITLE": "IMOアクティブ降雨表",
             "NO_SHOWERS_AVAILABLE": "利用可能な流星群なし",
             "TABLE": {
                 "ID": "識別子",

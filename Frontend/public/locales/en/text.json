@@ -380,6 +380,8 @@
             "NO_SHOWERS_WITH_DATA": "No showers with available data!",
             "NO_SHOWERS_WITH_DATA_DESC": "It seems the current meteor showers are enjoying a well-deserved cosmic break. Come back soon to see if they wake up!",
             "NO_ACTIVE_RAIN": "No active showers",
+            "AIU_TITLE": "Tabla de lluvias activas de la IAU",
+            "IMO_TITLE": "Tabla de lluvias activas de la IMO",
             "NO_SHOWERS_AVAILABLE": "No showers available",
             "TABLE": {
                 "ID": "Identifier",
