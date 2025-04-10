@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Container, Row, Col, Card, Button, ListGroup, Alert, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import DashboardSettingsModal from '../../config/DashboardSettingsModal';
+import DashboardSettingsModal from '../../components/modal/DashboardSettingsModal';
 import { useDrag, useDrop } from 'react-dnd';
 
 import '@/assets/customExpandModalButton.css'
@@ -37,6 +37,8 @@ const ItemTypes = {
 
 const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fullWidth, showButton }) => {
   const [showModal, setShowModal] = useState(false);
+  const cardRef = useRef(null);
+  const [cardHeight, setCardHeight] = useState('auto');
 
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART,
@@ -56,26 +58,38 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fu
     },
   });
 
+  useEffect(() => {
+    if (cardRef.current) {
+      setCardHeight(cardRef.current.offsetHeight);
+    }
+  }, [children]); // Recalcular la altura cuando cambian los hijos
+
   let xlValue = 12 / chartsToShow;
   if (xlValue < 3) {
-    xlValue = 2; // Asegura que xlValue no sea menor que 2
+    xlValue = 2;
   }
 
-  // Si doubleWidth es true, duplica el ancho
   if (doubleWidth) {
     xlValue *= 2;
   }
 
-  // Si fullWidth es true, ocupa todo el ancho
   if (fullWidth) {
     xlValue = 12;
   }
 
   return (
-    <Col ref={(node) => drag(drop(node))} xs={12} md={fullWidth ? 12 : doubleWidth ? 12 : 6} lg={fullWidth ? 12 : doubleWidth ? 16 : 4} xl={xlValue} className="mb-4" style={{ opacity: isDragging ? 0.5 : 1 }}>
-      <div className="shadow-sm bg-white rounded p-4">
-        <Card.Body>
-          {children}
+    <Col
+      ref={(node) => drag(drop(node))}
+      xs={12}
+      md={fullWidth ? 12 : doubleWidth ? 12 : 6}
+      lg={fullWidth ? 12 : doubleWidth ? 16 : 4}
+      xl={xlValue}
+      className="mb-4 d-flex align-items-stretch" // Añadido d-flex y align-items-stretch
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+    >
+      <div className="shadow-sm bg-white rounded p-4 d-flex flex-column h-100" ref={cardRef} style={{ height: '100%', width: '100%' }}> {/* Añadido d-flex y flex-column y h-100 */}
+        <Card.Body className="d-flex flex-column h-100"> {/* Añadido d-flex y flex-column y h-100 */}
+          <div className="flex-grow-1" style={{ overflow: 'auto' }}>{children}</div> {/* Añadido flex-grow-1 para que el contenido crezca */}
           {showButton && (
             <Button className="custom-button mt-2" onClick={() => setShowModal(true)} >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(255, 255, 255)" }}><path d="M5 12H3v9h9v-2H5zm7-7h7v7h2V3h-9z"></path></svg>
@@ -85,14 +99,12 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fu
         </Card.Body>
       </div>
 
-      {/* Modal para esta tarjeta */}
       <ChartModal show={showModal} onHide={() => setShowModal(false)}>
         {children}
       </ChartModal>
     </Col>
   );
 };
-
 
 function Dashboard() {
   const { t } = useTranslation(['text']);
@@ -162,8 +174,7 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const responseD = await getGeneral(searchRange);
-      console.log(responseD.showerPerYearData);
-      //setData(responseD.data);
+      console.log(responseD)
       setChartData(responseD.barChartData)
       setPieChartData(responseD.pieChartData);
       setGroupChartData(responseD.groupChartData);
@@ -256,7 +267,7 @@ function Dashboard() {
             case 2:
               chartComponent = (
                 <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha )} {lastReportMap[0]?.AUX.Hora}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                   </Card.Subtitle>
@@ -319,7 +330,7 @@ function Dashboard() {
                   <Card.Subtitle className="mb-2 text-muted">
                     {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
                   </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
                     <ListGroup>
                       {lastReport.map((item) => (
                         <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
@@ -335,7 +346,7 @@ function Dashboard() {
               chartComponent = (
                 <>
                   <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto' }}>
+                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
                     <ListGroup>
                       {excentricitiesOverNinety &&
                         excentricitiesOverNinety.map((item) => (
@@ -406,9 +417,9 @@ function Dashboard() {
             case 12:
               chartComponent = (
                 <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFT.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
+                    {t('DASHBOARD.GRAPH.TWELFT.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
                     <GroupedBarChart data={showerPerYearData} />
@@ -420,9 +431,9 @@ function Dashboard() {
             case 13:
               chartComponent = (
                 <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFTH.TITLE')}</Card.Title>
+                  <Card.Title>{t('DASHBOARD.GRAPH.THIRTEENTH.TITLE')}</Card.Title>
                   <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.TWELFTH.DESCRIPTION')}
+                    {t('DASHBOARD.GRAPH.THIRTEENTH.DESCRIPTION')}
                   </Card.Subtitle>
                   <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
                     <ScatterPlot data={showerPerYearData} xVariable="Lluvia_Año" yVariable="Lluvia_Identificador" />
@@ -451,6 +462,7 @@ function Dashboard() {
         initialOrder={chartOrder}
         searchRange={searchRange}
         setsearchRange={setsearchRange}
+        size="xl"
       />
     </Container>
   );

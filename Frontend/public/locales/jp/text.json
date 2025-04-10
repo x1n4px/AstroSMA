@@ -77,6 +77,14 @@
             "ELEVENTH": {
                 "TITLE": "軌道角度と移動距離の関係",
                 "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "年間降雨量",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "月および年ごとの有効降雨量",
+                "DESCRIPTION": ""
             }
         }
     },

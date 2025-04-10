@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import formatShowerState from '@/pipe/formatShowerState';
 
-const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
+const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
     const { t } = useTranslation(['text']);
     const [selectedShower, setSelectedShower] = useState(null);
     const hasValidShowers = useMemo(() => {
@@ -22,7 +22,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
         <Container>
             <Row>
                 <Col>
-                <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.IMO_TITLE')}</h2>
+                    <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.IMO_TITLE')}</h2>
                     <div className="table-responsive mb-4">
                         {reportType === '1' && (
                             <Table striped bordered hover>
@@ -37,7 +37,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeShowerData.length > 0 ? (
+                                    {activeShowerData && activeShowerData.length > 0 ? ( // Add this check
                                         activeShowerData.map((shower, index) => (
                                             <tr key={index}>
                                                 <td>{shower.Lluvia_Identificador}</td>
@@ -85,7 +85,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeShowerData.length > 0  ? (
+                                    {activeShowerData && activeShowerData.length > 0 ? ( // Add this check
                                         activeShowerData.map((shower, index) => (
                                             <tr key={index}>
                                                 <td>{shower.Lluvia_Identificador}</td>
@@ -145,8 +145,6 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
                 </Row>
             )}
 
-          
-
             <Row>
                 <Col>
                     <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.AIU_TITLE')}</h2>
@@ -181,7 +179,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData = [] }) => {
                 </Col>
             </Row>
 
-            {(AIUShowerData.length === 0 && activeShowerData.length === 0) && (
+            {(AIUShowerData.length === 0 && (!activeShowerData || activeShowerData.length === 0)) && ( // Add check for activeShowerData here too
                 <Row>
                     <Col>
                         <h2 className="mb-3">

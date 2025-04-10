@@ -37,7 +37,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
     }, [report, show]);
 
     return (
-        <Modal show={show} onHide={onHide} centered size="xl">
+        <Modal show={show} onHide={onHide} centered size="lg">
             <Modal.Header closeButton>
                 {report && (
                     <Modal.Title>{formatDate(report?.Fecha)} {report.Hora.substring(0, 8)}</Modal.Title>

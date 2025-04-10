@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { extraerUserId } = require('../middlewares/extractJWT')
 require('dotenv').config();
+const auditEvent = require('../middlewares/audit')
+
 
 const registerUser = async (req, res) => {
     try {
@@ -48,6 +50,8 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        const saf = auditEvent('login', user.id);
+        console.log(saf)
         res.json({ token, rol });
     } catch (error) {
         console.log("Error")

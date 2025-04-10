@@ -2,39 +2,69 @@
   background-color: #980100 !important; /* Color de fondo */
   border-color: #980100 !important; /* Color del borde */
   color: white !important; /* Color del texto */
-  width: 40px; /* Ancho inicial (compacto) */
-  height: 40px; /* Alto inicial */
-  border-radius: 50%; /* Forma circular */
+  width: 100%; /* Ancho completo en móviles y tablets */
+  height: auto; /* Alto automático para el contenido */
+  border-radius: 5px; /* Bordes más suaves en pantallas pequeñas */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Centra el contenido en pantallas pequeñas */
   transition: all 0.3s ease; /* Transición suave */
-  overflow: hidden; /* Oculta el texto inicialmente */
+  overflow: hidden; /* Oculta el texto si no hay espacio */
   white-space: nowrap; /* Evita el salto de línea */
-  padding: 0; /* Elimina el padding por defecto */
+  padding: 8px 12px; /* Añade padding para el texto */
+  margin-top: 8px; /* Espacio superior si es necesario */
 }
 
-.custom-button:hover {
-  width: 100%; /* Ancho expandido */
-  border-radius: 20px; /* Bordes redondeados al expandir */
+/* Estilos para pantallas más grandes (desktops) */
+@media (min-width: 992px) {
+  .custom-button {
+    width: 40px; /* Ancho inicial (compacto) */
+    height: 40px; /* Alto inicial */
+    border-radius: 50%; /* Forma circular */
+    padding: 0; /* Elimina el padding por defecto */
+    justify-content: center; /* Centra el icono */
+  }
+
+  .custom-button:hover {
+    width: 100%; /* Ancho expandido */
+    border-radius: 20px; /* Bordes redondeados al expandir */
+    justify-content: center; /* Centra el contenido al hacer hover */
+  }
+
+  .custom-button svg {
+    opacity: 1; /* SVG visible inicialmente */
+    transition: opacity 0.3s ease; /* Transición para el SVG */
+    margin-right: 0; /* Elimina margen derecho del SVG en estado compacto */
+  }
+
+  .custom-button:hover svg {
+    opacity: 0; /* Oculta el SVG al hacer hover */
+    margin-right: 8px; /* Añade margen derecho al SVG al hacer hover (para el espacio del texto) */
+  }
+
+  .custom-button span {
+    opacity: 0; /* Texto oculto inicialmente */
+    transition: opacity 0.3s ease; /* Transición para el texto */
+    margin-left: 8px; /* Espacio entre el ícono y el texto */
+    position: absolute; /* Posiciona el texto sobre el SVG */
+  }
+
+  .custom-button:hover span {
+    opacity: 1; /* Muestra el texto al hacer hover */
+    position: static; /* El texto fluye normalmente al hacer hover */
+    margin-left: 8px; /* Espacio entre icono y texto al hacer hover */
+  }
 }
 
-.custom-button svg {
-  opacity: 1; /* SVG visible inicialmente */
-  transition: opacity 0.3s ease; /* Transición para el SVG */
-}
+/* Asegurarse de que el SVG siempre esté visible en pantallas pequeñas */
+@media (max-width: 991.98px) {
+  .custom-button svg {
+    margin-right: 8px; /* Asegura espacio para el texto */
+  }
 
-.custom-button:hover svg {
-  opacity: 0; /* Oculta el SVG al hacer hover */
-}
-
-.custom-button span {
-  opacity: 0; /* Texto oculto inicialmente */
-  transition: opacity 0.3s ease; /* Transición para el texto */
-  margin-left: 8px; /* Espacio entre el ícono y el texto */
-  position: absolute; /* Posiciona el texto sobre el SVG */
-}
-
-.custom-button:hover span {
-  opacity: 1; /* Muestra el texto al hacer hover */
+  .custom-button span {
+    opacity: 1; /* El texto siempre está visible */
+    position: static; /* Posición estática para fluir con el contenido */
+    margin-left: 8px; /* Espacio entre icono y texto */
+  }
 }

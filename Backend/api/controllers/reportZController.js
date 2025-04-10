@@ -52,26 +52,26 @@ const getReportZ = async (req, res) => {
 
         const slopeMap = slopeMapUNF.map((item) => {
             return {
-              AUX: {
-                Fecha: item.Fecha,
-                Hora: item.Hora,
-                IdInforme: item.IdInforme
-              },
-              MAP_DATA: {
-                st1: {
-                  start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
-                  end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
-                  id: item.IdInforme
+                AUX: {
+                    Fecha: item.Fecha,
+                    Hora: item.Hora,
+                    IdInforme: item.IdInforme
                 },
-                st2: {
-                  start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
-                  end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
-                  id: item.IdInforme
+                MAP_DATA: {
+                    st1: {
+                        start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
+                        end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
+                        id: item.IdInforme
+                    },
+                    st2: {
+                        start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
+                        end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
+                        id: item.IdInforme
+                    }
                 }
-              }
-              
+
             }
-          })
+        })
 
         const trajectory = trajectoryPre.map(item => {
             return {
@@ -234,15 +234,164 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 
 
 
+
+
+
+
+
+// -------------------------------------------------------------------  fuzzy logic ----------------------------------------------------
+
+function membershipDMRT(DMRT) {
+    const umbral = 5;
+    const max = 50; // más permisivo que 30
+    if (DMRT <= umbral) {
+        return 1;
+    } else if (DMRT >= max) {
+        return 0;
+    } else {
+        return 1 - (DMRT - umbral) / (max - umbral);
+    }
+}
+
+
+
+
+// Membership function for the eccentricity (e) of the bolide
+function membershipEccentricity(bolideValue, showerValue) {
+    const tolerancia = 0.2; // antes era 0.1 → lo abrimos
+    const diferencia = Math.abs(bolideValue - showerValue);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+
+function membershipSemiMajorAxis(valorBólido, valorLluvia) {
+    const tolerancia = 1.5; // en UA — mucho más flexible que 0.5
+    const diferencia = Math.abs(valorBólido - valorLluvia);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+
+function membershipPerihelion(bolideValue, showerValue) {
+    const tolerancia = 0.2; // más tolerante que 0.1
+    const diferencia = Math.abs(bolideValue - showerValue);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+
+// Function to calculate the overall membership index between 1 and 9
+function calculateMembership(bolide, shower) {
+    const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
+    const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
+    const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
+    const membershipQ = membershipPerihelion(parseFloat(bolide.q), parseFloat(shower.q));
+
+
+    const totalMembership =
+        (pertenenciaDMRTV * 0.4) +
+        (membershipE * 0.2) +
+        (membershipA * 0.2) +
+        (membershipQ * 0.2);
+
+    // Escalar a valor entre 1 y 9
+    const finalValue = Math.round(totalMembership * 8) + 1;
+
+    return finalValue;
+}
+
+
+
+
+
+const testing = async (req, res) => {
+    try {
+
+        const [reports] = await pool.query(` SELECT iz.IdInforme, iz.Fecha FROM Informe_Z iz WHERE iz.IdInforme = 4`);
+        const report = reports[0];  // Aquí obtienes el primer elemento del array
+
+        const [orbital] = await pool.query(`SELECT SUBSTRING_INDEX(eo.e, ' ',1) as e, SUBSTRING_INDEX(eo.a,' ',1) as a, SUBSTRING_INDEX(eo.q,' ', 1) as q, SUBSTRING_INDEX(eo.Ar, ' ',1) as Ar, SUBSTRING_INDEX(eo.De, ' ',1) as De FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [report.IdInforme]);
+        const [lluvias] = await pool.query(`
+            SELECT la.* 
+            FROM Lluvia_activa la  
+            JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
+            WHERE iz.IdInforme = ?;
+        `, [report.IdInforme]);
+        
+        let lluvias_datos = [];
+        
+        for (const lluvia of lluvias) {
+            // Remover caracteres no alfabéticos de Lluvia_Identificador
+            let id = lluvia.Lluvia_Identificador.replace(/[^a-zA-Z]/g, '');
+            
+            // Obtener los datos de lluvia
+            const [lluviaData] = await pool.query(`
+                SELECT ms.Code, AVG(Ra) AS Ar, AVG(De) AS De, AVG(E) AS e, AVG(A) AS a, AVG(Q) AS q 
+                FROM meteor_showers ms 
+                WHERE ms.Code LIKE ?;
+            `, [id]);
+        
+            // Extraer el Code del resultado
+            const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');  // Asegurarse de que Code esté limpio
+        
+            // Comprobar si los identificadores coinciden
+            if (code === id) {
+                // Si coinciden, añadimos el valor de Distancia_mínima_entre_radianes_y_trayectoria
+                lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
+            }
+        
+            // Añadir los datos de la lluvia con la distancia mínima
+            lluvias_datos.push(lluviaData[0]);
+        }
+        
+        let result = [];
+
+        for(const rs of lluvias_datos) {
+            for(const ob of orbital) {
+                const membership = calculateMembership(ob, rs);
+                result.push({
+                    rs: rs,
+                    ob: ob,
+                    membership
+                });
+            }
+        }
+         
+
+
+
+        res.json({ result });
+
+    } catch (error) {
+        console.error('Error al obtener las estaciones:', error);
+        res.status(500).json({ error: 'Error al obtener las estaciones' });
+    }
+};
+
+
+/*
 const testing = async (req, res) => {
     try {
         const [reports] = await pool.query(`
             SELECT iz.IdInforme, iz.Fecha
             FROM Informe_Z iz
-            LEFT JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme
-            WHERE la.Informe_Z_IdInforme IS NULL
-            ORDER BY IdInforme DESC;
+            WHERE iz.IdInforme = 4
         `);
+
+        const [orbital] = await pool.query(`SELECT eo.e, eo.a, eo.q, eo.Ar, eo.De FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [reports[0].IdInforme]);
 
         const UMBRAL_GRADOS = 5; // Umbral de sensibilidad
 
@@ -312,9 +461,7 @@ const testing = async (req, res) => {
                     code: lluvia.Code,
                     date: lluvia.SubDate,
                     activity: lluvia.Activity,
-                    'cos(d)': mediaCos,
-                    d_Rad: distanciaMediaRad,
-                    d_Deg: distanciaMediaDeg.toFixed(2),
+                    d: distanciaMediaDeg.toFixed(2),
                     //probabilidad: probabilidad
                 };
             });
@@ -329,13 +476,13 @@ const testing = async (req, res) => {
 
 
         // Responde con el resultado adecuado
-        res.json({ fecha: reports[0].Fecha.toISOString().split('T')[0], result });
+        res.json({ orbital, result });
 
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
         res.status(500).json({ error: 'Error al obtener las estaciones' });
     }
-};
+};*/
 
 
 

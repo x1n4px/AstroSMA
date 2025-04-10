@@ -5,7 +5,7 @@ import '@/assets/customCheckbox.css'
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
- 
+
 const ItemTypes = {
   CHART_SETTING: 'chartSetting',
 };
@@ -99,11 +99,13 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
     8: `${t('DASHBOARD.GRAPH.EIGHTH.TITLE')}`,
     9: `${t('DASHBOARD.GRAPH.NINTH.TITLE')}`,
     10: `${t('DASHBOARD.GRAPH.TENTH.TITLE')}`,
-    11: `${t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}`
+    11: `${t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}`,
+    12: `${t('DASHBOARD.GRAPH.TWELFT.TITLE')}`,
+    13: `${t('DASHBOARD.GRAPH.THIRTEENTH.TITLE')}`
   };
 
   return (
-    <Modal show={show} onHide={onHide}>
+    <Modal show={show} onHide={onHide} size="xl">
       <Modal.Header closeButton>
         <Modal.Title>{t('DASHBOARD_MODAL.TITLE')}</Modal.Title>
       </Modal.Header>

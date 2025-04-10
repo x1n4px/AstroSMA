@@ -49,10 +49,7 @@ const Footer = () => {
                     </Col>
 
                     <Col md={4} className="text-center text-md-end">
-                        <p className="mb-0">
-                            {t('FOOTER.CONTACT_TEXT')}
-                            <a href="mailto:astromalaga@gmail.com" className="text-white">{t('FOOTER.CONTACT_INFO')}</a>
-                        </p>
+                       
                         <p className="mb-0 mt-2">Desarrollado por Ignacio Fernández Contreras</p>
                         <p className="mb-0 small">Basado en el trabajo de José Ignacio García Escobar</p>
 

@@ -77,6 +77,14 @@
             "ELEVENTH": {
                 "TITLE": "Relationship between trajectory angle and distance traveled",
                 "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "Amount of active rainfall per year",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "Amount of active rainfall per month and year",
+                "DESCRIPTION": ""
             }
         }
     },

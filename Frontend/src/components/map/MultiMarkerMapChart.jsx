@@ -44,7 +44,7 @@ const MultiMarkerMapChart = ({ data, observatory, lat = 40.4168, lon = -3.7038, 
 
                     // Crear línea con estilo basado en el stationId
                     const color = stationId === 'st1' ? '#3388ff' : '#ff7800';
-                    const weight = stationId === 'st1' ? 5 : 3;
+                    const weight = stationId === 'st1' ? 7 : 5;
 
                     const polyline = L.polyline(
                         [

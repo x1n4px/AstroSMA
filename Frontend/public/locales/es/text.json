@@ -31,7 +31,7 @@
         "DRAG_AND_DROP_INFO": "Arrastra y suelta los widgets en el panel de control",
         "SHOW_OPTIONS_BTN": "Mostrar {{num}} gráficos",
         "CUSTOMIZE_SEARCH_BTN": "Realizar búsqueda personalizada",
-        "SHOW_PEPORT_BTN": "Mostrar informe",
+        "SHOW_REPORT_BTN": "Mostrar informe",
         "SHOW_FULL_SCREEN": "Ver Pantalla completa",
         "GRAPH": {
             "FIRST": {
@@ -76,6 +76,14 @@
             },
             "ELEVENTH": {
                 "TITLE": "Relación entre ángulo de trayectoria y distancia recorrida",
+                "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "Cantidad de lluvias activas por año",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "Cantidad de lluvias activdas por mes y año",
                 "DESCRIPTION": ""
             }
         }

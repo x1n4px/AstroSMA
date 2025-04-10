@@ -1,18 +1,30 @@
 import React from 'react';
 import { Button, Container } from 'react-bootstrap';
-
+import {audit} from '../../../../services/auditing'
 import { useTranslation } from 'react-i18next';
 
 
-const AssociatedDownloadReport = () => {
+const AssociatedDownloadReport = ({report}) => {
     const { t } = useTranslation(['text']);
-
+    console.log(report)
     const handleDownload = (fileName) => {
         // Simulate file download
         const link = document.createElement('a');
-        link.href = `/downloads/${fileName}`;
-        link.download = fileName;
-        link.click();
+        //link.href = `/downloads/${fileName}`;
+        //link.download = fileName;
+        //link.click();
+        // Call the audit function
+        const data = {
+            fileName: fileName,
+            reportId: report.IdInforme
+        };
+        audit(data)
+            .then((response) => {
+                console.log('Audit successful:', response);
+            })
+            .catch((error) => {
+                console.error('Error during audit:', error);
+            });
     };
 
     return (

@@ -302,9 +302,31 @@ const getGeneral = async (req, res) => {
       const [distanceWithErrorFromObservatory] = await pool.query(distanceWithErrorFromObservatoryQuery, [dateFilterValue]);
       const [velocityDispersionVersusDihedralAngle] = await pool.query(velocityDispersionVersusDihedralAngleQuery, [dateFilterValue]);
       const [observatoryData] = await pool.query(observatory);
-      const [lastReportMap] = await pool.query(lastReportMapQuery);
+      const [lastReportMapUNF] = await pool.query(lastReportMapQuery);
       const [showerPerYearData] = await pool.query(`SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador;`);
 
+      const lastReportMap = lastReportMapUNF.map((item) => {
+        return {
+          AUX: {
+            Fecha: item.Fecha,
+            Hora: item.Hora,
+            IdInforme: item.IdInforme
+          },
+          MAP_DATA: {
+            st1: {
+              start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
+              end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
+              id: item.IdInforme
+            },
+            st2: {
+              start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
+              end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
+              id: item.IdInforme
+            }
+          }
+          
+        }
+      })
 
       const impactMapFormat = predictableImpact.map((item) => {
         return {

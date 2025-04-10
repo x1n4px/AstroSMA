@@ -11,7 +11,7 @@ const DashboardRoute = require('./routes/dashboardRoute')
 const PhotometryRoute = require('./routes/photometryRoute')
 const ActiveShowerRoute = require('./routes/activeShowerRoute')
 const RadiantReportRoute = require('./routes/radiantReportRoute')
-
+const auditRoute = require('./routes/auditRoute')
 
 
 app.use(cors());
@@ -31,6 +31,7 @@ app.use('/api', DashboardRoute);
 app.use('/api', PhotometryRoute);
 app.use('/api', ActiveShowerRoute);
 app.use('/api', RadiantReportRoute);
+app.use('/api', auditRoute);
 
 
 const port = 3005;
