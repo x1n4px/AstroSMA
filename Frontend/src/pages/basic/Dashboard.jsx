@@ -24,6 +24,7 @@ import GroupedBarChart from '@/components/chart/GroupedBarChart';
 import RoseChart from '@/components/chart/RoseChart';
 import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
 import BarChartWithError from '@/components/chart/BarChartWithError';
+import NextRain from '@/components/nextRain.jsx';
 
 const ItemTypes = {
   CHART: 'chart',
@@ -174,7 +175,6 @@ function Dashboard() {
   const fetchData = async () => {
     try {
       const responseD = await getGeneral(searchRange);
-      console.log(responseD)
       setChartData(responseD.barChartData)
       setPieChartData(responseD.pieChartData);
       setGroupChartData(responseD.groupChartData);
@@ -215,7 +215,11 @@ function Dashboard() {
 
 
   return (
+    <div>
+       <NextRain />
+   
     <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
+     
       <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
         <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
           {t('DASHBOARD.CONFIGURATION_BTN')}
@@ -465,6 +469,7 @@ function Dashboard() {
         size="xl"
       />
     </Container>
+    </div>
   );
 }
 

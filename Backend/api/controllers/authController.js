@@ -10,7 +10,7 @@ const registerUser = async (req, res) => {
     try {
         const { email, password, name, surname, countryId, institution } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const rol = '00000000';
+        const rol = '00000001';
 
         // Obtener el último ID
         const [lastIdResult] = await pool.query('SELECT MAX(id) AS maxId FROM user');

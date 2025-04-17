@@ -99,7 +99,6 @@ const getReportZ = async (req, res) => {
         let IMOS = await IMOShowers(report[0].IdInforme);
         let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
 
-        console.log(IAUS)
         const response = {
             informe: processedReports[0],
             observatorios: [
@@ -298,7 +297,6 @@ function membershipPerihelion(bolideValue, showerValue) {
 
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
-    console.log(bolide, shower)
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
     const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
     const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
@@ -313,7 +311,6 @@ function calculateMembership(bolide, shower) {
 
     // Escalar a valor entre 1 y 9
     const finalValue = Math.round(totalMembership * 8) + 1;
-    console.log(pertenenciaDMRTV, membershipE, membershipA, membershipQ, totalMembership, finalValue)
     return finalValue;
 }
 

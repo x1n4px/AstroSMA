@@ -17,3 +17,20 @@ export const getAllShower = async () => {
         throw error;
     }
 };
+
+
+export const getNextShower = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/activeShower/nextShower`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
+        return response.data.shower;
+    } catch (error) {
+        console.error('Error fetching bolides:', error);
+        throw error;
+    }
+}

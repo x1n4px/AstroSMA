@@ -615,5 +615,13 @@
         "ACTIVE": "アクティブ",
         "INACTIVE": "非アクティブ",
         "PENDING": "保留"
+    },
+    "BANNER": {
+        "ACTIVE_RAIN": "活発な流星群！",
+        "NO_ACTIVE_RAIN": " 活発な流星群はありません！",
+        "PREPOSITION": {
+            "AL": "への",
+            "DEL": "より"
+        }
     }
 }

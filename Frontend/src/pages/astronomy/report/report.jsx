@@ -150,7 +150,6 @@ const Report = () => {
         setError(null);
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
-            console.log(response.showers)
             setReportData(response.informe);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
@@ -348,7 +347,7 @@ const Report = () => {
                         )}
 
                         <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
-                            <AssociatedDownloadReport />
+                            <AssociatedDownloadReport report={reportData} />
                         </Tab>
 
 

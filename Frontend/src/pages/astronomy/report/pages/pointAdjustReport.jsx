@@ -11,50 +11,28 @@ import truncateDecimal from '@/pipe/truncateDecimal';
 const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
     
     const { t } = useTranslation(['text']);
-    // Datos simulados para la tabla de puntos
-    const [puntos, setPuntos] = useState([
-        { id: 1, x: 10, y: 20, z: 5 },
-        { id: 2, x: 15, y: 25, z: 8 },
-        { id: 3, x: 22, y: 30, z: 12 },
-    ]);
+    const [activeKeys, setActiveKeys] = useState(['0']);
 
-    // Datos para el gráfico de trayectoria
-    const data = {
-        labels: puntos.map((p) => `P${p.id}`), // Etiquetas de los puntos
-        datasets: [
-            {
-                label: "Trayectoria",
-                data: puntos.map((p) => p.y), // Usamos coordenadas Y como referencia
-                borderColor: "blue",
-                fill: false,
-                tension: 0.4, // Suavizado de curva
-            },
-        ],
-    };
-
-    // Manejar ajustes manuales (ejemplo simple)
-    const ajustarPunto = (id, key, value) => {
-        setPuntos((prev) =>
-            prev.map((p) => (p.id === id ? { ...p, [key]: parseFloat(value) } : p))
+    const handleAccordionToggle = (eventKey) => {
+        setActiveKeys(prevKeys => 
+            prevKeys.includes(eventKey)
+                ? prevKeys.filter(key => key !== eventKey)
+                : [...prevKeys, eventKey]
         );
     };
-
 
     return (
         <div>
             <Container>
-                <Accordion defaultActiveKey="0">
+                <Accordion>
                     <Accordion.Item eventKey="0">
                         <Accordion.Header>
                             ZWO
                         </Accordion.Header>
                         <Accordion.Body>
-
-
                             <h2>{t('REPORT.POINT_ADJUST.ZWO.TITLE')}</h2>
                             
                             <Row>
-
                                 <h4>{t('REPORT.POINT_ADJUST.ZWO.TABLE.TITLE')}</h4>
                                 <Table hover>
                                     <thead>
@@ -68,21 +46,10 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                                     <tbody>
                                         {zwoAdjustmentPoints.map((p) => (
                                             <tr key={p.Fecha + p.X}>
-                                                <td>
-                                                    {formatDate(p.Fecha)}
-                                                </td>
-                                                <td>
-                                                    {new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                                                </td>
-
-                                                <td>
-                                                    {truncateDecimal(p.Ar_Grados)}
-                                                </td>
-                                                <td>
-                                                    {truncateDecimal(p.De_Grados)}
-
-                                                </td>
-
+                                                <td>{formatDate(p.Fecha)}</td>
+                                                <td>{new Date(`1970-01-01T${p.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
+                                                <td>{truncateDecimal(p.Ar_Grados)}</td>
+                                                <td>{truncateDecimal(p.De_Grados)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -119,57 +86,51 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                             </Table>
                         </Accordion.Body>
                     </Accordion.Item>
-
-
                     <Accordion.Item eventKey="2">
                         <Accordion.Header>
                             {t('REPORT.POINT_ADJUST.TRAJECTORY.TITLE')}
                         </Accordion.Header>
                         <Accordion.Body>
-                            <Table hover>
-                                <thead>
-                                    <tr>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DATE')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.HOUR')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI')}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '1' })}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '1' })}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '2' })}</th>
-                                        <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '2' })}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {trajectoryData.map((p) => (
-                                        <tr key={p.Fecha+p.s}>
-                                            <td>{formatDate(p.Fecha)}</td>
-                                            <td>{p.Hora}</td>
-                                            <td>{truncateDecimal(p.s)}</td>
-                                            <td>{truncateDecimal(p.t)}</td>
-                                            <td>{truncateDecimal(p.v)}</td>
-                                            <td>{truncateDecimal(p.lambda)}</td>
-                                            <td>{truncateDecimal(p.phi)}</td>
-                                            <td>{truncateDecimal(p.AR_Estacion_1)}</td>
-                                            <td>{truncateDecimal(p.De_Estacion_1)}</td>
-                                            <td>{truncateDecimal(p.Ar_Estacion_2)}</td>
-                                            <td>{truncateDecimal(p.De_Estacion_2)}</td>
+                            <div style={{ overflowX: 'auto' }}>
+                                <Table hover>
+                                    <thead>
+                                        <tr>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DATE')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.HOUR')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI')}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '1' })}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '1' })}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '2' })}</th>
+                                            <th>{t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '2' })}</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-
+                                    </thead>
+                                    <tbody>
+                                        {trajectoryData.map((p) => (
+                                            <tr key={p.Fecha+p.s}>
+                                                <td>{formatDate(p.Fecha)}</td>
+                                                <td>{p.Hora}</td>
+                                                <td>{truncateDecimal(p.s)}</td>
+                                                <td>{truncateDecimal(p.t)}</td>
+                                                <td>{truncateDecimal(p.v)}</td>
+                                                <td>{truncateDecimal(p.lambda)}</td>
+                                                <td>{truncateDecimal(p.phi)}</td>
+                                                <td>{truncateDecimal(p.AR_Estacion_1)}</td>
+                                                <td>{truncateDecimal(p.De_Estacion_1)}</td>
+                                                <td>{truncateDecimal(p.Ar_Estacion_2)}</td>
+                                                <td>{truncateDecimal(p.De_Estacion_2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
                         </Accordion.Body>
                     </Accordion.Item>
                 </Accordion>
-
-
             </Container>
-            {/* <ScatterPlot data={zwoAdjustmentPoints} xVariable={'x'} yVariable={'y'} />
-
-            <ScatterPlot data={zwoAdjustmentPoints} xVariable={'arDegrees'} yVariable={'deDegrees'} /> */}
         </div>
     );
 };

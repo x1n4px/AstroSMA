@@ -11,6 +11,8 @@ function InferredDataReport({ data }) {
   }
   const { t } = useTranslation(['text']);
 
+  const userRol = localStorage.getItem('rol');
+
 
   return (
     <Container>
@@ -77,13 +79,14 @@ function InferredDataReport({ data }) {
             <Form.Control type="text" value={data.Ecuacion_del_movimiento_en_gs} readOnly />
           </Form.Group>
         </Col>
-
+        {userRol === '10000000' && (
         <Col>
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.REPORT_ROUTE.label')}</Form.Label>
             <Form.Control type="text" value={data.Ruta_del_informe} readOnly />
           </Form.Group>
         </Col>
+        )}
       </Row>
 
     </Container >

@@ -27,13 +27,13 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
             {orbit && orbit.length > 1 && (
                 <Form.Group className="mb-3">
                     <Form.Label>{t('ORBIT_REPORT.SELECT_OPT.LABEL')}</Form.Label>
-                    <Form.Control as="select" onChange={handleOrbitChange} value={selectedOrbitIndex}>
+                    <Form.Select onChange={handleOrbitChange} value={selectedOrbitIndex}>
                         {orbit.map((item, index) => (
                             <option key={index} value={index}>
                                 {formatDate(item.Fecha)} - {item.Hora.substring(0, 8)}
                             </option>
                         ))}
-                    </Form.Control>
+                    </Form.Select>
                 </Form.Group>
             )}
 

@@ -615,5 +615,13 @@
         "ACTIVE": "Activo",
         "INACTIVE": "Inactivo",
         "PENDING": "Pendiente"
+    },
+    "BANNER": {
+        "ACTIVE_RAIN": "¡Lluvias de estrellas activas!",
+        "NO_ACTIVE_RAIN": "¡No hay lluvias de estrellas activas!",
+        "PREPOSITION": {
+            "AL": "al",
+            "DEL": "del"
+        }
     }
 }

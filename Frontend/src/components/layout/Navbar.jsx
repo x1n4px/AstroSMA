@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar as BootstrapNavbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
-
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
@@ -20,9 +19,10 @@ const Navbar = () => {
     i18n.changeLanguage(lng);
   };
 
+  const roleMask = (localStorage.getItem('rol'));
 
   return (
-    <BootstrapNavbar style={{backgroundColor: '#980100'}}  expand="lg" expanded={expanded} >
+    <BootstrapNavbar style={{ backgroundColor: '#980100' }} expand="lg" expanded={expanded} >
       <Container>
         <BootstrapNavbar.Brand as={Link} to="https://www.astromalaga.es/" className="d-flex align-items-center">
           {/* <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(255, 255, 255, 1)", marginRight: "0.5rem" }}>
@@ -37,20 +37,27 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/active-rain" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_ACTIVE_RAIN')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
-            <Dropdown style={{ marginRight: '1rem' }}>
-              <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
-                {t('NAVBAR.BTN_PROFILE')}
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item as={Link} to="/profile" onClick={() => setExpanded(false)}>
+            {(roleMask != '00000000') ? (
+              <Dropdown style={{ marginRight: '1rem' }}>
+                <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
                   {t('NAVBAR.BTN_PROFILE')}
-                </Dropdown.Item>
-                <Dropdown.Item onClick={handleLogout}>
-                  {t('NAVBAR.BTN_LOGOUT')}
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+                </Dropdown.Toggle>
+
+
+                <Dropdown.Menu>
+                  <Dropdown.Item as={Link} to="/profile" onClick={() => setExpanded(false)}>
+                    {t('NAVBAR.BTN_PROFILE')}
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}>
+                    {t('NAVBAR.BTN_LOGOUT')}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+
+              </Dropdown>
+            ) : (
+              <Nav.Link onClick={handleLogout} style={{ color: 'white' }}> {t('NAVBAR.BTN_LOGOUT')}</Nav.Link>
+
+            )}
             <Dropdown>
               <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
                 <img src={`/flag/${i18n.language}.webp`} alt={i18n.language.toUpperCase()} style={{ width: '20px' }} />
