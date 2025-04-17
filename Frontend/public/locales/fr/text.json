@@ -1,0 +1,627 @@
+{
+    "WELCOME": {
+        "title": "Bienvenue dans l'application",
+        "description": "Ceci est une application exemple"
+    },
+    "PROFILE": {
+        "NAME": "Nom",
+        "SURNAME": "Prénom",
+        "EMAIL": "Adresse e-mail",
+        "PASSWORD": "Mot de passe",
+        "UPDATE_BTN": "Mettre à jour",
+        "DELETE_BTN": "Supprimer",
+        "TITLE": "Informations du profil",
+        "INSTITUTION": "Institution",
+        "COUNTRY": "Pays"
+    },
+    "NAVBAR": {
+        "BTN_HOME": "Accueil",
+        "BTN_STATIONS": "Stations",
+        "BTN_LOGOUT": "Déconnexion",
+        "BTN_PROFILE": "Profil",
+        "BTN_ACTIVE_RAIN": "Pluie active"
+    },
+    "FOOTER": {
+        "FOLLOW": "Suivez-nous sur nos réseaux sociaux",
+        "CONTACT_TEXT": "Contact",
+        "CONTACT_INFO": "astromalaga@gmail.com"
+    },
+    "DASHBOARD": {
+        "CONFIGURATION_BTN": "Configurer le tableau de bord",
+        "DRAG_AND_DROP_INFO": "Faites glisser et déposez les widgets sur le tableau de bord",
+        "SHOW_OPTIONS_BTN": "Afficher {{num}} graphiques",
+        "CUSTOMIZE_SEARCH_BTN": "Effectuer une recherche personnalisée",
+        "SHOW_REPORT_BTN": "Afficher le rapport",
+        "SHOW_FULL_SCREEN": "Voir en plein écran",
+        "GRAPH": {
+            "FIRST": {
+                "TITLE": "Vitesse moyenne des météores",
+                "DESCRIPTION": "vitesse moyenne des météores"
+            },
+            "SECOND": {
+                "TITLE": "Dernier bolide détecté",
+                "DESCRIPTION": ""
+            },
+            "THIRD": {
+                "TITLE": "Fréquence des détections par mois et année",
+                "DESCRIPTION": "Graphique linéaire : Pour montrer le nombre de météores détectés par mois et année"
+            },
+            "FOURTH": {
+                "TITLE": "Distribution des météores par nombre de stations",
+                "DESCRIPTION": ""
+            },
+            "FIFTH": {
+                "TITLE": "Hauteur mesurée par station avec erreur",
+                "DESCRIPTION": ""
+            },
+            "SIXTH": {
+                "TITLE": "Derniers rapports de deux stations",
+                "DESCRIPTION": ""
+            },
+            "SEVENTH": {
+                "TITLE": "Rapports avec excentricité supérieure à 90%",
+                "DESCRIPTION": ""
+            },
+            "EIGHTH": {
+                "TITLE": "Heures de la journée avec le plus de détections de météores",
+                "DESCRIPTION": ""
+            },
+            "NINTH": {
+                "TITLE": "Carte de détection",
+                "DESCRIPTION": ""
+            },
+            "TENTH": {
+                "TITLE": "Distribution de l'azimut d'entrée des météores",
+                "DESCRIPTION": ""
+            },
+            "ELEVENTH": {
+                "TITLE": "Relation entre l'angle de trajectoire et la distance parcourue",
+                "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "Nombre de pluies actives par an",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "Nombre de pluies actives par mois et année",
+                "DESCRIPTION": ""
+            }
+        }
+    },
+    "DASHBOARD_MODAL": {
+        "TITLE": "Options du tableau de bord",
+        "SEARCH_RANGE": "Plage de recherche",
+        "SHOW_GRAPH": "Afficher le graphique {{name}}",
+        "BTN_CLOSE": "Fermer",
+        "BTN_SAVE": "Enregistrer",
+        "SEARCH_RANGE_OPTION": {
+            "LAST_10": "10 derniers bolides",
+            "LAST_25": "25 derniers bolides",
+            "LAST_50": "50 derniers bolides",
+            "LAST_6_MONTHS": "6 derniers mois",
+            "LAST_YEAR": "Dernière année",
+            "LAST_5_YEAR": "5 dernières années"
+        }
+    },
+    "LOGIN": {
+        "TITLE": "Se connecter",
+        "EMAIL": "Adresse e-mail",
+        "PASSWORD": "Mot de passe",
+        "LOGIN_BTN": "Se connecter",
+        "REGISTER_BTN": "S'inscrire",
+        "FORGOT_PASSWORD": "Mot de passe oublié ?"
+    },
+    "REGISTER": {
+        "TITLE": "S'inscrire",
+        "NAME": "Nom",
+        "SURNAME": "Prénom",
+        "EMAIL": "Adresse e-mail",
+        "PASSWORD": "Mot de passe",
+        "PASSWORD_CONFIRM": "Confirmer le mot de passe",
+        "REGISTER_BTN": "S'inscrire",
+        "LOGIN_BTN": "Se connecter",
+        "INSTITUTION": "Institution",
+        "COUNTRY": "Pays",
+        "ERROR": {
+            "PASSWORDS_NOT_MATCH": "Les mots de passe ne correspondent pas",
+            "EMAIL_ALREADY_EXISTS": "L'adresse e-mail est déjà enregistrée",
+            "INVALID_EMAIL": "Adresse e-mail invalide",
+            "TERMS_AND_CONDITIONS": "Vous devez accepter les conditions d'utilisation",
+            "CREDENTIALS": "Identifiants invalides"
+        },
+        "TERM": {
+            "ACEPT": "J'accepte les ",
+            "TERMS_AND_CONDITIONS": "conditions d'utilisation"
+        },
+        "PLACEHOLDER": {
+            "NAME": "Entrez votre nom",
+            "SURNAME": "Entrez votre prénom",
+            "EMAIL": "Entrez votre adresse e-mail",
+            "PASSWORD": "Entrez votre mot de passe",
+            "PASSWORD_CONFIRM": "Confirmez votre mot de passe"
+        }
+    },
+    "NOPAGE": {
+        "TITLE": "Oups ! Le vaisseau s'est perdu dans l'espace",
+        "DESCRIPTION": "Nous ne trouvons pas la page que vous cherchez. Peut-être explore-t-elle une galaxie lointaine."
+    },
+    "TERMS_AND_CONDITIONS": {
+        "TITLE": "Conditions d'utilisation",
+        "LAST_UPDATED": "2025-03-17",
+        "CLOSE_BTN": "Fermer",
+        "SECTION": [
+            {
+                "TITLE": "1. Acceptation des conditions",
+                "CONTENT": "En s'inscrivant sur notre plateforme, l'utilisateur accepte ces conditions d'utilisation dans leur intégralité. S'il n'est pas d'accord avec une partie, il ne doit pas poursuivre l'inscription ni utiliser l'application."
+            },
+            {
+                "TITLE": "2. Disposition des informations",
+                "CONTENT": "Toutes les informations fournies par l'utilisateur lors de l'inscription et de l'utilisation de l'application seront à la disposition de l'entité. Cela inclut, sans s'y limiter, les données personnelles, le contenu généré par l'utilisateur et les statistiques d'utilisation."
+            },
+            {
+                "TITLE": "3. Utilisation des informations obtenues",
+                "CONTENT": "Toute information, bénéfice, donnée ou résultat obtenu par l'utilisation de l'application doit être mentionné et attribué à l'entité. L'utilisateur s'engage à ne pas omettre ni déformer l'origine des informations obtenues."
+            },
+            {
+                "TITLE": "4. Modifications des conditions",
+                "CONTENT": "Nous nous réservons le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés de tout changement pertinent."
+            },
+            {
+                "TITLE": "5. Contact",
+                "CONTENT": "Pour toute question concernant ces conditions, l'utilisateur peut contacter l'entité via les canaux de support officiels."
+            }
+        ]
+    },
+    "INFERRED_DATA": {
+        "IdInforme": {
+            "label": "ID du rapport",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Heure",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1": {
+            "label": "Erreur quadratique d'orthogonalité dans la sphère céleste 1",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2": {
+            "label": "Erreur quadratique d'orthogonalité dans la sphère céleste 2",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE_BTW_PLANES": {
+            "label": "Angle dièdre entre les plans de trajectoire",
+            "measure": "°"
+        },
+        "STATISTICAL_WEIGHTS": {
+            "label": "Poids statistique",
+            "measure": "Kg"
+        },
+        "Errores_AR_RADIANT": {
+            "label": "Erreurs AR en radians",
+            "measure": "radians"
+        },
+        "Errores_DE_RADIANT": {
+            "label": "Erreurs DE en radians",
+            "measure": "radians"
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE": {
+            "label": "Coordonnées astronomiques du radiant (Écliptique - Date)",
+            "measure": ""
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
+            "label": "Coordonnées astronomiques du radiant (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Azimut",
+            "measure": "°"
+        },
+        "ZENITHAL_DISTANCE": {
+            "label": "Distance zénithale",
+            "measure": "°"
+        },
+        "EQUATION_OF_MOTION_IN_KMS": {
+            "label": "Équation du mouvement",
+            "measure": ""
+        },
+        "EQUATION_OF_MOVEMENT_IN_GS": {
+            "label": "Équation de la vitesse",
+            "measure": ""
+        },
+        "REPORT_ROUTE": {
+            "label": "Chemin du rapport",
+            "measure": ""
+        },
+        "Ecuacion_parametrica_IdEc": {
+            "label": "ID de l'équation paramétrique",
+            "measure": ""
+        },
+        "Latitude": {
+            "label": "Latitude",
+            "measure": "°"
+        },
+        "Longitude": {
+            "label": "Longitude",
+            "measure": "°"
+        }
+    },
+    "REPORT": {
+        "TITLE": "Rapport de deux stations : {{date}} {{hour}}",
+        "TITLE_RADIAN": "Rapport radiant {{id}}",
+        "WARNING_BTN": "Signaler une erreur",
+        "SUMMARY_TAB": "Résumé",
+        "INFERRED_DATA_TAB": "Données inférées",
+        "MAP_TAB": "Carte",
+        "ACTIVE_RAIN_TAB": "Pluie active",
+        "STATIONS": "Stations",
+        "TRAJECTORY": "Orbite",
+        "ASSOCIATED_DOWNLOAD_LINK": {
+            "TITLE": "Télécharger le rapport associé",
+            "DESCRIPTION": "Télécharger le rapport associé à la pluie active",
+            "LINK": "Télécharger {{name}} (Logiciel {{cty}})"
+        },
+        "PENDING": {
+            "TITLE": "Trajectoire atmosphérique",
+            "STATION_DETAILS": "Détails de la station {{id}}",
+            "START_COORDINATES": "Coordonnées de départ",
+            "INITIAL_DISTANCE": "Distance initiale",
+            "INITIAL_HEIGHT": "Hauteur initiale",
+            "END_COORDINATES": "Coordonnées de fin",
+            "FINAL_DISTANCE": "Distance finale",
+            "FINAL_HEIGHT": "Hauteur finale"
+        },
+        "ZWO": "Ajustement des points et trajectoire",
+        "ASSOCIATED_STATIONS": {
+            "TITLE": "Stations associées",
+            "STATION_TITLE": "Station {{id}}",
+            "STATION_LONGITUDE": "Longitude",
+            "STATION_LATITUDE": "Latitude",
+            "CUADRATURA_ERROR": "Erreur quadratique d'orthogonalité dans la sphère céleste (en radians)"
+        },
+        "POINT_ADJUST": {
+            "ZWO": {
+                "TITLE": "Ajustement des points et trajectoire",
+                "GRAPHIC": "Graphique",
+                "TABLE": {
+                    "TITLE": "Points de la trajectoire",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Heure",
+                        "Ar_Grados": "Ar Degrés",
+                        "De_Grados": "De Degrés",
+                        "De_Sexagesimal": "De Sexagésimal",
+                        "Ar_Sexagesimal": "Ar Sexagésimal"
+                    }
+                }
+            },
+            "REGRESSION_TRAJECTORY": {
+                "TITLE": "Trajectoire de régression",
+                "GRAPHIC": "Graphique",
+                "TABLE": {
+                    "TITLE": "Points de la trajectoire",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Heure",
+                        "t": "t",
+                        "s": "s",
+                        "v": "v (Km/s)"
+                    }
+                }
+            },
+            "TRAJECTORY": {
+                "TITLE": "Trajectoire",
+                "GRAPHIC": "Graphique",
+                "TABLE": {
+                    "TITLE": "Points de la trajectoire",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Heure",
+                        "T": "t",
+                        "S": "s",
+                        "V": "v",
+                        "LAMBDA": "Lambda",
+                        "PHI": "Phi",
+                        "RA": "Ra (Station {{id}})",
+                        "DE": "De (Station {{id}})"
+                    }
+                }
+            }
+        },
+        "PHOTOMETRY": {
+            "TITLE": "Rapport de photométrie",
+            "INPUT": {
+                "DATE": "Date",
+                "HOUR": "Heure",
+                "VISIBLE_STARS": "Étoiles visibles",
+                "STAR_USED_IN_REGRESSION": "Étoile utilisée dans la régression",
+                "BOUGER_LINE_EXTERNAL": "Ligne de Bouger externe",
+                "BOUGER_LINE_ZERO": "Ligne de Bouger zéro",
+                "REGRESSION_STANDART_ERROR": "Erreur standard de la régression",
+                "STANDART_ZERO_POINT": "Point zéro standard",
+                "STANDART_ERROR_EXTERNAL_COEFF": "Erreur standard du coefficient externe",
+                "PATH_PARABOLA_COEFF": "Coefficient de la parabole du chemin"
+            },
+            "REGRESSION_DATA_TAB": {
+                "TITLE": "Données de régression",
+                "START_ID": "Id de l'étoile",
+                "AIR_MASS": "Masse d'air",
+                "CATALOG_MAGNITUDE": "Magnitude du catalogue",
+                "INSTRUMENTAL_MAGNITUDE": "Magnitude instrumentale"
+            },
+            "METEOR_DATA": {
+                "TITLE": "Données du météore",
+                "X_START": "X (Début)",
+                "Y_START": "Y (Début)",
+                "X_END": "X (Fin)",
+                "Y_END": "Y (Fin)",
+                "AIR_MASS_START": "Masse d'air (Début)",
+                "AIR_MASS_END": "Masse d'air (Fin)",
+                "DISTANCE_START": "Distance (Début)",
+                "DISTANCE_END": "Distance (Fin)"
+            },
+            "ADJUSTEMENT_POINT": {
+                "TITLE": "Ajustement des points",
+                "T": "t",
+                "DISTANCE": "Distance",
+                "MC": "Mc",
+                "MA": "Ma"
+            }
+        },
+        "VIDEO": {
+            "TITLE": "Vidéo"
+        },
+        "ACTIVE_RAIN": {
+            "TITLE": "Pluies actives",
+            "NO_SHOWERS_WITH_DATA": "Pas de pluies avec des données disponibles !",
+            "NO_SHOWERS_WITH_DATA_DESC": "Il semble que les pluies de météores actuelles profitent d'une pause cosmique bien méritée. Revenez bientôt pour voir si elles se réveillent !",
+            "AIU_TITLE": "Tableau des pluies actives de l'IAU",
+            "IMO_TITLE": "Tableau des pluies actives de l'IMO",
+            "NO_ACTIVE_RAIN": "Pas de pluies actives",
+            "NO_SHOWERS_AVAILABLE": "Pas de pluies disponibles",
+            "TABLE": {
+                "ID": "Identifiant",
+                "NAME": "Nom",
+                "START_DATE": "Date de début",
+                "END_DATE": "Date de fin",
+                "MINIMUM_DISTANCE": "Distance minimale {{it}}",
+                "DISTANCE": "Distance",
+                "SHOW_BUTTON": "Voir la pluie",
+                "STATUS": "État",
+                "DATE": "Date",
+                "MEMBERSHIP_VALUE": "Valeur d'appartenance"
+            }
+        },
+        "ESTIMATED_TRAJECTORY": {
+            "TITLE": "Trajectoire estimée",
+            "VELOCITY": "Vitesse",
+            "INITIAL_LON": "Longitude (Début)",
+            "INITIAL_LAT": "Latitude (Début)",
+            "FINAL_LON": "Longitude (Fin)",
+            "FINAL_LAT": "Latitude (Fin)",
+            "INITIAL_ALT": "Altitude (Début)",
+            "FINAL_ALT": "Altitude (Fin)",
+            "INITIAL_DIST": "Distance (Début)",
+            "FINAL_DIST": "Distance (Fin)",
+            "RECOR": "Parcours",
+            "E": "e",
+            "T": "t"
+        },
+        "ANGULAR_VELOCITY": {
+            "TITLE": "Vitesse angulaire",
+            "HI": "hi",
+            "SHOWER": "pluie",
+            "METEOR": "météore"
+        }
+    },
+    "CUSTOMIZE_SEARCH": {
+        "HEIGHT": "Hauteur",
+        "LATLON": "Latitude/Longitude",
+        "LATITUDE": "Latitude",
+        "LONGITUDE": "Longitude",
+        "SEARCH_RADIUS": "Rayon de recherche",
+        "RANGE_DATE": "Plage de dates",
+        "SEARCH_BTN": "Rechercher",
+        "CLEAR_BTN": "Effacer",
+        "REPORT_Z": "Rapport de deux stations (Rapport Z)",
+        "REPORT_RADIANT": "Rapport d'une station (Rapport radiant)",
+        "REPORT_PHOTOMETRY": "Rapport de photométrie",
+        "SHOW_BUTTON": "Voir plus",
+        "REPORT_TYPE": {
+            "TITLE": "Type de rapport",
+            "SELECT": {
+                "ALL_TYPES": "Tous les types",
+                "REPORT_Z": "Rapport de deux stations (Rapport Z)",
+                "REPORT_RADIANT": "Rapport d'une station (Rapport radiant)",
+                "REPORT_PHOTOMETRY": "Rapport de photométrie",
+                "REPORT_UNION": "Disposer de tous les rapports"
+            }
+        },
+        "MODAL": {
+            "REPORT_Z": {
+                "TITLE": "Rapports de deux stations (Rapport Z)",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Heure",
+                "STATION_1": "Station 1",
+                "STATION_2": "Station 2"
+            },
+            "REPORT_RADIANT": {
+                "TITLE": "Rapports d'une station (Rapport radiant)",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Heure",
+                "STATION": "Station",
+                "ASSOCIATED_RAIN": "Pluie associée",
+                "ESTIMATED_TRAJECTORY": "Trajectoire estimée",
+                "ANGULAR_DISTANCE": "Distance angulaire ( {{measure}} )",
+                "ANGULAR_VELOCITY": "Vitesse angulaire (°/s)"
+            },
+            "REPORT_PHOTOMETRY": {
+                "TITLE": "Rapports de photométrie",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Heure",
+                "VISIBLE_STARS": "Étoiles visibles",
+                "STAR_USED_IN_REGRESSION": "Étoile utilisée dans la régression"
+            }
+        }
+    },
+    "STATION": {
+        "TITLE": "Carte des stations spatiales",
+        "DESCRIPTION": "Le réseau de bolides et météores de l'Université de Malaga",
+        "LOADING_MSG": "Chargement des stations...",
+        "ERROR_MSG": "Erreur lors du chargement des stations",
+        "STATION_LIST": "Liste des stations",
+        "STATION": {
+            "NAME": "Nom",
+            "ALTITUDE": "Altitude",
+            "DESCRIPTION": "Description",
+            "COORDINATES": "Coordonnées",
+            "CHIP": {
+                "SIZE": "Taille de la puce",
+                "ORIENTATION": "Orientation"
+            },
+            "FILTER": "Filtre",
+            "HEIGHT": {
+                "TITLE": "Hauteur",
+                "MEASURE": "m"
+            }
+        },
+        "SHOW_BUTTON": "Voir sur la carte",
+        "STATUS": {
+            "ACTIVE": "Actif",
+            "CONSTRUCTING": "En construction",
+            "COLLABORATION": "Collaboration"
+        }
+    },
+    "ORBIT_REPORT": {
+        "SELECT_OPT": {
+            "LABEL": "Sélectionnez un rapport",
+            "PLACEHOLDER": "Sélectionnez un rapport"
+        },
+        "ID": {
+            "label": "ID",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Heure",
+            "measure": ""
+        },
+        "CALCULATED_WITH": {
+            "label": "Calculé avec",
+            "measure": ""
+        },
+        "VELOCITY_INF": {
+            "label": "Vitesse inférée",
+            "measure": "Km/s"
+        },
+        "VELOCITY_GEOM": {
+            "label": "Vitesse géométrique",
+            "measure": "Km/s"
+        },
+        "AR": {
+            "label": "AR",
+            "measure": "°"
+        },
+        "DE": {
+            "label": "DE",
+            "measure": "°"
+        },
+        "I": {
+            "label": "i",
+            "measure": "°"
+        },
+        "P": {
+            "label": "p",
+            "measure": "°"
+        },
+        "A": {
+            "label": "a",
+            "measure": "°"
+        },
+        "E": {
+            "label": "e",
+            "measure": ""
+        },
+        "Q": {
+            "label": "q",
+            "measure": "AU"
+        },
+        "T": {
+            "label": "T",
+            "measure": ""
+        },
+        "OMEGA": {
+            "label": "Omega",
+            "measure": "°"
+        },
+        "OMEGA_DEGREE": {
+            "label": "Omega degrés votes max min",
+            "measure": "°"
+        }
+    },
+    "SUMMARY_REPORT": {
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Heure",
+            "measure": ""
+        },
+        "FIRST_OBSERVATORY": {
+            "label": "Observatoire 1",
+            "measure": ""
+        },
+        "SECOND_OBSERVATORY": {
+            "label": "Observatoire 2",
+            "measure": ""
+        },
+        "USED_FRAMES": {
+            "label": "Images utilisées",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE": {
+            "label": "Angle dièdre entre les plans de trajectoire",
+            "measure": ""
+        },
+        "COORDINATES_TO_DATE": {
+            "label": "Coordonnées astronomiques du radiant (Écliptique de la date)",
+            "measure": ""
+        },
+        "COORDINATES_J2000": {
+            "label": "Coordonnées astronomiques du radiant (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Azimut",
+            "measure": ""
+        },
+        "ZENITH_DISTANCE": {
+            "label": "Distance zénithale",
+            "measure": ""
+        }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "Actif",
+        "INACTIVE": "Inactif",
+        "PENDING": "En attente"
+    },
+    "BANNER": {
+        "ACTIVE_RAIN": "Pluies d'étoiles filantes actives !",
+        "NO_ACTIVE_RAIN": "Pas de pluies d'étoiles filantes actives !",
+        "PREPOSITION": {
+            "AL": "au",
+            "DEL": "du"
+        }
+    }
+}

@@ -1,0 +1,627 @@
+{
+    "WELCOME": {
+        "title": "Добро пожаловать в приложение",
+        "description": "Это пример приложения"
+    },
+    "PROFILE": {
+        "NAME": "Имя",
+        "SURNAME": "Фамилия",
+        "EMAIL": "Электронная почта",
+        "PASSWORD": "Пароль",
+        "UPDATE_BTN": "Обновить",
+        "DELETE_BTN": "Удалить",
+        "TITLE": "Информация профиля",
+        "INSTITUTION": "Учреждение",
+        "COUNTRY": "Страна"
+    },
+    "NAVBAR": {
+        "BTN_HOME": "Главная",
+        "BTN_STATIONS": "Станции",
+        "BTN_LOGOUT": "Выйти",
+        "BTN_PROFILE": "Профиль",
+        "BTN_ACTIVE_RAIN": "Активный дождь"
+    },
+    "FOOTER": {
+        "FOLLOW": "Подпишитесь на нас в социальных сетях",
+        "CONTACT_TEXT": "Контакт",
+        "CONTACT_INFO": "astromalaga@gmail.com"
+    },
+    "DASHBOARD": {
+        "CONFIGURATION_BTN": "Настроить панель управления",
+        "DRAG_AND_DROP_INFO": "Перетащите виджеты на панель управления",
+        "SHOW_OPTIONS_BTN": "Показать {{num}} графиков",
+        "CUSTOMIZE_SEARCH_BTN": "Выполнить пользовательский поиск",
+        "SHOW_REPORT_BTN": "Показать отчет",
+        "SHOW_FULL_SCREEN": "Показать на полном экране",
+        "GRAPH": {
+            "FIRST": {
+                "TITLE": "Средняя скорость метеоров",
+                "DESCRIPTION": "средняя скорость метеоров"
+            },
+            "SECOND": {
+                "TITLE": "Последний обнаруженный болид",
+                "DESCRIPTION": ""
+            },
+            "THIRD": {
+                "TITLE": "Частота обнаружений по месяцам и годам",
+                "DESCRIPTION": "Линейный график: Показать количество обнаруженных метеоров по месяцам и годам"
+            },
+            "FOURTH": {
+                "TITLE": "Распределение метеоров по количеству станций",
+                "DESCRIPTION": ""
+            },
+            "FIFTH": {
+                "TITLE": "Высота, измеренная станцией с погрешностью",
+                "DESCRIPTION": ""
+            },
+            "SIXTH": {
+                "TITLE": "Последние отчеты с двух станций",
+                "DESCRIPTION": ""
+            },
+            "SEVENTH": {
+                "TITLE": "Отчеты с эксцентриситетом выше 90%",
+                "DESCRIPTION": ""
+            },
+            "EIGHTH": {
+                "TITLE": "Часы дня с наибольшим количеством обнаружений метеоров",
+                "DESCRIPTION": ""
+            },
+            "NINTH": {
+                "TITLE": "Карта обнаружений",
+                "DESCRIPTION": ""
+            },
+            "TENTH": {
+                "TITLE": "Распределение азимута входа метеора",
+                "DESCRIPTION": ""
+            },
+            "ELEVENTH": {
+                "TITLE": "Связь между углом траектории и пройденным расстоянием",
+                "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "Количество активных дождей по годам",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "Количество активных дождей по месяцам и годам",
+                "DESCRIPTION": ""
+            }
+        }
+    },
+    "DASHBOARD_MODAL": {
+        "TITLE": "Настройки панели управления",
+        "SEARCH_RANGE": "Диапазон поиска",
+        "SHOW_GRAPH": "Показать график {{name}}",
+        "BTN_CLOSE": "Закрыть",
+        "BTN_SAVE": "Сохранить",
+        "SEARCH_RANGE_OPTION": {
+            "LAST_10": "Последние 10 болидов",
+            "LAST_25": "Последние 25 болидов",
+            "LAST_50": "Последние 50 болидов",
+            "LAST_6_MONTHS": "Последние 6 месяцев",
+            "LAST_YEAR": "Последний год",
+            "LAST_5_YEAR": "Последние 5 лет"
+        }
+    },
+    "LOGIN": {
+        "TITLE": "Вход",
+        "EMAIL": "Электронная почта",
+        "PASSWORD": "Пароль",
+        "LOGIN_BTN": "Войти",
+        "REGISTER_BTN": "Зарегистрироваться",
+        "FORGOT_PASSWORD": "Забыли пароль?"
+    },
+    "REGISTER": {
+        "TITLE": "Регистрация",
+        "NAME": "Имя",
+        "SURNAME": "Фамилия",
+        "EMAIL": "Электронная почта",
+        "PASSWORD": "Пароль",
+        "PASSWORD_CONFIRM": "Подтвердите пароль",
+        "REGISTER_BTN": "Зарегистрироваться",
+        "LOGIN_BTN": "Войти",
+        "INSTITUTION": "Учреждение",
+        "COUNTRY": "Страна",
+        "ERROR": {
+            "PASSWORDS_NOT_MATCH": "Пароли не совпадают",
+            "EMAIL_ALREADY_EXISTS": "Электронная почта уже зарегистрирована",
+            "INVALID_EMAIL": "Недействительная электронная почта",
+            "TERMS_AND_CONDITIONS": "Вы должны принять условия использования",
+            "CREDENTIALS": "Неверные учетные данные"
+        },
+        "TERM": {
+            "ACEPT": "Я принимаю ",
+            "TERMS_AND_CONDITIONS": "условия использования"
+        },
+        "PLACEHOLDER": {
+            "NAME": "Введите ваше имя",
+            "SURNAME": "Введите вашу фамилию",
+            "EMAIL": "Введите вашу электронную почту",
+            "PASSWORD": "Введите ваш пароль",
+            "PASSWORD_CONFIRM": "Подтвердите ваш пароль"
+        }
+    },
+    "NOPAGE": {
+        "TITLE": "Упс! Корабль заблудился в космосе",
+        "DESCRIPTION": "Мы не смогли найти страницу, которую вы ищете. Возможно, она исследует далекую галактику."
+    },
+    "TERMS_AND_CONDITIONS": {
+        "TITLE": "Условия использования",
+        "LAST_UPDATED": "2025-03-17",
+        "CLOSE_BTN": "Закрыть",
+        "SECTION": [
+            {
+                "TITLE": "1. Принятие условий",
+                "CONTENT": "Регистрируясь на нашей платформе, пользователь полностью принимает эти условия использования. Если вы не согласны с какой-либо частью, вам не следует продолжать регистрацию или использовать приложение."
+            },
+            {
+                "TITLE": "2. Предоставление информации",
+                "CONTENT": "Вся информация, предоставленная пользователем во время регистрации и использования приложения, будет доступна организации. Это включает, но не ограничивается, личные данные, контент, созданный пользователем, и статистику использования."
+            },
+            {
+                "TITLE": "3. Использование полученной информации",
+                "CONTENT": "Любая информация, выгода, данные или результат, полученные через использование приложения, должны быть упомянуты и приписаны организации. Пользователь соглашается не опускать или искажать происхождение полученной информации."
+            },
+            {
+                "TITLE": "4. Изменения в условиях",
+                "CONTENT": "Мы оставляем за собой право изменять эти условия в любое время. Пользователи будут уведомлены о любых существенных изменениях."
+            },
+            {
+                "TITLE": "5. Контакт",
+                "CONTENT": "По любым вопросам, связанным с этими условиями, пользователь может связаться с организацией через официальные каналы поддержки."
+            }
+        ]
+    },
+    "INFERRED_DATA": {
+        "IdInforme": {
+            "label": "ID отчета",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Дата",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Время",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1": {
+            "label": "Квадратичная ошибка ортогональности в небесной сфере 1",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2": {
+            "label": "Квадратичная ошибка ортогональности в небесной сфере 2",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE_BTW_PLANES": {
+            "label": "Двугранный угол между плоскостями траектории",
+            "measure": "°"
+        },
+        "STATISTICAL_WEIGHTS": {
+            "label": "Статистический вес",
+            "measure": "Кг"
+        },
+        "Errores_AR_RADIANT": {
+            "label": "Ошибки AR в радианах",
+            "measure": "радианы"
+        },
+        "Errores_DE_RADIANT": {
+            "label": "Ошибки DE в радианах",
+            "measure": "радианы"
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE": {
+            "label": "Астрономические координаты радианта (Эклиптика - Дата)",
+            "measure": ""
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
+            "label": "Астрономические координаты радианта (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Азимут",
+            "measure": "°"
+        },
+        "ZENITHAL_DISTANCE": {
+            "label": "Зенитное расстояние",
+            "measure": "°"
+        },
+        "EQUATION_OF_MOTION_IN_KMS": {
+            "label": "Уравнение движения",
+            "measure": ""
+        },
+        "EQUATION_OF_MOVEMENT_IN_GS": {
+            "label": "Уравнение скорости",
+            "measure": ""
+        },
+        "REPORT_ROUTE": {
+            "label": "Маршрут отчета",
+            "measure": ""
+        },
+        "Ecuacion_parametrica_IdEc": {
+            "label": "ID параметрического уравнения",
+            "measure": ""
+        },
+        "Latitude": {
+            "label": "Широта",
+            "measure": "°"
+        },
+        "Longitude": {
+            "label": "Долгота",
+            "measure": "°"
+        }
+    },
+    "REPORT": {
+        "TITLE": "Отчет двух станций: {{date}} {{hour}}",
+        "TITLE_RADIAN": "Отчет о радианте {{id}}",
+        "WARNING_BTN": "Сообщить об ошибке",
+        "SUMMARY_TAB": "Сводка",
+        "INFERRED_DATA_TAB": "Выведенные данные",
+        "MAP_TAB": "Карта",
+        "ACTIVE_RAIN_TAB": "Активный дождь",
+        "STATIONS": "Станции",
+        "TRAJECTORY": "Орбита",
+        "ASSOCIATED_DOWNLOAD_LINK": {
+            "TITLE": "Связанные отчеты",
+            "DESCRIPTION": "Скачать связанные отчеты",
+            "LINK": "Скачать отчет {{name}} (Программное обеспечение {{cty}})"
+        },
+        "PENDING": {
+            "TITLE": "Атмосферная траектория",
+            "STATION_DETAILS": "Детали станции {{id}}",
+            "START_COORDINATES": "Начальные координаты",
+            "INITIAL_DISTANCE": "Начальное расстояние",
+            "INITIAL_HEIGHT": "Начальная высота",
+            "END_COORDINATES": "Конечные координаты",
+            "FINAL_DISTANCE": "Конечное расстояние",
+            "FINAL_HEIGHT": "Конечная высота"
+        },
+        "ZWO": "Корректировка точки и траектории",
+        "ASSOCIATED_STATIONS": {
+            "TITLE": "Связанные станции",
+            "STATION_TITLE": "Станция {{id}}",
+            "STATION_LONGITUDE": "Долгота",
+            "STATION_LATITUDE": "Широта",
+            "CUADRATURA_ERROR": "Квадратичная ошибка ортогональности в небесной сфере (в радианах)"
+        },
+        "POINT_ADJUST": {
+            "ZWO": {
+                "TITLE": "Корректировка точки и траектории",
+                "GRAPHIC": "График",
+                "TABLE": {
+                    "TITLE": "Точки траектории",
+                    "HEADER": {
+                        "DATE": "Дата",
+                        "HOUR": "Время",
+                        "Ar_Grados": "Ar градусы",
+                        "De_Grados": "De градусы",
+                        "De_Sexagesimal": "De шестидесятеричные",
+                        "Ar_Sexagesimal": "Ar шестидесятеричные"
+                    }
+                }
+            },
+            "REGRESSION_TRAJECTORY": {
+                "TITLE": "Траектория регрессии",
+                "GRAPHIC": "График",
+                "TABLE": {
+                    "TITLE": "Точки траектории",
+                    "HEADER": {
+                        "DATE": "Дата",
+                        "HOUR": "Время",
+                        "t": "t",
+                        "s": "s",
+                        "v": "v (Км/с)"
+                    }
+                }
+            },
+            "TRAJECTORY": {
+                "TITLE": "Траектория",
+                "GRAPHIC": "График",
+                "TABLE": {
+                    "TITLE": "Точки траектории",
+                    "HEADER": {
+                        "DATE": "Дата",
+                        "HOUR": "Время",
+                        "T": "t",
+                        "S": "s",
+                        "V": "v",
+                        "LAMBDA": "Лямбда",
+                        "PHI": "Фи",
+                        "RA": "Ra (Станция {{id}})",
+                        "DE": "De (Станция {{id}})"
+                    }
+                }
+            }
+        },
+        "PHOTOMETRY": {
+            "TITLE": "Отчет о фотометрии",
+            "INPUT": {
+                "DATE": "Дата",
+                "HOUR": "Время",
+                "VISIBLE_STARS": "Видимые звезды",
+                "STAR_USED_IN_REGRESSION": "Звезда, использованная в регрессии",
+                "BOUGER_LINE_EXTERNAL": "Внешняя линия Бугера",
+                "BOUGER_LINE_ZERO": "Нулевая линия Бугера",
+                "REGRESSION_STANDART_ERROR": "Стандартная ошибка регрессии",
+                "STANDART_ZERO_POINT": "Стандартная нулевая точка",
+                "STANDART_ERROR_EXTERNAL_COEFF": "Стандартная ошибка внешнего коэффициента",
+                "PATH_PARABOLA_COEFF": "Коэффициент параболы пути"
+            },
+            "REGRESSION_DATA_TAB": {
+                "TITLE": "Данные регрессии",
+                "START_ID": "ID звезды",
+                "AIR_MASS": "Воздушная масса",
+                "CATALOG_MAGNITUDE": "Каталожная величина",
+                "INSTRUMENTAL_MAGNITUDE": "Инструментальная величина"
+            },
+            "METEOR_DATA": {
+                "TITLE": "Данные метеора",
+                "X_START": "X (Начало)",
+                "Y_START": "Y (Начало)",
+                "X_END": "X (Конец)",
+                "Y_END": "Y (Конец)",
+                "AIR_MASS_START": "Воздушная масса (Начало)",
+                "AIR_MASS_END": "Воздушная масса (Конец)",
+                "DISTANCE_START": "Расстояние (Начало)",
+                "DISTANCE_END": "Расстояние (Конец)"
+            },
+            "ADJUSTEMENT_POINT": {
+                "TITLE": "Корректировка точки",
+                "T": "t",
+                "DISTANCE": "Расстояние",
+                "MC": "Mc",
+                "MA": "Ma"
+            }
+        },
+        "VIDEO": {
+            "TITLE": "Видео"
+        },
+        "ACTIVE_RAIN": {
+            "TITLE": "Активные потоки",
+            "NO_SHOWERS_WITH_DATA": "Нет потоков с доступными данными!",
+            "NO_SHOWERS_WITH_DATA_DESC": "Похоже, текущие метеорные потоки наслаждаются заслуженным космическим перерывом. Вернитесь скоро, чтобы увидеть, не проснулись ли они!",
+            "NO_ACTIVE_RAIN": "Нет активных потоков",
+            "AIU_TITLE": "Таблица активных потоков IAU",
+            "IMO_TITLE": "Таблица активных потоков IMO",
+            "NO_SHOWERS_AVAILABLE": "Нет доступных потоков",
+            "TABLE": {
+                "ID": "Идентификатор",
+                "NAME": "Название",
+                "START_DATE": "Дата начала",
+                "END_DATE": "Дата окончания",
+                "MINIMUM_DISTANCE": "Минимальное расстояние {{it}}",
+                "DISTANCE": "Расстояние",
+                "SHOW_BUTTON": "Просмотреть поток",
+                "STATUS": "Статус",
+                "DATE": "Дата",
+                "MEMBERSHIP_VALUE": "Значение принадлежности"
+            }
+        },
+        "ESTIMATED_TRAJECTORY": {
+            "TITLE": "Оценочная траектория",
+            "VELOCITY": "Скорость",
+            "INITIAL_LON": "Долгота (Начало)",
+            "INITIAL_LAT": "Широта (Начало)",
+            "FINAL_LON": "Долгота (Конец)",
+            "FINAL_LAT": "Широта (Конец)",
+            "INITIAL_ALT": "Высота (Начало)",
+            "FINAL_ALT": "Высота (Конец)",
+            "INITIAL_DIST": "Расстояние (Начало)",
+            "FINAL_DIST": "Расстояние (Конец)",
+            "RECOR": "Пройденное расстояние",
+            "E": "e",
+            "T": "t"
+        },
+        "ANGULAR_VELOCITY": {
+            "TITLE": "Угловая скорость",
+            "HI": "hi",
+            "SHOWER": "поток",
+            "METEOR": "метеор"
+        }
+    },
+    "CUSTOMIZE_SEARCH": {
+        "HEIGHT": "Высота",
+        "LATLON": "Широта/Долгота",
+        "LATITUDE": "Широта",
+        "LONGITUDE": "Долгота",
+        "SEARCH_RADIUS": "Радиус поиска",
+        "RANGE_DATE": "Диапазон дат",
+        "SEARCH_BTN": "Поиск",
+        "CLEAR_BTN": "Очистить",
+        "REPORT_Z": "Отчет двух станций (Отчет Z)",
+        "REPORT_RADIANT": "Отчет одной станции (Отчет о радианте)",
+        "REPORT_PHOTOMETRY": "Отчет о фотометрии",
+        "SHOW_BUTTON": "Просмотреть больше",
+        "REPORT_TYPE": {
+            "TITLE": "Тип отчета",
+            "SELECT": {
+                "ALL_TYPES": "Все типы",
+                "REPORT_Z": "Отчет двух станций (Отчет Z)",
+                "REPORT_RADIANT": "Отчет одной станции (Отчет о радианте)",
+                "REPORT_PHOTOMETRY": "Отчет о фотометрии",
+                "REPORT_UNION": "Имеет все отчеты"
+            }
+        },
+        "MODAL": {
+            "REPORT_Z": {
+                "TITLE": "Отчеты двух станций (Отчет Z)",
+                "ID": "Id",
+                "DATE": "Дата",
+                "HOUR": "Время",
+                "STATION_1": "Станция 1",
+                "STATION_2": "Станция 2"
+            },
+            "REPORT_RADIANT": {
+                "TITLE": "Отчеты одной станции (Отчет о радианте)",
+                "ID": "Id",
+                "DATE": "Дата",
+                "HOUR": "Время",
+                "STATION": "Станция",
+                "ASSOCIATED_RAIN": "Связанный поток",
+                "ESTIMATED_TRAJECTORY": "Оценочная траектория",
+                "ANGULAR_DISTANCE": "Угловое расстояние ( {{measure}} )",
+                "ANGULAR_VELOCITY": "Угловая скорость (°/с)"
+            },
+            "REPORT_PHOTOMETRY": {
+                "TITLE": "Отчеты о фотометрии",
+                "ID": "Id",
+                "DATE": "Дата",
+                "HOUR": "Время",
+                "VISIBLE_STARS": "Видимые звезды",
+                "STAR_USED_IN_REGRESSION": "Звезда, использованная в регрессии"
+            }
+        }
+    },
+    "STATION": {
+        "TITLE": "Карта космических станций",
+        "DESCRIPTION": "Сеть болидов и метеоров Университета Малаги",
+        "LOADING_MSG": "Загрузка станций...",
+        "ERROR_MSG": "Ошибка загрузки станций",
+        "STATION_LIST": "Список станций",
+        "STATION": {
+            "NAME": "Название",
+            "ALTITUDE": "Высота",
+            "DESCRIPTION": "Описание",
+            "COORDINATES": "Координаты",
+            "CHIP": {
+                "SIZE": "Размер чипа",
+                "ORIENTATION": "Ориентация"
+            },
+            "FILTER": "Фильтр",
+            "HEIGHT": {
+                "TITLE": "Высота",
+                "MEASURE": "м"
+            }
+        },
+        "SHOW_BUTTON": "Просмотреть на карте",
+        "STATUS": {
+            "ACTIVE": "Активная",
+            "CONSTRUCTING": "В процессе строительства",
+            "COLLABORATION": "Сотрудничество"
+        }
+    },
+    "ORBIT_REPORT": {
+        "SELECT_OPT": {
+            "LABEL": "Выберите отчет",
+            "PLACEHOLDER": "Выберите отчет"
+        },
+        "ID": {
+            "label": "ID",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Дата",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Время",
+            "measure": ""
+        },
+        "CALCULATED_WITH": {
+            "label": "Рассчитано с",
+            "measure": ""
+        },
+        "VELOCITY_INF": {
+            "label": "Выведенная скорость",
+            "measure": "Км/с"
+        },
+        "VELOCITY_GEOM": {
+            "label": "Геометрическая скорость",
+            "measure": "Км/с"
+        },
+        "AR": {
+            "label": "AR",
+            "measure": "°"
+        },
+        "DE": {
+            "label": "DE",
+            "measure": "°"
+        },
+        "I": {
+            "label": "i",
+            "measure": "°"
+        },
+        "P": {
+            "label": "p",
+            "measure": "°"
+        },
+        "A": {
+            "label": "a",
+            "measure": "°"
+        },
+        "E": {
+            "label": "e",
+            "measure": ""
+        },
+        "Q": {
+            "label": "q",
+            "measure": "а.е."
+        },
+        "T": {
+            "label": "T",
+            "measure": ""
+        },
+        "OMEGA": {
+            "label": "Омега",
+            "measure": "°"
+        },
+        "OMEGA_DEGREE": {
+            "label": "Омега градусы голоса макс мин",
+            "measure": "°"
+        }
+    },
+    "SUMMARY_REPORT": {
+        "DATE": {
+            "label": "Дата",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Время",
+            "measure": ""
+        },
+        "FIRST_OBSERVATORY": {
+            "label": "Обсерватория 1",
+            "measure": ""
+        },
+        "SECOND_OBSERVATORY": {
+            "label": "Обсерватория 2",
+            "measure": ""
+        },
+        "USED_FRAMES": {
+            "label": "Использованные кадры",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE": {
+            "label": "Двугранный угол между плоскостями траектории",
+            "measure": ""
+        },
+        "COORDINATES_TO_DATE": {
+            "label": "Астрономические координаты радианта (Эклиптика даты)",
+            "measure": ""
+        },
+        "COORDINATES_J2000": {
+            "label": "Астрономические координаты радианта (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Азимут",
+            "measure": ""
+        },
+        "ZENITH_DISTANCE": {
+            "label": "Зенитное расстояние",
+            "measure": ""
+        }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "Активный",
+        "INACTIVE": "Неактивный",
+        "PENDING": "Ожидающий"
+    },
+    "BANNER": {
+        "ACTIVE_RAIN": "Активные метеорные потоки!",
+        "NO_ACTIVE_RAIN": "Нет активных метеорных потоков!",
+        "PREPOSITION": {
+            "AL": "до",
+            "DEL": "от"
+        }
+    }
+}

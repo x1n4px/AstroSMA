@@ -64,14 +64,26 @@ const Navbar = () => {
               </Dropdown.Toggle>
 
               <Dropdown.Menu style={{ minWidth: 'auto' }}>
-                <Dropdown.Item onClick={() => changeLanguage('es')}>
-                  <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px' }} />
-                </Dropdown.Item>
                 <Dropdown.Item onClick={() => changeLanguage('en')}>
                   <img src="/flag/en.webp" alt="English" style={{ width: '20px' }} />
                 </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('es')}>
+                  <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px' }} />
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('fr')}>
+                  <img src="/flag/fr.webp" alt="French" style={{ width: '20px' }} />
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('ge')}>
+                  <img src="/flag/ge.webp" alt="Germany" style={{ width: '20px' }} />
+                </Dropdown.Item>
                 <Dropdown.Item onClick={() => changeLanguage('jp')}>
                   <img src="/flag/jp.webp" alt="日本語" style={{ width: '20px' }} />
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('rs')}>
+                  <img src="/flag/rs.webp" alt="Russian" style={{ width: '20px' }} />
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => changeLanguage('ua')}>
+                  <img src="/flag/ua.webp" alt="Ukrainian" style={{ width: '20px' }} />
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
