@@ -9,7 +9,10 @@ const AssociatedDownloadReport = ({report}) => {
 
     const handleDownload = async (software) => {
         try {
-            const fileData = await getOrbitFile(report.Fecha, report.Hora, software);
+            let id1 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número ;
+            let id2 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número2 ;
+
+            const fileData = await getOrbitFile(report.Fecha, report.Hora, software, id1, id2);
             
             // Create a Blob from the file data
             const blob = new Blob([fileData], { type: 'application/octet-stream' });
@@ -60,7 +63,7 @@ const AssociatedDownloadReport = ({report}) => {
                 <Button
                     style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
                     onClick={() => handleDownload('Gritsevich')}
-                    disabled
+                    
                 >
                     {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'Gritsevich', cty: 'Finland'})}
                 </Button>

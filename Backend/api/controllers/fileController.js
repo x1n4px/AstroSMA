@@ -6,8 +6,9 @@ const os = require('os');
 
 
 const getOrbitFile = (req, res) => {
-  const { anio, mes, dia, hora, minuto, segundo, fileName } = req.params;
-
+  const { anio, mes, dia, hora, minuto, segundo, fileName, id1, id2 } = req.params;
+  console.log(id1, id2)
+ 
   // Validación básica
   if (![anio, mes, dia, hora, minuto, segundo].every(p => /^\d+$/.test(p))) {
     return res.status(400).json({ error: 'Todos los parámetros deben ser numéricos' });
@@ -25,17 +26,26 @@ const getOrbitFile = (req, res) => {
   const formattedTime = `${hh}${mm}${ss}`;
   const homeDir = os.homedir();
   console.log(homeDir)
-  const filePath = path.join(
-    homeDir+'/sma/Meteoros/Detecciones/'+
-    yyyy+'/'+    formattedDate+'/'+
-    formattedTime+'/'+
-    fileName
-  );
+  let filePath = '';
 
-  console.log( homeDir+'/sma/Meteoros/Detecciones/'+
-    yyyy+'/'+    formattedDate+'/'+
-    formattedTime+'/'+
-    fileName)
+  if(id1 === 'x' || id2 === 'x'){
+    filePath = path.join(
+      homeDir+'/sma/Meteoros/Detecciones/'+
+      yyyy+'/'+    formattedDate+'/'+
+      formattedTime+'/'+
+      fileName
+    );
+  } else {
+    filePath = path.join(
+      homeDir+'/sma/Meteoros/Detecciones/'+
+      yyyy+'/'+    formattedDate+'/'+
+      formattedTime+'/'+
+      'Trayectoria-'+id1+'-'+id2+'/Gritsevich-'+yyyy+MM+dd+hh+mm+ss+'-'+id1+'-'+id2
+    );
+  }
+
+
+  console.log(filePath);
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {

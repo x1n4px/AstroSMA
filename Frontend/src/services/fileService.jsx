@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const getOrbitFile = async (Fecha, Hora, fileName) => {
+export const getOrbitFile = async (Fecha, Hora, fileName, id1, id2) => {
     try {
         console.log(Fecha, Hora, fileName)
         // Extract date components
@@ -15,7 +15,7 @@ export const getOrbitFile = async (Fecha, Hora, fileName) => {
         const minute = Hora.substring(3,5); 
         const second = Hora.substring(6,8);
 
-        const response = await axios.get(`${apiUrl}/detecciones/${year}/${month}/${day}/${hour}/${minute}/${second}/${fileName}`);
+        const response = await axios.get(`${apiUrl}/detecciones/${year}/${month}/${day}/${hour}/${minute}/${second}/${fileName}/${id1}/${id2}`);
         return response.data;
     } catch (error) {
         throw error;
