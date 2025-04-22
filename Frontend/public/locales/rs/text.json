@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Отчет о радианте {{id}}",
         "WARNING_BTN": "Сообщить об ошибке",
         "SUMMARY_TAB": "Сводка",
+        "UNSELECTED_TAB": "Выберите вкладку",
         "INFERRED_DATA_TAB": "Выведенные данные",
         "MAP_TAB": "Карта",
         "ACTIVE_RAIN_TAB": "Активный дождь",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "до",
             "DEL": "от"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "События",
+                "SUBTITLE": "Редактирование событий",
+                "BUTTON": "Просмотреть события"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Список событий",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Добавить событие",
+            "EDIT_BUTTON": "Изменить событие",
+            "DELETE_BUTTON": "Удалить событие",
+            "MODAL": {
+                "TITLE": "Событие",
+                "DATE": "Дата",
+                "DESCRIPTION": "Описание",
+                "START_TIME": "Время начала",
+                "END_TIME": "Время окончания",
+                "ACTIVE": "Активно",
+                "ACTIVE_WEB": "Активировать публичный веб-сайт"
+            }
         }
     }
 }

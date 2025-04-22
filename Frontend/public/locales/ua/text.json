@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Звіт радіанта {{id}}",
         "WARNING_BTN": "Повідомити про помилку",
         "SUMMARY_TAB": "Резюме",
+        "UNSELECTED_TAB": "Виберіть вкладку",
         "INFERRED_DATA_TAB": "Виведені дані",
         "MAP_TAB": "Карта",
         "ACTIVE_RAIN_TAB": "Активний дощ",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "до",
             "DEL": "від"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Події",
+                "SUBTITLE": "Редагування подій",
+                "BUTTON": "Переглянути події"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Список подій",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Додати подію",
+            "EDIT_BUTTON": "Редагувати подію",
+            "DELETE_BUTTON": "Видалити подію",
+            "MODAL": {
+                "TITLE": "Подія",
+                "DATE": "Дата",
+                "DESCRIPTION": "Опис",
+                "START_TIME": "Час початку",
+                "END_TIME": "Час завершення",
+                "ACTIVE": "Активна",
+                "ACTIVE_WEB": "Активувати публічну веб-сторінку"
+            }
         }
     }
 }

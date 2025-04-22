@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const pool = require('../database/connection');
+
 require('dotenv').config(); // Asegúrate de que dotenv esté configurado
 
 function extraerUserId(token) {
@@ -10,6 +12,8 @@ function extraerUserId(token) {
     return null;
   }
 }
+
+ 
 
 module.exports = {
   extraerUserId,

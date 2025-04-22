@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Navbar as BootstrapNavbar, Nav, Container, Button, Dropdown } from 'react-bootstrap';
 // Internationalization
 import { useTranslation } from 'react-i18next';
+import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation(['text']);
@@ -37,7 +38,7 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/active-rain" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_ACTIVE_RAIN')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
-            {(roleMask != '00000000') ? (
+            {(isNotQRUser(roleMask)) ? (
               <Dropdown style={{ marginRight: '1rem' }}>
                 <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
                   {t('NAVBAR.BTN_PROFILE')}
@@ -51,6 +52,11 @@ const Navbar = () => {
                   <Dropdown.Item onClick={handleLogout}>
                     {t('NAVBAR.BTN_LOGOUT')}
                   </Dropdown.Item>
+                  {isAdminUser(roleMask) && (
+                    <Dropdown.Item as={Link} to="/admin-panel" onClick={() => setExpanded(false)}>
+                      Panel de administrador
+                    </Dropdown.Item>
+                  )}
                 </Dropdown.Menu>
 
               </Dropdown>

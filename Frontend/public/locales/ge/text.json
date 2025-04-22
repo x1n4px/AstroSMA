@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Radiantbericht {{id}}",
         "WARNING_BTN": "Fehler melden",
         "SUMMARY_TAB": "Zusammenfassung",
+        "UNSELECTED_TAB": "Wählen Sie eine Registerkarte",
         "INFERRED_DATA_TAB": "Abgeleitete Daten",
         "MAP_TAB": "Karte",
         "ACTIVE_RAIN_TAB": "Aktiver Regen",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "zum",
             "DEL": "vom"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Veranstaltungen",
+                "SUBTITLE": "Bearbeitung von Veranstaltungen",
+                "BUTTON": "Veranstaltungen anzeigen"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Veranstaltungsliste",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Veranstaltung hinzufügen",
+            "EDIT_BUTTON": "Veranstaltung bearbeiten",
+            "DELETE_BUTTON": "Veranstaltung löschen",
+            "MODAL": {
+                "TITLE": "Veranstaltung",
+                "DATE": "Datum",
+                "DESCRIPTION": "Beschreibung",
+                "START_TIME": "Startzeit",
+                "END_TIME": "Endzeit",
+                "ACTIVE": "Ist aktiv",
+                "ACTIVE_WEB": "Öffentliche Webseite aktivieren"
+            }
         }
     }
 }

@@ -18,6 +18,19 @@ export const saveReportAdvice = async (formData) => {
     }
 };
 
+export const deleteReportAdvice = async (id) => {
+    try {
+        const response = await axios.delete(`${apiUrl}/reportz/advice/${id}`, {
+            headers: {
+                'x-token': token, // Agrega el token como encabezado x-token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 export const getReportZ = async (id) => {
     try {

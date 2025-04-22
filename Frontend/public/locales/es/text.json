@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Informe radiante {{id}}",
         "WARNING_BTN": "Informar error",
         "SUMMARY_TAB": "Resumen",
+        "UNSELECTED_TAB": "Seleccione una pestaña",
         "INFERRED_DATA_TAB": "Datos Inferidos",
         "MAP_TAB": "Mapa",
         "ACTIVE_RAIN_TAB": "Lluvia Activa",
@@ -391,9 +392,9 @@
                 "MINIMUM_DISTANCE": "Distancia Mínima {{it}}",
                 "DISTANCE": "Distancia",
                 "SHOW_BUTTON": "Ver lluvia",
-                "STATUS":"Estado",
-                "DATE":"Fecha",
-                "MEMBERSHIP_VALUE":"Valor de Membresía"
+                "STATUS": "Estado",
+                "DATE": "Fecha",
+                "MEMBERSHIP_VALUE": "Valor de Membresía"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -426,7 +427,7 @@
         "SEARCH_RADIUS": "Radio de Búsqueda",
         "RANGE_DATE": "Rango de Fechas",
         "SEARCH_BTN": "Buscar",
-        "CLEAR_BTN":"Limpiar",
+        "CLEAR_BTN": "Limpiar",
         "REPORT_Z": "Informe de dos estaciones (Informe Z)",
         "REPORT_RADIANT": "Informe de una estación (Informe radiante)",
         "REPORT_PHOTOMETRY": "Informe de fotometría",
@@ -501,7 +502,7 @@
     },
     "ORBIT_REPORT": {
         "SELECT_OPT": {
-            "LABEL":"Selecciona un informe",
+            "LABEL": "Selecciona un informe",
             "PLACEHOLDER": "Selecciona un informe"
         },
         "ID": {
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "al",
             "DEL": "del"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Eventos",
+                "SUBTITLE": "Edición de eventos",
+                "BUTTON": "Ver eventos"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE":"Listado de eventos",
+            "SUBTITLE": "",
+            "ADD_BUTTON":"Añadir Evento",
+            "EDIT_BUTTON": "Modificar Evento",
+            "DELETE_BUTTON": "Eliminar Evento",
+            "MODAL": {
+                "TITLE":"Evento",
+                "DATE":"Fecha",
+                "DESCRIPTION":"Descripción",
+                "START_TIME":"Hora de inicio",
+                "END_TIME":"Hora de fin",
+                "ACTIVE":"Está activo",
+                "ACTIVE_WEB":"Activar web pública"
+            }
         }
     }
 }

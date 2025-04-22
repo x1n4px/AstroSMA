@@ -18,6 +18,62 @@ import ActiveRain from '@/pages/astronomy/activeShower.jsx';
 import RadiantReport from '@/pages/astronomy/report/radiantReport';
 import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
 import QRLogin from './pages/Auth/QRLogin';
+import AdminPanel from './pages/Auth/AdminPanel';
+import EventComponent from './components/admin/eventComponent';
+
+import {
+  QR_USER_ROL,
+  BASIC_USER_ROL,
+  ADMIN_USER_ROL,
+  isNotQRUser,
+  isBasicUser,
+  isAdminUser,
+  isBasicOrAdminUser,
+  isQRUser,
+  allUser
+} from '@/utils/roleMaskUtils';
+
+
+const ProtectedRoute = ({ children, requiredRoles, requiredRoleMask }) => {
+  const token = localStorage.getItem('authToken');
+  const userRoleMask = localStorage.getItem('rol');
+
+  if (isTokenExpired(token)) {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('rol');
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Verificación por máscara de rol
+  if (requiredRoleMask) {
+    if (requiredRoleMask === 'ADMIN' && !isAdminUser(userRoleMask)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    if (requiredRoleMask === 'BASIC' && !isBasicUser(userRoleMask)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    if (requiredRoleMask === 'NOT_QR' && !isNotQRUser(userRoleMask)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    if (requiredRoleMask === 'BASIC_OR_ADMIN' && !isBasicOrAdminUser(userRoleMask)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    if (requiredRoleMask === 'ALL_USER' && !allUser(userRoleMask)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+  }
+
+  // Verificación tradicional por roles (opcional, puedes usar uno u otro sistema)
+  if (requiredRoles && !requiredRoles.includes(userRoleMask)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -89,16 +145,23 @@ function App() {
             )
           }
         >
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="station" element={<Station />} />
-          <Route path="bolide/:bolideId" element={<Bolide />} />
-          <Route path="/report/:reportId/bolide/:bolideId" element={<Bolide />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="/report/:reportId" element={<Report />} />
-          <Route path="/customize-search" element={<CustomizeSearch />} />
-          <Route path="/active-rain" element={<ActiveRain />} />
-          <Route path="/radiant-report/:reportId" element={<RadiantReport />} />
-          <Route path="/photometry-report/:reportId" element={<PhotometryReport/>} />
+          <Route path="dashboard" 
+          element={
+            <ProtectedRoute requiredRoleMask="ALL_USER">
+              <Dashboard />
+            </ProtectedRoute>} 
+            />
+          <Route path="station" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <Station /></ProtectedRoute>} />
+          <Route path="bolide/:bolideId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
+          <Route path="/report/:reportId/bolide/:bolideId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
+          <Route path="profile" element={ <ProtectedRoute requiredRoleMask="NOT_QR"><Profile /></ProtectedRoute>} />
+          <Route path="/report/:reportId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <Report /></ProtectedRoute>} />
+          <Route path="/customize-search" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <CustomizeSearch /></ProtectedRoute>} />
+          <Route path="/active-rain" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <ActiveRain /></ProtectedRoute>} />
+          <Route path="/radiant-report/:reportId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <RadiantReport /></ProtectedRoute>} />
+          <Route path="/photometry-report/:reportId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <PhotometryReport /></ProtectedRoute>} />
+          <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
+          <Route path="/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
           {/* Otras rutas protegidas */}
         </Route>
 

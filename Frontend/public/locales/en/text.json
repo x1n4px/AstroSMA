@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Radiant report {{id}}",
         "WARNING_BTN": "Report error",
         "SUMMARY_TAB": "Summary",
+        "UNSELECTED_TAB": "Select a tab",
         "INFERRED_DATA_TAB": "Inferred Data",
         "MAP_TAB": "Map",
         "ACTIVE_RAIN_TAB": "Active Rain",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "to",
             "DEL": "from"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Events",
+                "SUBTITLE": "Event editing",
+                "BUTTON": "View events"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Event list",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Add Event",
+            "EDIT_BUTTON": "Edit Event",
+            "DELETE_BUTTON": "Delete Event",
+            "MODAL": {
+                "TITLE": "Event",
+                "DATE": "Date",
+                "DESCRIPTION": "Description",
+                "START_TIME": "Start time",
+                "END_TIME": "End time",
+                "ACTIVE": "Is active",
+                "ACTIVE_WEB": "Activate public web"
+            }
         }
     }
 }

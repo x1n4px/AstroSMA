@@ -1,8 +1,9 @@
 const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
-
+const {isAdminUser} = require('../utils/roleMaskUtils')
 const { transform, convertSexagesimalToDecimal, individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
+const {QR_USER_ROL} = require('../utils/roleMaskUtils')
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -18,9 +19,32 @@ const getAllReportZ = async (req, res) => {
 const getReportZ = async (req, res) => {
     try {
         const token = req.header('x-token');
-        const user_id = extraerUserId(token);
+        const user_id = null;
+        let rol = QR_USER_ROL;
+
+        if (token) {
+            try {
+                user_id = extraerUserId(token);
+                if (user_id) {
+                    const [rolD] = await pool.query('SELECT rol FROM user WHERE id = ?', [user_id]);
+                    if (rolD.length > 0) {
+                        rol = rolD[0].rol;
+                    }
+                }
+            } catch (error) {
+                console.error('Error processing token:', error);
+                // Continue with default role
+            }
+        }
+
+        console.log(rol);
         const { id } = req.params;
         const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
+        
+        if (report.length === 0) {
+            return res.status(404).json({ message: 'Informe no encontrado' });
+        }
+        
         const processedReports = report.map(report => {
             return {
                 ...report,
@@ -36,6 +60,13 @@ const getReportZ = async (req, res) => {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
 
+        let advice = [];
+        if(isAdminUser(rol)) {
+            [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.Informe_Z_Id = ? AND ie.status = 1;', [id]);
+        } else {
+            [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?  AND ie.status = 1;', [user_id, id]);
+        }
+
         const [obs1] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número]);
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
@@ -46,7 +77,6 @@ const getReportZ = async (req, res) => {
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
-        const [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?;', [user_id, id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
         const [slopeMapUNF] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz WHERE iz.IdInforme = ?;`, [id]);
 
@@ -135,13 +165,25 @@ const saveReportAdvice = async (req, res) => {
         const { Description, Tab, Informe_Z_Id } = formData;
         const Id = parseInt(Informe_Z_Id);
 
-        await pool.execute(`INSERT INTO Informe_Error (Informe_Z_Id, Tab, Description, user_Id) VALUES (${Id}, '${Tab.toString()}', '${Description.toString()}', ${user_id})`);
+        await pool.execute(`INSERT INTO Informe_Error (Informe_Z_Id, Tab, Description, user_Id, status) VALUES (${Id}, '${Tab.toString()}', '${Description.toString()}', ${user_id}, 1)`);
         res.json({ message: 'Informe de error guardado correctamente' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
+const deleteReportAdvice = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        await pool.execute('UPDATE Informe_Error SET status = 0 WHERE Id = ?;', [id]);
+        res.json({ message: 'Informe de error eliminado correctamente' });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+
+    }
+}
 
 const getReportzWithCustomSearch = async (req, res) => {
     try {
@@ -593,5 +635,6 @@ module.exports = {
     getReportZ,
     saveReportAdvice,
     getReportzWithCustomSearch,
-    testing
+    testing,
+    deleteReportAdvice
 };

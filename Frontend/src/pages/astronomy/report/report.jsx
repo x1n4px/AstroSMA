@@ -3,6 +3,7 @@ import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button, Spinner } f
 import { useParams, Link, useNavigate } from "react-router-dom";
 import '@/assets/customTabs.css'
 
+import AdviceAlert from '@/components/adviceAlert';
 import SummaryReport from '@/pages/astronomy/report/pages/summaryReport';
 import InferredDataReport from '@/pages/astronomy/report/pages/inferredDataReport';
 import MapReport from '@/pages/astronomy/report/pages/mapReport';
@@ -18,10 +19,11 @@ import { formatDate } from '@/pipe/formatDate.jsx';
 
 import { getReportZ } from '@/services/reportService.jsx'
 
-import { saveReportAdvice } from '@/services/reportService.jsx';
+import { saveReportAdvice, deleteReportAdvice } from '@/services/reportService.jsx';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
+import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
 
 
 
@@ -180,13 +182,28 @@ const Report = () => {
     const handleCloseSave = () => {
         // Procesar los datos del formulario aquí
         try {
+            if (!formData.Description || formData.Tab === 'NULL') {
+                return;
+            }
             const response = saveReportAdvice(formData);
+
         } catch (error) {
             console.error('Error al guardar el informe:', error);
 
         }
         setShowModal(false);
     };
+
+
+    const handleRemoveAdvice = async (adviceId) => {
+        try {
+            await deleteReportAdvice(adviceId);
+            setAdviceData(prevAdviceData => prevAdviceData.filter(advice => advice.Id !== adviceId));
+
+        } catch (error) {
+            console.error('Error al eliminar el consejo:', error);
+        }
+    }
 
     const handleClose = () => {
         setShowModal(false);
@@ -213,9 +230,11 @@ const Report = () => {
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
             'ASSOCIATED_DOWNLOAD_LINK': 'ASSOCIATED_DOWNLOAD_LINK'
         };
-        const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '0');
+        const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '1');
         return adviceForTab;
     };
+
+
 
     return (
         <Container>
@@ -223,28 +242,29 @@ const Report = () => {
             <Row className="mb-4">
 
                 <div className="p-4">
-                    <Row className="justify-content-between align-items-center">
-                        <Col xs="auto">
-                            {reportData && (
-                                <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0, 8) })}</h1>
-                            )}
-                        </Col>
-                        <Col xs="auto">
-                            <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="1em" // Usar em para que el tamaño sea relativo al tamaño de la fuente
-                                    height="1em"
-                                    viewBox="0 0 24 24"
-                                    className="text-dark me-2" // Texto oscuro y margen derecho
-                                >
-                                    <path d="M12.884 2.532c-.346-.654-1.422-.654-1.768 0l-9 17A.999.999 0 0 0 3 21h18a.998.998 0 0 0 .883-1.467L12.884 2.532zM13 18h-2v-2h2v2zm-2-4V9h2l.001 5H11z"></path>
-                                </svg>
-                                {t('REPORT.WARNING_BTN')}
-                            </Button>
-                        </Col>
-                    </Row>
-
+                    {isNotQRUser(rol) && (
+                        <Row className="justify-content-between align-items-center">
+                            <Col xs="auto">
+                                {reportData && (
+                                    <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0, 8) })}</h1>
+                                )}
+                            </Col>
+                            <Col xs="auto">
+                                <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="1em" // Usar em para que el tamaño sea relativo al tamaño de la fuente
+                                        height="1em"
+                                        viewBox="0 0 24 24"
+                                        className="text-dark me-2" // Texto oscuro y margen derecho
+                                    >
+                                        <path d="M12.884 2.532c-.346-.654-1.422-.654-1.768 0l-9 17A.999.999 0 0 0 3 21h18a.998.998 0 0 0 .883-1.467L12.884 2.532zM13 18h-2v-2h2v2zm-2-4V9h2l.001 5H11z"></path>
+                                    </svg>
+                                    {t('REPORT.WARNING_BTN')}
+                                </Button>
+                            </Col>
+                        </Row>
+                    )}
                     <Tabs
                         activeKey={activeTab}
                         onSelect={(k) => setActiveTab(k)}
@@ -253,25 +273,29 @@ const Report = () => {
                         unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
 
                     >
-                        {reportGemini !== 'azd112' && (
+                        {controlGeminiError(reportGemini) && (
                             <Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
-                                {getTabAdvice('SUMMARY_TAB').map(advice => (
+                                {/* {getTabAdvice('SUMMARY_TAB').map(advice => (
                                     <Alert key={advice.Id} variant="warning" className="d-flex justify-content-between align-items-center">
                                         <div>
                                             ID: {advice.Id} - {advice.Description}
                                         </div>
-                                        {rol === '10000000' && (
+                                        {isAdminUser(rol) && (
                                             <div>
-                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} className="me-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(59, 252, 0);" }}><path d="m10 15.586-3.293-3.293-1.414 1.414L10 18.414l9.707-9.707-1.414-1.414z"></path></svg>
-                                                </Button>
-                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }}>
+                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} onClick={() => handleRemoveAdvice(advice.Id)}>
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(0, 0, 0, 1);" }}><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg>
                                                 </Button>
                                             </div>
                                         )}
                                     </Alert>
-                                ))}
+                                ))} */}
+
+                                <AdviceAlert
+                                    tabKey="SUMMARY_TAB"
+                                    adviceData={adviceData}
+                                    onRemoveAdvice={handleRemoveAdvice}
+                                    rol={rol}
+                                />
 
                                 <SummaryReport
                                     data={reportData}
@@ -346,22 +370,24 @@ const Report = () => {
                             </Tab>
                         )}
 
-                        <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
-                            <AssociatedDownloadReport report={reportData} />
-                        </Tab>
-
+                        {(isNotQRUser(rol)) && (
+                            <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
+                                <AssociatedDownloadReport report={reportData} />
+                            </Tab>
+                        )}
 
                     </Tabs>
 
                     <Modal show={showModal} onHide={handleClose}>
                         <Modal.Header closeButton>
-                            <Modal.Title>{t('REPORT.TITLE', { id: id })}</Modal.Title>
+                            <Modal.Title>{t('CUSTOMIZE_SEARCH.REPORT_Z')}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
                             <Form>
                                 <Form.Group controlId="formTab">
                                     <Form.Label>Pestaña</Form.Label>
                                     <Form.Control as="select" name="Tab" value={formData.Tab} onChange={handleChange}>
+                                        <option value="NULL" >{t('REPORT.UNSELECTED_TAB')}</option>
                                         <option value="SUMMARY_TAB">{t('REPORT.SUMMARY_TAB')}</option>
                                         <option value="INFERRED_DATA_TAB">{t('REPORT.INFERRED_DATA_TAB')}</option>
                                         <option value="MAP_TAB">{t('REPORT.MAP_TAB')}</option>

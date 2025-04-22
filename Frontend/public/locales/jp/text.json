@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "放射線レポート {{id}}",
         "WARNING_BTN": "エラーレポート",
         "SUMMARY_TAB": "概要",
+        "UNSELECTED_TAB": "タブを選択",
         "INFERRED_DATA_TAB": "推定データ",
         "MAP_TAB": "マップ",
         "ACTIVE_RAIN_TAB": "活動中の流星群",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "への",
             "DEL": "より"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "イベント",
+                "SUBTITLE": "イベントの編集",
+                "BUTTON": "イベントを見る"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "イベント一覧",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "イベントを追加",
+            "EDIT_BUTTON": "イベントを編集",
+            "DELETE_BUTTON": "イベントを削除",
+            "MODAL": {
+                "TITLE": "イベント",
+                "DATE": "日付",
+                "DESCRIPTION": "説明",
+                "START_TIME": "開始時間",
+                "END_TIME": "終了時間",
+                "ACTIVE": "アクティブ",
+                "ACTIVE_WEB": "公開ウェブを有効化"
+            }
         }
     }
 }

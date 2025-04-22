@@ -4,25 +4,29 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { getNextEvent } from '../../services/eventService'
-import { _isDomSupported } from 'chart.js/helpers';
 import { formatDate } from '../../pipe/formatDate'
 
 function QRLoginC({ onLogin }) {
   const navigate = useNavigate();
-  const [isEventDay, setIsEventDay] = useState(false);
+  const [isEventTime, setIsEventTime] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
   const [eventPassed, setEventPassed] = useState(false);
   const [eventDate, setEventDate] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
   const [eventDescription, setEventDescription] = useState(null);
   const [noEventScheduled, setNoEventScheduled] = useState(false);
 
   const fetchData = async () => {
     try {
       const responseD = await getNextEvent();
-      if (responseD && responseD.eventDate) {
-        console.log(formatDate(new Date(responseD.eventDate)))
-        setEventDate(new Date(responseD.eventDate));
+
+      if (responseD) {
+        console.log(responseD)
+        setEventDate(new Date(responseD.event_date));
+        setStartTime(responseD.startTime || '00:00');
+        setEndTime(responseD.endTime || '23:59');
         setEventDescription(responseD.description);
       } else {
         setNoEventScheduled(true);
@@ -39,19 +43,31 @@ function QRLoginC({ onLogin }) {
   }, []);
 
   useEffect(() => {
-    if (eventDate) {
+    if (eventDate && startTime && endTime) {
       const checkEventStatus = () => {
-        const today = new Date();
-        if (today.toDateString() === eventDate.toDateString()) {
-          setIsEventDay(true);
+        const now = new Date();
+        const today = new Date(now.toDateString());
+        
+        // Parse start and end times
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const [endHours, endMinutes] = endTime.split(':').map(Number);
+        
+        const eventStart = new Date(eventDate);
+        eventStart.setHours(startHours, startMinutes, 0, 0);
+        
+        const eventEnd = new Date(eventDate);
+        eventEnd.setHours(endHours, endMinutes, 0, 0);
+        
+        if (now >= eventStart && now <= eventEnd) {
+          setIsEventTime(true);
           setEventPassed(false);
-        } else if (today > eventDate) {
+        } else if (now > eventEnd) {
           setEventPassed(true);
-          setIsEventDay(false);
+          setIsEventTime(false);
         } else {
-          setIsEventDay(false);
+          setIsEventTime(false);
           setEventPassed(false);
-          calculateTimeLeft();
+          calculateTimeLeft(eventStart);
         }
       };
 
@@ -59,10 +75,10 @@ function QRLoginC({ onLogin }) {
       const interval = setInterval(checkEventStatus, 1000);
       return () => clearInterval(interval);
     }
-  }, [eventDate]);
+  }, [eventDate, startTime, endTime]);
 
   useEffect(() => {
-    if (isEventDay) {
+    if (isEventTime) {
       const fetchQRCode = async () => {
         try {
           const { token, rol } = await QRLogin('1234');
@@ -84,15 +100,14 @@ function QRLoginC({ onLogin }) {
 
       fetchQRCode();
     }
-  }, [isEventDay, onLogin, navigate]);
+  }, [isEventTime, onLogin, navigate]);
 
-  const calculateTimeLeft = () => {
-    const difference = eventDate.getTime() - new Date().getTime();
+  const calculateTimeLeft = (eventStart) => {
+    const difference = eventStart.getTime() - new Date().getTime();
     if (difference > 0) {
       setTimeLeft(difference);
     } else {
       setTimeLeft(0);
-      setEventPassed(true);
     }
   };
 
@@ -105,12 +120,22 @@ function QRLoginC({ onLogin }) {
   };
 
   const addToGoogleCalendar = () => {
-    if (eventDate && eventDescription) {
-      const startDate = eventDate.toISOString().split('T')[0].replace(/-/g, '');
-      const endDate = new Date(eventDate.getTime() + (24 * 60 * 60 * 1000)).toISOString().split('T')[0].replace(/-/g, '');
+    if (eventDate && eventDescription && startTime && endTime) {
+      const startDateTime = new Date(eventDate);
+      const [startHours, startMinutes] = startTime.split(':').map(Number);
+      startDateTime.setHours(startHours, startMinutes, 0, 0);
+      
+      const endDateTime = new Date(eventDate);
+      const [endHours, endMinutes] = endTime.split(':').map(Number);
+      endDateTime.setHours(endHours, endMinutes, 0, 0);
+      
+      // Format for Google Calendar (YYYYMMDDTHHMMSSZ)
+      const startISO = startDateTime.toISOString().replace(/[-:]/g, '').replace('.000Z', 'Z');
+      const endISO = endDateTime.toISOString().replace(/[-:]/g, '').replace('.000Z', 'Z');
+      
       const eventTitle = encodeURIComponent(eventDescription);
       const eventDetails = encodeURIComponent("Evento astronómico organizado por AstroUMA");
-      const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startDate}/${endDate}&details=${eventDetails}&allday=true`;
+      const calendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startISO}/${endISO}&details=${eventDetails}`;
       window.open(calendarUrl, '_blank');
     }
   };
@@ -128,7 +153,7 @@ function QRLoginC({ onLogin }) {
                   errorMessage
                 ) : noEventScheduled ? (
                   <Card.Text>No hay eventos programados por el momento. Por favor, vuelve a consultar más tarde.</Card.Text>
-                ) : isEventDay ? (
+                ) : isEventTime ? (
                   <Card.Text>El evento está en curso. Por favor, escanea el código QR para acceder.</Card.Text>
                 ) : eventPassed ? (
                   <Card.Text>El evento ha finalizado. Gracias por tu interés.</Card.Text>
@@ -136,7 +161,11 @@ function QRLoginC({ onLogin }) {
                   <>
                     <Card.Text className="mb-4">El evento comenzará en:</Card.Text>
                     <div style={{ fontSize: '2em', color: '#980100', fontWeight: 'bold' }}>{formatTimeLeft()}</div>
-                    <Button  style={{ color: '#980100', borderColor: '#980100' }}
+                    <Card.Text className="mt-3">
+                      Horario del evento: {startTime} - {endTime}
+                    </Card.Text>
+                    <Button 
+                      style={{ color: '#980100', borderColor: '#980100' }}
                       variant="outline-danger" 
                       onClick={addToGoogleCalendar} 
                       className="mt-3"

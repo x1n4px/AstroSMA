@@ -255,6 +255,7 @@
         "TITLE_RADIAN": "Rapport radiant {{id}}",
         "WARNING_BTN": "Signaler une erreur",
         "SUMMARY_TAB": "Résumé",
+        "UNSELECTED_TAB": "Sélectionner un onglet",
         "INFERRED_DATA_TAB": "Données inférées",
         "MAP_TAB": "Carte",
         "ACTIVE_RAIN_TAB": "Pluie active",
@@ -622,6 +623,31 @@
         "PREPOSITION": {
             "AL": "au",
             "DEL": "du"
+        }
+    },
+    "ADMIN": {
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Événements",
+                "SUBTITLE": "Édition des événements",
+                "BUTTON": "Voir les événements"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Liste des événements",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Ajouter un événement",
+            "EDIT_BUTTON": "Modifier l'événement",
+            "DELETE_BUTTON": "Supprimer l'événement",
+            "MODAL": {
+                "TITLE": "Événement",
+                "DATE": "Date",
+                "DESCRIPTION": "Description",
+                "START_TIME": "Heure de début",
+                "END_TIME": "Heure de fin",
+                "ACTIVE": "Est actif",
+                "ACTIVE_WEB": "Activer le site public"
+            }
         }
     }
 }
