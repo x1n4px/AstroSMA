@@ -12,6 +12,7 @@ import { formatDate } from '@/pipe/formatDate.jsx'
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
+import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 
 // Chart
 import BarChart from '@/components/chart/BarChart';
@@ -110,7 +111,7 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fu
 function Dashboard() {
   const { t } = useTranslation(['text']);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false, 12: true, 13:true });
+  const [chartVisibility, setChartVisibility] = useState({ 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: false, 12: true, 13: true });
   const [selectedChart, setSelectedChart] = useState(null);
   const [showChartModal, setShowChartModal] = useState(false);
 
@@ -213,262 +214,266 @@ function Dashboard() {
     mes_anio: new Date(d.mes_anio),
   }));
 
+  const roleMask = (localStorage.getItem('rol'));
+
+
 
   return (
     <div>
-       <NextRain />
-   
-    <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
-     
-      <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
-        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
-          {t('DASHBOARD.CONFIGURATION_BTN')}
-        </Button>
+      <NextRain />
+
+      <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
+
+        {isNotQRUser(roleMask) && (
+          <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
+            <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
+              {t('DASHBOARD.CONFIGURATION_BTN')}
+            </Button>
 
 
 
-        <div className="d-none d-xl-block">
-          <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
-            {[1, 2, 3, 4, 6].map((num) => (
-              <option key={num} value={num}>
-                {t('DASHBOARD.SHOW_OPTIONS_BTN', { num: num })}
-              </option>
-            ))}
-          </Form.Select>
-        </div>
-      </div>
+            <div className="d-none d-xl-block">
+              <Form.Select value={chartsToShow} onChange={handleChartsToShowChange} style={{ width: 'auto' }}>
+                {[1, 2, 3, 4, 6].map((num) => (
+                  <option key={num} value={num}>
+                    {t('DASHBOARD.SHOW_OPTIONS_BTN', { num: num })}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+          </div>
+        )}
 
+        <Row className="justify-content-center mt-4 mx-1">
+          <Button className="py-2" style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to="/customize-search">
+            {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
+          </Button>
+        </Row>
 
-      <Row className="justify-content-center mt-4 mx-1">
-        <Button className="py-2" style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to="/customize-search">
-          {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
-        </Button>
-      </Row>
+        <Row className="justify-content-center mt-4" >
+          {chartOrder.map((id, index) => {
+            if (!chartVisibility[id]) return null;
 
-      <Row className="justify-content-center mt-4" >
-        {chartOrder.map((id, index) => {
-          if (!chartVisibility[id]) return null;
+            let chartComponent;
+            let doubleWidth = false;
+            let fullWidth = false;
+            let showButton = true;
+            switch (id) {
+              case 1:
+                chartComponent = (
+                  <>
+                    <Card.Title >{t('DASHBOARD.GRAPH.FIRST.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <BarChart data={chartData} key={`key-a1-${chartsToShow}`} />
+                    </div>
 
-          let chartComponent;
-          let doubleWidth = false;
-          let fullWidth = false;
-          let showButton = true;
-          switch (id) {
-            case 1:
-              chartComponent = (
-                <>
-                  <Card.Title >{t('DASHBOARD.GRAPH.FIRST.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <BarChart data={chartData} key={`key-a1-${chartsToShow}`} />
-                  </div>
+                  </>
+                );
+                break;
+              case 2:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
+                      <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
+                    </div>
+                    <Button className="mt-2 w-100" style={{ background: '#980100', border: '#980100' }} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
+                      <span>{t('DASHBOARD.SHOW_REPORT_BTN')}</span>
+                    </Button>
+                  </>
+                );
+                fullWidth = true;
+                doubleWidth = false;
+                showButton = false;
+                break;
+              case 3:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.THIRD.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <LineChart data={datosTransformados} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
 
-                </>
-              );
-              break;
-            case 2:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha )} {lastReportMap[0]?.AUX.Hora}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
-                    <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
-                  </div>
-                  <Button className="mt-2 w-100" style={{ background: '#980100', border: '#980100' }} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
-                    <span>{t('DASHBOARD.SHOW_REPORT_BTN')}</span>
-                  </Button>
-                </>
-              );
-              fullWidth = true;
-              doubleWidth = false;
-              showButton = false;
-              break;
-            case 3:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.THIRD.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <LineChart data={datosTransformados} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
-
-                  </div>
-                </>
-              );
-              break;
-            case 4:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.FOURTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.FOURTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <PieChart data={pieChartData} key={`key-a4-${chartsToShow}`} />
-                  </div>
-                </>
-              );
-              break;
-            case 5:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.FIFTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.FIFTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <BarChartWithError data={distanceWithErrorFromObservatory} key={`key-a5-${chartsToShow}`} />
-                  </div>
-                </>
-              );
-              break;
-            case 6:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
-                    <ListGroup>
-                      {lastReport.map((item) => (
-                        <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
-                          {formatDate(item.Fecha)} - {item.Hora.toString().substring(0, 8)}
-                        </ListGroup.Item>
-                      ))}
-                    </ListGroup>
-                  </div>
-                </>
-              );
-              break;
-            case 7:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
-                    <ListGroup>
-                      {excentricitiesOverNinety &&
-                        excentricitiesOverNinety.map((item) => (
+                    </div>
+                  </>
+                );
+                break;
+              case 4:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.FOURTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.FOURTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <PieChart data={pieChartData} key={`key-a4-${chartsToShow}`} />
+                    </div>
+                  </>
+                );
+                break;
+              case 5:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.FIFTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.FIFTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <BarChartWithError data={distanceWithErrorFromObservatory} key={`key-a5-${chartsToShow}`} />
+                    </div>
+                  </>
+                );
+                break;
+              case 6:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.SIXTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
+                      <ListGroup>
+                        {lastReport.map((item) => (
                           <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
                             {formatDate(item.Fecha)} - {item.Hora.toString().substring(0, 8)}
                           </ListGroup.Item>
                         ))}
-                    </ListGroup>
-                  </div>
-                </>
-              );
-              break;
-            case 8:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
-                  </div>
-                </>
-              );
-              break;
-            case 9:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.NINTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
-                    <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
-                  </div>
-                </>
-              );
-              fullWidth = false;
-              doubleWidth = true;
-              break;
+                      </ListGroup>
+                    </div>
+                  </>
+                );
+                break;
+              case 7:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</Card.Title>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', overflowY: 'auto', maxHeight: 'auto', height: '80%', width: '100%' }}>
+                      <ListGroup>
+                        {excentricitiesOverNinety &&
+                          excentricitiesOverNinety.map((item) => (
+                            <ListGroup.Item key={item.IdInforme} action as={Link} to={`/report/${item.IdInforme}`}>
+                              {formatDate(item.Fecha)} - {item.Hora.toString().substring(0, 8)}
+                            </ListGroup.Item>
+                          ))}
+                      </ListGroup>
+                    </div>
+                  </>
+                );
+                break;
+              case 8:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
+                    </div>
+                  </>
+                );
+                break;
+              case 9:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.NINTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
+                      <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
+                    </div>
+                  </>
+                );
+                fullWidth = false;
+                doubleWidth = true;
+                break;
 
-            case 10:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.TENTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.TENTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <RoseChart data={meteorInflowAzimuthDistribution} angleVariable={'azimut_agrupado'} valueVariable={'cantidad'} key={`key-a10-${chartsToShow}`} />
-                  </div>
-                </>
-              );
-              break;
-            case 11:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.ELEVENTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <ScatterPlot data={relationBtwTrajectoryAngleAndDistance} xVariable={'angle'} yVariable={'averageDistance'} key={`key-a11-${chartsToShow}`} />
-                  </div>
-                </>
-              );
-              break;
-            case 12:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.TWELFT.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.TWELFT.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <GroupedBarChart data={showerPerYearData} />
-                  </div>
-                </>
-              );
-              break;
+              case 10:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.TENTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.TENTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <RoseChart data={meteorInflowAzimuthDistribution} angleVariable={'azimut_agrupado'} valueVariable={'cantidad'} key={`key-a10-${chartsToShow}`} />
+                    </div>
+                  </>
+                );
+                break;
+              case 11:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.ELEVENTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.ELEVENTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <ScatterPlot data={relationBtwTrajectoryAngleAndDistance} xVariable={'angle'} yVariable={'averageDistance'} key={`key-a11-${chartsToShow}`} />
+                    </div>
+                  </>
+                );
+                break;
+              case 12:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.TWELFT.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.TWELFT.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <GroupedBarChart data={showerPerYearData} />
+                    </div>
+                  </>
+                );
+                break;
 
-            case 13:
-              chartComponent = (
-                <>
-                  <Card.Title>{t('DASHBOARD.GRAPH.THIRTEENTH.TITLE')}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    {t('DASHBOARD.GRAPH.THIRTEENTH.DESCRIPTION')}
-                  </Card.Subtitle>
-                  <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                    <ScatterPlot data={showerPerYearData} xVariable="Lluvia_Año" yVariable="Lluvia_Identificador" />
-                  </div>
-                </>
-              );
-              break;
+              case 13:
+                chartComponent = (
+                  <>
+                    <Card.Title>{t('DASHBOARD.GRAPH.THIRTEENTH.TITLE')}</Card.Title>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {t('DASHBOARD.GRAPH.THIRTEENTH.DESCRIPTION')}
+                    </Card.Subtitle>
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <ScatterPlot data={showerPerYearData} xVariable="Lluvia_Año" yVariable="Lluvia_Identificador" />
+                    </div>
+                  </>
+                );
+                break;
 
-            default:
-              chartComponent = null;
-          }
+              default:
+                chartComponent = null;
+            }
 
-          return (
-            <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} doubleWidth={doubleWidth} showButton={showButton} fullWidth={fullWidth}>
-              {chartComponent}
-            </DraggableChart>
-          );
-        })}
-      </Row>
+            return (
+              <DraggableChart key={id} id={index} moveChart={moveChart} chartsToShow={chartsToShow} doubleWidth={doubleWidth} showButton={showButton} fullWidth={fullWidth}>
+                {chartComponent}
+              </DraggableChart>
+            );
+          })}
+        </Row>
 
-      <DashboardSettingsModal
-        show={showSettingsModal}
-        onHide={handleCloseSettingsModal}
-        onSave={handleSaveSettings}
-        initialSettings={chartVisibility}
-        initialOrder={chartOrder}
-        searchRange={searchRange}
-        setsearchRange={setsearchRange}
-        size="xl"
-      />
-    </Container>
+        <DashboardSettingsModal
+          show={showSettingsModal}
+          onHide={handleCloseSettingsModal}
+          onSave={handleSaveSettings}
+          initialSettings={chartVisibility}
+          initialOrder={chartOrder}
+          searchRange={searchRange}
+          setsearchRange={setsearchRange}
+          size="xl"
+        />
+      </Container>
     </div>
   );
 }

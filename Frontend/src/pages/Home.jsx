@@ -96,8 +96,8 @@ const Home = () => {
 
     return (
         <>
-            <div style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
-                <nav style={{ backgroundColor: '#f8f9fa' }} className="navbar navbar-expand-lg">
+            <div style={{ backgroundColor: '#980100', height: 'auto' }}>
+                <nav style={{ backgroundColor: '#980100' }} className="navbar navbar-expand-lg">
                     <div className="container-fluid">
                         <div className="d-flex justify-content-center w-100">
                             <a className="navbar-brand mx-auto" href="#">
@@ -123,9 +123,9 @@ const Home = () => {
                         </div>
                     </div>
                 </nav>
-                <div className="container mt-4">
-                    <h1>Bienvenido a la Sociedad Malagueña de astronomía</h1>
-                    <p>Último bólido registrado {tiempoDesde(lastReportMap.Fecha)}</p>
+                <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
+                    <h1 style={{ color: '#f8f9fa' }}>Bienvenido a la Sociedad Malagueña de astronomía</h1>
+                    <p style={{ color: '#f8f9fe' }}>Último bólido registrado {tiempoDesde(lastReportMap.Fecha)}</p>
                     <div className="d-flex">
                         <div
                             className="flex-grow-1 position-relative"
@@ -263,11 +263,11 @@ const Home = () => {
 
                     </div>
                 </div>
+            </div>
+            <NextRain />
+            <div style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
 
-                <NextRain />
-
-
-                <div className="container mt-4">
+                <div className="container">
                     <div className="d-flex" style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
                         <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 my-4">
                             {[

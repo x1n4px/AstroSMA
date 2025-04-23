@@ -69,7 +69,31 @@ const getReportZ = async (req, res) => {
         const [obs1] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número]);
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
-        const [orbitalElement] = await pool.query('select eo.*, iz.Fecha, iz.Hora from Elementos_Orbitales eo JOIN Informe_Z iz ON iz.IdInforme = eo.Informe_Z_IdInforme where eo.Informe_Z_IdInforme = ?', [id]);
+        const [orbitalElement] = await pool.query(`
+            SELECT 
+  ob.Informe_Z_IdInforme,
+  ob.Calculados_con,
+  SUBSTRING_INDEX(ob.Vel__Inf, ' ', 1) AS Vel__Inf,
+  SUBSTRING_INDEX(ob.Vel__Geo, ' ', 1) AS Vel__Geo,
+  SUBSTRING_INDEX(ob.Ar, ' ', 1) AS Ar,
+  SUBSTRING_INDEX(ob.De, ' ', 1) AS De,
+  SUBSTRING_INDEX(ob.i, ' ', 1) AS i,
+  SUBSTRING_INDEX(ob.p, ' ', 1) AS p,
+  SUBSTRING_INDEX(ob.a, ' ', 1) AS a,
+  SUBSTRING_INDEX(ob.e, ' ', 1) AS e,
+  SUBSTRING_INDEX(ob.q, ' ', 1) AS q,
+  SUBSTRING_INDEX(ob.T, ' ', 1) AS T,
+  SUBSTRING_INDEX(ob.omega, ' ', 1) AS omega,
+SUBSTRING_INDEX(SUBSTRING(ob.Omega_grados_votos_max_min, 2), ' ', 1) AS Omega_grados_votos_max_min,
+	iz.Fecha, iz.Hora
+FROM 
+  Elementos_Orbitales ob
+JOIN Informe_Z iz ON iz.IdInforme = ob.Informe_Z_IdInforme
+WHERE 
+  ob.Informe_Z_IdInforme = ?
+;
+
+            `, [id]);
         const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);

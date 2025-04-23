@@ -9,7 +9,6 @@ import BolideOrbitVisualization from '../../../../components/three/BolideOrbitVi
 
 
 const OrbitReport = ({ orbit, observatory, reportDate }) => {
-    console.log(orbit[0])
     const { t } = useTranslation(['text']);
     const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0); // Usamos el índice en lugar del ID
     const selectedOrbit = orbit[selectedOrbitIndex];
@@ -22,14 +21,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
     const handleOrbitChange = (event) => {
         setSelectedOrbitIndex(parseInt(event.target.value));
     };
-
-    const bolideData = {
-        a: 1.01,
-        e: 0.37,
-        omega: 111.67,
-        Omega: 299.31,
-        i: 0.62
-      };
+ 
 
     return (
         <Container>
@@ -126,14 +118,16 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                             parseFloat(selectedOrbit.q) > 0
                         ) && (
                                 <>
-                                <BolideOrbitVisualization  /> 
-                                    <GlobeWithObject
+                                <div style={{ width: '100%', height: '600px' }}>
+                                    <BolideOrbitVisualization orbit={selectedOrbit} />
+                                    {/* <GlobeWithObject
                                         key={selectedOrbit.Ar}
                                         orbitalElements={selectedOrbit}
                                         lat={observatory.latitude}
                                         lon={observatory.longitude}
                                         reportDate={reportDate}
-                                    />
+                                    /> */}
+                                    </div>
                                 </>
                             )}
 
