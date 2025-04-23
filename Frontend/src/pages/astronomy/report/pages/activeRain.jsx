@@ -33,7 +33,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.START_DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.END_DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' })}</th>
-                                        <th scope="col"><th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</th></th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</th>
                                         <th></th>
                                     </tr>
                                 </thead>

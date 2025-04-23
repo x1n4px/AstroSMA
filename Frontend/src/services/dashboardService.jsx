@@ -6,6 +6,7 @@ export const getGeneral = async (option) => {
     const token = localStorage.getItem('authToken'); // Obtiene el token del localStorage
 
     try {
+        console.log("skonaf")
         const response = await axios.get(`${apiUrl}/dashboard?option=${option}`,
             {
                 headers: {

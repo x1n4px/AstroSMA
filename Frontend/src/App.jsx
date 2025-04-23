@@ -20,6 +20,7 @@ import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
 import QRLogin from './pages/Auth/QRLogin';
 import AdminPanel from './pages/Auth/AdminPanel';
 import EventComponent from './components/admin/eventComponent';
+import Home from './pages/Home';
 
 import {
   QR_USER_ROL,
@@ -115,6 +116,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        //<Route path="/home" element={<Home />} />
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={loginHandler} />}

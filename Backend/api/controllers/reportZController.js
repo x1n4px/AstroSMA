@@ -1,9 +1,9 @@
 const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
-const {isAdminUser} = require('../utils/roleMaskUtils')
+const { isAdminUser } = require('../utils/roleMaskUtils')
 const { transform, convertSexagesimalToDecimal, individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
-const {QR_USER_ROL} = require('../utils/roleMaskUtils')
+const { QR_USER_ROL } = require('../utils/roleMaskUtils')
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -19,7 +19,7 @@ const getAllReportZ = async (req, res) => {
 const getReportZ = async (req, res) => {
     try {
         const token = req.header('x-token');
-        const user_id = null;
+        let user_id = null;
         let rol = QR_USER_ROL;
 
         if (token) {
@@ -37,14 +37,13 @@ const getReportZ = async (req, res) => {
             }
         }
 
-        console.log(rol);
         const { id } = req.params;
         const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
-        
+
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
-        
+
         const processedReports = report.map(report => {
             return {
                 ...report,
@@ -61,7 +60,7 @@ const getReportZ = async (req, res) => {
         }
 
         let advice = [];
-        if(isAdminUser(rol)) {
+        if (isAdminUser(rol)) {
             [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.Informe_Z_Id = ? AND ie.status = 1;', [id]);
         } else {
             [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?  AND ie.status = 1;', [user_id, id]);
@@ -73,7 +72,6 @@ const getReportZ = async (req, res) => {
         const [orbitalElement] = await pool.query('select eo.*, iz.Fecha, iz.Hora from Elementos_Orbitales eo JOIN Informe_Z iz ON iz.IdInforme = eo.Informe_Z_IdInforme where eo.Informe_Z_IdInforme = ?', [id]);
         const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
-        const [activeShower] = await pool.query('SELECT la.*, l.* FROM Lluvia_activa la JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador WHERE la.Informe_Z_IdInforme = ? GROUP BY la.Lluvia_Identificador', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
@@ -115,16 +113,6 @@ const getReportZ = async (req, res) => {
             }
         })
 
-        const [showers] = await pool.query(
-            `SELECT ms.Code, ms.Status, MAX(ms.SubDate) AS SubDate
-             FROM meteor_showers ms 
-             WHERE MONTH(ms.SubDate) = MONTH(?)  
-             AND YEAR(ms.SubDate) = YEAR(?)
-             AND ms.Code != ""
-             GROUP BY ms.Code, ms.Status
-             ORDER BY SubDate DESC;`,
-            [report[0].Fecha, report[0].Fecha]
-        );
 
         let IMOS = await IMOShowers(report[0].IdInforme);
         let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
@@ -175,7 +163,7 @@ const saveReportAdvice = async (req, res) => {
 const deleteReportAdvice = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         await pool.execute('UPDATE Informe_Error SET status = 0 WHERE Id = ?;', [id]);
         res.json({ message: 'Informe de error eliminado correctamente' });
 

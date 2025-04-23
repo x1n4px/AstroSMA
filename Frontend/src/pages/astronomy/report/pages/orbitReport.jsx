@@ -5,9 +5,11 @@ import GlobeWithObject from '@/components/three/GlobeWithObject.jsx';
 import { useTranslation } from 'react-i18next';
 
 import { formatDate } from '@/pipe/formatDate'
+import BolideOrbitVisualization from '../../../../components/three/BolideOrbitVisualization';
 
 
 const OrbitReport = ({ orbit, observatory, reportDate }) => {
+    console.log(orbit[0])
     const { t } = useTranslation(['text']);
     const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0); // Usamos el índice en lugar del ID
     const selectedOrbit = orbit[selectedOrbitIndex];
@@ -21,6 +23,13 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
         setSelectedOrbitIndex(parseInt(event.target.value));
     };
 
+    const bolideData = {
+        a: 1.01,
+        e: 0.37,
+        omega: 111.67,
+        Omega: 299.31,
+        i: 0.62
+      };
 
     return (
         <Container>
@@ -116,13 +125,16 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                             parseFloat(selectedOrbit.e) >= 0 &&
                             parseFloat(selectedOrbit.q) > 0
                         ) && (
-                                <GlobeWithObject
-                                    key={selectedOrbit.Ar}
-                                    orbitalElements={selectedOrbit}
-                                    lat={observatory.latitude}
-                                    lon={observatory.longitude}
-                                    reportDate={reportDate}
-                                />
+                                <>
+                                <BolideOrbitVisualization  /> 
+                                    <GlobeWithObject
+                                        key={selectedOrbit.Ar}
+                                        orbitalElements={selectedOrbit}
+                                        lat={observatory.latitude}
+                                        lon={observatory.longitude}
+                                        reportDate={reportDate}
+                                    />
+                                </>
                             )}
 
                     </div>

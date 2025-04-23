@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import FormatDate from '@/pipe/formatDate.jsx'
 import truncateDecimal from '@/pipe/truncateDecimal';
 
-
 function InferredDataReport({ data }) {
   if (!data) {
     return <div>Cargando datos...</div>; // O un mensaje de error si prefieres
@@ -88,6 +87,8 @@ function InferredDataReport({ data }) {
         </Col>
         )}
       </Row>
+
+     
 
     </Container >
   );

@@ -14,14 +14,9 @@ const registerUser = async (req, res) => {
 
         // Obtener el último ID
         const [lastIdResult] = await pool.query('SELECT MAX(id) AS maxId FROM user');
-        console.log(lastIdResult[0].maxId);
         const lastId = lastIdResult[0].maxId || 0; // Obtener el valor maxId, o 0 si no hay registros
 
         const newId = lastId + 1; // Generar el nuevo ID
-        console.log(
-            'INSERT INTO user (id, email, password, name, surname, pais_id, institucion, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            [newId, email, hashedPassword, name, surname, countryId, institution, rol]
-        );
         await pool.query(
             'INSERT INTO user (id, email, password, name, surname, pais_id, institucion, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [newId, email, hashedPassword, name, surname, countryId, institution, rol]
@@ -51,10 +46,8 @@ const loginUser = async (req, res) => {
         }
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
         const saf = auditEvent('login', user.id);
-        console.log(saf)
         res.json({ token, rol });
     } catch (error) {
-        console.log("Error")
         res.status(500).json({ error: error.message });
     }
 };
@@ -66,7 +59,6 @@ const QRLoginUser = async (req, res) => {
         const rol = '00000000';
         res.json({ token, rol });
     } catch (error) {
-        console.log("Error")
         res.status(500).json({ error: error.message });
     }
 };
