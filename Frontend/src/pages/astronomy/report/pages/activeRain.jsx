@@ -7,6 +7,7 @@ import formatShowerState from '@/pipe/formatShowerState';
 import { useLogicDistance } from '@/pipe/useLogicDistance';
 
 const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
+    console.log(AIUShowerData);
     const { t } = useTranslation(['text']);
     const [selectedShower, setSelectedShower] = useState(null);
     const hasValidShowers = useMemo(() => {
@@ -204,18 +205,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                 </Col>
             </Row>
 
-            {(AIUShowerData.length === 0 && (!activeShowerData || activeShowerData.length === 0)) && ( // Add check for activeShowerData here too
-                <Row>
-                    <Col>
-                        <h2 className="mb-3">
-                            {t('REPORT.ACTIVE_RAIN.NO_SHOWERS_WITH_DATA')}
-                        </h2>
-                        <p>
-                            {t('REPORT.ACTIVE_RAIN.NO_SHOWERS_WITH_DATA_DESC')}
-                        </p>
-                    </Col>
-                </Row>
-            )}
+           
         </Container>
     );
 };

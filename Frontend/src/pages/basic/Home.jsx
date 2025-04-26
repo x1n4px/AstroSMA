@@ -10,7 +10,7 @@ import Footer from '../../components/layout/Footer';
 import NextRain from '@/components/nextRain.jsx';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import { audit } from '@/services/auditService'
-
+import SolarSystem from '../../components/three/SolarSystem';
 import { Link } from 'react-router-dom';
 
 const teamMembers = [
@@ -294,6 +294,10 @@ const Home = () => {
                 </div>
             </div>
             <NextRain />
+            <div style={{ backgroundColor: '#980100', height: '500px' }}>
+
+            <SolarSystem />
+            </div>
             <div style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
 
                 <div className="container">

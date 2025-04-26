@@ -141,6 +141,7 @@ WHERE
         let IMOS = await IMOShowers(report[0].IdInforme);
         let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
 
+
         const response = {
             informe: processedReports[0],
             observatorios: [
@@ -299,7 +300,7 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 
 function membershipDMRT(DMRT) {
     const umbral = 5;
-    const max = 50; // más permisivo que 30
+    const max = 10; // más permisivo que 30
     if (DMRT <= umbral) {
         return 1;
     } else if (DMRT >= max) {
@@ -326,7 +327,7 @@ function membershipEccentricity(bolideValue, showerValue) {
 
 
 function membershipSemiMajorAxis(valorBólido, valorLluvia) {
-    const tolerancia = 1.5; // en UA — mucho más flexible que 0.5
+    const tolerancia = 1; // en UA — mucho más flexible que 0.5
     const diferencia = Math.abs(valorBólido - valorLluvia);
 
     if (diferencia > tolerancia) {
@@ -358,10 +359,10 @@ function calculateMembership(bolide, shower) {
 
 
     const totalMembership =
-        (pertenenciaDMRTV * 0.4) +
-        (membershipE * 0.2) +
-        (membershipA * 0.2) +
-        (membershipQ * 0.2);
+        (pertenenciaDMRTV * 0.7) +
+        (membershipE * 0.1) +
+        (membershipA * 0.1) +
+        (membershipQ * 0.1);
 
     // Escalar a valor entre 1 y 9
     const finalValue = Math.round(totalMembership * 8) + 1;
@@ -490,17 +491,23 @@ async function IAUShowers(id, date) {
         WHERE eo.Informe_Z_IdInforme = ?;
     `, [report.IdInforme]);
 
+    const dateToIAU = new Date(report.Fecha);
+    const day = dateToIAU.getDate(); 
+    const month = dateToIAU.getMonth() + 1;
+    const formatted = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}`;
+
+
     const [lluvias] = await pool.query(`
         SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
-                FROM meteor_showers ms
-                WHERE ms.Code != ""
-                AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
-                GROUP BY ms.Code, ms.Status
-                ORDER BY ms.SubDate DESC;
-    `, [report.Fecha, report.Fecha]);
+        FROM meteor_showers ms
+        WHERE 
+        ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 15
+        AND ms.Code != ""
+        AND ms.A != "" AND ms.Q != "" AND ms.E != "" AND ms.Ra != "" AND ms.De != "";
+    `, [formatted]);
 
     let lluvias_datos = [];
-
+        
     for (const lluvia of lluvias) {
         const cosValues = zwoData.map((punto) => {
             return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
@@ -517,19 +524,23 @@ async function IAUShowers(id, date) {
             ...lluvia,
             'Distancia_mínima_entre_radianes_y_trayectoria': distanciaMediaDeg.toFixed(2),
         });
+        
     }
     const result = [];
 
     for (const rs of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, rs);
-            result.push({
-                ...rs,
-                membership
-            });
+             if(membership > 4) {
+ 
+                result.push({
+                    ...rs,
+                    membership
+                });
+             }
+           
         }
     }
-
 
 
     return result;
@@ -588,7 +599,7 @@ const testing = async (req, res) => {
         `, [report.IdInforme]);
 
         const [lluvias] = await pool.query(`
-            SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
+                    SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
                     FROM meteor_showers ms
                     WHERE ms.Code != ""
                     AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
@@ -597,7 +608,6 @@ const testing = async (req, res) => {
         `, [report.Fecha, report.Fecha]);
 
         let lluvias_datos = [];
-
         for (const lluvia of lluvias) {
             const cosValues = zwoData.map((punto) => {
                 return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
