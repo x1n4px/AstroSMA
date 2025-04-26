@@ -8,7 +8,7 @@ const auditEvent = require('../middlewares/audit')
 
 const registerUser = async (req, res) => {
     try {
-        const { email, password, name, surname, countryId, institution } = req.body;
+        const { email, password, name, surname, countryId, institution, isMobile } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
         const rol = '00000001';
 
@@ -24,6 +24,7 @@ const registerUser = async (req, res) => {
 
         // Generar el token JWT
         const token = jwt.sign({ userId: newId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const saf = auditEvent('REGISTER', newId, 'register', -1, 0, 'Registro de usuario', isMobile);
 
         res.status(201).json({ token, rol });
     } catch (error) {
@@ -33,7 +34,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, isMobile } = req.body;
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
         if (rows.length === 0) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
@@ -45,7 +46,7 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        const saf = auditEvent('login', user.id);
+        const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'Inicio de sesión', isMobile);
         res.json({ token, rol });
     } catch (error) {
         res.status(500).json({ error: error.message });

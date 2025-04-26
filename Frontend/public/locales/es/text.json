@@ -44,7 +44,7 @@
             },
             "THIRD": {
                 "TITLE": " Frecuencia de detecciones por mes y año",
-                "DESCRIPTION": " Gráfico de líneas: Para mostrar la cantidad de meteoros detectados por mes y año"
+                "DESCRIPTION": " "
             },
             "FOURTH": {
                 "TITLE": "Distribución de Meteoros por Número de Estaciones",
@@ -394,7 +394,7 @@
                 "SHOW_BUTTON": "Ver lluvia",
                 "STATUS": "Estado",
                 "DATE": "Fecha",
-                "MEMBERSHIP_VALUE": "Valor de Membresía"
+                "MEMBERSHIP_VALUE": "Grado de asociación"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -631,23 +631,58 @@
                 "TITLE": "Eventos",
                 "SUBTITLE": "Edición de eventos",
                 "BUTTON": "Ver eventos"
+            },
+            "AUDIT": {
+                "TITLE": "Auditoría",
+                "SUBTITLE": "Auditoría de eventos",
+                "BUTTON": "Ver auditoría"
             }
         },
         "EVENT_PAGE": {
-            "TITLE":"Listado de eventos",
+            "TITLE": "Listado de eventos",
             "SUBTITLE": "",
-            "ADD_BUTTON":"Añadir Evento",
+            "ADD_BUTTON": "Añadir Evento",
             "EDIT_BUTTON": "Modificar Evento",
             "DELETE_BUTTON": "Eliminar Evento",
             "MODAL": {
-                "TITLE":"Evento",
-                "DATE":"Fecha",
-                "DESCRIPTION":"Descripción",
-                "START_TIME":"Hora de inicio",
-                "END_TIME":"Hora de fin",
-                "ACTIVE":"Está activo",
-                "ACTIVE_WEB":"Activar web pública"
+                "TITLE": "Evento",
+                "DATE": "Fecha",
+                "DESCRIPTION": "Descripción",
+                "START_TIME": "Hora de inicio",
+                "END_TIME": "Hora de fin",
+                "ACTIVE": "Está activo",
+                "ACTIVE_WEB": "Activar web pública"
+            }
+        },
+        "AUDIT_PAGE": {
+            "TITLE": "Panel de auditoría ",
+            "SUBTITLE": "Auditoría de eventos",
+            "START_DATE": "Fecha de inicio",
+            "END_DATE": "Fecha de fin",
+            "SEARCH_BUTTON": "Buscar",
+            "CLEAR_BUTTON": "Limpiar",
+            "RESULTS": "Resultados",
+            "GRID": {
+                "ACCESS": "Acceso",
+                "WEB_USER": "Usuario de escritorio",
+                "MOBILE_USER": "Usuario móvil",
+                "DOWNLOAD_OF": "Descargar de {{software}}",
+                "NEW_USERS": "Nuevos usuarios"
+            },
+            "TABLE": {
+                "EVENT_TYPE": "Tipo de evento",
+                "DATE": "Fecha",
+                "EVENT_TARGET": "Objetivo del evento",
+                "GUEST_USER": "Usuario invitado",
+                "MOBILE_USER": "Usuario móvil"
             }
         }
+    },
+    "DISTANCE": {
+        "VERYFAR": "Muy poco posible",
+        "FAR": "Poco posible",
+        "CLOSE": "Posible",
+        "VERYCLOSE": "Probable",
+        "EXACT": "Muy probable"
     }
 }

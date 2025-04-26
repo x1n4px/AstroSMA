@@ -1,0 +1,155 @@
+/* src/assets/customDashboard.css */
+
+/* Define primary color as a CSS variable */
+:root {
+    --primary-red: #980100;
+  }
+  
+  /* Style the main container to be 70% width on large screens and centered */
+  .dashboard-container {
+    max-width: 70% !important; /* Use !important to ensure override if needed */
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 20px; /* Add some top padding */
+    padding-bottom: 20px; /* Add some bottom padding */
+  }
+  
+  /* Adjust padding for smaller screens */
+  @media (max-width: 1199.98px) { /* Bootstrap's xl breakpoint */
+    .dashboard-container {
+      max-width: 95% !important; /* Allow more width on smaller screens */
+    }
+  }
+  
+  /* Modern Card Styling */
+  .dashboard-card {
+    border: none; /* Remove default border */
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    transition: transform 0.3s ease-in-out; /* Add subtle hover effect */
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-5px); /* Lift card slightly on hover */
+  }
+  
+  
+  /* Style buttons */
+  .btn-primary-red {
+    background-color: var(--primary-red);
+    border-color: var(--primary-red);
+    transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .btn-primary-red:hover {
+    background-color: darken(var(--primary-red), 10%); /* Slightly darker on hover */
+    border-color: darken(var(--primary-red), 10%);
+    opacity: 0.9;
+  }
+  
+  .btn-primary-red:focus,
+  .btn-primary-red.focus {
+    box-shadow: 0 0 0 0.2rem rgba(152, 1, 0, 0.25); /* Custom focus ring */
+  }
+  
+  /* Style the expand button within cards */
+  .expand-chart-button {
+    width: 100%;
+    padding: 8px 16px; /* Adjust padding */
+    background-color: rgba(152, 1, 0, 0.9); /* Semi-transparent primary color */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    color: white;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* Space between icon and text */
+    transition: background-color 0.3s ease;
+  }
+  
+  .expand-chart-button:hover {
+     background-color: var(--primary-red); /* Solid primary color on hover */
+     color: white;
+  }
+  
+  .expand-chart-button svg {
+    fill: white; /* Ensure SVG icon is white */
+  }
+  
+  
+  /* Style the chart container inside the card */
+  .chart-container {
+      flex-grow: 1;
+      position: relative; /* Needed for absolute positioning if used for something else */
+      overflow: hidden; /* Hide overflow */
+      /* Remove explicit height/aspect ratio here, let the card body manage it */
+  }
+  
+  
+  /* Custom button with red background and no border */
+  .btn-danger-no-border {
+    background-color: #dc3545; /* Bootstrap danger color, or use your red */
+    border-color: #dc3545;
+    border: none; /* Remove border */
+    color: white;
+  }
+  
+  .btn-danger-no-border:hover {
+    background-color: darken(#dc3545, 10%);
+    border-color: darken(#dc3545, 10%);
+  }
+  
+  .btn-danger-no-border:focus,
+  .btn-danger-no-border.focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5);
+  }
+  
+  /* Style for ListGroup items in cards */
+  .list-group-item-dashboard {
+    border: none; /* Remove borders between items */
+    border-bottom: 1px solid #eee; /* Add a subtle separator */
+    padding: 10px 15px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .list-group-item-dashboard:last-child {
+      border-bottom: none;
+  }
+  
+  .list-group-item-dashboard:hover {
+      background-color: #f8f9fa; /* Light background on hover */
+      text-decoration: none; /* Remove underline on hover */
+  }
+  
+  
+  /* Style for the map card overlay content */
+  .map-overlay-content {
+      position: relative;
+      z-index: 1;
+      padding: 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.7); /* Semi-transparent white background for readability */
+      border-radius: 15px; /* Match card border radius */
+      height: 100%; /* Ensure overlay fills the card body height */
+  }
+  
+  .map-overlay-content .card-title {
+      background-color: rgba(255, 255, 255, 0.9); /* More opaque background for title */
+      padding: 0.4em;
+      border-radius: 5px;
+  }
+  
+  .map-container-wrapper {
+       position: absolute;
+       top: 0;
+       left: 0;
+       width: 100%;
+       height: 100%;
+       z-index: 0;
+       border-radius: 15px; /* Match card border radius */
+       overflow: hidden; /* Ensure map corner matches card */
+  }

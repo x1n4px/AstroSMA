@@ -20,7 +20,8 @@ import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
 import QRLogin from './pages/Auth/QRLogin';
 import AdminPanel from './pages/Auth/AdminPanel';
 import EventComponent from './components/admin/eventComponent';
-import Home from './pages/Home';
+import Home from './pages/basic/Home';
+import AuditPanel from './components/admin/auditPanel';
 
 import {
   QR_USER_ROL,
@@ -116,7 +117,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        //<Route path="/home" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={loginHandler} />}
@@ -164,6 +165,7 @@ function App() {
           <Route path="/photometry-report/:reportId" element={ <ProtectedRoute requiredRoleMask="ALL_USER"> <PhotometryReport /></ProtectedRoute>} />
           <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
           <Route path="/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
+          <Route path="/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
           {/* Otras rutas protegidas */}
         </Route>
 

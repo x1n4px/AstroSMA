@@ -13,6 +13,7 @@ import { formatDate } from '@/pipe/formatDate.jsx'
 // Internationalization
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
+import truncateDecimal from '@/pipe/truncateDecimal';
 
 // Chart
 import BarChart from '@/components/chart/BarChart';
@@ -89,12 +90,11 @@ const DraggableChart = ({ id, children, moveChart, chartsToShow, doubleWidth, fu
       className="mb-4 d-flex align-items-stretch" // Añadido d-flex y align-items-stretch
       style={{ opacity: isDragging ? 0.5 : 1 }}
     >
-      <div className="shadow-sm bg-white rounded p-4 d-flex flex-column h-100" ref={cardRef} style={{ height: '100%', width: '100%' }}> {/* Añadido d-flex y flex-column y h-100 */}
+      <div className=" bg-white rounded p-4 d-flex flex-column h-100" ref={cardRef} style={{ height: '100%', width: '100%', border: '1px solid #ddd', }}> {/* Añadido d-flex y flex-column y h-100 */}
         <Card.Body className="d-flex flex-column h-100"> {/* Añadido d-flex y flex-column y h-100 */}
           <div className="flex-grow-1" style={{ overflow: 'auto' }}>{children}</div> {/* Añadido flex-grow-1 para que el contenido crezca */}
           {showButton && (
-            <Button className="custom-button mt-2" onClick={() => setShowModal(true)} >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgb(255, 255, 255)" }}><path d="M5 12H3v9h9v-2H5zm7-7h7v7h2V3h-9z"></path></svg>
+            <Button className="button mt-2" onClick={() => setShowModal(true)} style={{ backgroundColor: 'gray', borderColor: 'gray' }} >
               <span>Ver en pantalla completa</span>
             </Button>
           )}
@@ -139,6 +139,7 @@ function Dashboard() {
   const [showerPerYearData, setShowerPerYearData] = useState([]);
   const [lastReport, setLastReport] = useState([]);
   const [lastReportMap, setLastReportMap] = useState([]);
+  const [lastReportData, setLastReportData] = useState();
 
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
@@ -191,6 +192,9 @@ function Dashboard() {
       setObservatoryData(responseD.observatoryDataFormatted);
       setLastReportMap(responseD.lastReportMap);
       setShowerPerYearData(responseD.showerPerYearData);
+      setLastReportData(responseD.processedLastReport[0]);
+      console.log(responseD.processedLastReport[0]);
+
       setLoading(false);
     } catch (error) {
       setError(error);
@@ -222,11 +226,11 @@ function Dashboard() {
     <div>
       <NextRain />
 
-      <Container fluid style={{ backgroundColor: '#f5f5f5' }}>
+      <Container fluid style={{ backgroundColor: '#f8f9fa' }}>
 
         {isNotQRUser(roleMask) && (
           <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
-            <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
+            <Button style={{ backgroundColor: 'gray', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
               {t('DASHBOARD.CONFIGURATION_BTN')}
             </Button>
 
@@ -250,6 +254,101 @@ function Dashboard() {
           </Button>
         </Row>
 
+        <Row className="justify-content-center mt-4" >
+         <div className="d-flex">
+                                 <div
+                                     className="flex-grow-1 position-relative"
+                                     style={{
+                                         backgroundColor: '#e9ecef',
+                                         borderRadius: '10px',
+                                         width: '70%',
+                                         height: '100%', // Asegura que tenga altura completa
+                                         overflow: 'hidden',
+                                         display: 'flex',
+                                         flexDirection: 'column',
+                                     }}
+                                 >
+                                     <div
+                                         className="position-absolute top-0 start-0 w-100 h-100 m-0 p-0"
+                                         style={{ pointerEvents: 'none', zIndex: 1 }}
+                                     >
+                                         <Card.Subtitle className="text-muted" style={{ color: 'black' }}>
+                                             {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                                         </Card.Subtitle>
+                                     </div>
+         
+                                     <div style={{ flex: 1, height: '100%', width: '100%' }}>
+                                         <MultiMarkerMapChart
+                                             data={lastReportMap.map(item => item.MAP_DATA)}
+                                             key={`key-a9`}
+                                             observatory={observatoryData}
+                                         />
+                                     </div>
+                                 </div>
+         
+                                 <div
+                                     className="p-3 ms-3 d-flex flex-column justify-content-between"
+                                     style={{
+                                         backgroundColor: '#fff',
+                                         borderRadius: '10px',
+                                         width: '30%',
+                                         border: '1px solid #ddd',
+                                         padding: '1rem',
+                                     }}
+                                 >
+                                     <div>
+                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                                             Detalles
+                                         </h6>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:date')}:</strong> {lastReportData?.Fecha ? formatDate(lastReportData.Fecha) : '-'}
+                                         </p>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:hour')}:</strong> {lastReportData?.Hora}
+                                         </p>
+                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
+                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                                             {t('text:station')} 1
+                                         </h6>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
+                                         </p>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
+                                         </p>
+                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
+                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                                             {t('text:station')} 2
+                                         </h6>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
+                                         </p>
+                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
+                                         </p>
+                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
+                                         <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
+                                             <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
+                                         </p>
+                                     </div>
+                                     <div className="mt-3">
+                                         <Link to={`/report/${lastReportData?.IdInforme}`}
+                                             className="btn w-100 d-flex flex-column align-items-center justify-content-center"
+                                             style={{
+                                                 backgroundColor: '#980100',
+                                                 border: 'none',
+                                                 borderRadius: '30px',
+                                                 color: '#f8f9fa',
+                                                 padding: '0.25rem 1rem',
+                                             }}
+                                         >
+                                             <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Ver más</span>
+                                         </Link>
+         
+                                     </div>
+                                 </div>
+                             </div>
+        </Row>
         <Row className="justify-content-center mt-4" >
           {chartOrder.map((id, index) => {
             if (!chartVisibility[id]) return null;
@@ -276,21 +375,16 @@ function Dashboard() {
               case 2:
                 chartComponent = (
                   <>
-                    <Card.Title>{t('DASHBOARD.GRAPH.SECOND.TITLE')}: {formatDate(lastReportMap[0]?.AUX.Fecha)} {lastReportMap[0]?.AUX.Hora}</Card.Title>
+                    <Card.Title >{t('DASHBOARD.GRAPH.FIRST.TITLE')}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
-                      {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                      {t('DASHBOARD.GRAPH.FIRST.DESCRIPTION')}
                     </Card.Subtitle>
-                    <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
-                      <MultiMarkerMapChart data={lastReportMap.map(item => item.MAP_DATA)} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
+                    <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                      <BarChart data={chartData} key={`key-a1-${chartsToShow}`} />
                     </div>
-                    <Button className="mt-2 w-100" style={{ background: '#980100', border: '#980100' }} action as={Link} to={`/report/${lastReportMap[0]?.AUX.IdInforme}`}>
-                      <span>{t('DASHBOARD.SHOW_REPORT_BTN')}</span>
-                    </Button>
+
                   </>
                 );
-                fullWidth = true;
-                doubleWidth = false;
-                showButton = false;
                 break;
               case 3:
                 chartComponent = (
@@ -388,7 +482,7 @@ function Dashboard() {
                     <Card.Subtitle className="mb-2 text-muted">
                       {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
                     </Card.Subtitle>
-                    <div style={{ overflow: 'hidden', height: '80%', width: '100%' }}>
+                    <div style={{ overflow: 'auto', width: '100%' }}>
                       <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} observatory={observatoryData} />
                     </div>
                   </>

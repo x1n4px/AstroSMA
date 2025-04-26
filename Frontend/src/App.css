@@ -1,13 +1,37 @@
-root {
-    --primary-100: #3F51B5;
-    --primary-200: #757de8;
-    --primary-300: #dedeff;
-    --accent-100: #2196F3;
-    --accent-200: #003f8f;
-    --text-100: #333333;
-    --text-200: #5c5c5c;
-    --bg-100: #FFFFFF;
-    --bg-200: #f5f5f5;
-    --bg-300: #cccccc;
-
-}
+/* src/index.css or src/App.css */
+:root {
+    --primary-color: #8B0000; /* Darker, more modern red than #980100 */
+    --primary-color-hover: #6a0000;
+    --background-color: #f8f9fa; /* Light grey background */
+    --card-background: #ffffff;
+    --text-color: #333; /* Slightly softer black */
+    --text-muted: #6c757d;
+    --border-radius: 0.5rem; /* Slightly larger radius */
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Softer shadow */
+    --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --spacing-unit: 1rem;
+    --chart-aspect-ratio: 1; /* Default aspect ratio, can be overridden */
+    --chart-min-height: 250px; /* Minimum height for chart areas */
+  }
+  
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* Common modern font stack */
+  }
+  
+  /* Optional: Global link styling */
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    color: var(--primary-color-hover);
+    text-decoration: underline;
+  }
+  
+  /* Override default react-bootstrap button focus outline if desired */
+  .btn:focus, .btn:active:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(139, 0, 0, 0.25); /* Use primary color for focus ring */
+  }

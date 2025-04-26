@@ -60,7 +60,10 @@ function Register() {
 
     try {
       const countryId = selectedCountry?.value;
-      const { token, rol } = await registerUser(email, password, firstName, lastName, countryId, institution);
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
+      const { token, rol } = await registerUser(email, password, firstName, lastName, countryId, institution, isMobile);
       navigate('/login');
     } catch (error) {
       setError(<>{t('REGISTER.ERROR.CREDENTIALS')}</>);

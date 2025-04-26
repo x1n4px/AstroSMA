@@ -42,7 +42,7 @@ const NextRain = () => {
 
 
     return (
-        <div className="text-white py-3" style={{ backgroundColor: '#980100' }} >
+        <div className="text-white py-3" style={{ backgroundColor: '#980100', borderRadius: '0px 0px 20px 20px' }} >
             <Container fluid className="p-0"> {/* Container fluid con padding 0 para ocupar todo el ancho */}
                 <Row className="g-0 justify-content-center"> {/* g-0 elimina el gutter entre columnas */}
                     <Col xs={12} className="moving-text p-0"> {/* Columna que ocupa todo el ancho y sin padding */}

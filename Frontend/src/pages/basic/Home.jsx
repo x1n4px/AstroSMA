@@ -3,11 +3,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTranslation } from 'react-i18next';
 import { Container, Row, Col, Card, Button, ListGroup, Alert, Form } from 'react-bootstrap';
 import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
-import { getGeneral } from '@/services/dashboardService.jsx';
+import { getGeneralHome } from '@/services/dashboardService.jsx';
 import { formatDate } from '@/pipe/formatDate';
-import Station from './astronomy/Station';
-import Footer from '../components/layout/Footer';
+import Station from '../astronomy/Station';
+import Footer from '../../components/layout/Footer';
 import NextRain from '@/components/nextRain.jsx';
+import truncateDecimal from '@/pipe/truncateDecimal';
+import { audit } from '@/services/auditService'
+
+import { Link } from 'react-router-dom';
 
 const teamMembers = [
     { name: 'Alberto Castellón', role: 'Presidente', image: 'https://francis.naukas.com/files/2022/06/D20220608-small-photo-alberto-castellon-serrano-info-uma.jpg' },
@@ -16,6 +20,7 @@ const teamMembers = [
     { name: 'Carlos G. Spinola', role: 'Tesorero', image: 'https://www.astromalaga.es/wp-content/uploads/2018/05/Carlos.jpg' },
 ];
 
+import Navbar from '../../components/layout/Navbar';
 
 
 const Home = () => {
@@ -28,19 +33,21 @@ const Home = () => {
     const [lastReport, setLastReport] = useState([]);
     const [lastReportMap, setLastReportMap] = useState([]);
     const [searchRange, setsearchRange] = useState(1);
+    const [counterReport, setCounterReport] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
+    const token = localStorage.getItem('authToken');
 
 
 
     const fetchData = async () => {
         try {
-            const responseD = await getGeneral(searchRange);
+            const responseD = await getGeneralHome(searchRange);
+            setLastReport(responseD.processedReports);
             setLastReportMap(responseD.lastReportMap);
-
-            console.log(responseD.lastReport)
+            setCounterReport(responseD.counterReport);
+            console.log(responseD)
             setLoading(false);
         } catch (error) {
             setError(error);
@@ -54,18 +61,36 @@ const Home = () => {
 
     const [ipAddress, setIpAddress] = useState(null);
     const [location, setLocation] = useState(null);
+ 
+    const handleAudit = async (isMobile) => {
+        try {
+            const data = {
+                isGuest: true,
+                isMobile: isMobile,
+                event_type: 'HOME',
+                event_target: 'Nuevo acceso a la web: /home'
+            };
+            await audit(data);
+        } catch (error) {
+            console.error('Error during download or audit:', error);
+        }
+
+    }
 
     useEffect(() => {
-        // Using a free (but potentially unreliable and privacy-invasive) service for demonstration
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+        const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+         // Tu código de IP + ubicación
         fetch('https://api.ipify.org?format=json')
             .then(response => response.json())
             .then(data => {
                 setIpAddress(data.ip);
-                // Once you have the IP, you can use another service to get the location
                 fetch(`https://ipapi.co/${data.ip}/json/`)
                     .then(res => res.json())
                     .then(locationData => {
-                        console.log(locationData);
+                        handleAudit(isMobile);
+                       
                         setLocation(locationData);
                     })
                     .catch(err => {
@@ -79,6 +104,8 @@ const Home = () => {
             });
     }, []);
 
+   
+  
 
     function tiempoDesde(fecha) {
         const ahora = new Date();
@@ -97,7 +124,7 @@ const Home = () => {
     return (
         <>
             <div style={{ backgroundColor: '#980100', height: 'auto' }}>
-                <nav style={{ backgroundColor: '#980100' }} className="navbar navbar-expand-lg">
+                {token ? (<Navbar />): ( <nav style={{ backgroundColor: '#980100' }} className="navbar navbar-expand-lg">
                     <div className="container-fluid">
                         <div className="d-flex justify-content-center w-100">
                             <a className="navbar-brand mx-auto" href="#">
@@ -105,7 +132,7 @@ const Home = () => {
                             </a>
                         </div>
                         <div className="d-flex">
-                            <button
+                            <Link to="/login"
                                 className="btn btn-sm"
                                 type="button"
                                 style={{
@@ -114,18 +141,20 @@ const Home = () => {
                                     color: '#f8f9fa',
                                     padding: '0.5rem 1rem',  // Ajusta el tamaño del botón
                                     fontSize: '0.875rem',     // Tamaño de fuente más pequeño
-                                    height: 'auto',           // Ajusta la altura automáticamente
+                                    height: 'auto',           // Ajusta la altura automáticamente,
+                                    width: 'auto',            // Ajusta el ancho automáticamente
                                 }}
                             >
                                 Iniciar sesión
-                            </button>
+                            </Link>
 
                         </div>
                     </div>
-                </nav>
+                </nav>)}
+               
                 <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
                     <h1 style={{ color: '#f8f9fa' }}>Bienvenido a la Sociedad Malagueña de astronomía</h1>
-                    <p style={{ color: '#f8f9fe' }}>Último bólido registrado {tiempoDesde(lastReportMap.Fecha)}</p>
+                    <p style={{ color: '#f8f9fe' }}>Último bólido registrado {tiempoDesde(lastReport[0]?.Fecha)}</p>
                     <div className="d-flex">
                         <div
                             className="flex-grow-1 position-relative"
@@ -169,7 +198,7 @@ const Home = () => {
                         >
                             <div>
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                    {t('text:report_details')}
+                                    Detalles
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
                                     <strong>{t('text:date')}:</strong> {lastReport[0]?.Fecha ? formatDate(lastReport[0].Fecha) : '-'}
@@ -182,28 +211,28 @@ const Home = () => {
                                     {t('text:station')} 1
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:start')}:</strong> Lat: {observatoryData?.length > 0 ? observatoryData[0].latitude : '-'}, Lon: {observatoryData?.length > 0 ? observatoryData[0].longitude : '-'}
+                                    <strong>{t('text:start')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:end')}:</strong> Lat: {predictableImpact[0]?.latitude ? predictableImpact[0].latitude.toFixed(2) : '-'}, Lon: {predictableImpact[0]?.longitude ? predictableImpact[0].longitude.toFixed(2) : '-'}
+                                    <strong>{t('text:end')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
                                     {t('text:station')} 2
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:start')}:</strong> Lat: {observatoryData?.length > 1 ? observatoryData[1].latitude : '-'}, Lon: {observatoryData?.length > 1 ? observatoryData[1].longitude : '-'}
+                                    <strong>{t('text:start')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:end')}:</strong> Lat: {predictableImpact[1]?.latitude ? predictableImpact[1].latitude.toFixed(2) : '-'}, Lon: {predictableImpact[1]?.longitude ? predictableImpact[1].longitude.toFixed(2) : '-'}
+                                    <strong>{t('text:end')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:average_velocity')}:</strong> {lastReport[0]?.Vel__Geo ? lastReport[0].Vel__Geo.split(' ')[0] : '-'} km/s
+                                    <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReport[0]?.Velocidad_media)} km/s
                                 </p>
                             </div>
                             <div className="mt-3">
-                                <button
+                                <Link to="/login"
                                     className="btn w-100 d-flex flex-column align-items-center justify-content-center"
                                     style={{
                                         backgroundColor: '#980100',
@@ -215,7 +244,7 @@ const Home = () => {
                                 >
                                     <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Saber más</span>
                                     <small style={{ fontSize: '0.8rem', opacity: 0.85 }}>Iniciar sesión</small>
-                                </button>
+                                </Link>
 
                             </div>
                         </div>
@@ -236,28 +265,28 @@ const Home = () => {
                                 style={{ width: '25%' }}
                             >
                                 <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Meteoros detectados</span>
-                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>2022</small>
+                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[3]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
                                 <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes de fotometría</span>
-                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>17</small>
+                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[2]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
                                 <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes radiantes</span>
-                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>1495</small>
+                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[1]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
                                 <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes de dos estaciones</span>
-                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>2048</small>
+                                <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[0]?.Total}</small>
                             </div>
                         </div>
 

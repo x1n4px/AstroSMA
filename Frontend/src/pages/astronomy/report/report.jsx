@@ -67,16 +67,16 @@ const Report = () => {
         const [size, setSize] = useState(100);
         const [colorIndex, setColorIndex] = useState(0);
         const colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
-    
+
         useEffect(() => {
             const interval = setInterval(() => {
                 setColorIndex((prev) => (prev + 1) % colors.length);
                 setSize((prev) => (prev % 150) + 50);
             }, 800);
-    
+
             return () => clearInterval(interval);
         }, []);
-    
+
         return (
             <div style={{
                 position: 'fixed',
@@ -109,10 +109,10 @@ const Report = () => {
                         }}
                     />
                 </div>
-    
+
                 <h3 className="mt-4">Generando análisis...</h3>
                 <p>Por favor espere, esto puede tomar unos momentos</p>
-    
+
                 <Button
                     variant="outline-danger"
                     className="mt-4"
@@ -123,7 +123,7 @@ const Report = () => {
             </div>
         );
     };
-    
+
 
     useEffect(() => {
         if (reportGemini === 'azd112') {
@@ -311,6 +311,12 @@ const Report = () => {
                             </Tab>
                         )}
                         <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
+                            <AdviceAlert
+                                tabKey="INFERRED_DATA_TAB"
+                                adviceData={adviceData}
+                                onRemoveAdvice={handleRemoveAdvice}
+                                rol={rol}
+                            />
                             {getTabAdvice('INFERRED_DATA_TAB').map(advice => (
                                 <Alert key={advice.Id} variant="warning">
                                     ID: {advice.Id} - {advice.Description}
@@ -321,57 +327,68 @@ const Report = () => {
                         </Tab>
 
                         <Tab eventKey="ACTIVE_RAIN_TAB" title={t('REPORT.ACTIVE_RAIN_TAB')}>
-                            {getTabAdvice('ACTIVE_RAIN_TAB').map(advice => (
-                                <Alert key={advice.Id} variant="warning">
-                                    ID: {advice.Id} - {advice.Description}
-                                </Alert>
-                            ))}
+                            <AdviceAlert
+                                tabKey="ACTIVE_RAIN_TAB"
+                                adviceData={adviceData}
+                                onRemoveAdvice={handleRemoveAdvice}
+                                rol={rol}
+                            />
                             <ActiveRain activeShowerData={activeShowerData} reportType={'1'} AIUShowerData={AIUShowerData} />
                         </Tab>
 
                         {orbitalData.length > 0 && (
                             <Tab eventKey="TRAJECTORY" title={t('REPORT.TRAJECTORY')}>
-                                {getTabAdvice('TRAJECTORY').map(advice => (
-                                    <Alert key={advice.Id} variant="warning">
-                                        ID: {advice.Description} - Funcionalidad por definir!
-                                    </Alert>
-                                ))}
+                                <AdviceAlert
+                                    tabKey="TRAJECTORY"
+                                    adviceData={adviceData}
+                                    onRemoveAdvice={handleRemoveAdvice}
+                                    rol={rol}
+                                />
                                 <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} reportDate={formatDate(reportData.Fecha)} />
                             </Tab>
                         )}
                         <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>
-                            {getTabAdvice('PENDING_TAB').map(advice => (
-                                <Alert key={advice.Id} variant="warning">
-                                    ID: {advice.Description} - Funcionalidad por definir!
-                                </Alert>
-                            ))}
+                            <AdviceAlert
+                                tabKey="PENDING_TAB"
+                                adviceData={adviceData}
+                                onRemoveAdvice={handleRemoveAdvice}
+                                rol={rol}
+                            />
                             <PendingReport reportData={reportData} observatory={observatoryData} slopeMapData={slopeMapData} />
                             <RotationReport data={reportData} />
                         </Tab>
 
                         <Tab eventKey="ZWO" title={t('REPORT.ZWO')}>
-                            {getTabAdvice('ZWO').map(advice => (
-                                <Alert key={advice.Id} variant="warning">
-                                    ID: {advice.Description} - Funcionalidad por definir!
-                                </Alert>
-                            ))}
+                            <AdviceAlert
+                                tabKey="ZWO"
+                                adviceData={adviceData}
+                                onRemoveAdvice={handleRemoveAdvice}
+                                rol={rol}
+                            />
                             <PointAdjustReport zwoAdjustmentPoints={zwoData} regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
                         </Tab>
 
 
                         {Array.isArray(photometryData) && photometryData.length > 0 && (
                             <Tab eventKey="PHOTOMETRY" title={t('REPORT.PHOTOMETRY.TITLE')}>
-                                {getTabAdvice('PHOTOMETRY').map(advice => (
-                                    <Alert key={advice.Id} variant="warning">
-                                        ID: {advice.Description} - Funcionalidad por definir!
-                                    </Alert>
-                                ))}
+                                <AdviceAlert
+                                    tabKey="PHOTOMETRY"
+                                    adviceData={adviceData}
+                                    onRemoveAdvice={handleRemoveAdvice}
+                                    rol={rol}
+                                />
                                 <PhotometryReport photometryData={photometryData} isChild={true} />
                             </Tab>
                         )}
 
                         {(isNotQRUser(rol)) && (
                             <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
+                                <AdviceAlert
+                                    tabKey="ASSOCIATED_DOWNLOAD_LINK"
+                                    adviceData={adviceData}
+                                    onRemoveAdvice={handleRemoveAdvice}
+                                    rol={rol}
+                                />
                                 <AssociatedDownloadReport report={reportData} />
                             </Tab>
                         )}
@@ -398,6 +415,7 @@ const Report = () => {
                                         <option value="ZWO">{t('REPORT.ZWO')}</option>
                                         <option value="ASSOCIATED_STATIONS">{t('REPORT.ASSOCIATED_STATIONS.TITLE')}</option>
                                         <option value="PHOTOMETRY">{t('REPORT.PHOTOMETRY.TITLE')}</option>
+                                        <option value="ASSOCIATED_DOWNLOAD_LINK">{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}</option>
                                     </Form.Control>
                                 </Form.Group>
                                 <Form.Group controlId="formDescription">

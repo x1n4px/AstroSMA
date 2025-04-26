@@ -4,14 +4,14 @@ import { useDrag, useDrop } from 'react-dnd';
 import '@/assets/customCheckbox.css'
 // Internationalization
 import { useTranslation } from 'react-i18next';
-
+import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 
 const ItemTypes = {
   CHART_SETTING: 'chartSetting',
 };
 
 const DraggableChartSetting = ({ id, children, moveChartSetting }) => {
-
+ 
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CHART_SETTING,
     item: { id },
@@ -42,6 +42,8 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
   const [settings, setSettings] = useState(initialSettings);
   const [order, setOrder] = useState(initialOrder);
   const [selectedSearchRange, setSelectedSearchRange] = useState(searchRange); // Cambiado a searchRange
+  const roleMask = (localStorage.getItem('rol'));
+
 
   useEffect(() => {
     setSettings(initialSettings);
@@ -121,7 +123,7 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
             <option value="6">{t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_5_YEAR')}</option>
           </Form.Select>
         </Form.Group>
-
+     
         {order.map((chartId, index) => (
           <DraggableChartSetting key={chartId} id={index} moveChartSetting={moveChartSetting}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -143,6 +145,7 @@ function DashboardSettingsModal({ show, onHide, onSave, initialSettings, initial
             </div>
           </DraggableChartSetting>
         ))}
+        
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>

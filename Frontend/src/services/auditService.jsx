@@ -20,3 +20,19 @@ export const audit = async (data) => {
         throw error;
     }
 };
+
+
+export const getDataByDateRange = async (startDate, endDate) => {
+    try {
+        const response = await axios.get(`${API_URL}/audit`, {
+            params: {
+                startDate: startDate,
+                endDate: endDate
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error in getDataByDateRange:', error);
+        throw error;
+    }
+};

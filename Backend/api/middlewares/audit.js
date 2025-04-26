@@ -1,13 +1,14 @@
 const pool = require('../database/connection');
 
-const auditEvent = async (eventType, userId, buttonName = null, reportId = null) => {
+const auditEvent = async (event_type, user_id, button_name, report_id, isGuest, event_target, isMobile) => {
     try {
         let query = '';
 
-        query = `INSERT INTO auditing (event_type, user_id, button_name, report_id, timestamp) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`;
+        query = `INSERT INTO audit_log (event_type, user_id, button_name, report_id, isGuest, event_target, isMobile) 
+                VALUES(?,?,?,?,?,?,?);`;
 
         // Ejecutar la consulta de auditoría
-        const [result] = await pool.query(query, [eventType, userId, buttonName, reportId]);
+        const [result] = await pool.query(query, [event_type, user_id, button_name, report_id, isGuest, event_target, isMobile]);
 
         // Verificar si la inserción fue exitosa
         if (result.affectedRows > 0) {

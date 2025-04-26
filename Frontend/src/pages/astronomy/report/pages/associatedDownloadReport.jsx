@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button, Container } from 'react-bootstrap';
-import {audit} from '../../../../services/auditing'
+import {audit} from '../../../../services/auditService'
 import { useTranslation } from 'react-i18next';
 import { getOrbitFile } from '../../../../services/fileService';
 
 const AssociatedDownloadReport = ({report}) => {
     const { t } = useTranslation(['text']);
 
-    const handleDownload = async (software) => {
+    const handleDownload = async (button, software) => {
         try {
             let id1 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número ;
             let id2 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número2 ;
@@ -31,10 +31,17 @@ const AssociatedDownloadReport = ({report}) => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
             // Call the audit function
             const data = {
-                fileName: `${software}`,
-                reportId: report.IdInforme
+                isGuest: false,
+                isMobile: isMobile,
+                button_name: button,
+                event_type: 'DOWNLOAD',
+                event_target: `Descarga datos asociados a ${software} en /report/${report.IdInforme} en la pestaña de descargar informe asociado`,
+                report_id: report.IdInforme
             };
             await audit(data);
             console.log('Audit successful');
@@ -50,19 +57,19 @@ const AssociatedDownloadReport = ({report}) => {
             <div className="d-flex flex-column gap-3">
                 <Button
                     style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('UFOORBIT.tgz')}
+                    onClick={() => handleDownload('UFOORBIT','UFOORBIT.tgz')}
                 >
                     {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'UFOORBIT', cty: 'Japanese'})}
                 </Button>
                 <Button
                     style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('wmpl.txt')}
+                    onClick={() => handleDownload('WMPL', 'wmpl.txt')}
                 >
                     {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'WMPL', cty: 'Australian'})}
                 </Button>
                 <Button
                     style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('Gritsevich')}
+                    onClick={() => handleDownload('GRITSEVICH', 'Gritsevich')}
                     
                 >
                     {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'Gritsevich', cty: 'Finland'})}

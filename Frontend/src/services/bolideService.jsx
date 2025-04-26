@@ -117,6 +117,31 @@ export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFi
         throw error;
     }
 };
+
+export const getBolideWithCustomSearchCSV = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType }) => {
+    try {
+        const response = await axios.get(`${API_URL}/bolide/search/csv`, {
+            params: {
+                heightFilter,
+                latFilter,
+                lonFilter,
+                ratioFilter,
+                heightChecked,
+                latLonChecked,
+                dateRangeChecked,
+                startDate,
+                endDate,
+                actualPage,
+                reportType
+            }
+        });
+
+        return response;
+    } catch (error) {
+        console.error('Error en la petición:', error);
+        throw error;
+    }
+};
  
 
 export const getReportData = async ({ IDs_Informe_Radiante, IDs_Informe_Fotometria, IDs_Informe_Z }) => {

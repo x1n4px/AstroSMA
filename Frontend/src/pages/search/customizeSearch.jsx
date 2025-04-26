@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Accordion } from 'react-bootstrap';
-import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
+import { getBolideWithCustomSearch, getBolideWithCustomSearchCSV } from '@/services/bolideService.jsx';
 import { TextureLoader } from 'three';
 import { Link } from 'react-router-dom';
 import { formatDate } from '@/pipe/formatDate.jsx'
 import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
 import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
+import {audit} from '@/services/auditService'
 
 
 // Internationalization
@@ -63,6 +64,64 @@ const CustomizeSearch = () => {
         }
     };
 
+    const handleApplyFiltersCSV = async () => {
+        try {
+            console.log("CSV")
+            const response = await getBolideWithCustomSearchCSV({
+                heightFilter,
+                latFilter,
+                lonFilter,
+                ratioFilter,
+                heightChecked,
+                latLonChecked,
+                dateRangeChecked,
+                startDate,
+                endDate,
+                actualPage,
+                reportType
+            });
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
+            // Call the audit function
+            const data = {
+                isGuest: false,
+                isMobile: isMobile,
+                button_name: 'CSV',
+                event_type: 'DOWNLOAD',
+                event_target: `Descarga datos asociados a CSV en búsqueda personalizada`,
+                report_id: report.IdInforme
+            };
+            await audit(data);
+
+
+            if (response.data && response.headers['content-type'].includes('text/csv')) {
+                const csvData = response.data;
+                const filename = 'filtered_data.csv'; // Puedes personalizar el nombre del archivo
+
+                // Crea un enlace temporal
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(new Blob([csvData], { type: 'text/csv' }));
+                link.download = filename;
+
+                // Agrega el enlace al DOM, simula un clic y luego lo elimina
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error('La respuesta no contiene datos CSV válidos.');
+            }
+        } catch (error) {
+            console.error('Error al aplicar los filtros:', error);
+        }
+    };
+
+    const handleCSV = () => {
+        handleApplyFiltersCSV();
+    }
+
+
     const getZoomLevel = () => {
         if (ratioFilter) {
             const parsedRatio = parseInt(ratioFilter);
@@ -96,6 +155,7 @@ const CustomizeSearch = () => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = Array.from({ length: totalPages }, (_, i) => i);
 
+
     const handlePageChange = (page) => {
         setActualPage(page);
         handleApplyFilters();
@@ -126,7 +186,18 @@ const CustomizeSearch = () => {
 
     return (
         <Container className="my-4">
-
+            <Row className="mb-3">
+                <Col xs={12} md={4}>
+                    <Button
+                        style={{ backgroundColor: '#28a745', borderColor: '#28a745' }}
+                        onClick={() => {
+                            handleCSV()
+                        }}
+                    >
+                        {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
+                    </Button>
+                </Col>
+            </Row>
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
@@ -170,57 +241,57 @@ const CustomizeSearch = () => {
                     </Row>
                 )}
                 {reportType === '2' && (
-                <Row className="mb-3">
-                    <Col xs={12} md={3} className="d-flex align-items-center">
-                        <Form.Check
-                            type="checkbox"
-                            label={t('CUSTOMIZE_SEARCH.LATLON')}
-                            checked={latLonChecked}
-                            onChange={(e) => setLatLonChecked(e.target.checked)}
-                            className="me-2"
-                        />
-                    </Col>
-                    <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Control
-                            type="text"
-                            placeholder={t('CUSTOMIZE_SEARCH.LATITUDE')}
-                            value={latFilter}
-                            onChange={(e) => setLatFilter(e.target.value)}
-                            disabled={!latLonChecked}
-                            className="me-2"
-                        />
-                        <Form.Control
-                            type="text"
-                            placeholder={t('CUSTOMIZE_SEARCH.LONGITUDE')}
-                            value={lonFilter}
-                            onChange={(e) => setLonFilter(e.target.value)}
-                            disabled={!latLonChecked}
-                        />
-                    </Col>
-                </Row>
+                    <Row className="mb-3">
+                        <Col xs={12} md={3} className="d-flex align-items-center">
+                            <Form.Check
+                                type="checkbox"
+                                label={t('CUSTOMIZE_SEARCH.LATLON')}
+                                checked={latLonChecked}
+                                onChange={(e) => setLatLonChecked(e.target.checked)}
+                                className="me-2"
+                            />
+                        </Col>
+                        <Col xs={12} md={9} className="d-flex align-items-center">
+                            <Form.Control
+                                type="text"
+                                placeholder={t('CUSTOMIZE_SEARCH.LATITUDE')}
+                                value={latFilter}
+                                onChange={(e) => setLatFilter(e.target.value)}
+                                disabled={!latLonChecked}
+                                className="me-2"
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder={t('CUSTOMIZE_SEARCH.LONGITUDE')}
+                                value={lonFilter}
+                                onChange={(e) => setLonFilter(e.target.value)}
+                                disabled={!latLonChecked}
+                            />
+                        </Col>
+                    </Row>
                 )}
                 {reportType === '2' && (
-                <Row className="mb-3">
-                    <Col xs={12} md={3} className="d-flex align-items-center">
-                        <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SEARCH_RADIUS')} (km):</Form.Label>
-                    </Col>
-                    <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Select
-                            value={ratioFilter}
-                            disabled={!latLonChecked}
-                            onChange={(e) => setRadioBusqueda(e.target.value)}
-                        >
-                            <option value="10">10 km</option>
-                            <option value="20">20 km</option>
-                            <option value="30">30 km</option>
-                            <option value="50">50 km</option>
-                            <option value="100">100 km</option>
-                            <option value="200">200 km</option>
-                            <option value="500">500 km</option>
-                            <option value="1000">1000 km</option>
-                        </Form.Select>
-                    </Col>
-                </Row>
+                    <Row className="mb-3">
+                        <Col xs={12} md={3} className="d-flex align-items-center">
+                            <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SEARCH_RADIUS')} (km):</Form.Label>
+                        </Col>
+                        <Col xs={12} md={9} className="d-flex align-items-center">
+                            <Form.Select
+                                value={ratioFilter}
+                                disabled={!latLonChecked}
+                                onChange={(e) => setRadioBusqueda(e.target.value)}
+                            >
+                                <option value="10">10 km</option>
+                                <option value="20">20 km</option>
+                                <option value="30">30 km</option>
+                                <option value="50">50 km</option>
+                                <option value="100">100 km</option>
+                                <option value="200">200 km</option>
+                                <option value="500">500 km</option>
+                                <option value="1000">1000 km</option>
+                            </Form.Select>
+                        </Col>
+                    </Row>
                 )}
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center"> {/* Aumenta el ancho de la columna */}

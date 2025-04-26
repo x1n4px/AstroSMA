@@ -4,6 +4,7 @@ import { formatDate } from '@/pipe/formatDate.jsx';
 import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import formatShowerState from '@/pipe/formatShowerState';
+import { useLogicDistance } from '@/pipe/useLogicDistance';
 
 const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
     const { t } = useTranslation(['text']);
@@ -17,6 +18,8 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
         if (!activeShowerData || activeShowerData.length === 0) return true;
         return activeShowerData.every(shower => !shower.src);
     }, [activeShowerData]);
+
+    const { getDistanceLabel } = useLogicDistance();
 
     return (
         <Container>
@@ -46,7 +49,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                                 <td>{formatDate(shower.Fecha_Inicio)}</td>
                                                 <td>{formatDate(shower.Fecha_Fin)}</td>
                                                 <td>{truncateDecimal(shower.Distancia_mínima_entre_radianes_y_trayectoria)}</td>
-                                                <td>{shower.membership}</td>
+                                                <td>{getDistanceLabel(shower.membership)}</td>
                                                 <td>
                                                     {shower.src ? (
                                                         <Button
@@ -172,7 +175,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                             <td>{formatShowerState(shower.Status, t)}</td>
                                             <td>{formatDate(shower.SubDate)}</td>
                                             <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria} </td>
-                                            <td>{shower.membership}</td>
+                                            <td>{getDistanceLabel(shower.membership)}</td>
                                             <td>
                                                     {shower.src ? (
                                                         <Button

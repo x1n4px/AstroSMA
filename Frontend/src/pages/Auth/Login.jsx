@@ -29,7 +29,10 @@ function Login({ onLogin }) {
     e.preventDefault();
 
     try {
-      const {token, rol} = await loginUser(email, password);
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
+
+      const { token, rol } = await loginUser(email, password, isMobile);
       onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {

@@ -2,11 +2,12 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const loginUser = async (email, password) => {
+export const loginUser = async (email, password, isMobile) => {
     try {
         const response = await axios.post(`${apiUrl}/login`, {
             email: email,
             password: password,
+            isMobile: isMobile
         });
         return response.data;
     } catch (error) {
@@ -14,7 +15,7 @@ export const loginUser = async (email, password) => {
     }
 };
 
-export const registerUser = async (email, password, name, surname, countryId, institution) => {
+export const registerUser = async (email, password, name, surname, countryId, institution, isMobile) => {
     try {
         const response = await axios.post(`${apiUrl}/register`, {
             email: email,
@@ -23,6 +24,7 @@ export const registerUser = async (email, password, name, surname, countryId, in
             surname: surname,
             countryId: countryId,
             institution: institution,
+            isMobile: isMobile
         });
         console.log(response.data);
         return response.data;
@@ -31,6 +33,9 @@ export const registerUser = async (email, password, name, surname, countryId, in
         throw error;
     }
 }
+
+
+
 
 export const QRLogin = async (path) => {
     try {
