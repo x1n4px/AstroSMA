@@ -636,6 +636,11 @@
                 "TITLE": "Auditoría",
                 "SUBTITLE": "Auditoría de eventos",
                 "BUTTON": "Ver auditoría"
+            },
+            "CONFIG": {
+                "TITLE": "Configuración",
+                "SUBTITLE": "Configuración de la aplicación",
+                "BUTTON": "Ver configuración"
             }
         },
         "EVENT_PAGE": {

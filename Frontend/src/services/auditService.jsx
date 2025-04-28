@@ -6,7 +6,6 @@ const token = localStorage.getItem('authToken');
 
 export const audit = async (data) => {
     try {
-        console.log(data)
         const response = await axios.post(`${API_URL}/audit`, {data},
             {
                 headers: {

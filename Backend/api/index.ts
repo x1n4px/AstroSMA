@@ -14,6 +14,7 @@ const RadiantReportRoute = require('./routes/radiantReportRoute')
 const auditRoute = require('./routes/auditRoute')
 const EventRoute = require('./routes/eventRoute')
 const FileController = require ('./routes/fileRoute')
+const WebConfigController = require ('./routes/webConfigRoute')
 
 
 app.use(cors());
@@ -36,6 +37,7 @@ app.use('/api', RadiantReportRoute);
 app.use('/api', auditRoute);
 app.use('/api', EventRoute);
 app.use('/api', FileController);
+app.use('/api', WebConfigController);
 
 
 const port = 3005;

@@ -32,7 +32,10 @@ function Login({ onLogin }) {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
-      const { token, rol } = await loginUser(email, password, isMobile);
+      const { token, rol, config } = await loginUser(email, password, isMobile);
+      if (config) {
+        localStorage.setItem('config', JSON.stringify(config));
+      }
       onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {

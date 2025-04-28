@@ -22,6 +22,7 @@ import AdminPanel from './pages/Auth/AdminPanel';
 import EventComponent from './components/admin/eventComponent';
 import Home from './pages/basic/Home';
 import AuditPanel from './components/admin/auditPanel';
+import ConfigPanel from './components/admin/configPanel';
 
 import {
   QR_USER_ROL,
@@ -166,6 +167,7 @@ function App() {
           <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
           <Route path="/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
           <Route path="/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
+          <Route path="/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
           {/* Otras rutas protegidas */}
         </Route>
 

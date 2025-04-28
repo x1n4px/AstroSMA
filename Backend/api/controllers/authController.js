@@ -45,9 +45,12 @@ const loginUser = async (req, res) => {
         if (!passwordMatch) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
+
+        const [config] = await pool.query('SELECT key_value, value FROM config');
+
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
         const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'Inicio de sesión', isMobile);
-        res.json({ token, rol });
+        res.json({ token, rol, config });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -14,7 +14,7 @@ import { formatDate } from '@/pipe/formatDate.jsx'
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 import truncateDecimal from '@/pipe/truncateDecimal';
-
+import { getConfigValue } from '../../utils/getConfigValue';
 // Chart
 import BarChart from '@/components/chart/BarChart';
 import LineChart from '@/components/chart/LineChart';
@@ -141,6 +141,8 @@ function Dashboard() {
   const [lastReportMap, setLastReportMap] = useState([]);
   const [lastReportData, setLastReportData] = useState();
 
+
+
   const handleOpenSettingsModal = () => setShowSettingsModal(true);
   const handleCloseSettingsModal = () => setShowSettingsModal(false);
 
@@ -201,7 +203,7 @@ function Dashboard() {
       setLoading(false);
     }
   }
-
+ 
   useEffect(() => {
     if (isInitialMount.current) {
       fetchData();
@@ -254,101 +256,103 @@ function Dashboard() {
           </Button>
         </Row>
 
+        {getConfigValue('meteor') && (
         <Row className="justify-content-center mt-4" >
-         <div className="d-flex">
-                                 <div
-                                     className="flex-grow-1 position-relative"
-                                     style={{
-                                         backgroundColor: '#e9ecef',
-                                         borderRadius: '10px',
-                                         width: '70%',
-                                         height: '100%', // Asegura que tenga altura completa
-                                         overflow: 'hidden',
-                                         display: 'flex',
-                                         flexDirection: 'column',
-                                     }}
-                                 >
-                                     <div
-                                         className="position-absolute top-0 start-0 w-100 h-100 m-0 p-0"
-                                         style={{ pointerEvents: 'none', zIndex: 1 }}
-                                     >
-                                         <Card.Subtitle className="text-muted" style={{ color: 'black' }}>
-                                             {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
-                                         </Card.Subtitle>
-                                     </div>
-         
-                                     <div style={{ flex: 1, height: '100%', width: '100%' }}>
-                                         <MultiMarkerMapChart
-                                             data={lastReportMap.map(item => item.MAP_DATA)}
-                                             key={`key-a9`}
-                                             observatory={observatoryData}
-                                         />
-                                     </div>
-                                 </div>
-         
-                                 <div
-                                     className="p-3 ms-3 d-flex flex-column justify-content-between"
-                                     style={{
-                                         backgroundColor: '#fff',
-                                         borderRadius: '10px',
-                                         width: '30%',
-                                         border: '1px solid #ddd',
-                                         padding: '1rem',
-                                     }}
-                                 >
-                                     <div>
-                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                             Detalles
-                                         </h6>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:date')}:</strong> {lastReportData?.Fecha ? formatDate(lastReportData.Fecha) : '-'}
-                                         </p>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:hour')}:</strong> {lastReportData?.Hora}
-                                         </p>
-                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
-                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                             {t('text:station')} 1
-                                         </h6>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
-                                         </p>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
-                                         </p>
-                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
-                                         <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                             {t('text:station')} 2
-                                         </h6>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
-                                         </p>
-                                         <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
-                                         </p>
-                                         <hr className="my-2" style={{ borderColor: '#eee' }} />
-                                         <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                             <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
-                                         </p>
-                                     </div>
-                                     <div className="mt-3">
-                                         <Link to={`/report/${lastReportData?.IdInforme}`}
-                                             className="btn w-100 d-flex flex-column align-items-center justify-content-center"
-                                             style={{
-                                                 backgroundColor: '#980100',
-                                                 border: 'none',
-                                                 borderRadius: '30px',
-                                                 color: '#f8f9fa',
-                                                 padding: '0.25rem 1rem',
-                                             }}
-                                         >
-                                             <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Ver más</span>
-                                         </Link>
-         
-                                     </div>
-                                 </div>
-                             </div>
+          <div className="d-flex">
+            <div
+              className="flex-grow-1 position-relative"
+              style={{
+                backgroundColor: '#e9ecef',
+                borderRadius: '10px',
+                width: '70%',
+                height: '100%', // Asegura que tenga altura completa
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div
+                className="position-absolute top-0 start-0 w-100 h-100 m-0 p-0"
+                style={{ pointerEvents: 'none', zIndex: 1 }}
+              >
+                <Card.Subtitle className="text-muted" style={{ color: 'black' }}>
+                  {t('DASHBOARD.GRAPH.EIGHTH.DESCRIPTION')}
+                </Card.Subtitle>
+              </div>
+
+              <div style={{ flex: 1, height: '100%', width: '100%' }}>
+                <MultiMarkerMapChart
+                  data={lastReportMap.map(item => item.MAP_DATA)}
+                  key={`key-a9`}
+                  observatory={observatoryData}
+                />
+              </div>
+            </div>
+
+            <div
+              className="p-3 ms-3 d-flex flex-column justify-content-between"
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: '10px',
+                width: '30%',
+                border: '1px solid #ddd',
+                padding: '1rem',
+              }}
+            >
+              <div>
+                <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                  Detalles
+                </h6>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:date')}:</strong> {lastReportData?.Fecha ? formatDate(lastReportData.Fecha) : '-'}
+                </p>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:hour')}:</strong> {lastReportData?.Hora}
+                </p>
+                <hr className="my-2" style={{ borderColor: '#eee' }} />
+                <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                  {t('text:station')} 1
+                </h6>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
+                </p>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
+                </p>
+                <hr className="my-2" style={{ borderColor: '#eee' }} />
+                <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
+                  {t('text:station')} 2
+                </h6>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
+                </p>
+                <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
+                </p>
+                <hr className="my-2" style={{ borderColor: '#eee' }} />
+                <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
+                  <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
+                </p>
+              </div>
+              <div className="mt-3">
+                <Link to={`/report/${lastReportData?.IdInforme}`}
+                  className="btn w-100 d-flex flex-column align-items-center justify-content-center"
+                  style={{
+                    backgroundColor: '#980100',
+                    border: 'none',
+                    borderRadius: '30px',
+                    color: '#f8f9fa',
+                    padding: '0.25rem 1rem',
+                  }}
+                >
+                  <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Ver más</span>
+                </Link>
+
+              </div>
+            </div>
+          </div>
         </Row>
+        )}
         <Row className="justify-content-center mt-4" >
           {chartOrder.map((id, index) => {
             if (!chartVisibility[id]) return null;
