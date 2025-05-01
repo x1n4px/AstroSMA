@@ -7,7 +7,6 @@ import formatShowerState from '@/pipe/formatShowerState';
 import { useLogicDistance } from '@/pipe/useLogicDistance';
 
 const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
-    console.log(AIUShowerData);
     const { t } = useTranslation(['text']);
     const [selectedShower, setSelectedShower] = useState(null);
     const hasValidShowers = useMemo(() => {
@@ -15,10 +14,26 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
         return activeShowerData.some(shower => shower.src);
     }, [activeShowerData]);
 
-    const allShowersEmpty = useMemo(() => {
-        if (!activeShowerData || activeShowerData.length === 0) return true;
-        return activeShowerData.every(shower => !shower.src);
-    }, [activeShowerData]);
+    const showerCode = {
+        "CAP": "Alpha-Capricornids",
+        "ETA": "Eta-Aquariids",
+        "GEM": "Geminids",
+        "LEO": "Leonids",
+        "LYR": "Lyrids",
+        "NTA": "Northern-Taurids",
+        "ORI": "Orionids",
+        "PER": "Perseids",
+        "QUA1": "Quadrantids",
+        "QUA2": "Quadrantids",
+        "QUA": "Quadrantids",
+        "SDA": "Southern-Delta-Aquariids",
+        "STA": "Southern-Taurids",
+        "URS": "Ursids"
+    }
+
+
+
+
 
     const { getDistanceLabel } = useLogicDistance();
 
@@ -52,10 +67,15 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                                 <td>{truncateDecimal(shower.Distancia_mínima_entre_radianes_y_trayectoria)}</td>
                                                 <td>{getDistanceLabel(shower.membership)}</td>
                                                 <td>
-                                                    {shower.src ? (
+                                                    {showerCode[shower.Identificador] ? (
                                                         <Button
                                                             style={{ backgroundColor: '#980100', border: '#980100' }}
-                                                            onClick={() => setSelectedShower(shower)}
+                                                            onClick={() =>
+                                                                setSelectedShower({
+                                                                    ...shower,
+                                                                    src: showerCode[shower.Identificador]
+                                                                })
+                                                            }
                                                             size="sm"
                                                         >
                                                             {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
@@ -63,6 +83,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                                     ) : (
                                                         <span className="text-muted"></span>
                                                     )}
+
                                                 </td>
                                             </tr>
                                         ))
@@ -87,7 +108,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Closer Ra)' })}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '(Close De)' })}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.DISTANCE')}</th>
-                                        
+
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -101,12 +122,17 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                                 <td>{shower.De_de_la_fecha}</td>
                                                 <td>{shower.Ar_más_cercano}</td>
                                                 <td>{shower.De_más_cercano}</td>
-                                                
+
                                                 <td>
-                                                    {shower.src ? (
+                                                    {showerCode[shower.Identificador] ? (
                                                         <Button
                                                             style={{ backgroundColor: '#980100', border: '#980100' }}
-                                                            onClick={() => setSelectedShower(shower)}
+                                                            onClick={() =>
+                                                                setSelectedShower({
+                                                                    ...shower,
+                                                                    src: showerCode[shower.Identificador]
+                                                                })
+                                                            }
                                                             size="sm"
                                                         >
                                                             {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
@@ -131,27 +157,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                 </Col>
             </Row>
 
-            {selectedShower?.src && (
-                <Row>
-                    <Col>
-                        <h2 className="mb-3">Lluvia de meteoros: {selectedShower.Lluvia_Identificador} - {selectedShower.Nombre}</h2>
-                        <div className="position-relative" style={{ height: '800px' }}>
-                            <iframe
-                                src={`https://www.meteorshowers.org/view/${selectedShower.src}`}
-                                width="100%"
-                                height="100%"
-                                frameBorder="0"
-                                title={`Información de la lluvia de meteoros ${selectedShower.Lluvia_Identificador}`}
-                            ></iframe>
-                        </div>
-                        <div className="mt-3">
-                            <Button variant="secondary" onClick={() => setSelectedShower(null)}>
-                                Ocultar
-                            </Button>
-                        </div>
-                    </Col>
-                </Row>
-            )}
+
 
             <Row>
                 <Col>
@@ -178,18 +184,23 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                             <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria} </td>
                                             <td>{getDistanceLabel(shower.membership)}</td>
                                             <td>
-                                                    {shower.src ? (
-                                                        <Button
-                                                            style={{ backgroundColor: '#980100', border: '#980100' }}
-                                                            onClick={() => setSelectedShower(shower)}
-                                                            size="sm"
-                                                        >
-                                                            {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
-                                                        </Button>
-                                                    ) : (
-                                                        <span className="text-muted"></span>
-                                                    )}
-                                                </td>
+                                                {showerCode[shower.Code] ? (
+                                                    <Button
+                                                        style={{ backgroundColor: '#980100', border: '#980100' }}
+                                                        onClick={() =>
+                                                            setSelectedShower({
+                                                                ...shower,
+                                                                src: showerCode[shower.Code]
+                                                            })
+                                                        }
+                                                        size="sm"
+                                                    >
+                                                        {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-muted"></span>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (
@@ -205,7 +216,31 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                 </Col>
             </Row>
 
-           
+            {selectedShower?.src && (
+                <Row>
+                    <Col>
+                        <h2 className="mb-3">{t('REPORT.ACTIVE_RAIN.REPRESENTATION.TITLE')} {selectedShower.Lluvia_Identificador} - {selectedShower.Nombre}</h2>
+                        <div className="position-relative" style={{ height: '800px' }}>
+                            <iframe
+                                src={`https://www.meteorshowers.org/view/${selectedShower.src}`}
+                                width="100%"
+                                height="100%"
+                                frameBorder="0"
+                                title={`Información de la lluvia de meteoros ${selectedShower.Lluvia_Identificador}`}
+                            ></iframe>
+                            
+                        </div>
+                        <small>{t('REPORT.ACTIVE_RAIN.REPRESENTATION.CREDITS.PART1')} <a href="https://en.wikipedia.org/wiki/Peter_Jenniskens">Peter Jenniskens</a>, {t('REPORT.ACTIVE_RAIN.REPRESENTATION.CREDITS.PART2')} <a href="https://www.ianww.com/">Ian Webster</a></small>
+                        <div className="mt-3">
+                            <Button variant="secondary" onClick={() => setSelectedShower(null)}>
+                            {t('REPORT.ACTIVE_RAIN.REPRESENTATION.HIDDEN_BTN')}
+                            </Button>
+                        </div>
+                       
+                    </Col>
+
+                </Row>
+            )}
         </Container>
     );
 };

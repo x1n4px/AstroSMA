@@ -6,7 +6,7 @@ import * as THREE from 'three'
 // Constantes para proporciones realistas
 const EARTH_RADIUS_KM = 6371 // Radio terrestre en km
 const EARTH_DIAMETER_KM = EARTH_RADIUS_KM * 2
-const SCALE_FACTOR = 0.0001 // Factor de escala para mantener números manejables en Three.js
+const SCALE_FACTOR = 0.0002 // Factor de escala para mantener números manejables en Three.js
 
 // Componente Tierra con proporciones correctas
 function Earth({ textureUrl }) {
@@ -105,14 +105,23 @@ function CameraFocus({ targetPoint, autoRotate }) {
             const targetPosition = targetPoint.clone()
                 .multiplyScalar(earthRadiusScaled * 1.2)
             
+            // Calcular posición de la cámara para una vista frontal
+            // Usamos el vector desde el centro de la Tierra al punto objetivo como dirección
+            const cameraDistance = earthRadiusScaled * 3 // Distancia de la cámara
+            const cameraPosition = targetPoint.clone()
+                .normalize()
+                .multiplyScalar(cameraDistance)
+                .add(targetPosition) // Añadimos un pequeño desplazamiento
+            
+            // Ajustar ligeramente la posición para evitar que la cámara esté exactamente en línea
+            // con el vector de visión (lo que haría difícil ver la trayectoria)
+            cameraPosition.y += earthRadiusScaled * 0.5
+            cameraPosition.z += earthRadiusScaled * 0.5
+            
             controlsRef.current.target.copy(targetPosition)
             controlsRef.current.update()
             
-            camera.position.copy(
-                targetPosition.clone().add(
-                    new THREE.Vector3(0, 0, earthRadiusScaled * 2)
-                )
-            )
+            camera.position.copy(cameraPosition)
             camera.lookAt(targetPosition)
         }
     }, [targetPoint, camera, autoRotate])
@@ -120,8 +129,10 @@ function CameraFocus({ targetPoint, autoRotate }) {
     return <OrbitControls 
         ref={controlsRef}
         minDistance={EARTH_RADIUS_KM * SCALE_FACTOR * 1.1}
-        maxDistance={EARTH_DIAMETER_KM * SCALE_FACTOR * 5}
-        
+        maxDistance={EARTH_DIAMETER_KM * SCALE_FACTOR * 20}
+        enablePan={true}
+        enableZoom={true}
+        enableRotate={!autoRotate} // Deshabilitar rotación manual si autoRotate está activado
     />
 }
 
@@ -154,8 +165,8 @@ export default function BolideMap3D({
                 camera={{ 
                     position: [0, 0, EARTH_DIAMETER_KM * SCALE_FACTOR * 1.2], 
                     fov: 30,
-                    near: 0.1,
-                    far: EARTH_DIAMETER_KM * SCALE_FACTOR * 20
+                    near: 0.001,
+                    far: EARTH_DIAMETER_KM * SCALE_FACTOR * 100
                 }}
             >
                 <RotationGroup autoRotate={autoRotate}>
@@ -182,7 +193,7 @@ export default function BolideMap3D({
                 {/* Reemplazamos OrbitControls con nuestro componente personalizado */}
                 <CameraFocus 
                     targetPoint={start} 
-                    autoRotate={autoRotate} 
+                    autoRotate={autoRotate}  
                 />
                 
                 <Stars 

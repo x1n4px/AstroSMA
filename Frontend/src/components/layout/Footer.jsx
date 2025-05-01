@@ -48,12 +48,12 @@ const Footer = () => {
 
                     <Col xs={12} className="text-center mt-4">
                         <p className="mb-1" style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                            Desarrollado por
+                            {t('FOOTER.DEVELOPER')}
                             <a href="https://www.linkedin.com/in/ignacio-fdez-89bb3422a/" target="_blank" rel="noopener noreferrer" className="text-white ms-2">
                                 Ignacio Fernández Contreras
                             </a>
                         </p>
-                        <p className="mb-0 small">Basado en el TFG de
+                        <p className="mb-0 small">{t('FOOTER.BASED_ON')}
                             <a href="https://www.linkedin.com/in/jos%C3%A9-ignacio-garc%C3%ADa-escobar-02b16a266/" target="_blank" rel="noopener noreferrer" className="text-white ms-2">José Ignacio García Escobar</a></p>
                     </Col>
                 </Row>

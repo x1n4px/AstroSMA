@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import BolideTrajectoryMap from '@/components/map/BolideTrajectory';
+import BolideTrajectoryMap from '@/components/three/BolideTrajectory';
 
 const RotationReport = ({ data }) => {
     const [showFirstMap, setShowFirstMap] = useState(true);

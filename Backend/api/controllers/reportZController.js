@@ -353,6 +353,11 @@ function membershipPerihelion(bolideValue, showerValue) {
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
+    
+    if(pertenenciaDMRTV === 0) {
+        return 0;
+    }
+
     const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
     const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
     const membershipQ = membershipPerihelion(parseFloat(bolide.q), parseFloat(shower.q));
@@ -363,6 +368,7 @@ function calculateMembership(bolide, shower) {
         (membershipE * 0.1) +
         (membershipA * 0.1) +
         (membershipQ * 0.1);
+
 
     // Escalar a valor entre 1 y 9
     const finalValue = Math.round(totalMembership * 8) + 1;
@@ -501,7 +507,7 @@ async function IAUShowers(id, date) {
         SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
         FROM meteor_showers ms
         WHERE 
-        ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 15
+        ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 30
         AND ms.Code != ""
         AND ms.A != "" AND ms.Q != "" AND ms.E != "" AND ms.Ra != "" AND ms.De != "";
     `, [formatted]);
@@ -531,13 +537,13 @@ async function IAUShowers(id, date) {
     for (const rs of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, rs);
-             if(membership > 4) {
- 
-                result.push({
-                    ...rs,
-                    membership
-                });
-             }
+                if(membership > 2) {
+                    result.push({
+                        ...rs,
+                        membership
+                    });
+                }
+               
            
         }
     }

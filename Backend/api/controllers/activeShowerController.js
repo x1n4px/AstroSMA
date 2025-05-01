@@ -8,7 +8,9 @@ const getAllShower = async (req, res) => {
     try {
 
         const [shower] = await pool.query('SELECT DISTINCT * FROM Lluvia l GROUP BY Identificador');
-        res.json({shower});
+        const [IAUShower] = await pool.query('SELECT * FROM meteor_showers')
+        
+        res.json({ shower, IAUShower });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -38,7 +40,7 @@ WHERE (
     )) <= 15
 )
 ORDER BY l.Año DESC;`);
-        res.json({shower});
+        res.json({ shower });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

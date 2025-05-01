@@ -162,7 +162,7 @@ const Report = () => {
             setAdviceData(response.advice);
             setActiveShowerData(response.activeShower);
             setZwoData(response.zwo);
-            setAIUShowerData(response.showers);
+            setAIUShowerData(response.showers.sort((a, b) => new Date(a.SubDate) - new Date(b.SubDate)));
             setSlopeMapData(response.slopeMap);
             setObservatoryName(response.observatoryName);
         } catch (err) {

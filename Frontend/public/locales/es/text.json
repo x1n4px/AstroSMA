@@ -24,7 +24,9 @@
     "FOOTER": {
         "FOLLOW": "Síguenos en nuestras redes sociales",
         "CONTACT_TEXT": "Contacto",
-        "CONTACT_INFO": "astromalaga@gmail.com"
+        "CONTACT_INFO": "astromalaga@gmail.com",
+        "DEVELOPER": "Desarrollado por ",
+        "BASED_ON": "Basado en el TFG de "
     },
     "DASHBOARD": {
         "CONFIGURATION_BTN": "Configurar panel de control",
@@ -395,6 +397,14 @@
                 "STATUS": "Estado",
                 "DATE": "Fecha",
                 "MEMBERSHIP_VALUE": "Grado de asociación"
+            },
+            "REPRESENTATION": {
+                "TITLE": "Lluvia de meteoros:",
+                "CREDITS": {
+                    "PART1":"Datos de meteoros de " ,
+                    "PART2":"Visualización desarrollada por "
+                },
+                "HIDDEN_BTN":"Ocultar lluvia"
             }
         },
         "ESTIMATED_TRAJECTORY": {
