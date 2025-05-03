@@ -7,7 +7,7 @@ import { formatDate } from '@/pipe/formatDate.jsx'
 import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
 import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
-import {audit} from '@/services/auditService'
+import { audit } from '@/services/auditService'
 
 
 // Internationalization
@@ -54,7 +54,6 @@ const CustomizeSearch = () => {
                 actualPage,
                 reportType
             });
-            console.log(response)
             setReportData(response.data);
             setTotalItems(response.totalItems);
             setSearchButton(true);
@@ -66,7 +65,6 @@ const CustomizeSearch = () => {
 
     const handleApplyFiltersCSV = async () => {
         try {
-            console.log("CSV")
             const response = await getBolideWithCustomSearchCSV({
                 heightFilter,
                 latFilter,
@@ -80,10 +78,9 @@ const CustomizeSearch = () => {
                 actualPage,
                 reportType
             });
-
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-
+    
             // Call the audit function
             const data = {
                 isGuest: false,
@@ -91,31 +88,32 @@ const CustomizeSearch = () => {
                 button_name: 'CSV',
                 event_type: 'DOWNLOAD',
                 event_target: `Descarga datos asociados a CSV en búsqueda personalizada`,
-                report_id: report.IdInforme
+                report_id: 0
             };
             await audit(data);
-
-
-            if (response.data && response.headers['content-type'].includes('text/csv')) {
-                const csvData = response.data;
-                const filename = 'filtered_data.csv'; // Puedes personalizar el nombre del archivo
-
-                // Crea un enlace temporal
+    
+            // Verifica que la respuesta sea un blob (archivo)
+            if (response.data instanceof Blob) {
+                const url = window.URL.createObjectURL(response.data);
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(new Blob([csvData], { type: 'text/csv' }));
-                link.download = filename;
-
-                // Agrega el enlace al DOM, simula un clic y luego lo elimina
+                link.href = url;
+                link.setAttribute('download', 'meteor_reports.xlsx'); // Usa el mismo nombre que en el servidor
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             } else {
-                console.error('La respuesta no contiene datos CSV válidos.');
+                console.error('La respuesta no contiene un archivo válido');
             }
         } catch (error) {
-            console.error('Error al aplicar los filtros:', error);
+            console.error('Error al descargar el archivo:', error);
         }
     };
+
+    
+    function audit() {
+        
+    }
+
 
     const handleCSV = () => {
         handleApplyFiltersCSV();
@@ -186,18 +184,7 @@ const CustomizeSearch = () => {
 
     return (
         <Container className="my-4">
-            <Row className="mb-3">
-                <Col xs={12} md={4}>
-                    <Button
-                        style={{ backgroundColor: '#28a745', borderColor: '#28a745' }}
-                        onClick={() => {
-                            handleCSV()
-                        }}
-                    >
-                        {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
-                    </Button>
-                </Col>
-            </Row>
+
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
@@ -323,7 +310,7 @@ const CustomizeSearch = () => {
                 </Row>
 
                 <Row>
-                    <Col xs={12} md={4}>
+                    <Col xs={12} md={6}>
                         <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleApplyFilters}>
                             {t('CUSTOMIZE_SEARCH.SEARCH_BTN')}
                         </Button>
@@ -344,18 +331,25 @@ const CustomizeSearch = () => {
                         }>
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
+                        {reportData.length > 0 && (
+                            <Button
+                                style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
+                                onClick={() => {
+                                    handleCSV()
+                                }}
+                            >
+                                {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
+                            </Button>
+                        )}
                     </Col>
                 </Row>
             </Card>
             {searchButton && (
                 <div className="mt-4 shadow rounded">
-                    {/* <h5 className="mb-3 fw-bold text-center pt-4" style={{ fontSize: '1.5em' }}>
-                        Se han encontrado un total de {reportData.length} resultados
-                    </h5> */}
                     <div className="p-3 rounded shadow-sm mt-4">
                         <ul className="list-group">
                             {reportData.map((report, index) => (
-                                <li className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" key={report.IdInforme}>
+                                <li className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" key={report.IdInforme || index}>
                                     <div>
                                         <strong>{formatDate(report.Fecha)} {report.Hora.substring(0, 8)}</strong>
                                     </div>

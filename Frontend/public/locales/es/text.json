@@ -430,6 +430,7 @@
         }
     },
     "CUSTOMIZE_SEARCH": {
+        "DOWNLOAD_CSV": "Descargar CSV",
         "HEIGHT": "Altura",
         "LATLON": "Latitud/Longitud",
         "LATITUDE": "Latitud",

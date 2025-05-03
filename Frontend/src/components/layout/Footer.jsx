@@ -49,7 +49,7 @@ const Footer = () => {
                     <Col xs={12} className="text-center mt-4">
                         <p className="mb-1" style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
                             {t('FOOTER.DEVELOPER')}
-                            <a href="https://www.linkedin.com/in/ignacio-fdez-89bb3422a/" target="_blank" rel="noopener noreferrer" className="text-white ms-2">
+                            <a href="https://www.linkedin.com/in/ignacio-fernández-contreras-89bb3422a/" target="_blank" rel="noopener noreferrer" className="text-white ms-2">
                                 Ignacio Fernández Contreras
                             </a>
                         </p>

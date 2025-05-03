@@ -9,7 +9,6 @@ const { start } = require('repl');
 
 const auditC = async (req, res) => {
     try {
-        console.log(req.body.data)
         const report_id = req.body.data.reportId ?? '-1';
         const token = req.header('x-token');
         let user_id = -1;
@@ -28,7 +27,6 @@ const auditC = async (req, res) => {
 
         res.status(201).json({ message: 'Audit event logged successfully' });
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.message });
     }
 };
@@ -44,7 +42,6 @@ const getAuditEventsByDateRange = async (req, res) => {
         const adjustedEndDate = new Date(endDate);
         adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
 
-        console.log(startDate, adjustedEndDate.toISOString().split('T')[0]);
         const [list] = await pool.query(`SELECT * FROM audit_log al  WHERE al.timestamp BETWEEN ? AND ? `, [startDate, adjustedEndDate.toISOString().split('T')[0]]);
         const [info] = await pool.query(`
             SELECT
@@ -74,7 +71,6 @@ const getAuditEventsByDateRange = async (req, res) => {
 
         res.status(200).json({ list, info: info[0], eventType, lineChart });
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: error.message });
     }
 };

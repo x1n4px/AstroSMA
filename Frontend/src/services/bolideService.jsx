@@ -133,7 +133,8 @@ export const getBolideWithCustomSearchCSV = async ({ heightFilter, latFilter, lo
                 endDate,
                 actualPage,
                 reportType
-            }
+            },
+            responseType: 'blob', // Indica que esperas un blob (archivo)
         });
 
         return response;
