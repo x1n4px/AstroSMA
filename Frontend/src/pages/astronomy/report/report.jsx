@@ -24,7 +24,7 @@ import { saveReportAdvice, deleteReportAdvice } from '@/services/reportService.j
 // Internationalization
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
-
+import { getConfigValue } from '@/utils/getConfigValue';
 
 
 const Report = () => {
@@ -242,7 +242,7 @@ const Report = () => {
             <Row className="mb-4">
 
                 <div className="p-4">
-                    {isNotQRUser(rol) && (
+                    { ( getConfigValue('enableErrorAdvise') ||  isNotQRUser(rol) ) && (
                         <Row className="justify-content-between align-items-center">
                             <Col xs="auto">
                                 {reportData && (
@@ -275,21 +275,7 @@ const Report = () => {
                     >
                         {controlGeminiError(reportGemini) && (
                             <Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
-                                {/* {getTabAdvice('SUMMARY_TAB').map(advice => (
-                                    <Alert key={advice.Id} variant="warning" className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            ID: {advice.Id} - {advice.Description}
-                                        </div>
-                                        {isAdminUser(rol) && (
-                                            <div>
-                                                <Button style={{ backgroundColor: 'transparent', border: 'transparent' }} onClick={() => handleRemoveAdvice(advice.Id)}>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(0, 0, 0, 1);" }}><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg>
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </Alert>
-                                ))} */}
-
+                                
                                 <AdviceAlert
                                     tabKey="SUMMARY_TAB"
                                     adviceData={adviceData}
@@ -381,7 +367,7 @@ const Report = () => {
                             </Tab>
                         )}
 
-                        {(isNotQRUser(rol)) && (
+                        {isNotQRUser(rol) || getConfigValue('showDownloadTab') && (
                             <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
                                 <AdviceAlert
                                     tabKey="ASSOCIATED_DOWNLOAD_LINK"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { getConfig, updateConfig } from "../../services/webConfigService";
+import BackToAdminPanel from './BackToAdminPanel'; // Asegúrate de que la ruta sea correcta
 
 const ConfigPanel = () => {
     const [configurations, setConfigurations] = useState([]);
@@ -51,54 +52,58 @@ const ConfigPanel = () => {
     }
 
     return (
-        <div className="container mt-4">
-            <h2 className="mb-4">Panel de configuración</h2>
-            <table className="table table-striped table-bordered">
-                <thead className="thead-dark">
-                    <tr>
-                        <th>Descripción</th>
-                        <th>Valor</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {configurations.map((config) => (
-                        <tr key={config.id}>
-                            <td>{config.description}</td>
-                            <td>
-                                {config.value === "true" || config.value === "false" ? (
-                                    <input
-                                        type="checkbox"
-                                        className="form-check-input"
-                                        checked={config.value === "true"}
-                                        onChange={(e) =>
-                                            handleLocalChange(config.id, e.target.checked.toString())
-                                        }
-                                    />
-                                ) : (
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={config.value}
-                                        onChange={(e) =>
-                                            handleLocalChange(config.id, e.target.value)
-                                        }
-                                    />
-                                )}
-                            </td>
-                            <td>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => handleUpdate(config.id)}
-                                >
-                                    Modificar
-                                </button>
-                            </td>
+        <>
+            <BackToAdminPanel />
+
+            <div className="container my-4">
+                <h2 className="mb-4">Panel de configuración</h2>
+                <table className="table table-striped table-bordered">
+                    <thead className="thead-dark">
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Valor</th>
+                            <th>Acción</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {configurations.map((config) => (
+                            <tr key={config.id}>
+                                <td>{config.description}</td>
+                                <td>
+                                    {config.value === "true" || config.value === "false" ? (
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            checked={config.value === "true"}
+                                            onChange={(e) =>
+                                                handleLocalChange(config.id, e.target.checked.toString())
+                                            }
+                                        />
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={config.value}
+                                            onChange={(e) =>
+                                                handleLocalChange(config.id, e.target.value)
+                                            }
+                                        />
+                                    )}
+                                </td>
+                                <td>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => handleUpdate(config.id)}
+                                    >
+                                        Modificar
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </>
     );
 };
 

@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const rol = localStorage.getItem('rol');
+const token = localStorage.getItem('authToken');
 
 export const getUser = async () => {
     try {
@@ -21,3 +23,22 @@ export const getUser = async () => {
         throw error;
     }
 };
+
+
+export const getAllUsers = async () => {
+    try {
+        const response = await axios.get(`${apiUrl}/user/all`, {
+            headers: {
+                'x-token': token, // Agrega el token como encabezado x-token
+                'x-rol': rol // Agrega el rol como encabezado x-rol
+            },
+        });
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+    }
+}
+
+

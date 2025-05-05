@@ -256,7 +256,6 @@ function Dashboard() {
           </Button>
         </Row>
 
-        {getConfigValue('meteor') && (
         <Row className="justify-content-center mt-4" >
           <div className="d-flex">
             <div
@@ -352,7 +351,6 @@ function Dashboard() {
             </div>
           </div>
         </Row>
-        )}
         <Row className="justify-content-center mt-4" >
           {chartOrder.map((id, index) => {
             if (!chartVisibility[id]) return null;

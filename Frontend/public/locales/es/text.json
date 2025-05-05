@@ -637,6 +637,7 @@
         }
     },
     "ADMIN": {
+        "BACK_ADMIN_PANEL_BTN":" Volver al panel de administración",
         "CARDS": {
             "EVENT": {
                 "TITLE": "Eventos",
@@ -652,6 +653,11 @@
                 "TITLE": "Configuración",
                 "SUBTITLE": "Configuración de la aplicación",
                 "BUTTON": "Ver configuración"
+            },
+            "USER": {
+                "TITLE": "Usuarios",
+                "SUBTITLE": "Edición de usuarios",
+                "BUTTON": "Ver usuarios"
             }
         },
         "EVENT_PAGE": {
@@ -691,6 +697,22 @@
                 "EVENT_TARGET": "Objetivo del evento",
                 "GUEST_USER": "Usuario invitado",
                 "MOBILE_USER": "Usuario móvil"
+            }
+        },
+        "USER_PAGE": {
+            "TITLE": "Listado de usuarios",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Añadir Usuario",
+            "EDIT_BUTTON": "Modificar Usuario",
+            "DELETE_BUTTON": "Eliminar Usuario",
+            "TABLE": {
+                "TITLE": "Usuario",
+                "ID":"Identificador",
+                "NAME": "Nombre",
+                "SURNAME": "Apellido",
+                "EMAIL": "Correo Electrónico",
+                "INSTITUTION": "Institución",
+                "COUNTRY": "País"
             }
         }
     },

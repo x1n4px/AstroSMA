@@ -23,7 +23,6 @@ function QRLoginC({ onLogin }) {
       const responseD = await getNextEvent();
 
       if (responseD) {
-        console.log(responseD)
         setEventDate(new Date(responseD.event_date));
         setStartTime(responseD.startTime || '00:00');
         setEndTime(responseD.endTime || '23:59');

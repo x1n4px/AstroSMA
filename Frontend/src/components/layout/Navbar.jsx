@@ -12,6 +12,9 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('config');
+    localStorage.removeItem('loginTime');
     navigate('/');
     window.location.reload();
   };

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 const token = localStorage.getItem('authToken');
+const rol = localStorage.getItem('rol');
 
 
 export const getConfig = async () => {
@@ -10,7 +11,8 @@ export const getConfig = async () => {
         const response = await axios.get(`${API_URL}/config`,
             {
                 headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
+                    'x-token': token, // Agrega el token como encabezado x-token,
+                    'x-rol': rol // Agrega el rol como encabezado x-rol
                 },
             });
         return response.data.config;
@@ -24,6 +26,7 @@ export const createConfig = async (configData) => {
         const response = await axios.post(`${API_URL}/config`, configData, {
             headers: {
                 'x-token': token,
+                'x-rol': rol // Agrega el rol como encabezado x-rol
             },
         });
         return response.data;
@@ -38,6 +41,7 @@ export const updateConfig = async (configId, configData) => {
         const response = await axios.put(`${API_URL}/config/${configId}`, configData, {
             headers: {
                 'x-token': token,
+                'x-rol': rol // Agrega el rol como encabezado x-rol
             },
         });
         return response.data;
@@ -51,6 +55,7 @@ export const deleteConfig = async (configId) => {
         const response = await axios.delete(`${API_URL}/config/${configId}`, {
             headers: {
                 'x-token': token,
+                'x-rol': rol // Agrega el rol como encabezado x-rol
             },
         });
         return response.data;
