@@ -3,7 +3,6 @@ require('dotenv').config();
 const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
 
-
 const getGeneral = async (req, res) => {
   try {
     const option = parseInt(req.query.option);
@@ -240,13 +239,25 @@ const getGeneralHome = async (req, res) => {
                                               UNION ALL
                                               SELECT 'Meteoro', COUNT(*) FROM Meteoro;
                                               `);
- 
-
-
+    const [meteorLastYear] = await pool.query(`SELECT 
+                                              DATE_FORMAT(Fecha, '%Y-%m') AS mes,
+                                              COUNT(*) AS total
+                                            FROM Meteoro
+                                            WHERE Fecha >= DATE_SUB(
+                                                (SELECT MAX(Fecha) FROM Meteoro), 
+                                                INTERVAL 12 MONTH
+                                            )
+                                            GROUP BY DATE_FORMAT(Fecha, '%Y-%m')
+                                            ORDER BY mes DESC;
+                                                `);
+    const [stations] = await pool.query('SELECT * FROM Observatorio');
+    const convertedStations = transform(stations);
     res.json({
       lastReportMap: formatLastReportMap(lastReportMapUNF),
       processedReports: processLastReport(lastReport),
-      counterReport
+      counterReport,
+      meteorLastYear,
+      stations: convertedStations
     });
   } catch (error) {
     console.log(error);

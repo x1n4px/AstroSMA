@@ -87,7 +87,7 @@ const MultiMarkerMapChart = ({ data, observatory, lat = 40.4168, lon = -3.7038, 
                 });
             });
 
-            observatory.forEach((obs) => {
+            observatory?.forEach((obs) => {
                 const { latitude, longitude } = obs;
                 const marker = L.marker([latitude, longitude], {
                     icon: new L.Icon({

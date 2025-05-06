@@ -84,7 +84,7 @@ const Planet = ({ radius, distance, color, speed, hasRing = false }) => {
 
 const SolarSystem = () => {
   return (
-    <div style={{ width: '100%', height: '100%', background: '#f8f9fa' }}>
+    <div style={{ width: '100%', height: '100%', background: 'transparent' }}>
       <Canvas camera={{ position: [0, 30, 70], fov: 45 }}>
         <ambientLight intensity={0.2} />
         <pointLight position={[0, 0, 0]} intensity={1} color="#FDB813" />

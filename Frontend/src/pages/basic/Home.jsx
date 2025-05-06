@@ -12,6 +12,9 @@ import truncateDecimal from '@/pipe/truncateDecimal';
 import { audit } from '@/services/auditService'
 import SolarSystem from '../../components/three/SolarSystem';
 import { Link } from 'react-router-dom';
+import BarChart from '@/components/chart/BarChart';
+import StationMapChart from '@/components/map/StationMapChart';
+
 
 const teamMembers = [
     { name: 'Alberto Castellón', role: 'Presidente', image: 'https://francis.naukas.com/files/2022/06/D20220608-small-photo-alberto-castellon-serrano-info-uma.jpg' },
@@ -27,27 +30,37 @@ const Home = () => {
 
     const { t } = useTranslation(['text']);
 
-
+    const [firstMapLoaded, setFirstMapLoaded] = useState(false);
     const [predictableImpact, setPredictableImpact] = useState([]);
     const [observatoryData, setObservatoryData] = useState([]);
     const [lastReport, setLastReport] = useState([]);
     const [lastReportMap, setLastReportMap] = useState([]);
     const [searchRange, setsearchRange] = useState(1);
     const [counterReport, setCounterReport] = useState([]);
+    const [meteorLastYear, setMeteorLastYear] = useState([]);
+    const [observatory, setObservatory] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const token = localStorage.getItem('authToken');
 
-
+    useEffect(() => {
+        // Cargar el segundo mapa después de que el primero esté listo
+        const timer = setTimeout(() => {
+            setFirstMapLoaded(true);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, []);
 
     const fetchData = async () => {
         try {
             const responseD = await getGeneralHome(searchRange);
+            console.log(responseD)
             setLastReport(responseD.processedReports);
             setLastReportMap(responseD.lastReportMap);
             setCounterReport(responseD.counterReport);
-            console.log(responseD)
+            setMeteorLastYear(responseD.meteorLastYear);
+            setObservatory(responseD.stations);
             setLoading(false);
         } catch (error) {
             setError(error);
@@ -61,7 +74,7 @@ const Home = () => {
 
     const [ipAddress, setIpAddress] = useState(null);
     const [location, setLocation] = useState(null);
- 
+
     const handleAudit = async (isMobile) => {
         try {
             const data = {
@@ -81,7 +94,7 @@ const Home = () => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
         const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-         // Tu código de IP + ubicación
+        // Tu código de IP + ubicación
         fetch('https://api.ipify.org?format=json')
             .then(response => response.json())
             .then(data => {
@@ -90,7 +103,7 @@ const Home = () => {
                     .then(res => res.json())
                     .then(locationData => {
                         handleAudit(isMobile);
-                       
+
                         setLocation(locationData);
                     })
                     .catch(err => {
@@ -104,8 +117,8 @@ const Home = () => {
             });
     }, []);
 
-   
-  
+
+
 
     function tiempoDesde(fecha) {
         const ahora = new Date();
@@ -114,8 +127,8 @@ const Home = () => {
         const horas = Math.floor(diferenciaMs / (1000 * 60 * 60));
         const dias = Math.floor(horas / 24);
 
-        if (horas < 1) return 'hace menos de una hora';
-        if (horas < 24) return `hace ${horas} hora${horas === 1 ? '' : 's'}`;
+        if (horas < 1) return `${t('HOME.LAST_BOLIDE_TIME.LESS_HOUR')}`;
+        if (horas < 24) return `${t('HOME.LAST_BOLIDE_TIME.AGO')} ${horas} ${t('HOME.LAST_BOLIDE_TIME.HOURS')}${horas === 1 ? '' : 's'}`;
         return `hace ${dias} día${dias === 1 ? '' : 's'}`;
     }
 
@@ -124,7 +137,7 @@ const Home = () => {
     return (
         <>
             <div style={{ backgroundColor: '#980100', height: 'auto' }}>
-                {token ? (<Navbar />): ( <nav style={{ backgroundColor: '#980100' }} className="navbar navbar-expand-lg">
+                {token ? (<Navbar />) : (<nav style={{ backgroundColor: '#980100' }} className="navbar navbar-expand-lg">
                     <div className="container-fluid">
                         <div className="d-flex justify-content-center w-100">
                             <a className="navbar-brand mx-auto" href="#">
@@ -145,16 +158,16 @@ const Home = () => {
                                     width: 'auto',            // Ajusta el ancho automáticamente
                                 }}
                             >
-                                Iniciar sesión
+                                {t('HOME.LOGIN')}
                             </Link>
 
                         </div>
                     </div>
                 </nav>)}
-               
+
                 <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
-                    <h1 style={{ color: '#f8f9fa' }}>Bienvenido a la Sociedad Malagueña de astronomía</h1>
-                    <p style={{ color: '#f8f9fe' }}>Último bólido registrado {tiempoDesde(lastReport[0]?.Fecha)}</p>
+                    <h1 style={{ color: '#f8f9fa' }}>{t('HOME.TITLE')}</h1>
+                    <p style={{ color: '#f8f9fe' }}>{t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport[0]?.Fecha)}</p>
                     <div className="d-flex">
                         <div
                             className="flex-grow-1 position-relative"
@@ -198,37 +211,37 @@ const Home = () => {
                         >
                             <div>
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                    Detalles
+                                {t('HOME.LAST_BOLIDE_DATA.DETAILS')}
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:date')}:</strong> {lastReport[0]?.Fecha ? formatDate(lastReport[0].Fecha) : '-'}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.DATE')}:</strong> {lastReport[0]?.Fecha ? formatDate(lastReport[0].Fecha) : '-'}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:hour')}:</strong> {lastReport[0]?.Hora ? lastReport[0].Hora.substring(0, 8) : '-'}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.HOUR')}:</strong> {lastReport[0]?.Hora ? lastReport[0].Hora.substring(0, 8) : '-'}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                    {t('text:station')} 1
+                                {t('HOME.LAST_BOLIDE_DATA.STATION')} 1
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:start')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:end')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                                    {t('text:station')} 2
+                                {t('HOME.LAST_BOLIDE_DATA.STATION')} 2
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:start')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:end')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReport[0]?.Velocidad_media)} km/s
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}:</strong> {truncateDecimal(lastReport[0]?.Velocidad_media)} km/s
                                 </p>
                             </div>
                             <div className="mt-3">
@@ -242,8 +255,8 @@ const Home = () => {
                                         padding: '0.25rem 1rem',
                                     }}
                                 >
-                                    <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Saber más</span>
-                                    <small style={{ fontSize: '0.8rem', opacity: 0.85 }}>Iniciar sesión</small>
+                                    <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>{t('HOME.KNOW_MORE')}</span>
+                                    <small style={{ fontSize: '0.8rem', opacity: 0.85 }}>{t('HOME.LOGIN')}</small>
                                 </Link>
 
                             </div>
@@ -264,28 +277,28 @@ const Home = () => {
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
-                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Meteoros detectados</span>
+                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>{t('HOME.SMART_INFO.DETECTED_BOLIDES')}</span>
                                 <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[3]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
-                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes de fotometría</span>
+                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>{t('HOME.SMART_INFO.PHOTOMETRY_REPORTS')}</span>
                                 <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[2]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
-                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes radiantes</span>
+                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>{t('HOME.SMART_INFO.RADIAN_REPORTS')}</span>
                                 <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[1]?.Total}</small>
                             </div>
                             <div
                                 className="d-flex flex-column justify-content-center align-items-start"
                                 style={{ width: '25%' }}
                             >
-                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>Informes de dos estaciones</span>
+                                <span style={{ fontWeight: '500', fontSize: '1rem', color: '#343a40' }}>{t('HOME.SMART_INFO.Z_REPORTS')}</span>
                                 <small style={{ fontWeight: '600', fontSize: '1.25rem', color: '#212529' }}>{counterReport[0]?.Total}</small>
                             </div>
                         </div>
@@ -294,77 +307,295 @@ const Home = () => {
                 </div>
             </div>
             <NextRain />
-            <div style={{ backgroundColor: '#980100', height: '500px' }}>
-
-            <SolarSystem />
+           
+            <div style={{ backgroundColor: '#f8f9fa', padding: '60px 0' }}>
+                <Container>
+                    {/* Sección del gráfico de barras */}
+                    <Row className="justify-content-center mb-5">
+                        <Col md={10}>
+                            <Card className="border-0 shadow-sm">
+                                <Card.Body>
+                                    <Card.Title className="text-center mb-4" style={{ fontSize: '1.8rem', color: '#212529' }}>
+                                    {t('HOME.LAST_YEAR_ACTIVITY.TITLE')}
+                                    </Card.Title>
+                                    <div style={{ height: '400px', width: '100%' }}>
+                                        <BarChart data={meteorLastYear} key={`key-a2214`} />
+                                    </div>
+                                    <div className="text-center mt-3">
+                                        <small className="text-muted">
+                                        {t('HOME.LAST_YEAR_ACTIVITY.DATA_INFO')}
+                                        </small>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
             </div>
-            <div style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
-
-                <div className="container">
-                    <div className="d-flex" style={{ backgroundColor: '#f8f9fa', height: 'auto' }}>
-                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 my-4">
-                            {[
-                                {
-                                    titulo: 'Distancia Tierra - Luna',
-                                    subtitulo: '384.400 km de media',
-                                    icono: '🌕',
-                                },
-                                {
-                                    titulo: 'Velocidad de la luz',
-                                    subtitulo: '299.792 km/s',
-                                    icono: '⚡',
-                                },
-                                {
-                                    titulo: 'Edad del Universo',
-                                    subtitulo: '13.800 millones de años',
-                                    icono: '🌌',
-                                },
-                                {
-                                    titulo: 'Duración de 1 día en Marte',
-                                    subtitulo: '24h 39min',
-                                    icono: '🔴',
-                                },
-                            ].map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="d-flex flex-column justify-content-center align-items-start p-3"
-                                    style={{
-                                        backgroundColor: '#fff',
-                                        borderRadius: '10px',
-                                        height: '150px',
-                                        width: '23%',
-                                        minWidth: '200px',
-                                        border: '1px solid #dee2e6',
-                                        boxShadow: '0 0 6px rgba(0,0,0,0.05)',
+            <div style={{ backgroundColor: '#e9ecef', padding: '60px 0' }}> {/* Light gray background for better contrast */}
+            <Container>
+                <Row className="justify-content-center mb-4">
+                    <Col md={8} className="text-center">
+                        <h2>{t('HOME.STATION.TITLE') || 'Mapa de Estaciones Asociadas SMA'}</h2> {/* More descriptive title */}
+                        <p className="lead">{t('HOME.STATION.DESCRIPTION')}</p> {/* Informative subtitle */}
+                    </Col>
+                </Row>
+                <Row className="justify-content-center">
+                    <Col md={12}> {/* Make the map take full width within the container */}
+                        {firstMapLoaded && (
+                            <div style={{ borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}> {/* Added visual enhancements */}
+                                <StationMapChart
+                                    ref={(ref) => {
+                                        mapRef.current = ref;
+                                        if (ref && ref.leafletElement) {
+                                            mapInstance.current = ref.leafletElement;
+                                        }
                                     }}
-                                >
-                                    <div style={{ fontSize: '1.5rem' }}>{item.icono}</div>
-                                    <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>{item.titulo}</span>
-                                    <small style={{ fontSize: '0.9rem', color: '#6c757d' }}>{item.subtitulo}</small>
-                                </div>
-                            ))}
-                        </div>
-
-                    </div>
-                    <div className="d-flex">
-                        <Container className="mt-4">
-                            <h2 className="mb-4">Equipo de Trabajo</h2>
-                            <div className="d-flex gap-3 overflow-auto pb-2">
-                                {teamMembers.map((member, index) => (
-                                    <Card key={index} style={{ width: '250px', flex: '0 0 auto' }}>
-                                        <Card.Img variant="top" style={{ width: '100%', height: '200px', 'object-fit': 'cover' }} src={member.image} alt={member.name} />
-                                        <Card.Body>
-                                            <Card.Title>{member.name}</Card.Title>
-                                            <Card.Text>{member.role}</Card.Text>
-                                        </Card.Body>
-                                    </Card>
-                                ))}
+                                    key={'sma_stations_map'}  
+                                    data={observatory}
+                                    activePopUp={true}  
+                                    latitude={40.415417}
+                                    longitude={-3.695642}
+                                    zoom={6}
+                                    useStatinIcon={true} 
+                                />
                             </div>
-                        </Container>
-                    </div>
-                </div>
-                <Footer />
+                        )}
+                        {!firstMapLoaded && observatory && observatory.length === 0 && (
+                            <p className="text-center mt-3">{t('HOME.STATION.NO_STATIONS_AVAILABLE')}</p>
+                        )}
+                        {!firstMapLoaded && !observatory && (
+                            <p className="text-center mt-3">{t('HOME.STATION.LOADING_STATIONS')}</p>
+                        )}
+                    </Col>
+                </Row>
+                <Row className="justify-content-center mt-4">
+                    <Col md="auto" className="text-center">
+                        <p className="text-muted small">{t('HOME.STATION.MAP_INTERACTIVE_INFO') }</p>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+
+            <div style={{ backgroundColor: '#980100', padding: '0px 0' }}>
+                <Container className="py-5" >
+                    {/* Sección de datos astronómicos */}
+                    <Row className="justify-content-center mb-5">
+                        <Col lg={10}>
+                            <div className="text-center mb-5">
+                                <h2 className="display-5 mb-3" style={{
+                                    color: '#fff',
+                                    fontWeight: '300',
+                                    letterSpacing: '1px',
+                                    textTransform: 'uppercase'
+                                }}>
+                                    CONSTANTES ASTRONÓMICAS
+                                </h2>
+                                <p className="text-light" style={{ opacity: 0.8 }}>Valores certificados por la IAU (2020)</p>
+                            </div>
+
+                            <Row className="g-4">
+                                {[
+                                    {
+                                        titulo: t('HOME.ASTRONOMIC_CTO.UA.TITLE'),
+                                        subtitulo: '1.495978707×10¹¹ m ± 0.000000003×10¹¹ m',
+                                        descripcion: t('HOME.ASTRONOMIC_CTO.UA.DESCRIPTION'),
+                                        icono: 'fas fa-sun',
+                                        referencia: 'IAU 2012 Resolution B2'
+                                    },
+                                    {
+                                        titulo: t('HOME.ASTRONOMIC_CTO.LIGHT_SPEED.TITLE'),
+                                        subtitulo: '299792458 m/s (exacto)',
+                                        descripcion: t('HOME.ASTRONOMIC_CTO.LIGHT_SPEED.DESCRIPTION'),
+                                        icono: 'fas fa-lightbulb',
+                                        referencia: 'CODATA 2018'
+                                    },
+                                    {
+                                        titulo: t('HOME.ASTRONOMIC_CTO.HUBBLE.TITLE'),
+                                        subtitulo: '67.66 ± 0.42 km/s/Mpc',
+                                        descripcion: t('HOME.ASTRONOMIC_CTO.HUBBLE.DESCRIPTION'),
+                                        icono: 'fas fa-expand',
+                                        referencia: 'Planck 2018'
+                                    },
+                                    {
+                                        titulo: t('HOME.ASTRONOMIC_CTO.PARSEC.TITLE'),
+                                        subtitulo: '3.085677581×10¹⁶ m',
+                                        descripcion: t('HOME.ASTRONOMIC_CTO.PARSEC.DESCRIPTION'),
+                                        icono: 'fas fa-ruler-combined',
+                                        referencia: 'IAU 2015 Resolution B2'
+                                    }
+                                ].map((item, index) => (
+                                    <Col key={index} md={3} sm={6}>
+                                        <Card className="h-100 border-0" style={{
+                                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                            backdropFilter: 'blur(5px)'
+                                        }}>
+                                            <Card.Body className="p-3">
+                                                <div className="text-center mb-3">
+                                                    <i className={`${item.icono} fa-2x`} style={{ color: '#fff' }}></i>
+                                                </div>
+                                                <Card.Title
+                                                    className="text-center mb-2"
+                                                    style={{
+                                                        fontSize: '1rem',
+                                                        color: '#fff',
+                                                        fontWeight: '400'
+                                                    }}
+                                                >
+                                                    {item.titulo}
+                                                </Card.Title>
+                                                <Card.Text
+                                                    className="text-center mb-1"
+                                                    style={{
+                                                        fontSize: '0.9rem',
+                                                        fontFamily: "'Courier New', monospace",
+                                                        color: '#a3e9eb',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    {item.subtitulo}
+                                                </Card.Text>
+                                                <Card.Text
+                                                    className="text-center mb-2"
+                                                    style={{
+                                                        fontSize: '0.8rem',
+                                                        color: 'rgba(255, 255, 255, 0.7)'
+                                                    }}
+                                                >
+                                                    {item.descripcion}
+                                                </Card.Text>
+                                                <Card.Text
+                                                    className="text-center"
+                                                    style={{
+                                                        fontSize: '0.7rem',
+                                                        color: 'rgba(255, 255, 255, 0.5)',
+                                                        fontStyle: 'italic'
+                                                    }}
+                                                >
+                                                    {item.referencia}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+
+                            {/* Nota técnica */}
+                            <Row className="mt-4">
+                                <Col className="text-center">
+                                    <small style={{
+                                        color: 'rgba(255, 255, 255, 0.6)',
+                                        fontSize: '0.75rem',
+                                        display: 'block',
+                                        maxWidth: '800px',
+                                        margin: '0 auto',
+                                        lineHeight: '1.5'
+                                    }}>
+                                       {t('HOME.ASTRONOMIC_CTO.NOTE')}
+                                    </small>
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+
+            <div style={{ backgroundColor: '#f8f9fa', padding: '40px 0' }}>
+                <Container>
+                    <Row className="justify-content-center mb-4">
+                        <Col md={8} className="text-center">
+                            <h2 style={{ color: '#000', marginBottom: '20px' }}>{t('HOME.SOLAR_SYSTEM.TITLE')}</h2>
+                            <p style={{ color: '#980100', fontSize: '1.1rem' }}>
+                            {t('HOME.SOLAR_SYSTEM.DESCRIPTION')}
+                            </p>
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-center">
+                        <Col md={10} style={{
+                            height: '40vh',
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                        }}>
+                            <SolarSystem
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    background: 'transparent'
+                                }}
+                            />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-center mt-3">
+                        <Col md={8} className="text-center">
+                            <Button
+                                variant="outline-light"
+                                size="lg"
+                                as={Link}
+                                to="/login"
+                                style={{
+                                    borderWidth: '2px',
+                                    borderRadius: '30px',
+                                    padding: '8px 30px',
+                                    fontWeight: '600',
+                                    color: '#980100',
+                                    borderColor: '#980100',
+                                }}
+                            >
+                                {t('HOME.SOLAR_SYSTEM.MORE_BTN')}
+                            </Button>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+
+            <div style={{ backgroundColor: '#f8f9fa', padding: '60px 0' }}>
+                <Container>
+
+                    {/* Sección del equipo */}
+                    <Row className="justify-content-center">
+                        <Col md={10}>
+                            <div className="text-center mb-4">
+                                <h2 style={{ color: '#212529' }}>{t('HOME.TEAM.TITLE')}</h2>
+                                <p className="text-muted mb-4">
+                                {t('HOME.TEAM.DESCRIPTION')}
+                                </p>
+                            </div>
+
+                            <Row className="g-4 justify-content-center mb-4">
+                                {teamMembers.map((member, index) => (
+                                    <Col key={index} lg={3} md={6}>
+                                        <Card className="h-100 border-0 shadow-sm overflow-hidden">
+                                            <div style={{ height: '250px', overflow: 'hidden' }}>
+                                                <Card.Img
+                                                    variant="top"
+                                                    src={member.image}
+                                                    alt={member.name}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',
+                                                        transition: 'transform 0.3s ease'
+                                                    }}
+                                                    className="hover-zoom"
+                                                />
+                                            </div>
+                                            <Card.Body className="text-center">
+                                                <Card.Title>{member.name}</Card.Title>
+                                                <Card.Text className="text-muted">
+                                                    {member.role}
+                                                </Card.Text>
+                                            </Card.Body>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </Col>
+                    </Row>
+                </Container>
+
+
             </div >
+            <Footer />
         </>
     );
 };

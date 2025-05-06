@@ -401,10 +401,10 @@
             "REPRESENTATION": {
                 "TITLE": "Lluvia de meteoros:",
                 "CREDITS": {
-                    "PART1":"Datos de meteoros de " ,
-                    "PART2":"Visualización desarrollada por "
+                    "PART1": "Datos de meteoros de ",
+                    "PART2": "Visualización desarrollada por "
                 },
-                "HIDDEN_BTN":"Ocultar lluvia"
+                "HIDDEN_BTN": "Ocultar lluvia"
             }
         },
         "ESTIMATED_TRAJECTORY": {
@@ -637,7 +637,7 @@
         }
     },
     "ADMIN": {
-        "BACK_ADMIN_PANEL_BTN":" Volver al panel de administración",
+        "BACK_ADMIN_PANEL_BTN": " Volver al panel de administración",
         "CARDS": {
             "EVENT": {
                 "TITLE": "Eventos",
@@ -707,7 +707,7 @@
             "DELETE_BUTTON": "Eliminar Usuario",
             "TABLE": {
                 "TITLE": "Usuario",
-                "ID":"Identificador",
+                "ID": "Identificador",
                 "NAME": "Nombre",
                 "SURNAME": "Apellido",
                 "EMAIL": "Correo Electrónico",
@@ -722,5 +722,76 @@
         "CLOSE": "Posible",
         "VERYCLOSE": "Probable",
         "EXACT": "Muy probable"
+    },
+    "HOME": {
+        "TITLE": "Bienvenidos a la Sociedad Malagueña de astronomía",
+        "LAST_BOLIDE": " Último bólido registrado ",
+        "LAST_BOLIDE_TIME": {
+            "LESS_HOUR": " Menos de una hora",
+            "AGO": "Hace ",
+            "HOURS": " horas",
+            "DAYS": " días"
+        },
+        "LOGIN": "Iniciar sesión",
+        "KNOW_MORE": "Saber más",
+        "LAST_BOLIDE_DATA": {
+            "DETAILS": " Detalles del último bólido",
+            "DATE": "Fecha",
+            "HOUR": "Hora",
+            "STATION": "Estación",
+            "START_COORDINATES": "Coordenadas iniciales",
+            "END_COORDINATES": "Coordenadas finales",
+            "VELOCITY": "Velocidad media"
+        },
+        "SMART_INFO": {
+            "DETECTED_BOLIDES": "Bólidos detectados",
+            "PHOTOMETRY_REPORTS": "Informes de fotometría",
+            "RADIAN_REPORTS": "Informes radiante",
+            "Z_REPORTS": "Informes de dos estaciones"
+        },
+        "LAST_YEAR_ACTIVITY": {
+            "TITLE": "Actividad del último año",
+            "DATA_INFO": "Datos recopilados por la red de estaciones de meteoros de la Universidad de Málaga"
+        },
+        "STATION": {
+            "TITLE": "Mapa de Estaciones Asociadas SMA",
+            "DESCRIPTION": "Ubicación de las estaciones de observación de la Red de Detección de Meteoros SMA.",
+            "NO_STATIONS_AVAILABLE": "No hay estaciones disponibles",
+            "LOADING_STATIONS": "Cargando estaciones...",
+            "MAP_INTERACTIVE_INFO": "Haz clic en una estación para ver más información"
+        },
+        "ASTRONOMIC_CTO": {
+            "NOTE": " * Los valores mostrados corresponden al sistema de constantes astronómicas adoptado por la Unión Astronómica Internacional (IAU).                                        Las incertidumbres representan 1σ. Para aplicaciones científicas, consulte siempre las últimas resoluciones de la IAU.",
+            "UA": {
+                "TITLE": "Astronomical Unit (AU)",
+                "DESCRIPTION": "Mean Earth-Sun distance"
+            },
+            "LIGHT_SPEED": {
+                "TITLE": "Velocidad de la luz (c)",
+                "DESCRIPTION": "Definición del metro en el SI"
+            },
+            "HUBBLE": {
+                "TITLE": "Hubble constant (H₀)",
+                "DESCRIPTION": "Tasa de expansión del universo"
+            },
+            "PARSEC": {
+                "TITLE": "Parsec (pc)",
+                "DESCRIPTION": "Distancia con paralaje de 1 arcosegundo"
+            }
+        },
+        "SOLAR_SYSTEM": {
+            "TITLE": "Sistema Solar en tiempo real",
+            "DESCRIPTION": "Explora nuestro sistema solar con posiciones planetarias actualizadas",
+            "MORE_BTN": "Más información astronómica"
+        },
+        "TEAM": {
+            "TITLE": "Equipo de la Sociedad Malagueña de Astronomía",
+            "DESCRIPTION": "Conoce a los miembros del equipo detrás de la Sociedad Malagueña de Astronomía",
+            "MEMBERS": {
+                "NAME": "Nombre",
+                "SURNAME": "Apellido",
+                "POSITION": "Posición"
+            }
+        }
     }
 }
