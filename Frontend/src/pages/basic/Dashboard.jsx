@@ -300,37 +300,37 @@ function Dashboard() {
             >
               <div>
                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                  Detalles
+                {t('HOME.LAST_BOLIDE_DATA.DETAILS')}
                 </h6>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:date')}:</strong> {lastReportData?.Fecha ? formatDate(lastReportData.Fecha) : '-'}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.DATE')}:</strong> {lastReportData?.Fecha ? formatDate(lastReportData.Fecha) : '-'}
                 </p>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:hour')}:</strong> {lastReportData?.Hora}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.HOUR')}:</strong> {lastReportData?.Hora}
                 </p>
                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                  {t('text:station')} 1
+                {t('HOME.LAST_BOLIDE_DATA.STATION')} 1
                 </h6>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
                 </p>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
                 </p>
                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
-                  {t('text:station')} 2
+                {t('HOME.LAST_BOLIDE_DATA.STATION')} 2
                 </h6>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:start')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
                 </p>
                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:end')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, Lon: {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
                 </p>
                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                 <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
-                  <strong>{t('text:average_velocity')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
+                  <strong>{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
                 </p>
               </div>
               <div className="mt-3">

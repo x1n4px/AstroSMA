@@ -332,7 +332,7 @@ const CustomizeSearch = () => {
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
                         {reportData.length > 0 && (
-                            <Button
+                            <Button disabled
                                 style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
                                 onClick={() => {
                                     handleCSV()

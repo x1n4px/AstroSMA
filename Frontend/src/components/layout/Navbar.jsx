@@ -79,7 +79,7 @@ const Navbar = () => {
                 <Dropdown.Item onClick={() => changeLanguage('es')}>
                   <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px' }} />
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('fr')}>
+                {/* <Dropdown.Item onClick={() => changeLanguage('fr')}>
                   <img src="/flag/fr.webp" alt="French" style={{ width: '20px' }} />
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => changeLanguage('ge')}>
@@ -93,7 +93,7 @@ const Navbar = () => {
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => changeLanguage('ua')}>
                   <img src="/flag/ua.webp" alt="Ukrainian" style={{ width: '20px' }} />
-                </Dropdown.Item>
+                </Dropdown.Item> */}
               </Dropdown.Menu>
             </Dropdown>
           </Nav>

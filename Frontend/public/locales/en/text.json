@@ -1,0 +1,817 @@
+{
+    "WELCOME": {
+        "title": "Welcome to the application",
+        "description": "This is a sample application"
+    },
+    "PROFILE": {
+        "NAME": "Name",
+        "SURNAME": "Surname",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "UPDATE_BTN": "Update",
+        "DELETE_BTN": "Delete",
+        "TITLE": "Profile Information",
+        "INSTITUTION": "Institution",
+        "COUNTRY": "Country"
+    },
+    "NAVBAR": {
+        "BTN_HOME": "Home",
+        "BTN_STATIONS": "Stations",
+        "BTN_LOGOUT": "Logout",
+        "BTN_PROFILE": "Profile",
+        "BTN_ACTIVE_RAIN": "Active Meteor Shower"
+    },
+    "FOOTER": {
+        "FOLLOW": "Follow us on our social networks",
+        "CONTACT_TEXT": "Contact",
+        "CONTACT_INFO": "astromalaga@gmail.com",
+        "DEVELOPER": "Developed by ",
+        "BASED_ON": "Based on the TFG of "
+    },
+    "DASHBOARD": {
+        "CONFIGURATION_BTN": "Configure dashboard",
+        "DRAG_AND_DROP_INFO": "Drag and drop widgets on the dashboard",
+        "SHOW_OPTIONS_BTN": "Show {{num}} charts",
+        "CUSTOMIZE_SEARCH_BTN": "Perform custom search",
+        "SHOW_REPORT_BTN": "Show report",
+        "SHOW_FULL_SCREEN": "View Full Screen",
+        "GRAPH": {
+            "FIRST": {
+                "TITLE": "Average meteor speed",
+                "DESCRIPTION": "average meteor speed"
+            },
+            "SECOND": {
+                "TITLE": "Last detected fireball",
+                "DESCRIPTION": ""
+            },
+            "THIRD": {
+                "TITLE": "Detection frequency by month and year",
+                "DESCRIPTION": " "
+            },
+            "FOURTH": {
+                "TITLE": "Meteor Distribution by Number of Stations",
+                "DESCRIPTION": ""
+            },
+            "FIFTH": {
+                "TITLE": "Height measured by station with error",
+                "DESCRIPTION": ""
+            },
+            "SIXTH": {
+                "TITLE": "Latest reports from two stations",
+                "DESCRIPTION": ""
+            },
+            "SEVENTH": {
+                "TITLE": "Reports with eccentricity above 90%",
+                "DESCRIPTION": ""
+            },
+            "EIGHTH": {
+                "TITLE": "Times of day with most meteor detections",
+                "DESCRIPTION": ""
+            },
+            "NINTH": {
+                "TITLE": "Detection map",
+                "DESCRIPTION": ""
+            },
+            "TENTH": {
+                "TITLE": "Distribution of meteor entry azimuth",
+                "DESCRIPTION": ""
+            },
+            "ELEVENTH": {
+                "TITLE": "Relationship between trajectory angle and distance traveled",
+                "DESCRIPTION": ""
+            },
+            "TWELFT": {
+                "TITLE": "Number of active showers per year",
+                "DESCRIPTION": ""
+            },
+            "THIRTEENTH": {
+                "TITLE": "Number of active showers by month and year",
+                "DESCRIPTION": ""
+            }
+        }
+    },
+    "DASHBOARD_MODAL": {
+        "TITLE": "Dashboard options",
+        "SEARCH_RANGE": "Search range",
+        "SHOW_GRAPH": "Show chart {{name}}",
+        "BTN_CLOSE": "Close",
+        "BTN_SAVE": "Save",
+        "SEARCH_RANGE_OPTION": {
+            "LAST_10": "Last 10 fireballs",
+            "LAST_25": "Last 25 fireballs",
+            "LAST_50": "Last 50 fireballs",
+            "LAST_6_MONTHS": "Last 6 months",
+            "LAST_YEAR": "Last year",
+            "LAST_5_YEAR": "Last 5 years"
+        }
+    },
+    "LOGIN": {
+        "TITLE": "Login",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "LOGIN_BTN": "Login",
+        "REGISTER_BTN": "Register",
+        "FORGOT_PASSWORD": "Forgot your password?"
+    },
+    "REGISTER": {
+        "TITLE": "Register",
+        "NAME": "Name",
+        "SURNAME": "Surname",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "PASSWORD_CONFIRM": "Confirm Password",
+        "REGISTER_BTN": "Register",
+        "LOGIN_BTN": "Login",
+        "INSTITUTION": "Institution",
+        "COUNTRY": "Country",
+        "ERROR": {
+            "PASSWORDS_NOT_MATCH": "Passwords do not match",
+            "EMAIL_ALREADY_EXISTS": "Email already registered",
+            "INVALID_EMAIL": "Invalid email",
+            "TERMS_AND_CONDITIONS": "You must accept the terms and conditions",
+            "CREDENTIALS": "Invalid credentials"
+        },
+        "TERM": {
+            "ACEPT": "I accept the ",
+            "TERMS_AND_CONDITIONS": "terms and conditions"
+        },
+        "PLACEHOLDER": {
+            "NAME": "Enter your name",
+            "SURNAME": "Enter your surname",
+            "EMAIL": "Enter your email",
+            "PASSWORD": "Enter your password",
+            "PASSWORD_CONFIRM": "Confirm your password"
+        }
+    },
+    "NOPAGE": {
+        "TITLE": "Oops! The ship got lost in space",
+        "DESCRIPTION": "We couldn't find the page you're looking for. Maybe it's exploring a distant galaxy."
+    },
+    "TERMS_AND_CONDITIONS": {
+        "TITLE": "Terms and Conditions of Use",
+        "LAST_UPDATED": "2025-03-17",
+        "CLOSE_BTN": "Close",
+        "SECTION": [
+        {
+            "TITLE": "1. Acceptance of Terms",
+            "CONTENT": "By registering as a member or user of the Malaga Astronomy Society (hereinafter, \"the Society\"), you agree to comply with these Terms and Conditions in full. By accessing or using the services, resources, digital platforms (such as website, forums, databases, etc.) and participating in the Society's activities, you acknowledge that you have read, understood and accepted these Terms and Conditions in full. If you do not agree with any of these terms, please do not register or use the Society's services."
+        },
+        {
+            "TITLE": "2. Membership and User Registration",
+            "CONTENT": "To access certain resources and fully participate in the Society's activities, it may be necessary to register and/or become a member. You agree to provide truthful, accurate, current and complete information during the registration process. You are responsible for maintaining the confidentiality of your password and account, and are fully responsible for all activities that occur under your account."
+        },
+        {
+            "TITLE": "3. Data Use and Citation Obligation",
+            "CONTENT": "The Society may make available to its members and users various data, information, materials, images, observations, project results (hereinafter, \"the Data\") through its platforms, activities or publications. **THE USE OF ANY OF THIS DATA BY THE USER, WHETHER FOR RESEARCH, DISSEMINATION, PUBLICATIONS (PRINT OR DIGITAL), PRESENTATIONS, ACADEMIC WORKS OR ANY OTHER PURPOSE, MUST BE CLEARLY CITED, EXPRESSLY ACKNOWLEDGING THE MALAGA ASTRONOMY SOCIETY AS THE SOURCE OF SUCH DATA.** The recommended citation form is: **\"Data provided by the Malaga Astronomy Society\"** or a similar mention that clearly identifies the Society as the source of the data. In scientific or academic publications, please include a complete reference to the specific source if available (e.g., Society publication, specific project, etc.). This citation obligation applies regardless of the quantity or format of the Data used. Failure to comply with this citation obligation may result in the review or revocation of your membership or access to the Society's resources."
+        },
+        {
+            "TITLE": "4. Intellectual Property",
+            "CONTENT": "The Society retains all intellectual property rights over the contents, logos, designs and materials generated by it, unless expressly stated otherwise. The use of the Data in accordance with clause 3 does not transfer to the user any property rights over them, beyond the permission of use under the condition of citation. Users who provide content, data or other materials to the Society for possible dissemination or use in the Society's activities grant the Society a non-exclusive, worldwide, royalty-free license to use, reproduce, modify, adapt, publish, translate, distribute and display such content in relation to the Society's purposes, provided that recognition of the original authorship is maintained when applicable and feasible."
+        },
+        {
+            "TITLE": "5. Code of Conduct",
+            "CONTENT": "Members and users agree to maintain respectful, cordial and constructive behavior in all interactions within the Society and in relation to its activities. Any form of harassment, discrimination, offensive language or any other conduct that may harm other members or the good name of the Society is prohibited."
+        },
+        {
+            "TITLE": "6. Privacy and Data Protection",
+            "CONTENT": "The Society will collect and process your personal data in accordance with current data protection legislation. The main purpose of processing your data is to manage your membership or registration, the organization of activities and the Society's internal communication. Your data will not be transferred to third parties without your express consent, except by legal obligation. You may exercise your rights of access, rectification, cancellation, opposition, limitation and portability of your data by sending a communication to the Society's Secretariat. For more details on the processing of your data, see our Privacy Policy [if there is a separate Privacy Policy document, add link or indication of where to find it]."
+        },
+        {
+            "TITLE": "7. Limitation of Liability",
+            "CONTENT": "The Society strives to offer accurate and updated information and resources, but does not guarantee the accuracy, completeness or suitability of the Data for any particular purpose. The Society is not responsible for damages or losses that may result from the use of the Data or from participation in the Society's activities. The Society is not responsible for the opinions or content generated by users on the Society's platforms."
+        },
+        {
+            "TITLE": "8. Modifications of Terms",
+            "CONTENT": "The Society reserves the right to modify these Terms and Conditions at any time. Users will be notified of significant changes. Continued use of the Society's services after such modifications will constitute your acceptance of the new terms."
+        },
+        {
+            "TITLE": "9. Applicable Law and Jurisdiction",
+            "CONTENT": "These Terms and Conditions shall be governed by and construed in accordance with the laws of Spain. Any dispute arising in connection with these terms shall be submitted to the exclusive jurisdiction of the courts of Malaga."
+        },
+        {
+            "TITLE": "10. Contact",
+            "CONTENT": "If you have any questions about these Terms and Conditions, please contact the Secretariat of the Malaga Astronomy Society via [email address or contact form]."
+        }
+    ]
+    },
+    "INFERRED_DATA": {
+        "IdInforme": {
+            "label": "Report ID",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Time",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1": {
+            "label": "Quadratic Orthogonality Error in Celestial Sphere 1",
+            "measure": ""
+        },
+        "ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2": {
+            "label": "Quadratic Orthogonality Error in Celestial Sphere 2",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE_BTW_PLANES": {
+            "label": "Dihedral Angle Between Trajectory Planes",
+            "measure": "°"
+        },
+        "STATISTICAL_WEIGHTS": {
+            "label": "Static Weight",
+            "measure": "Kg"
+        },
+        "Errores_AR_RADIANT": {
+            "label": "AR Errors in Radians",
+            "measure": "radians"
+        },
+        "Errores_DE_RADIANT": {
+            "label": "DE Errors in Radians",
+            "measure": "radians"
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE": {
+            "label": "Astronomical Coordinates of the Radiant (Ecliptic - Date)",
+            "measure": ""
+        },
+        "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
+            "label": "Astronomical Coordinates of the Radiant (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Azimuth",
+            "measure": "°"
+        },
+        "ZENITHAL_DISTANCE": {
+            "label": "Zenith Distance",
+            "measure": "°"
+        },
+        "EQUATION_OF_MOTION_IN_KMS": {
+            "label": "Equation of Motion",
+            "measure": ""
+        },
+        "EQUATION_OF_MOVEMENT_IN_GS": {
+            "label": "Velocity Equation",
+            "measure": ""
+        },
+        "REPORT_ROUTE": {
+            "label": "Report Path",
+            "measure": ""
+        },
+        "Ecuacion_parametrica_IdEc": {
+            "label": "Parametric Equation ID",
+            "measure": ""
+        },
+        "Latitude": {
+            "label": "Latitude",
+            "measure": "°"
+        },
+        "Longitude": {
+            "label": "Longitude",
+            "measure": "°"
+        }
+    },
+    "REPORT": {
+        "TITLE": "Two-station report: {{date}} {{hour}}",
+        "TITLE_RADIAN": "Radiant report {{id}}",
+        "WARNING_BTN": "Report error",
+        "SUMMARY_TAB": "Summary",
+        "UNSELECTED_TAB": "Select a tab",
+        "INFERRED_DATA_TAB": "Inferred Data",
+        "MAP_TAB": "Map",
+        "ACTIVE_RAIN_TAB": "Active Shower",
+        "STATIONS": "Stations",
+        "TRAJECTORY": "Orbit",
+        "ASSOCIATED_DOWNLOAD_LINK": {
+            "TITLE": "Download associated report",
+            "DESCRIPTION": "Download the report associated with the active shower",
+            "LINK": "Download {{name}} ( {{cty}} Software)"
+        },
+        "PENDING": {
+            "TITLE": "Atmospheric trajectory",
+            "STATION_DETAILS": "Station details {{id}}",
+            "START_COORDINATES": " Start Coordinates",
+            "INITIAL_DISTANCE": " Initial Distance",
+            "INITIAL_HEIGHT": "Initial Height",
+            "END_COORDINATES": " End Coordinates",
+            "FINAL_DISTANCE": " Final Distance",
+            "FINAL_HEIGHT": "Final Height"
+        },
+        "ZWO": "Point and trajectory adjustment",
+        "ASSOCIATED_STATIONS": {
+            "TITLE": " Associated Stations",
+            "STATION_TITLE": "Station {{id}}",
+            "STATION_LONGITUDE": "Longitude",
+            "STATION_LATITUDE": "Latitude",
+            "CUADRATURA_ERROR": "Quadrature error of orthogonality in the celestial sphere (in radians)"
+        },
+        "POINT_ADJUST": {
+            "ZWO": {
+                "TITLE": "Point and Trajectory Adjustment",
+                "GRAPHIC": "Graphic",
+                "TABLE": {
+                    "TITLE": "Trajectory points",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Time",
+                        "Ar_Grados": "Ar Degrees",
+                        "De_Grados": "De Degrees",
+                        "De_Sexagesimal": "De Sexagesimal",
+                        "Ar_Sexagesimal": "Ar Sexagesimal"
+                    }
+                }
+            },
+            "REGRESSION_TRAJECTORY": {
+                "TITLE": "Regression trajectory",
+                "GRAPHIC": "Graphic",
+                "TABLE": {
+                    "TITLE": "Trajectory points",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Time",
+                        "t": "t",
+                        "s": "s",
+                        "v": "v (Km/s)"
+                    }
+                }
+            },
+            "TRAJECTORY": {
+                "TITLE": "Trajectory",
+                "GRAPHIC": "Graphic",
+                "TABLE": {
+                    "TITLE": "Trajectory points",
+                    "HEADER": {
+                        "DATE": "Date",
+                        "HOUR": "Time",
+                        "T": "t",
+                        "S": "s",
+                        "V": "v",
+                        "LAMBDA": "Lambda",
+                        "PHI": "Phi",
+                        "RA": "Ra (Station {{id}})",
+                        "DE": "De (Station {{id}})"
+                    }
+                }
+            }
+        },
+        "PHOTOMETRY": {
+            "TITLE": "Photometry report",
+            "INPUT": {
+                "DATE": "Date",
+                "HOUR": "Time",
+                "VISIBLE_STARS": "Visible stars",
+                "STAR_USED_IN_REGRESSION": "Star used in regression",
+                "BOUGER_LINE_EXTERNAL": "External Bouger line",
+                "BOUGER_LINE_ZERO": "Zero Bouger line",
+                "REGRESSION_STANDART_ERROR": "Standard regression error",
+                "STANDART_ZERO_POINT": "Standard zero point",
+                "STANDART_ERROR_EXTERNAL_COEFF": "Standard error of external coefficient",
+                "PATH_PARABOLA_COEFF": "Path parabola coefficient"
+            },
+            "REGRESSION_DATA_TAB": {
+                "TITLE": "Regression data",
+                "START_ID": "Star ID",
+                "AIR_MASS": "Air mass",
+                "CATALOG_MAGNITUDE": "Catalog magnitude",
+                "INSTRUMENTAL_MAGNITUDE": "Instrumental magnitude"
+            },
+            "METEOR_DATA": {
+                "TITLE": "Meteor data",
+                "X_START": "X (Start)",
+                "Y_START": "Y (Start)",
+                "X_END": "X (End)",
+                "Y_END": "Y (End)",
+                "AIR_MASS_START": "Air mass (Start)",
+                "AIR_MASS_END": "Air mass (End)",
+                "DISTANCE_START": "Distance (Start)",
+                "DISTANCE_END": "Distance (End)"
+            },
+            "ADJUSTEMENT_POINT": {
+                "TITLE": "Point adjustment",
+                "T": "t",
+                "DISTANCE": "Distance",
+                "MC": "Mc",
+                "MA": "Ma"
+            }
+        },
+        "VIDEO": {
+            "TITLE": "Video"
+        },
+        "ACTIVE_RAIN": {
+            "TITLE": "Active showers",
+            "NO_SHOWERS_WITH_DATA": "No showers with available data!",
+            "NO_SHOWERS_WITH_DATA_DESC": "It seems the current meteor showers are enjoying a well-deserved cosmic break. Come back soon to see if they wake up!",
+            "AIU_TITLE": "IAU Active Showers Table",
+            "IMO_TITLE": "IMO Active Showers Table",
+            "NO_ACTIVE_RAIN": "No active showers",
+            "NO_SHOWERS_AVAILABLE": "No showers available",
+            "TABLE": {
+                "ID": "Identifier",
+                "NAME": "Name",
+                "START_DATE": "Start Date",
+                "END_DATE": "End Date",
+                "MINIMUM_DISTANCE": "Minimum Distance {{it}}",
+                "DISTANCE": "Distance",
+                "SHOW_BUTTON": "View shower",
+                "STATUS": "Status",
+                "DATE": "Date",
+                "MEMBERSHIP_VALUE": "Association degree"
+            },
+            "REPRESENTATION": {
+                "TITLE": "Meteor shower:",
+                "CREDITS": {
+                    "PART1": "Meteor data from ",
+                    "PART2": "Visualization developed by "
+                },
+                "HIDDEN_BTN": "Hide shower"
+            }
+        },
+        "ESTIMATED_TRAJECTORY": {
+            "TITLE": "Estimated trajectory",
+            "VELOCITY": "Velocity",
+            "INITIAL_LON": "Longitude (Start)",
+            "INITIAL_LAT": "Latitude (Start)",
+            "FINAL_LON": "Longitude (End)",
+            "FINAL_LAT": "Latitude (End)",
+            "INITIAL_ALT": "Altitude (Start)",
+            "FINAL_ALT": "Altitude (End)",
+            "INITIAL_DIST": "Distance (Start)",
+            "FINAL_DIST": "Distance (End)",
+            "RECOR": "Route",
+            "E": "e",
+            "T": "t"
+        },
+        "ANGULAR_VELOCITY": {
+            "TITLE": "Angular velocity",
+            "HI": "hi",
+            "SHOWER": "shower",
+            "METEOR": "meteor"
+        }
+    },
+    "CUSTOMIZE_SEARCH": {
+        "DOWNLOAD_CSV": "Download CSV",
+        "HEIGHT": "Height",
+        "LATLON": "Latitude/Longitude",
+        "LATITUDE": "Latitude",
+        "LONGITUDE": "Longitude",
+        "SEARCH_RADIUS": "Search Radius",
+        "RANGE_DATE": "Date Range",
+        "SEARCH_BTN": "Search",
+        "CLEAR_BTN": "Clear",
+        "REPORT_Z": "Two-station report (Report Z)",
+        "REPORT_RADIANT": "Single-station report (Radiant report)",
+        "REPORT_PHOTOMETRY": "Photometry report",
+        "SHOW_BUTTON": "View more",
+        "REPORT_TYPE": {
+            "TITLE": "Report type",
+            "SELECT": {
+                "ALL_TYPES": "All types",
+                "REPORT_Z": "Two-station report (Report Z)",
+                "REPORT_RADIANT": "Single-station report (Radiant report)",
+                "REPORT_PHOTOMETRY": "Photometry report",
+                "REPORT_UNION": "Have all reports"
+            }
+        },
+        "MODAL": {
+            "REPORT_Z": {
+                "TITLE": "Two-station reports (Report Z)",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Time",
+                "STATION_1": "Station 1",
+                "STATION_2": "Station 2"
+            },
+            "REPORT_RADIANT": {
+                "TITLE": "Single-station reports (Radiant report)",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Time",
+                "STATION": "Station",
+                "ASSOCIATED_RAIN": "Associated shower",
+                "ESTIMATED_TRAJECTORY": "Estimated trajectory",
+                "ANGULAR_DISTANCE": "Angular distance ( {{measure}} )",
+                "ANGULAR_VELOCITY": "Angular velocity (°/s)"
+            },
+            "REPORT_PHOTOMETRY": {
+                "TITLE": "Photometry reports",
+                "ID": "Id",
+                "DATE": "Date",
+                "HOUR": "Time",
+                "VISIBLE_STARS": "Visible stars",
+                "STAR_USED_IN_REGRESSION": "Star used in regression"
+            }
+        }
+    },
+    "STATION": {
+        "TITLE": "Space station map",
+        "DESCRIPTION": "The University of Malaga's Meteor and Fireball Network",
+        "LOADING_MSG": "Loading stations...",
+        "ERROR_MSG": "Error loading stations",
+        "STATION_LIST": "Station list",
+        "STATION": {
+            "NAME": "Name",
+            "ALTITUDE": "Altitude",
+            "DESCRIPTION": "Description",
+            "COORDINATES": "Coordinates",
+            "CHIP": {
+                "SIZE": "Chip size",
+                "ORIENTATION": "Orientation"
+            },
+            "FILTER": "Filter",
+            "HEIGHT": {
+                "TITLE": "Height",
+                "MEASURE": "m"
+            }
+        },
+        "SHOW_BUTTON": "View on map",
+        "STATUS": {
+            "ACTIVE": "Active",
+            "CONSTRUCTING": "Under construction",
+            "COLLABORATION": "Collaboration"
+        }
+    },
+    "ORBIT_REPORT": {
+        "SELECT_OPT": {
+            "LABEL": "Select a report",
+            "PLACEHOLDER": "Select a report"
+        },
+        "ID": {
+            "label": "ID",
+            "measure": ""
+        },
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Time",
+            "measure": ""
+        },
+        "CALCULATED_WITH": {
+            "label": "Calculated with",
+            "measure": ""
+        },
+        "VELOCITY_INF": {
+            "label": "Inferred Velocity",
+            "measure": "Km/s"
+        },
+        "VELOCITY_GEOM": {
+            "label": "Geometric Velocity",
+            "measure": "Km/s"
+        },
+        "AR": {
+            "label": "AR",
+            "measure": "°"
+        },
+        "DE": {
+            "label": "DE",
+            "measure": "°"
+        },
+        "I": {
+            "label": "i",
+            "measure": "°"
+        },
+        "P": {
+            "label": "p",
+            "measure": "°"
+        },
+        "A": {
+            "label": "a",
+            "measure": "°"
+        },
+        "E": {
+            "label": "e",
+            "measure": ""
+        },
+        "Q": {
+            "label": "q",
+            "measure": "AU"
+        },
+        "T": {
+            "label": "T",
+            "measure": ""
+        },
+        "OMEGA": {
+            "label": "Omega",
+            "measure": "°"
+        },
+        "OMEGA_DEGREE": {
+            "label": "Omega degrees votes max min",
+            "measure": "°"
+        }
+    },
+    "SUMMARY_REPORT": {
+        "DATE": {
+            "label": "Date",
+            "measure": ""
+        },
+        "HOUR": {
+            "label": "Time",
+            "measure": ""
+        },
+        "FIRST_OBSERVATORY": {
+            "label": "Observatory 1",
+            "measure": ""
+        },
+        "SECOND_OBSERVATORY": {
+            "label": "Observatory 2",
+            "measure": ""
+        },
+        "USED_FRAMES": {
+            "label": "Used Frames",
+            "measure": ""
+        },
+        "DIHEDRAL_ANGLE": {
+            "label": "Dihedral angle between trajectory planes",
+            "measure": ""
+        },
+        "COORDINATES_TO_DATE": {
+            "label": "Astronomical coordinates of the radiant (Ecliptic of the date)",
+            "measure": ""
+        },
+        "COORDINATES_J2000": {
+            "label": "Astronomical coordinates of the radiant (J2000)",
+            "measure": ""
+        },
+        "AZIMUTH": {
+            "label": "Azimuth",
+            "measure": ""
+        },
+        "ZENITH_DISTANCE": {
+            "label": "Zenith distance",
+            "measure": ""
+        }
+    },
+    "SHOWER_STATE": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "PENDING": "Pending"
+    },
+    "BANNER": {
+        "ACTIVE_RAIN": "Active meteor showers!",
+        "NO_ACTIVE_RAIN": "No active meteor showers!",
+        "PREPOSITION": {
+            "AL": "to",
+            "DEL": "of"
+        }
+    },
+    "ADMIN": {
+        "BACK_ADMIN_PANEL_BTN": " Back to admin panel",
+        "CARDS": {
+            "EVENT": {
+                "TITLE": "Events",
+                "SUBTITLE": "Event editing",
+                "BUTTON": "View events"
+            },
+            "AUDIT": {
+                "TITLE": "Audit",
+                "SUBTITLE": "Event audit",
+                "BUTTON": "View audit"
+            },
+            "CONFIG": {
+                "TITLE": "Configuration",
+                "SUBTITLE": "Application configuration",
+                "BUTTON": "View configuration"
+            },
+            "USER": {
+                "TITLE": "Users",
+                "SUBTITLE": "User editing",
+                "BUTTON": "View users"
+            }
+        },
+        "EVENT_PAGE": {
+            "TITLE": "Event list",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Add Event",
+            "EDIT_BUTTON": "Modify Event",
+            "DELETE_BUTTON": "Delete Event",
+            "MODAL": {
+                "TITLE": "Event",
+                "DATE": "Date",
+                "DESCRIPTION": "Description",
+                "START_TIME": "Start time",
+                "END_TIME": "End time",
+                "ACTIVE": "Is active",
+                "ACTIVE_WEB": "Activate public web"
+            }
+        },
+        "AUDIT_PAGE": {
+            "TITLE": "Audit panel ",
+            "SUBTITLE": "Event audit",
+            "START_DATE": "Start date",
+            "END_DATE": "End date",
+            "SEARCH_BUTTON": "Search",
+            "CLEAR_BUTTON": "Clear",
+            "RESULTS": "Results",
+            "GRID": {
+                "ACCESS": "Access",
+                "WEB_USER": "Desktop user",
+                "MOBILE_USER": "Mobile user",
+                "DOWNLOAD_OF": "Download of {{software}}",
+                "NEW_USERS": "New users"
+            },
+            "TABLE": {
+                "EVENT_TYPE": "Event type",
+                "DATE": "Date",
+                "EVENT_TARGET": "Event target",
+                "GUEST_USER": "Guest user",
+                "MOBILE_USER": "Mobile user"
+            }
+        },
+        "USER_PAGE": {
+            "TITLE": "User list",
+            "SUBTITLE": "",
+            "ADD_BUTTON": "Add User",
+            "EDIT_BUTTON": "Modify User",
+            "DELETE_BUTTON": "Delete User",
+            "TABLE": {
+                "TITLE": "User",
+                "ID": "Identifier",
+                "NAME": "Name",
+                "SURNAME": "Surname",
+                "EMAIL": "Email",
+                "INSTITUTION": "Institution",
+                "COUNTRY": "Country"
+            }
+        }
+    },
+    "DISTANCE": {
+        "VERYFAR": "Very unlikely",
+        "FAR": "Unlikely",
+        "CLOSE": "Possible",
+        "VERYCLOSE": "Probable",
+        "EXACT": "Very probable"
+    },
+    "HOME": {
+        "TITLE": "Welcome to the Malaga Astronomy Society",
+        "LAST_BOLIDE": " Last registered fireball ",
+        "LAST_BOLIDE_TIME": {
+            "LESS_HOUR": " Less than an hour",
+            "AGO": "Ago ",
+            "HOURS": " hours",
+            "DAYS": " days"
+        },
+        "LOGIN": "Login",
+        "KNOW_MORE": "Learn more",
+        "LAST_BOLIDE_DATA": {
+            "DETAILS": " Last fireball details",
+            "DATE": "Date",
+            "HOUR": "Time",
+            "STATION": "Station",
+            "START_COORDINATES": "Start coordinates",
+            "END_COORDINATES": "End coordinates",
+            "VELOCITY": "Average velocity"
+        },
+        "SMART_INFO": {
+            "DETECTED_BOLIDES": "Detected fireballs",
+            "PHOTOMETRY_REPORTS": "Photometry reports",
+            "RADIAN_REPORTS": "Radiant reports",
+            "Z_REPORTS": "Two-station reports"
+        },
+        "LAST_YEAR_ACTIVITY": {
+            "TITLE": "Last year's activity",
+            "DATA_INFO": "Data collected by the University of Malaga's meteor station network"
+        },
+        "STATION": {
+            "TITLE": "SMA Associated Stations Map",
+            "DESCRIPTION": "Location of the observation stations of the SMA Meteor Detection Network.",
+            "NO_STATIONS_AVAILABLE": "No stations available",
+            "LOADING_STATIONS": "Loading stations...",
+            "MAP_INTERACTIVE_INFO": "Click on a station to see more information"
+        },
+        "ASTRONOMIC_CTO": {
+            "NOTE": " * The values shown correspond to the system of astronomical constants adopted by the International Astronomical Union (IAU).                                        Uncertainties represent 1σ. For scientific applications, always consult the latest IAU resolutions.",
+            "UA": {
+                "TITLE": "Astronomical Unit (AU)",
+                "DESCRIPTION": "Mean Earth-Sun distance"
+            },
+            "LIGHT_SPEED": {
+                "TITLE": "Speed of light (c)",
+                "DESCRIPTION": "Definition of the meter in the SI"
+            },
+            "HUBBLE": {
+                "TITLE": "Hubble constant (H₀)",
+                "DESCRIPTION": "Universe expansion rate"
+            },
+            "PARSEC": {
+                "TITLE": "Parsec (pc)",
+                "DESCRIPTION": "Distance with parallax of 1 arcsecond"
+            }
+        },
+        "SOLAR_SYSTEM": {
+            "TITLE": "Real-time Solar System",
+            "DESCRIPTION": "Explore our solar system with updated planetary positions",
+            "MORE_BTN": "More astronomical information"
+        },
+        "TEAM": {
+            "TITLE": "Malaga Astronomy Society Team",
+            "DESCRIPTION": "Meet the team members behind the Malaga Astronomy Society",
+            "MEMBERS": {
+                "NAME": "Name",
+                "SURNAME": "Surname",
+                "POSITION": "Position"
+            }
+        }
+    }
+}

@@ -35,35 +35,68 @@ Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, 
 
 1.  Clona el repositorio:
 
-    ```bash
-    git clone [https://github.com/cran/DELTD](https://github.com/cran/DELTD)
+    ```
+    git clone https://github.com/x1n4px/AstroUMA.git
+    cd AstroUMA
     ```
 
-2.  Instala las dependencias del backend:
+2. Gestión de la base de datos:
+   ```
+   CREATE USER 'astro_user'@'localhost' IDENTIFIED BY '0000';
+    CREATE DATABASE astro;
+    GRANT ALL PRIVILEGES ON astro.* TO 'astro_user'@'localhost';
+    FLUSH PRIVILEGES;
+
+   ```    
+
+3.  Instala las dependencias del backend:
 
     ```bash
-    cd backend
+    cd Backend
     npm install
+    pwd -> /home/user/git/AstroUMA/Backend
+    nano .env
+    ```
+    El .env:
+    ```
+    DB_HOST=localhost
+    DB_USER=astro_user
+    DB_PASSWORD=0000
+    DB_NAME=astro
+    JWT_SECRET=testingjwtpassword
     ```
 
-3.  Configura la base de datos MariaDB y las variables de entorno.
+    
+   
+    
 4.  Inicia el servidor backend:
-
-    ```bash
-    npm start
+    ```
+    npm run start
     ```
 
-5.  Instala las dependencias del frontend:
+5.  Frontend:
 
     ```bash
     cd ../frontend
     npm install
+    pwd -> /home/user/git/AstroUMA/Frontend
+    nano .env
+
     ```
+    El .env:
+    ```
+    VITE_API_URL=http://localhost:3005/api
+    VITE_GEMINI_API_KEY=00
+    VITE_GEMINI_MODEL=gemini-2.0-flash
+
+    ```
+    Habríar que generar una API key en https://aistudio.google.com/app/apikey, pero por el momento no lo vamos a hacer.
+
 
 6.  Inicia la aplicación frontend:
 
     ```bash
-    npm start
+    npm run start
     ```
 
 ## Uso
