@@ -1,7 +1,49 @@
+DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `pais` CASCADE;
+CREATE TABLE `pais` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pais_unique_nombre` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+LOCK TABLES `pais` WRITE;
+INSERT INTO `pais` VALUES
+(1,'Spain');
+UNLOCK TABLES;
+
+
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `surname` varchar(50) NOT NULL,
+  `pais_id` int(11) DEFAULT NULL,
+  `rol` varchar(100) DEFAULT NULL,
+  `institucion` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_unique_email` (`email`),
+  KEY `user_pais_FK` (`pais_id`),
+  CONSTRAINT `user_pais_FK` FOREIGN KEY (`pais_id`) REFERENCES `pais` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+LOCK TABLES `user` WRITE;
+INSERT INTO `user` VALUES
+(1,'user@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','Juan',' Gutierrez',1,'00000001','UMA'),
+(2,'perico@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','asfhi','iasndw',1,'10000000','asfasf'),
+(3,'use2r@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','Juan',' Gutierrez',1,'00000001','UMA');
+UNLOCK TABLES;
+
+
+
+
 
 DROP TABLE IF EXISTS `Informe_Error`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `Informe_Error` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `Informe_Z_Id` int(11) NOT NULL,
@@ -11,18 +53,12 @@ CREATE TABLE `Informe_Error` (
   `status` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`),
   KEY `Informe_Z_Id` (`Informe_Z_Id`),
-  KEY `Informe_Error_ibfk_2` (`user_Id`),
-  CONSTRAINT `Informe_Error_ibfk_1` FOREIGN KEY (`Informe_Z_Id`) REFERENCES `Informe_Z` (`IdInforme`) ON DELETE CASCADE,
-  CONSTRAINT `Informe_Error_ibfk_2` FOREIGN KEY (`user_Id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+  KEY `user_Id` (`user_Id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `Informe_Error`
---
+
 
 LOCK TABLES `Informe_Error` WRITE;
-/*!40000 ALTER TABLE `Informe_Error` DISABLE KEYS */;
 INSERT INTO `Informe_Error` VALUES
 (5,22,'SUMMARY_TAB','safasfasfasf2222asopfjasopm̀fgvaaa',1,1),
 (6,22,'INFERRED_DATA_TAB','Hay un problema con la segunda estacion',1,1),
@@ -37,16 +73,10 @@ INSERT INTO `Informe_Error` VALUES
 (15,2048,'SUMMARY_TAB','sdj32',3,0),
 (16,2048,'SUMMARY_TAB','hay un problema con la excentricidad',1,0),
 (17,616,'INFERRED_DATA_TAB','olknasdvkvf',1,0);
-/*!40000 ALTER TABLE `Informe_Error` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `audit_log`
---
 
 DROP TABLE IF EXISTS `audit_log`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `audit_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `event_type` varchar(255) NOT NULL,
@@ -59,14 +89,9 @@ CREATE TABLE `audit_log` (
   `isMobile` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=295 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `audit_log`
---
 
 LOCK TABLES `audit_log` WRITE;
-/*!40000 ALTER TABLE `audit_log` DISABLE KEYS */;
 INSERT INTO `audit_log` VALUES
 (72,'home',-1,'unknown',-1,'2025-04-25 13:06:29',1,'Nuevo acceso a la web: /home',0),
 (73,'home',-1,'unknown',-1,'2025-04-25 13:06:29',1,'Nuevo acceso a la web: /home',0),
@@ -291,16 +316,10 @@ INSERT INTO `audit_log` VALUES
 (292,'ACCESS',1,'login',-1,'2025-05-09 00:25:51',0,'Inicio de sesión',0),
 (293,'ACCESS',1,'login',-1,'2025-05-09 00:26:31',0,'Inicio de sesión',0),
 (294,'ACCESS',1,'login',-1,'2025-05-09 00:27:22',0,'Inicio de sesión',0);
-/*!40000 ALTER TABLE `audit_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `config`
---
 
 DROP TABLE IF EXISTS `config`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `key_value` varchar(100) NOT NULL,
@@ -311,28 +330,17 @@ CREATE TABLE `config` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `key_value` (`key_value`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `config`
---
 
 LOCK TABLES `config` WRITE;
-/*!40000 ALTER TABLE `config` DISABLE KEYS */;
 INSERT INTO `config` VALUES
 (5,'enableErrorAdvise','true','Ver avisos de error en reportes','2025-05-05 11:24:27',2),
 (6,'enableIASummary','true','Activar el uso de la inteligencia artificial para la generación de un resumen','2025-05-05 11:24:27',2),
 (7,'showDownloadTab','false','Mostrar los archivos para funciones externas','2025-05-05 11:25:51',2);
-/*!40000 ALTER TABLE `config` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `established_meteor_showers`
---
 
 DROP TABLE IF EXISTS `established_meteor_showers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `established_meteor_showers` (
   `LP` int(11) NOT NULL,
   `IAUNo` varchar(10) DEFAULT NULL,
@@ -372,14 +380,9 @@ CREATE TABLE `established_meteor_showers` (
   `ReferencesInfo` text DEFAULT NULL,
   PRIMARY KEY (`LP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `established_meteor_showers`
---
 
 LOCK TABLES `established_meteor_showers` WRITE;
-/*!40000 ALTER TABLE `established_meteor_showers` DISABLE KEYS */;
 INSERT INTO `established_meteor_showers` VALUES
 (1,'00001','000','CAP',1,'2006-mm-dd','alpha-Capricornids','annual',NULL,NULL,128.9,306.6,-8.2,0.54,0.25,22.2,306.91,178.01,10.67,88.04,259.32,'',2.618,0.602,NULL,266.67,128.9,7.68,36,0,0,'169P/NEAT (= 2002 EX12)','                                                                                                                                                      ','','LookUp table file name','1] <A href=\'http://adsabs.harvard.edu/abs/2006mspc.book.....J\' target=_blank>Jenniskens, 2006</A>'),
 (2,'00001','001','CAP',1,'2002-mm-dd','alpha-Capricornids','annual',NULL,NULL,122.3,306.7,-9.3,0.91,0.25,23.4,306.74,184.44,9.58,94.37,260.39,'',NULL,0.55,0.768,273.3,122.3,7.7,269,0,0,'','                                                                                                                                                      ','R','LookUp table file name','2] <A href=\'http://adsabs.harvard.edu/abs/2002dsso.conf...48G\' target=_blank>Galligan & Baggaley, 2002</A>'),
@@ -849,16 +852,10 @@ INSERT INTO `established_meteor_showers` VALUES
 (1147,'00569','000','OHY',1,'2013-11-27','omicron-Hydrids','2007/11',302,316,309,176.3,-34.1,0.8,-0.38,59.1,191.89,242.89,-32.39,138.74,324.31,'',NULL,0.684,0.931,68.6,128.9,114.3,29,0,0,'','                                                                                                                                                      ','T','LookUp table file name','1] <A href=\'http://adsabs.harvard.edu/abs/2014JIMO...42...90A\' target=_blank> Andreic et al., 2014</A>'),
 (1148,'00569','001','OHY',1,'2016-mm-dd','omicron-Hydrids','annual',306,319,312,179.2,-34.9,0.92,-0.4,58.2,194.83,242.83,-31.97,139,323.81,'M   1',6.2,0.673,0.891,70.9,133.3,114,12,0,0,'','                                                                                                                                                      ','T','LookUp table file name','2] <A href=\'http://adsabs.harvard.edu/abs/2016Icar..266..355J\' target=_blank>Jenniskens et al., 2016</A>'),
 (1149,'00569','003','OHY',1,'2023-05-01','omicron-Hydrids','annual',290.54,324.05,306.46,174.6,-32.9,0.81,-0.36,59.3,189.75,243.29,-31.99,139.25,324.26,'',9.96,0.683,0.931,68.7,126.5,115,97,0,0,'','                                                                                                                                                      ','T','569OHY_Shiba.csv','1) <A href=\'https://ui.adsabs.harvard.edu/abs/2023JIMO...51...93S\' target=_blank>Shiba, 2023</A>');
-/*!40000 ALTER TABLE `established_meteor_showers` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `event_config`
---
 
 DROP TABLE IF EXISTS `event_config`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `event_config` (
   `event_date` date DEFAULT NULL,
   `description` varchar(250) DEFAULT NULL,
@@ -869,27 +866,16 @@ CREATE TABLE `event_config` (
   `isWebOpen` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `event_config`
---
 
 LOCK TABLES `event_config` WRITE;
-/*!40000 ALTER TABLE `event_config` DISABLE KEYS */;
 INSERT INTO `event_config` VALUES
 ('2025-04-30','50 aniversario SMA Elcorteingles málaga',1,1,'15:00','21:00',1),
 ('2025-05-01','Evento interno SMA',0,2,'02:10','04:10',0);
-/*!40000 ALTER TABLE `event_config` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `meteor_showers`
---
 
 DROP TABLE IF EXISTS `meteor_showers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `meteor_showers` (
   `LP` int(11) NOT NULL,
   `IAUNo` varchar(10) DEFAULT NULL,
@@ -929,14 +915,9 @@ CREATE TABLE `meteor_showers` (
   `ReferencesInfo` text DEFAULT NULL,
   PRIMARY KEY (`LP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `meteor_showers`
---
 
 LOCK TABLES `meteor_showers` WRITE;
-/*!40000 ALTER TABLE `meteor_showers` DISABLE KEYS */;
 INSERT INTO `meteor_showers` VALUES
 (1,'00001','000','CAP',1,'2006-mm-dd','alpha-Capricornids                      ',' annual ',NULL,NULL,128.9,306.6,-8.2,0.54,0.25,22.2,306.91,178.01,10.67,88.04,259.32,'       ',2.618,0.602,NULL,266.67,128.9,7.68,36,0,0,'169P/NEAT (= 2002 EX12)                 ','                                                                                                                                                      ','    ','LookUp table file name','1] <A href=\'http://adsabs.harvard.edu/abs/2006mspc.book.....J\' target=_blank>Jenniskens, 2006</A>'),
 (2,'00001','001','CAP',1,'2002-mm-dd','alpha-Capricornids                      ',' annual ',NULL,NULL,122.3,306.7,-9.3,0.91,0.25,23.4,306.74,184.44,9.58,94.37,260.39,'       ',NULL,0.55,0.768,273.3,122.3,7.7,269,0,0,'                                        ','                                                                                                                                                      ','R   ','LookUp table file name','2] <A href=\'http://adsabs.harvard.edu/abs/2002dsso.conf...48G\' target=_blank>Galligan & Baggaley, 2002</A>'),
@@ -2664,78 +2645,6 @@ INSERT INTO `meteor_showers` VALUES
 (1724,'  -  ','000','   ',0,'2024-12-29','M2024-Y1                                ','2024    ',161.1,163,162.1,20.9,73.9,NULL,NULL,45.4,61.29,259.19,57.37,121.98,186.85,'       ',3.78,0.988,0.739,197.2,162.1,81.6,65,0,0,'                                        ','Corresponds to the one announced in CBET 5442                                                                                                         ','    ','M2024-Y1_Segon.csv    ','1) Segon, Vida, Roggemans, 2024, published in eMetN'),
 (1725,'  -  ','000','   ',0,'2025-01-27','M2025-B1                                ',' annual ',183.3,263.1,217.7,336.6,9.1,NULL,NULL,11,341.86,124.16,17.52,37.9,240.65,'       ',2.8,0.941,0.658,203.9,217.8,4.8,17,0,0,'104P/Kowal 2,46P/Wirtanen,289P/Blanpain ','                                                                                                                                                      ','    ','M2025-B1_Neslus_F1.csv','1) Neslusan et al., submitted to MNRAS'),
 (1726,'  -  ','001','   ',0,'2025-01-27','M2025-B1                                ',' annual ',209.5,224,217.2,330.9,29.1,NULL,NULL,11.4,345.57,128.37,37.97,51.83,218.5,'       ',2.64,0.959,0.635,203.6,217.2,10.7,17,0,0,'289P/Blanpain,46P/Wirtanen,104P/Kowal 2 ','                                                                                                                                                      ','    ','M2025-B1_Neslus_S2.csv','2) Neslusan et al., submitted to MNRAS');
-/*!40000 ALTER TABLE `meteor_showers` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `pais`
---
 
-DROP TABLE IF EXISTS `pais`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `pais` (
-  `id` int(11) NOT NULL,
-  `nombre` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `pais_unique_nombre` (`nombre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `pais`
---
-
-LOCK TABLES `pais` WRITE;
-/*!40000 ALTER TABLE `pais` DISABLE KEYS */;
-INSERT INTO `pais` VALUES
-(1,'Spain');
-/*!40000 ALTER TABLE `pais` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `user`
---
-
-DROP TABLE IF EXISTS `user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `surname` varchar(50) NOT NULL,
-  `pais_id` int(11) DEFAULT NULL,
-  `rol` varchar(100) DEFAULT NULL,
-  `institucion` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_unique_email` (`email`),
-  KEY `user_pais_FK` (`pais_id`),
-  CONSTRAINT `user_pais_FK` FOREIGN KEY (`pais_id`) REFERENCES `pais` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `user`
---
-
-LOCK TABLES `user` WRITE;
-/*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES
-(1,'user@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','Juan',' Gutierrez',1,'00000001','UMA'),
-(2,'perico@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','asfhi','iasndw',1,'10000000','asfasf'),
-(3,'use2r@gmail.com','$2b$10$a9GxSkrMryEUC.CNYzV/MeyHyaVd9sOEgTv7iTC9qFX43TAiwmq/K','Juan',' Gutierrez',1,'00000001','UMA');
-/*!40000 ALTER TABLE `user` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*M!100616 SET NOTE_VERBOSITY=@OLD_NOTE_VERBOSITY */;
-
--- Dump completed on 2025-05-09 13:30:53
