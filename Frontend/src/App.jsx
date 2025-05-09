@@ -24,7 +24,7 @@ import Home from './pages/basic/Home';
 import AuditPanel from './components/admin/auditPanel';
 import ConfigPanel from './components/admin/configPanel';
 import UserPanel from './components/admin/userPanel';
-
+import MoonReport from './pages/astronomy/report/moon.jsx'
 import {
   QR_USER_ROL,
   BASIC_USER_ROL,
@@ -39,7 +39,7 @@ import {
 
 
 const ProtectedRoute = ({ children, requiredRoles, requiredRoleMask }) => {
-  const [token, setToken] = useState(localStorage.getItem('authToken'));
+    const [token, setToken] = useState(localStorage.getItem('authToken'));
   const [userRoleMask, setUserRoleMask] = useState(localStorage.getItem('rol'));
 
 
@@ -80,10 +80,13 @@ const ProtectedRoute = ({ children, requiredRoles, requiredRoleMask }) => {
   return children;
 };
 
+
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Estado para manejar la carga inicial
-
+  const token = localStorage.getItem('authToken');
+  const userRoleMask = localStorage.getItem('rol');
 
 
   // Verificar el token al cargar la aplicación
@@ -105,9 +108,12 @@ function App() {
     localStorage.setItem('authToken', token);
     localStorage.setItem('loginTime', currentTime);
     setIsAuthenticated(true);
-    setToken(token);
-    setUserRoleMask(rol);
+    console.log('Token guardado en localStorage:', token);
+  
+    // ✅ Forzar recarga para evitar problemas de sincronización
+    window.location.href = '/dashboard';
   };
+  
 
   const logoutHandler = () => {
     localStorage.removeItem('authToken');
@@ -173,6 +179,7 @@ function App() {
           <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
           <Route path="/admin-panel/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
           <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
+          <Route path="/moon" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <MoonReport /></ProtectedRoute>} />
           {/* Otras rutas protegidas */}
         </Route>
 

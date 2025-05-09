@@ -1,0 +1,11 @@
+.responsive-div {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  @media (min-width: 1024px) {
+    .responsive-div {
+      width: 75%;
+    }
+  }
+  

@@ -5,6 +5,10 @@ import { Navbar as BootstrapNavbar, Nav, Container, Button, Dropdown } from 'rea
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 
+// You will need to import a CSS file where you define the
+// .navbar-70-width-container class, for example:
+// import './Navbar.css';
+
 const Navbar = () => {
   const { t, i18n } = useTranslation(['text']);
   const [expanded, setExpanded] = useState(false);
@@ -26,27 +30,23 @@ const Navbar = () => {
   const roleMask = (localStorage.getItem('rol'));
 
   return (
-    <BootstrapNavbar style={{ backgroundColor: '#980100' }} expand="lg" expanded={expanded} >
-      <Container>
+    <BootstrapNavbar style={{ backgroundColor: '#980100' }} expand="lg" expanded={expanded} onToggle={setExpanded}> {/* Use onToggle */}
+      {/* Add the custom class 'navbar-70-width-container' to the Container */}
+      <Container className="navbar-70-width-container">
         <BootstrapNavbar.Brand as={Link} to="https://www.astromalaga.es/" className="d-flex align-items-center">
-          {/* <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style={{ fill: "rgba(255, 255, 255, 1)", marginRight: "0.5rem" }}>
-            <path d="M20.92 2.38A15.72 15.72 0 0 0 17.5 2a8.26 8.26 0 0 0-6 2.06Q9.89 5.67 8.31 7.27c-1.21-.13-4.08-.2-6 1.74a1 1 0 0 0 0 1.41l11.3 11.32a1 1 0 0 0 1.41 0c1.95-2 1.89-4.82 1.77-6l3.21-3.2c3.19-3.19 1.74-9.18 1.68-9.43a1 1 0 0 0-.76-.73zm-2.36 8.75L15 14.67a1 1 0 0 0-.27.9 6.81 6.81 0 0 1-.54 3.94L4.52 9.82a6.67 6.67 0 0 1 4-.5A1 1 0 0 0 9.39 9s1.4-1.45 3.51-3.56A6.61 6.61 0 0 1 17.5 4a14.51 14.51 0 0 1 2.33.2c.24 1.43.62 5.04-1.27 6.93z"></path><circle cx="15.73" cy="8.3" r="2"></circle><path d="M5 16c-2 1-2 5a7.81 7.81 0 0 0 5-2z"></path>
-          </svg> */}
           <img src="/Logo-50-SMA.webp" alt="AstroUMA" style={{ width: '100px', height: 'auto', marginRight: '0.5rem' }} />
-          {/* <span className="font-weight-bold text-uppercase text-white" style={{ fontSize: '1.5rem' }}>AstroUMA</span> */}
         </BootstrapNavbar.Brand>
-        <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" onClick={() => setExpanded(expanded ? false : "expanded")} />
+        <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" /> {/* onToggle on Navbar handles expanded state */}
         <BootstrapNavbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/active-rain" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_ACTIVE_RAIN')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
             {(isNotQRUser(roleMask)) ? (
-              <Dropdown style={{ marginRight: '1rem' }}>
+              <Dropdown align="end" style={{ marginRight: '1rem' }}> {/* Added align="end" to keep dropdown on the right */}
                 <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
                   {t('NAVBAR.BTN_PROFILE')}
                 </Dropdown.Toggle>
-
 
                 <Dropdown.Menu>
                   <Dropdown.Item as={Link} to="/profile" onClick={() => setExpanded(false)}>
@@ -61,39 +61,41 @@ const Navbar = () => {
                     </Dropdown.Item>
                   )}
                 </Dropdown.Menu>
-
               </Dropdown>
             ) : (
               <Nav.Link onClick={handleLogout} style={{ color: 'white' }}> {t('NAVBAR.BTN_LOGOUT')}</Nav.Link>
-
             )}
-            <Dropdown>
-              <Dropdown.Toggle variant="outline-light" id="dropdown-basic">
+            {/* Language Dropdown */}
+            <Dropdown align="end"> {/* Added align="end" to keep dropdown on the right */}
+              <Dropdown.Toggle variant="outline-light" id="language-dropdown"> {/* Changed id for clarity */}
                 <img src={`/flag/${i18n.language}.webp`} alt={i18n.language.toUpperCase()} style={{ width: '20px' }} />
               </Dropdown.Toggle>
 
               <Dropdown.Menu style={{ minWidth: 'auto' }}>
                 <Dropdown.Item onClick={() => changeLanguage('en')}>
-                  <img src="/flag/en.webp" alt="English" style={{ width: '20px' }} />
+                  <img src="/flag/en.webp" alt="English" style={{ width: '20px', marginRight: '0.5rem' }} /> English
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => changeLanguage('es')}>
-                  <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px' }} />
+                  <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px', marginRight: '0.5rem' }} /> Español
                 </Dropdown.Item>
-                {/* <Dropdown.Item onClick={() => changeLanguage('fr')}>
-                  <img src="/flag/fr.webp" alt="French" style={{ width: '20px' }} />
+                {/* Uncomment and add more language options as needed */}
+                {/*
+                <Dropdown.Item onClick={() => changeLanguage('fr')}>
+                  <img src="/flag/fr.webp" alt="French" style={{ width: '20px', marginRight: '0.5rem' }} /> Français
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('ge')}>
-                  <img src="/flag/ge.webp" alt="Germany" style={{ width: '20px' }} />
+                <Dropdown.Item onClick={() => changeLanguage('de')}> {/* Use 'de' for German code */}
+                {/* <img src="/flag/ge.webp" alt="German" style={{ width: '20px', marginRight: '0.5rem' }} /> Deutsch
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('jp')}>
-                  <img src="/flag/jp.webp" alt="日本語" style={{ width: '20px' }} />
+                <Dropdown.Item onClick={() => changeLanguage('ja')}> {/* Use 'ja' for Japanese code */}
+                {/* <img src="/flag/jp.webp" alt="Japanese" style={{ width: '20px', marginRight: '0.5rem' }} /> 日本語
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('rs')}>
-                  <img src="/flag/rs.webp" alt="Russian" style={{ width: '20px' }} />
+                <Dropdown.Item onClick={() => changeLanguage('ru')}> {/* Use 'ru' for Russian code */}
+                {/* <img src="/flag/rs.webp" alt="Russian" style={{ width: '20px', marginRight: '0.5rem' }} /> Русский
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('ua')}>
-                  <img src="/flag/ua.webp" alt="Ukrainian" style={{ width: '20px' }} />
-                </Dropdown.Item> */}
+                 <Dropdown.Item onClick={() => changeLanguage('uk')}> {/* Use 'uk' for Ukrainian code */}
+                {/* <img src="/flag/ua.webp" alt="Ukrainian" style={{ width: '20px', marginRight: '0.5rem' }} /> Українська
+                </Dropdown.Item>
+                */}
               </Dropdown.Menu>
             </Dropdown>
           </Nav>

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const token = localStorage.getItem('authToken');
+
 export const saveReportAdvice = async (formData) => {
     try {
         const response = await axios.post(`${apiUrl}/reportz/advice`,  {formData} ,
@@ -33,6 +34,7 @@ export const deleteReportAdvice = async (id) => {
 
 
 export const getReportZ = async (id) => {
+    console.log('Token en getReportZ:', token); // Verifica el valor del token
     try {
         const response = await axios.get(`${apiUrl}/reportz/${id}`, {
             headers: {

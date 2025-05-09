@@ -4,9 +4,6 @@ import { Modal, Button } from 'react-bootstrap';
 const ChartModal = ({ show, onHide, children }) => {
   return (
     <Modal show={show} onHide={onHide} fullscreen={true}>
-      <Modal.Header closeButton>
-        <Modal.Title>Vista ampliada</Modal.Title>
-      </Modal.Header>
       <Modal.Body>
         {children}
       </Modal.Body>

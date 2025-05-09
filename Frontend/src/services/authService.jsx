@@ -9,6 +9,7 @@ export const loginUser = async (email, password, isMobile) => {
             password: password,
             isMobile: isMobile
         });
+        
         return response.data;
     } catch (error) {
         throw error;

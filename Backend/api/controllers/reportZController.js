@@ -4,6 +4,8 @@ const { isAdminUser } = require('../utils/roleMaskUtils')
 const { transform, convertSexagesimalToDecimal, individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
 const { QR_USER_ROL } = require('../utils/roleMaskUtils')
+const {getMoonPosition, getTimes, getPosition, getMoonIllumination} = require('suncalc');
+
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -352,9 +354,10 @@ function membershipPerihelion(bolideValue, showerValue) {
 
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
+    console.log('Bolide:', bolide);
+    console.log('Shower:', shower);
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
-    
-    if(pertenenciaDMRTV === 0) {
+    if (pertenenciaDMRTV === 0) {
         return 0;
     }
 
@@ -498,7 +501,7 @@ async function IAUShowers(id, date) {
     `, [report.IdInforme]);
 
     const dateToIAU = new Date(report.Fecha);
-    const day = dateToIAU.getDate(); 
+    const day = dateToIAU.getDate();
     const month = dateToIAU.getMonth() + 1;
     const formatted = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}`;
 
@@ -513,7 +516,7 @@ async function IAUShowers(id, date) {
     `, [formatted]);
 
     let lluvias_datos = [];
-        
+
     for (const lluvia of lluvias) {
         const cosValues = zwoData.map((punto) => {
             return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
@@ -530,21 +533,21 @@ async function IAUShowers(id, date) {
             ...lluvia,
             'Distancia_mínima_entre_radianes_y_trayectoria': distanciaMediaDeg.toFixed(2),
         });
-        
+
     }
     const result = [];
 
     for (const rs of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, rs);
-                if(membership > 2) {
-                    result.push({
-                        ...rs,
-                        membership
-                    });
-                }
-               
-           
+            if (membership > 2) {
+                result.push({
+                    ...rs,
+                    membership
+                });
+            }
+
+
         }
     }
 
@@ -554,104 +557,194 @@ async function IAUShowers(id, date) {
 
 
 
+const parseOrbitalFloat = (valueString) => {
+    if (!valueString || valueString.trim() === '') {
+        return null; // Return null for empty or whitespace-only strings
+    }
+    // Extract the first part before any space
+    const numberPart = valueString.trim().split(' ')[0];
+    const value = parseFloat(numberPart);
+    if (isNaN(value)) {
+        // Log a warning if parsing fails, but don't stop execution
+        console.warn(`Warning: Could not parse orbital value string "${valueString}" (part "${numberPart}") to float.`);
+        return null; // Return null if parsing fails
+    }
+    return value;
+};
+
+
+const getMoonPhaseDescription = (phase) => {
+    if (phase === 0) return 'New Moon';
+    if (phase > 0 && phase < 0.25) return 'Waxing Crescent';
+    if (phase === 0.25) return 'First Quarter';
+    if (phase > 0.25 && phase < 0.5) return 'Waxing Gibbous';
+    if (phase === 0.5) return 'Full Moon';
+    if (phase > 0.5 && phase < 0.75) return 'Waning Gibbous';
+    if (phase === 0.75) return 'Last Quarter';
+    if (phase > 0.75 && phase < 1) return 'Waning Crescent';
+    return 'Unknown';
+};
+
+// Helper to convert radians to degrees
+const toDegrees = rad => rad * 180 / Math.PI;
+
+// Helper to convert degrees to radians
+const toRadians = deg => deg * Math.PI / 180;
+
+// Helper to convert RA from degrees (0-360) to hours (0-24) for suncalc
+const raDegreesToHours = deg => deg / 15;
 
 const testing = async (req, res) => {
     try {
-        let id = 4;
-        const [reports] = await pool.query(`
-            SELECT iz.IdInforme, iz.Fecha 
-            FROM Informe_Z iz 
-            WHERE iz.IdInforme = ?
-        `, [id]);
-        const UMBRAL_GRADOS = 5; // Umbral de sensibilidad
+        const showerCode = 'CAP'; // The specific shower code to process
 
-        // Funciones auxiliares
-        const toRadians = deg => deg * Math.PI / 180;
-        const toDegrees = rad => rad * 180 / Math.PI;
+        // 1. Find all reports associated with the specified shower code and radiant distance < 5
+        // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
+        // and filter by the radiant distance threshold.
+        const [capReports] = await pool.query(`
+            SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1
+            FROM Informe_Z iz
+            JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme
+            WHERE la.Lluvia_Identificador = ? AND la.Distancia_mínima_entre_radianes_y_trayectoria < 10;
+        `, [showerCode]);
 
-        function cosDist(ar1, de1, ar2, de2) {
-            const α1 = toRadians(ar1);
-            const δ1 = toRadians(de1);
-            const α2 = toRadians(ar2);
-            const δ2 = toRadians(de2);
-
-            return Math.sin(δ1) * Math.sin(δ2) +
-                Math.cos(δ1) * Math.cos(δ2) * Math.cos(α1 - α2);
+        if (capReports.length === 0) {
+            // If no reports are found matching the criteria, return an appropriate response
+            return res.json({ message: `No reports found for shower code '${showerCode}' with radiant distance < 5.`, reportResults: [] });
         }
 
-        const calcularProbabilidad = (distanciaMediaDeg, umbral) => {
-            if (distanciaMediaDeg <= umbral) {
-                return 1; // Si está dentro del umbral, la probabilidad es 1 (100%)
-            }
-            // Probabilidad disminuye de forma exponencial más suavemente
-            const decayFactor = Math.exp(-(distanciaMediaDeg - umbral) / umbral);
-            return (decayFactor * 100).toFixed(2) + " %";
-        };
+
+        // 2. Fetch the established shower data for this code from established_meteor_showers
+        // We fetch all relevant parameters needed for the calculateMembership function.
+        const [establishedShowerData] = await pool.query(`
+            SELECT
+                ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ar, ms.De, ms.E as e, ms.A as a, ms.Q as q
+            FROM established_meteor_showers ms
+            WHERE ms.Code = ? AND ms.Ra != "" AND ms.De != "" AND ms.E != "" AND ms.A != "" AND ms.Q != "";
+        `, [showerCode]);
 
 
-        const report = reports[0];
-        const [zwoData] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Puntos_ZWO.Informe_Z_IdInforme = ?', [report.IdInforme]);
-        if (!report) return [];
 
-        const [orbital] = await pool.query(`
-            SELECT 
-                SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
-                SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
-                SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
-                SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
-                SUBSTRING_INDEX(eo.De, ' ', 1) AS De 
-            FROM Elementos_Orbitales eo 
-            WHERE eo.Informe_Z_IdInforme = ?;
-        `, [report.IdInforme]);
-
-        const [lluvias] = await pool.query(`
-                    SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
-                    FROM meteor_showers ms
-                    WHERE ms.Code != ""
-                    AND ms.SubDate BETWEEN DATE_SUB(?, INTERVAL 1 MONTH) AND DATE_ADD(?, INTERVAL 1 MONTH)
-                    GROUP BY ms.Code, ms.Status
-                    ORDER BY ms.SubDate DESC;
-        `, [report.Fecha, report.Fecha]);
-
-        let lluvias_datos = [];
-        for (const lluvia of lluvias) {
-            const cosValues = zwoData.map((punto) => {
-                return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
-            });
-
-            const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
-
-            // Clamp del valor entre -1 y 1 para evitar errores numéricos con acos
-            const clamped = Math.min(Math.max(mediaCos, -1), 1);
-            const distanciaMediaRad = Math.acos(clamped);
-            const distanciaMediaDeg = toDegrees(distanciaMediaRad);
-
-            lluvias_datos.push({
-                ...lluvia,
-                'Distancia_mínima_entre_radianes_y_trayectoria': distanciaMediaDeg.toFixed(2),
-            });
+        if (establishedShowerData.length === 0) {
+            // If the established shower data is not found, we cannot perform calculations
+            console.error(`Established shower data not found for code '${showerCode}' in established_meteor_showers. Cannot calculate membership.`);
+            return res.status(404).json({ error: `Established shower data not found for code '${showerCode}'.` });
         }
-        const result = [];
 
-        for (const rs of lluvias_datos) {
-            for (const ob of orbital) {
-                const membership = calculateMembership(ob, rs);
-                result.push({
-                    ...rs,
-                    membership
+        // Use the first entry from the established shower data array as the reference orbit
+        const capShowerEstablished = establishedShowerData[0];
+        capShowerEstablished.Distancia_mínima_entre_radianes_y_trayectoria = capReports[0].Distancia_mínima_entre_radianes_y_trayectoria;
+        const all_reports_results = []; // This array will store the results for each processed report
+
+        // 3. Loop through each CAP report found
+        for (const report of capReports) {
+            const currentReportId = report.IdInforme;
+            const currentReportFecha = report.Fecha;
+            const currentReportHora = report.Hora;
+            const reportRadiantDistance = report.Distancia_mínima_entre_radianes_y_trayectoria; // Keep track of this value
+
+
+            // Calculate Moon Phase
+            const ss = (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1))
+
+            const times = getTimes(new Date(currentReportFecha), ss.latitude, ss.longitude);
+            const sunriseStr = times.sunrise.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const sunrisePos = getPosition(times.sunrise, ss.latitude, ss.longitude);
+            const sunriseAzimuth = toDegrees(sunrisePos.azimuth); // Azimuth in degrees
+
+           
+            console.log('Sunrise Azimuth:', sunriseAzimuth);
+
+            const moonPhaseData = getMoonPosition(new Date(currentReportFecha));
+            const moonPhaseValue = moonPhaseData; // Value between 0 and 1
+            const moonPhaseDescription = getMoonPhaseDescription(moonPhaseValue);
+
+
+            // Limpiar los milisegundos a solo 3 dígitos como máximo
+            const horaLimpia = report.Hora.replace(/^(\d{2}:\d{2}:\d{2})\.(\d{3})\d*$/, '$1.$2');
+            
+            // Obtener solo la parte de la fecha (sin tiempo ni zona horaria)
+            const fechaSolo = new Date(report.Fecha).toISOString().split('T')[0]; // '2023-07-09'
+            
+            // Crear una nueva fecha combinada
+            const dateConjunto = new Date(`${fechaSolo}T${horaLimpia}Z`);
+            
+            const moonIlumination = getMoonIllumination(dateConjunto)
+            
+            
+
+
+
+
+
+
+
+            // 4. Fetch Orbital Elements for the current report
+            // Preserve the SUBSTRING_INDEX logic for parsing string values
+            const [orbitalElements] = await pool.query(`
+                SELECT
+                    SUBSTRING_INDEX(eo.e, ' ', 1) AS e_str,
+                    SUBSTRING_INDEX(eo.a, ' ', 1) AS a_str,
+                    SUBSTRING_INDEX(eo.q, ' ', 1) AS q_str,
+                    SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar_str,
+                    SUBSTRING_INDEX(eo.De, ' ', 1) AS De_str
+                FROM Elementos_Orbitales eo
+                WHERE eo.Informe_Z_IdInforme = ?;
+            `, [currentReportId]);
+
+
+            const report_memberships = []; // To store membership results for this specific report
+
+            // 5. Calculate Membership for each set of orbital elements against the established CAP shower data
+            for (const ob_str of orbitalElements) {
+                // Parse orbital elements from strings to numbers using the helper function
+                const parsed_ob = {
+                    e: parseOrbitalFloat(ob_str.e_str),
+                    a: parseOrbitalFloat(ob_str.a_str),
+                    q: parseOrbitalFloat(ob_str.q_str),
+                    Ar: parseOrbitalFloat(ob_str.Ar_str),
+                    De: parseOrbitalFloat(ob_str.De_str)
+                };
+
+                // IMPORTANT: Ensure 'calculateMembership' function is defined and available in this scope.
+                // It should accept the report's parsed orbital elements and the shower's established parameters.
+                let membershipValue = calculateMembership(parsed_ob, capShowerEstablished);
+
+
+                // Store the results for this orbital element set
+                report_memberships.push({
+                    // Include the membership value and any error encountered
+                    membership: membershipValue,
                 });
             }
+
+            // After processing all orbital elements for the current report, add the report's results
+            all_reports_results.push({
+                reportId: currentReportId,
+                fecha: currentReportFecha,
+                hora: currentReportHora,
+                radiantDistance: reportRadiantDistance, // Include the radiant distance from Lluvia_activa
+                moonIlumination,
+                zenithalHeightDeg: sunriseAzimuth, // Zenithal height in degrees
+                orbitalMemberships: report_memberships // List of membership results per orbital set
+            });
         }
 
-
-
-
-
-        res.json({ result });
+        // 6. Return the accumulated results for all processed CAP reports
+        res.json({
+            showerCode: showerCode,
+            establishedShowerDataUsed: { // Optionally include the established data used for clarity
+                Code: capShowerEstablished.Code,
+                Activity: capShowerEstablished.Activity,
+                // Add other relevant fields from capShowerEstablished if desired in the output
+            },
+            reportResults: all_reports_results // Results grouped by report
+        });
 
     } catch (error) {
-        console.error('Error al obtener las estaciones:', error);
-        res.status(500).json({ error: 'Error al obtener las estaciones' });
+        console.error('Error processing CAP reports:', error);
+        // Return a 500 status code and error details
+        res.status(500).json({ error: 'Error processing CAP reports', details: error.message });
     }
 };
 
