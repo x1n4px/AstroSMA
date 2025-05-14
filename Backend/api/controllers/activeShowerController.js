@@ -9,7 +9,7 @@ const getAllShower = async (req, res) => {
 
         const [shower] = await pool.query('SELECT DISTINCT * FROM Lluvia l GROUP BY Identificador');
         const [IAUShower] = await pool.query('SELECT * FROM meteor_showers')
-        
+
         res.json({ shower, IAUShower });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -18,7 +18,8 @@ const getAllShower = async (req, res) => {
 
 const getNextShower = async (req, res) => {
     try {
-        const [shower] = await pool.query(`SELECT *
+        const [shower] = await pool.query(`
+            SELECT *
 FROM Lluvia l
 INNER JOIN (
     SELECT Identificador, MAX(Año) AS AñoMax
@@ -27,19 +28,11 @@ INNER JOIN (
 ) latest
 ON l.Identificador = latest.Identificador AND l.Año = latest.AñoMax
 WHERE (
-    CURDATE() BETWEEN l.Fecha_Inicio AND l.Fecha_Fin
-    OR
-    ABS(DATEDIFF(
-        STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(l.Fecha_Inicio), '-', DAY(l.Fecha_Inicio)), '%Y-%m-%d'),
-        CURDATE()
-    )) <= 15
-    OR
-    ABS(DATEDIFF(
-        STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(l.Fecha_Fin), '-', DAY(l.Fecha_Fin)), '%Y-%m-%d'),
-        CURDATE()
-    )) <= 15
+    -- Día y mes actuales están entre Fecha_Inicio y Fecha_Fin (ignorando el año)
+    DATE_FORMAT(CURDATE(), '%m-%d') BETWEEN DATE_FORMAT(l.Fecha_Inicio, '%m-%d') AND DATE_FORMAT(l.Fecha_Fin, '%m-%d')
 )
-ORDER BY l.Año DESC;`);
+ORDER BY l.Año DESC;
+            `);
         res.json({ shower });
     } catch (error) {
         res.status(500).json({ error: error.message });

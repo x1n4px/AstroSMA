@@ -235,8 +235,8 @@ function Dashboard() {
   return (
     <div style={{ backgroundColor: '#f8f9fa' }}>
       <NextRain />
-      <Container fluid >
-        <div className="responsive-div" fluid style={{ backgroundColor: '#f8f9fa', }}>
+      <div className="responsive-div" >
+        <div style={{ backgroundColor: '#f8f9fa', }}>
           {isNotQRUser(roleMask) && (
             <div className="d-flex justify-content-between align-items-center mb-3 pt-3 mx-3">
               <Button style={{ backgroundColor: 'gray', borderColor: '#980100' }} onClick={handleOpenSettingsModal}>
@@ -257,9 +257,9 @@ function Dashboard() {
             </div>
           )}
 
-        <Row className="justify-content-center mt-4 mx-1">
+          <Row className="justify-content-center mt-4 mx-1">
             <Button className="py-2" style={{ backgroundColor: '#980100', borderColor: '#980100' }} action as={Link} to="/customize-search">
-            <Search className="h-4 w-4 mx-2" />
+              <Search className="h-4 w-4 mx-2" />
               {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
             </Button>
           </Row>
@@ -432,7 +432,7 @@ function Dashboard() {
             size="xl"
           />
         </div>
-      </Container >
+      </div >
     </div >
   );
 }

@@ -3,6 +3,7 @@ import { getAllShower } from '@/services/activeShower.jsx';
 import { Table, Button, Container, Row, Col, Tab, Tabs } from "react-bootstrap";
 import { formatDate } from '@/pipe/formatDate.jsx';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 const ActiveShower = () => {
     const { t } = useTranslation(['text']);
@@ -90,7 +91,9 @@ const ActiveShower = () => {
                                             showerDetails.map((shower, index) => (
                                                 <tr key={index}>
                                                     <td>{shower.Identificador}</td>
-                                                    <td>{shower.Nombre}</td>
+                                                    <td> <Link to={`/shower-info/${shower.Identificador}`} target="_blank" rel="noopener noreferrer">
+                                                        {shower.Nombre}
+                                                    </Link></td>
                                                     <td>{shower.Fecha_Inicio ? formatDate(shower.Fecha_Inicio) : ''}</td>
                                                     <td>{shower.Fecha_Fin ? formatDate(shower.Fecha_Fin) : ''}</td>
                                                     <td>{shower.Velocidad}</td>
@@ -167,21 +170,21 @@ const ActiveShower = () => {
                                             <td>{(shower.SubDate)}</td>
                                             <td>{shower.Activity}</td>
                                             <td>
-                                                        {showerCode[shower.Code] ? (
-                                                            <Button
-                                                                style={{ backgroundColor: '#980100', border: '#980100' }}
-                                                                onClick={() => handleShowDetails({
-                                                                    ...shower,
-                                                                    src: showerCode[shower.Code]
-                                                                })}
-                                                                size="sm"
-                                                            >
-                                                                {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
-                                                            </Button>
-                                                        ) : (
-                                                            <span className="text-muted"></span>
-                                                        )}
-                                                    </td>
+                                                {showerCode[shower.Code] ? (
+                                                    <Button
+                                                        style={{ backgroundColor: '#980100', border: '#980100' }}
+                                                        onClick={() => handleShowDetails({
+                                                            ...shower,
+                                                            src: showerCode[shower.Code]
+                                                        })}
+                                                        size="sm"
+                                                    >
+                                                        {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
+                                                    </Button>
+                                                ) : (
+                                                    <span className="text-muted"></span>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))
                                 ) : (

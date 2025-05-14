@@ -9,7 +9,18 @@ export const loginUser = async (email, password, isMobile) => {
             password: password,
             isMobile: isMobile
         });
-        
+        console.log(response.data);
+         // Si la llamada es exitosa y la respuesta contiene un token
+         if (response.data && response.data.token) {
+            console.log('Token recibido:', response.data.token);
+            localStorage.setItem('authToken', response.data.token);
+            localStorage.setItem('loginTime', new Date().toISOString());
+           
+            // Aquí también podrías guardar otra información del usuario si es necesario
+            // localStorage.setItem('userId', response.data.userId);
+        }
+        localStorage.setItem('rol', response.data.rol);
+
         return response.data;
     } catch (error) {
         throw error;

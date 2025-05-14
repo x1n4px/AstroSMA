@@ -9,14 +9,27 @@ const auditEvent = require('../middlewares/audit')
 const registerUser = async (req, res) => {
     try {
         const { email, password, name, surname, countryId, institution, isMobile } = req.body;
+
+        // Validación básica
+        if (!email || !password || !name || !surname || !countryId || !institution) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+        }
+
+        // Comprobar si ya existe un usuario con el mismo email
+        const [existingUser] = await pool.query('SELECT id FROM user WHERE email = ?', [email]);
+        if (existingUser.length > 0) {
+            return res.status(409).json({ error: 'Ya existe un usuario con ese correo electrónico.' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const rol = '00000001';
 
         // Obtener el último ID
         const [lastIdResult] = await pool.query('SELECT MAX(id) AS maxId FROM user');
-        const lastId = lastIdResult[0].maxId || 0; // Obtener el valor maxId, o 0 si no hay registros
+        const lastId = lastIdResult[0].maxId || 0;
+        const newId = lastId + 1;
 
-        const newId = lastId + 1; // Generar el nuevo ID
+        // Insertar el nuevo usuario
         await pool.query(
             'INSERT INTO user (id, email, password, name, surname, pais_id, institucion, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
             [newId, email, hashedPassword, name, surname, countryId, institution, rol]
@@ -24,13 +37,17 @@ const registerUser = async (req, res) => {
 
         // Generar el token JWT
         const token = jwt.sign({ userId: newId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        const saf = auditEvent('REGISTER', newId, 'register', -1, 0, 'Registro de usuario', isMobile);
+
+        // Auditar el evento
+        auditEvent('REGISTER', newId, 'register', -1, 0, 'Registro de usuario', isMobile);
 
         res.status(201).json({ token, rol });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error al registrar usuario:', error);
+        res.status(500).json({ error: 'Ha ocurrido un error al registrar el usuario.' });
     }
 };
+
 
 const loginUser = async (req, res) => {
     try {

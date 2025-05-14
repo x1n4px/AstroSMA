@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-const MultiMarkerMapChart = ({ data, observatory, lat = 40.4168, lon = -3.7038, zoom = 6 }) => {
+const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7038, zoom = 6, eminHeight=500 }) => {
     const mapRef = useRef(null);
     const polylineRefs = useRef([]);
     const markerRefs = useRef([]);
@@ -128,7 +128,7 @@ const MultiMarkerMapChart = ({ data, observatory, lat = 40.4168, lon = -3.7038, 
         };
     }, [data, lat, lon, zoom]);
 
-    return <div ref={mapContainerRef} id="map" style={{ width: '100%', height: '100%', minHeight: '500px' }}></div>;
+    return <div ref={mapContainerRef} id="map" style={{ width: '100%', height: '100%', minHeight: eminHeight }}></div>;
 };
 
 export default MultiMarkerMapChart;

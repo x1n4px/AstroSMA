@@ -99,6 +99,20 @@ Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, 
     npm run start
     ```
 
+7. Deja en ejecución en servidor:
+	Backend	
+```
+	pm2 start npm --name backend -- run dev
+	
+	```
+
+	frontend:
+	```
+	pm2 serve dist 5173 --name frontend
+	```
+
+
+
 ## Uso
 
 1.  Abre la aplicación web en tu navegador.

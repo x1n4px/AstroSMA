@@ -1,30 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { isTokenExpired } from '@/auth/auth.jsx'
 
-import Login from '@/pages/Auth/Login';
-import Dashboard from '@/pages/basic/Dashboard';
-import Layout from '@/layout/Layout';
-import Register from '@/pages/Auth/Register';
-import Station from '@/pages/astronomy/Station';
-import Bolide from '@/pages/astronomy/bolide';
-import Profile from '@/pages/basic/Profile';
-import Report from '@/pages/astronomy/report/report';
-import NotFound from '@/pages/basic/NotFound'; // Importa el componente NotFound
-import CustomizeSearch from '@/pages/search/customizeSearch';
-import ActiveRain from '@/pages/astronomy/activeShower.jsx';
-import RadiantReport from '@/pages/astronomy/report/radiantReport';
-import PhotometryReport from './pages/astronomy/report/pages/photometryReport';
-import QRLogin from './pages/Auth/QRLogin';
-import AdminPanel from './pages/Auth/AdminPanel';
-import EventComponent from './components/admin/eventPanel';
-import Home from './pages/basic/Home';
-import AuditPanel from './components/admin/auditPanel';
-import ConfigPanel from './components/admin/configPanel';
-import UserPanel from './components/admin/userPanel';
-import MoonReport from './pages/astronomy/report/moon.jsx'
+const Login = lazy(() => import('@/pages/Auth/Login'));
+const Dashboard = lazy(() => import('@/pages/basic/Dashboard'));
+const Register = lazy(() => import('@/pages/Auth/Register'));
+const Station = lazy(() => import('@/pages/astronomy/Station'));
+const Bolide = lazy(() => import('@/pages/astronomy/bolide'));
+const Profile = lazy(() => import('@/pages/basic/Profile'));
+const Report = lazy(() => import('@/pages/astronomy/report/report'));
+const NotFound = lazy(() => import('@/pages/basic/NotFound'));
+const CustomizeSearch = lazy(() => import('@/pages/search/customizeSearch'));
+const ActiveRain = lazy(() => import('@/pages/astronomy/activeShower.jsx'));
+const RadiantReport = lazy(() => import('@/pages/astronomy/report/radiantReport'));
+const PhotometryReport = lazy(() => import('./pages/astronomy/report/pages/photometryReport'));
+const QRLogin = lazy(() => import('./pages/Auth/QRLogin'));
+const AdminPanel = lazy(() => import('./pages/Auth/AdminPanel'));
+const EventComponent = lazy(() => import('./components/admin/eventPanel'));
+const Home = lazy(() => import('./pages/basic/Home'));
+const AuditPanel = lazy(() => import('./components/admin/auditPanel'));
+const ConfigPanel = lazy(() => import('./components/admin/configPanel'));
+const UserPanel = lazy(() => import('./components/admin/userPanel'));
+const ShowerInfo = lazy(() => import('./pages/astronomy/report/showerInfo.jsx'));
+const Dashb2 = lazy(() => import('./pages/basic/dashb2.jsx'));
+
+const Layout = lazy(() => import('./layout/Layout.jsx'));
+
 import {
   QR_USER_ROL,
   BASIC_USER_ROL,
@@ -39,7 +42,7 @@ import {
 
 
 const ProtectedRoute = ({ children, requiredRoles, requiredRoleMask }) => {
-    const [token, setToken] = useState(localStorage.getItem('authToken'));
+  const [token, setToken] = useState(localStorage.getItem('authToken'));
   const [userRoleMask, setUserRoleMask] = useState(localStorage.getItem('rol'));
 
 
@@ -103,17 +106,13 @@ function App() {
   }, []);
 
   const loginHandler = (token, rol) => {
-    const currentTime = new Date().toISOString();
-    localStorage.setItem('rol', rol);
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('loginTime', currentTime);
-    setIsAuthenticated(true);
-    console.log('Token guardado en localStorage:', token);
-  
-    // ✅ Forzar recarga para evitar problemas de sincronización
-    window.location.href = '/dashboard';
+    if (token) {
+      setIsAuthenticated(true);
+    }
+
+    // window.location.href = '/dashboard';
   };
-  
+
 
   const logoutHandler = () => {
     localStorage.removeItem('authToken');
@@ -127,65 +126,69 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/home" element={<Home />} />
-        <Route
-          path="/login"
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={loginHandler} />}
-        />
-        <Route path="/register" element={<Register />} />
-
-        {/* Redirigir desde "/" a "/dashboard" si el usuario está autenticado */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
-        <Route path='/qr-login' element={<QRLogin onLogin={loginHandler} />} />
-
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Layout onLogout={logoutHandler} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        >
-          <Route path="dashboard"
-            element={
-              <ProtectedRoute requiredRoleMask="ALL_USER">
-                <Dashboard />
-              </ProtectedRoute>}
+      <Suspense fallback={<div>Cargando página...</div>}>
+        <Routes>
+          <Route path="/home" element={<Home />} />
+          <Route
+            path="/login"
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={loginHandler} />}
           />
-          <Route path="station" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Station /></ProtectedRoute>} />
-          <Route path="bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
-          <Route path="/report/:reportId/bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
-          <Route path="profile" element={<ProtectedRoute requiredRoleMask="NOT_QR"><Profile /></ProtectedRoute>} />
-          <Route path="/report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Report /></ProtectedRoute>} />
-          <Route path="/customize-search" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <CustomizeSearch /></ProtectedRoute>} />
-          <Route path="/active-rain" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ActiveRain /></ProtectedRoute>} />
-          <Route path="/radiant-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <RadiantReport /></ProtectedRoute>} />
-          <Route path="/photometry-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <PhotometryReport /></ProtectedRoute>} />
-          <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
-          <Route path="/admin-panel/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
-          <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
-          <Route path="/admin-panel/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
-          <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
-          <Route path="/moon" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <MoonReport /></ProtectedRoute>} />
-          {/* Otras rutas protegidas */}
-        </Route>
+          <Route path="/register" element={<Register />} />
 
-        {/* Ruta comodín para páginas no encontradas */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* Redirigir desde "/" a "/dashboard" si el usuario está autenticado */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
+          <Route path='/qr-login' element={<QRLogin onLogin={loginHandler} />} />
+
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Layout onLogout={logoutHandler} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          >
+            <Route path="dashboard"
+              element={
+                <ProtectedRoute requiredRoleMask="ALL_USER">
+                  <Dashb2 />
+                </ProtectedRoute>}
+            />
+            <Route path="station" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Station /></ProtectedRoute>} />
+            <Route path="bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
+            <Route path="/report/:reportId/bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute requiredRoleMask="NOT_QR"><Profile /></ProtectedRoute>} />
+            <Route path="/report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Report /></ProtectedRoute>} />
+            <Route path="/customize-search" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <CustomizeSearch /></ProtectedRoute>} />
+            <Route path="/active-rain" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ActiveRain /></ProtectedRoute>} />
+            <Route path="/radiant-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <RadiantReport /></ProtectedRoute>} />
+            <Route path="/photometry-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <PhotometryReport /></ProtectedRoute>} />
+            <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
+            <Route path="/admin-panel/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
+            <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
+            <Route path="/admin-panel/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
+            <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
+            <Route path="/shower-info/:selectedCode?" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ShowerInfo /></ProtectedRoute>} />
+
+
+            {/* Otras rutas protegidas */}
+          </Route>
+
+          {/* Ruta comodín para páginas no encontradas */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

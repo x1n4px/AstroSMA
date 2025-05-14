@@ -34,13 +34,27 @@ export const deleteReportAdvice = async (id) => {
 
 
 export const getReportZ = async (id) => {
-    console.log('Token en getReportZ:', token); // Verifica el valor del token
     try {
         const response = await axios.get(`${apiUrl}/reportz/${id}`, {
+            headers: {
+                'x-token': localStorage.getItem('authToken'), // Agrega el token como encabezado x-token
+            },
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const getReportZListFromRain = async(selectedCode, dateIn, dateOut) => {
+    try {
+        const response = await axios.get(`${apiUrl}/reportz/testing/${selectedCode}/${dateIn}/${dateOut}`, {
             headers: {
                 'x-token': token, // Agrega el token como encabezado x-token
             },
         });
+        
         return response.data;
     } catch (error) {
         throw error;

@@ -1,0 +1,412 @@
+import React, { useEffect, useState, useRef } from 'react';
+import { Container, Row, Col, Form, Button, InputGroup, Dropdown, Card, ListGroup, Placeholder } from 'react-bootstrap';
+import { Search, PersonCircle, Gear } from 'react-bootstrap-icons';
+import { getGeneral } from '@/services/dashboardService.jsx';
+import { useTranslation } from 'react-i18next';
+import BarChart from '@/components/chart/BarChart';
+import PieChart from '@/components/chart/PieChart';
+import ScatterPlot from '@/components/chart/ScatterPlot';
+import LineChart from '@/components/chart/LineChart';
+import CurveLineChart from '@/components/chart/CurveLineChart';
+import { Link } from 'react-router-dom';
+import { formatDate } from '@/pipe/formatDate.jsx'
+import NextRain from '@/components/nextRain.jsx';
+
+import '@/assets/customResponsiveDiv.css'
+import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
+import DasboardMap from '@/components/dashboard/DashboardMap.jsx';
+
+// Skeleton
+import SmallBoxSkeleton from '@/components/skeleton/SmallBoxSkeleton.jsx';
+import ChartSkeleton from '@/components/skeleton/ChartSkeleton.jsx';
+import MapSkeleton from '../../components/skeleton/MapSkeleton';
+import ListSkeleton from '@/components/skeleton/ListSkeleton.jsx';
+import ButtonsSkeleton from '@/components/skeleton/ButtonSkeleton.jsx';
+
+const Dashb2 = () => {
+    const { t } = useTranslation(['text']);
+    const options = [
+        { value: "1", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_10') },
+        { value: "2", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_25') },
+        { value: "3", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_50') },
+        { value: "4", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_6_MONTHS') },
+        { value: "5", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_YEAR') },
+        { value: "6", label: t('DASHBOARD_MODAL.SEARCH_RANGE_OPTION.LAST_5_YEAR') }
+    ];
+
+    const [chartsToShow, setChartsToShow] = useState(4);
+    const [searchRange, setsearchRange] = useState(1);
+    const [previousSearchRange, setPreviousSearchRange] = useState(1);
+    const isInitialMount = useRef(true);
+
+    const [chartData, setChartData] = useState([]);
+    const [pieChartData, setPieChartData] = useState([]);
+    const [groupChartData, setGroupChartData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [monthObservationsFrequency, setMonthObservationsFrequency] = useState([]);
+    const [meteorInflowAzimuthDistribution, setMeteorInflowAzimuthDistribution] = useState([]);
+    const [relationBtwTrajectoryAngleAndDistance, setRelationBtwTrajectoryAngleAndDistance] = useState([]);
+    const [hourWithMoreDetection, setHourWithMoreDetection] = useState([]);
+    const [predictableImpact, setPredictableImpact] = useState([]);
+    const [excentricitiesOverNinety, setExcentricitiesOverNinety] = useState([]);
+    const [distanceWithErrorFromObservatory, setDistanceWithErrorFromObservatory] = useState([]);
+    const [velocityDispersionVersusDihedralAngle, setVelocityDispersionVersusDihedralAngle] = useState([]);
+    const [observatoryData, setObservatoryData] = useState([]);
+    const [showerPerYearData, setShowerPerYearData] = useState([]);
+    const [lastReport, setLastReport] = useState([]);
+    const [lastReportMap, setLastReportMap] = useState([]);
+    const [lastReportData, setLastReportData] = useState();
+    const [counterReport, setCounterReport] = useState([]);
+    const [meteorLastYear, setMeteorLastYear] = useState([]);
+    const [activeShowers, setActiveShowers] = useState([]);
+    const [percentageFromLastBolideMonth, setPercentageFromLastBolideMonth] = useState();
+    const [curvePercentageGroupLastYearBolido, setCurvePercentageGroupLastYearBolido] = useState([]);
+    const handleSearch = () => {
+        console.log('Search button clicked');
+    };
+
+    const Box = ({ children, className = '', color = '#f8f9fa' }) => (
+        <Card className={`h-100 ${className}`} style={{ backgroundColor: color }}>
+            <Card.Body className="d-flex align-items-center justify-content-center" >
+                <div className="text-center w-100" >{children}</div>
+            </Card.Body>
+        </Card>
+    );
+
+    const fetchData = async () => {
+        try {
+            const responseD = await getGeneral(searchRange);
+            setChartData(responseD.barChartData)
+            setPieChartData(responseD.pieChartData);
+            setGroupChartData(responseD.groupChartData);
+            setMonthObservationsFrequency(responseD.monthObservationsFrequency);
+            setMeteorInflowAzimuthDistribution(responseD.meteorInflowAzimuthDistribution);
+            setRelationBtwTrajectoryAngleAndDistance(responseD.relationBtwTrajectoryAngleAndDistance);
+            setHourWithMoreDetection(responseD.hourWithMoreDetection);
+            setPredictableImpact(responseD.impactMapFormat);
+            setExcentricitiesOverNinety(responseD.excentricitiesOverNinety);
+            setLastReport(responseD.lastReport);
+            setDistanceWithErrorFromObservatory(responseD.distanceWithErrorFromObservatory);
+            setVelocityDispersionVersusDihedralAngle(responseD.velocityDispersionVersusDihedralAngle);
+            setObservatoryData(responseD.observatoryDataFormatted);
+            setLastReportMap(responseD.lastReportMap);
+            setShowerPerYearData(responseD.showerPerYearData);
+            setLastReportData(responseD.processedLastReport[0]);
+            setCounterReport(responseD.counterReport);
+            setMeteorLastYear(responseD.meteorLastYear);
+            setActiveShowers(responseD.activeShower);
+            setPercentageFromLastBolideMonth(responseD.percentageFromLastBolideMonth);
+            setCurvePercentageGroupLastYearBolido(responseD.curvePercentageGroupLastYearBolido);
+            setExcentricitiesOverNinety(responseD.excentricitiesOverNinety);
+            console.log(responseD)
+            setLoading(false);
+        } catch (error) {
+            setError(error);
+            setLoading(false);
+        }
+    }
+
+    const datosTransformados = monthObservationsFrequency.map(d => ({
+        ...d,
+        mes_anio: new Date(d.mes_anio),
+    }));
+
+    useEffect(() => {
+        fetchData();
+    }, [searchRange]);
+
+    return (
+        <>
+            <NextRain />
+
+            <Container fluid className="responsive-div">
+                {/* Header Section */}
+                <header className="dashboard-header p-3">
+                    <Row className="align-items-center">
+                        <Col md={6} className="d-flex align-items-center">
+                            <Button
+                                as={Link}
+                                to="/customize-search"
+                                className="py-2"
+                                style={{ backgroundColor: '#980100', borderColor: '#980100' }}
+                            >
+                                <Search /> Búsqueda personalizada
+                            </Button>
+                        </Col>
+
+                        <Col md={6} className="d-flex justify-content-end">
+                            <div className="d-flex align-items-center">
+                                <Form.Select
+                                    value={searchRange}
+                                    onChange={(e) => setsearchRange(e.target.value)}
+                                    className="me-3"
+                                    style={{ width: '200px' }}
+                                >
+                                    {options.map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                            </div>
+                        </Col>
+                    </Row>
+                </header>
+
+                {/* Main Content Area */}
+                <main className="dashboard-content p-4">
+                    {/* Map Section */}
+                    <Row className="mb-4" style={{ height: 'auto' }}>
+                        <div>
+                            <h5>Último bólido registrado</h5>
+
+                            {loading ? (
+                                <MapSkeleton height="400px" />
+                            ) : (
+
+                                <DasboardMap observatoryData={observatoryData} lastReportMap={lastReportMap} lastReportData={lastReportData} />
+                            )}
+                        </div>
+                    </Row>
+
+                    <Container className="main-container" style={{ maxWidth: '100%' }}>
+                        {/* Row 1 */}
+                        <Row className="mb-4">
+                            {/* Caja 1 - 4 subcajas (50% width) */}
+                            <Col md={6} className="mb-3 mb-md-0">
+                                <Row>
+                                    {loading ? (
+                                        Array.from({ length: 6 }).map((_, i) => (
+                                            <Col xs={6} key={`skeleton-col-${i}`} className="mb-3">
+                                                <SmallBoxSkeleton />
+                                            </Col>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <Col xs={6} key="col1" className="mb-3">
+                                                <Box key="box1" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>
+                                                            {t('HOME.SMART_INFO.DETECTED_BOLIDES')}
+                                                        </span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>
+                                                            {counterReport[3]?.Total}
+                                                        </small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+
+                                            <Col xs={6} key="col2" className="mb-3">
+                                                <Box key="box2" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>{t('HOME.SMART_INFO.PHOTOMETRY_REPORTS')}</span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{counterReport[2]?.Total}</small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+                                            <Col xs={6} key="col3" className="mb-3">
+                                                <Box key="box3" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>{t('HOME.SMART_INFO.RADIAN_REPORTS')}</span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{counterReport[1]?.Total}</small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+                                            <Col xs={6} key="col4" className="mb-3">
+                                                <Box key="box4" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>{t('HOME.SMART_INFO.Z_REPORTS')}</span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{counterReport[0]?.Total}</small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+                                            <Col xs={6} key="col5" className="mb-3">
+                                                <Box key="box5" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>Detecciones en este mes</span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth[0]?.current_detections}</small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+                                            <Col xs={6} key="col6" className="mb-3">
+                                                <Box key="box6" color={'#980100'}>
+                                                    <div className="d-flex flex-column justify-content-center align-items-center">
+                                                        <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>Detecciones en el mes anterior</span>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth[0]?.previous_month_detections}</small>
+                                                    </div>
+                                                </Box>
+                                            </Col>
+                                        </>
+                                    )}
+                                </Row>
+                            </Col>
+
+                            {/* Caja 2 - (50% width) */}
+                            <Col md={6}>
+                                <Box key="box5">
+                                    {loading ? (
+                                        <ChartSkeleton height="300px" />
+                                    ) : (
+                                        <div style={{ height: '300px', width: '100%' }}>
+                                            <BarChart data={meteorLastYear} key={`dashb-barchart-meteor`} />
+                                        </div>
+                                    )}
+                                </Box>
+                            </Col>
+                        </Row>
+
+                        {/* Row 2 */}
+                        <Row className="mb-4">
+                            {/* Caja 3 - (60% width) */}
+                            <Col md={9} key="box6" style={{ position: 'relative', height: '100%' }}>
+                                <Box>
+                                    <h5>Detecciones de meteoros por año</h5>
+                                    {loading ? (
+                                        <ChartSkeleton height="500px" />
+                                    ) : (
+                                        <div key="box6" style={{ position: 'relative', width: '100%', height: '100%' }}>
+                                            <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+                                                <CurveLineChart data={curvePercentageGroupLastYearBolido} width={900} height={500} />
+                                            </div>
+
+                                        </div>
+                                    )}
+                                </Box>
+                            </Col>
+
+                            {/* Caja 4 - (40% width) */}
+                            <Col md={3}>
+                                <Box key="box7">
+                                    {loading ? (
+                                        <ListSkeleton items={5} />
+                                    ) : (
+                                        <div style={{ maxHeight: '500px' }}>
+                                            <h5>Últimos bólidos con excentricidad superior al 90%</h5>
+                                            <ListGroup style={{ overflowY: 'auto', maxHeight: '400px' }}>
+                                                {excentricitiesOverNinety.map((item, index) => (
+                                                    <ListGroup.Item key={`${item.Fecha}-${item.Hora}`}>
+                                                        <Button as={Link} to={`/report/${item.IdInforme}`} style={{ border: 'none', backgroundColor: 'transparent', color: 'black' }}>{formatDate(item.Fecha)} {item?.Hora.substring(0, 8)}</Button>
+                                                    </ListGroup.Item>
+                                                ))}
+                                            </ListGroup>
+                                        </div>
+                                    )}
+
+
+                                </Box>
+                            </Col>
+                        </Row>
+
+                        {/* Row 3 */}
+                        <Row className="mb-4">
+                            {/* Caja 5 - (40% width) */}
+                            <Col md={2}>
+                                <Box key="box8">
+                                    <h5>Lluvias activas</h5>
+                                    {loading ? (
+                                        <ButtonsSkeleton count={3} />
+                                    ) : (
+                                        activeShowers?.map((lluvia) => (
+                                            <Col key={lluvia.Identificador} className="mb-3">
+                                                <Button
+                                                    as={Link}
+                                                    to={`/shower-info/${lluvia.Identificador}`}
+                                                    variant="outline-danger"
+                                                    style={{ width: "100%", borderRadius: '10px', padding: '0.5em 1em', color: '#980100', borderColor: '#980100' }}
+                                                >
+                                                    {lluvia.Nombre}
+                                                </Button>
+                                            </Col>
+                                        ))
+                                    )}
+
+                                </Box>
+                            </Col>
+
+                            {/* Caja 6 - (30% width) */}
+                            <Col md={3}>
+                                <Box key="box9">
+                                    <h5>Distribución de meteoros por número de estaciones</h5>
+                                    <div className='d-flex flex-column justify-content-center align-items-center'>
+                                        {loading ? (
+                                            <ChartSkeleton height="180px" />
+                                        ) : (
+                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '350px', width: '100%', marginBlock: '10px' }}>
+                                                <PieChart data={pieChartData} key={`key-pie-chart}`} />
+                                            </div>
+                                        )}
+                                    </div>
+                                </Box>
+                            </Col>
+
+                            {/* Caja 7 - (30% width) */}
+                            <Col md={7}>
+                                <Box key="box10">
+
+                                    {loading ? (
+                                        <ChartSkeleton height="350px" />
+                                    ) : (
+                                        <div style={{ overflow: 'auto', width: '100%', height: '450px' }}>
+                                            <MultiMarkerMapChart data={predictableImpact} key={`key-a9-${chartsToShow}`} eminHeight={350} zoom={5} />
+                                        </div>
+                                    )}
+                                </Box>
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-4">
+                            <Col md={9}>
+                                <Box key="box11">
+                                    <h5>Cantidad de lluvias activas por mes y año</h5>
+                                    {loading ? (
+                                        <ChartSkeleton height="400px" />
+                                    ) : (
+                                        <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                            <ScatterPlot data={showerPerYearData} xVariable="Lluvia_Año" yVariable="Lluvia_Identificador" />
+                                        </div>
+                                    )}
+                                </Box>
+                            </Col>
+
+                            <Col md={3}>
+                                <div className="d-flex flex-column justify-content-center align-items-center">
+                                    <Box key={`box12`}>
+                                        <h5>Velocidad media de los bólidos</h5>
+                                        {loading ? (
+                                            <ChartSkeleton height="150px" />
+                                        ) : (
+                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                                <BarChart data={chartData} key={`key-a1`} />
+                                            </div>
+                                        )}
+                                        <hr />
+                                        <h5>Frecuencia de detecciones por mes y año</h5>
+                                        {loading ? (
+                                            <ChartSkeleton height="150px" />
+                                        ) : (
+                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                                <LineChart data={datosTransformados} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
+                                            </div>
+                                        )}
+                                        <hr />
+                                        <h5> Horas del día con más detecciones de meteoros</h5>
+                                        {loading ? (
+                                            <ChartSkeleton height="150px" />
+                                        ) : (
+                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                                <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
+                                            </div>
+                                        )}
+                                    </Box>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Container>
+                </main >
+            </Container >
+        </>
+    );
+};
+
+export default Dashb2;

@@ -1,5 +1,6 @@
 /* src/index.css or src/App.css */
 :root {
+    --text-primary: #980100
     --primary-color: #8B0000; /* Darker, more modern red than #980100 */
     --primary-color-hover: #6a0000;
     --background-color: #f8f9fa; /* Light grey background */

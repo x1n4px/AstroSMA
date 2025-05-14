@@ -38,7 +38,94 @@ const getGeneral = async (req, res) => {
                      iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, 
                      iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora 
                      FROM Informe_Z iz ORDER BY iz.IdInforme DESC LIMIT 1`,
-      lastReport: `SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT 1`
+      lastReport: `SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT 1`,
+      counterReport: `SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z
+                                              UNION ALL
+                                              SELECT 'Informe_Radiante', COUNT(*) FROM Informe_Radiante
+                                              UNION ALL
+                                              SELECT 'Informe_Fotometria', COUNT(*) FROM Informe_Fotometria
+                                              UNION ALL
+                                              SELECT 'Meteoro', COUNT(*) FROM Meteoro;
+                                              `,
+      meteorLastYear: `SELECT 
+                                              DATE_FORMAT(Fecha, '%Y-%m') AS mes,
+                                              COUNT(*) AS total
+                                            FROM Meteoro
+                                            WHERE Fecha >= DATE_SUB(
+                                                (SELECT MAX(Fecha) FROM Meteoro), 
+                                                INTERVAL 12 MONTH
+                                            )
+                                            GROUP BY DATE_FORMAT(Fecha, '%Y-%m')
+                                            ORDER BY mes DESC;
+                                                `,
+      activeShower: `SELECT * FROM Lluvia l
+          INNER JOIN (SELECT Identificador, MAX(Año) AS AñoMax FROM Lluvia  GROUP BY Identificador
+          ) latest
+          ON l.Identificador = latest.Identificador AND l.Año = latest.AñoMax WHERE (
+              DATE_FORMAT(CURDATE(), '%m-%d') BETWEEN DATE_FORMAT(l.Fecha_Inicio, '%m-%d') AND DATE_FORMAT(l.Fecha_Fin, '%m-%d')
+          )
+          ORDER BY l.Año DESC`,
+      percentageFromLastBolideMonth: `SELECT 
+    curr.anio AS year,
+    curr.mes AS month,
+    curr.num_detections AS current_detections,
+    prev.num_detections AS previous_month_detections,
+    ROUND(
+        IF(prev.num_detections = 0, NULL,
+           ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100),
+        2
+    ) AS percentage_change
+FROM (
+    SELECT 
+        YEAR(Fecha) AS anio,
+        MONTH(Fecha) AS mes,
+        COUNT(*) AS num_detections
+    FROM Meteoro
+    WHERE 
+        YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro)
+        AND MONTH(Fecha) = (SELECT MONTH(MAX(Fecha)) FROM Meteoro WHERE YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro))
+    GROUP BY YEAR(Fecha), MONTH(Fecha)
+) AS curr
+LEFT JOIN (
+    SELECT 
+        YEAR(Fecha) AS anio,
+        MONTH(Fecha) AS mes,
+        COUNT(*) AS num_detections
+    FROM Meteoro
+    GROUP BY YEAR(Fecha), MONTH(Fecha)
+) AS prev
+ON (curr.anio = prev.anio AND curr.mes = prev.mes + 1)
+   OR (curr.anio = prev.anio + 1 AND curr.mes = 1 AND prev.mes = 12);
+`,
+      curvePercentageGroupLastYearBolido: `SELECT 
+    curr.year,
+    curr.month,
+    curr.num_detections,
+    prev.num_detections AS previous_month_detections,
+    ROUND(
+        IF(prev.num_detections = 0, NULL,
+           ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100),
+        2
+    ) AS percentage_change
+FROM (
+    SELECT 
+        YEAR(Fecha) AS year,
+        MONTH(Fecha) AS month,
+        COUNT(*) AS num_detections
+    FROM Informe_Z
+    GROUP BY YEAR(Fecha), MONTH(Fecha)
+) AS curr
+LEFT JOIN (
+    SELECT 
+        YEAR(Fecha) AS year,
+        MONTH(Fecha) AS month,
+        COUNT(*) AS num_detections
+    FROM Informe_Z
+    GROUP BY YEAR(Fecha), MONTH(Fecha)
+) AS prev
+ON (curr.year = prev.year AND curr.month = prev.month + 1)
+   OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12)
+ORDER BY curr.year DESC, curr.month DESC;`
     };
 
     // Consultas que dependen de límite o fecha
@@ -208,7 +295,12 @@ const getGeneral = async (req, res) => {
       observatoryDataFormatted: data.observatory.map(transform),
       lastReportMap: formatLastReportMap(data.lastReportMap),
       showerPerYearData: data.showerPerYear,
-      processedLastReport: processLastReport(data.lastReport)
+      processedLastReport: processLastReport(data.lastReport),
+      counterReport: data.counterReport,
+      meteorLastYear: data.meteorLastYear,
+      activeShower: data.activeShower,
+      percentageFromLastBolideMonth: data.percentageFromLastBolideMonth,
+      curvePercentageGroupLastYearBolido: data.curvePercentageGroupLastYearBolido,
     };
 
     res.json(processedData);
@@ -218,7 +310,7 @@ const getGeneral = async (req, res) => {
   }
 };
 
-
+// ------------------------------------------------------
 
 const getGeneralHome = async (req, res) => {
   try {

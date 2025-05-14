@@ -1,0 +1,49 @@
+/* TabsStyles.css */
+
+/* Estilo base para las pestañas (opcional, para unificar) */
+.nav-tabs .nav-link {
+    color: #495057; /* Un color base para las pestañas inactivas */
+    background-color: #f8f9fa; /* Un fondo base para las pestañas inactivas */
+    border: 1px solid #dee2e6;
+    margin-right: 2px;
+    border-radius: 0.25rem 0.25rem 0 0;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  }
+  
+  /* Estilo para la pestaña activa para crear contraste */
+  .nav-tabs .nav-link.active {
+    color: #fff; /* Color de texto que contraste con el fondo oscuro */
+    background-color: #980100; /* Un color de fondo más oscuro o vibrante */
+    border-color: #980100 #980100 #fff; /* Ajusta los bordes para que se integren */
+    font-weight: bold; /* Hacer el texto más prominente */
+    /* También podrías usar filter para aumentar el contraste si el contenido es una imagen o similar */
+    /* filter: contrast(150%); */
+  }
+  
+  /* Estilo para el hover en pestañas inactivas (opcional) */
+  .nav-tabs .nav-link:not(.active):hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+  }
+  
+  /* Si estás usando la variante 'pills' en lugar de 'tabs' */
+  .nav-pills .nav-link {
+    color: #980100;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    margin-right: 2px;
+    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  }
+  
+  .nav-pills .nav-link.active {
+    color: #fff;
+    background-color: #980100;
+    font-weight: bold;
+  }
+  
+  .nav-pills .nav-link:not(.active):hover {
+    background-color: #e9ecef;
+  }

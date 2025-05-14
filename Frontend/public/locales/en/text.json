@@ -740,8 +740,8 @@
         "VERYFAR": "Very unlikely",
         "FAR": "Unlikely",
         "CLOSE": "Possible",
-        "VERYCLOSE": "Probable",
-        "EXACT": "Very probable"
+        "VERYCLOSE": "likely",
+        "EXACT": "Very likely"
     },
     "HOME": {
         "TITLE": "Welcome to the Malaga Astronomy Society",

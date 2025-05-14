@@ -28,6 +28,7 @@ function Register() {
   useEffect(() => {
     const fetchCountries = async () => {
       const countries = await getCountry();
+      console.log(countries);
       setCountryOptions(countries.map(country => ({
         value: country.id,
         label: country.nombre,
@@ -64,9 +65,18 @@ function Register() {
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
       const { token, rol } = await registerUser(email, password, firstName, lastName, countryId, institution, isMobile);
+      localStorage.setItem('token', token);
+      localStorage.setItem('rol', rol);
       navigate('/login');
     } catch (error) {
-      setError(<>{t('REGISTER.ERROR.CREDENTIALS')}</>);
+      console.log(error.response.status);
+      if (error.response.status === 400) {
+        setError(<>{t('REGISTER.ERROR.CREDENTIALS')}</>);
+      } else if (error.response.status === 409) {
+        setError(<>{t('REGISTER.ERROR.EMAIL_ALREADY_EXISTS')}</>);
+      } else {
+        setError(<>{t('REGISTER.ERROR.CREDENTIALS')}</>);
+      }
     }
   };
 

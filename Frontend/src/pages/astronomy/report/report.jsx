@@ -16,6 +16,7 @@ import VideoReport from '@/pages/astronomy/report/pages/videoReport';
 import RotationReport from './pages/rotationReport';
 import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
+import '@/assets/TabsStyles.css';
 
 import { getReportZ } from '@/services/reportService.jsx'
 
@@ -126,7 +127,7 @@ const Report = () => {
 
 
     useEffect(() => {
-        if (reportGemini === 'azd112') {
+        if (getConfigValue('showDownloadTab') || reportGemini === 'azd112') {
             setActiveTab('INFERRED_DATA_TAB');
         }
     }, [reportGemini]);
@@ -242,13 +243,14 @@ const Report = () => {
             <Row className="mb-4">
 
                 <div className="p-4">
-                    { ( getConfigValue('enableErrorAdvise') ||  isNotQRUser(rol) ) && (
-                        <Row className="justify-content-between align-items-center">
-                            <Col xs="auto">
-                                {reportData && (
-                                    <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0, 8) })}</h1>
-                                )}
-                            </Col>
+
+                    <Row className="justify-content-between align-items-center">
+                        <Col xs="auto">
+                            {reportData && (
+                                <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0, 8) })}</h1>
+                            )}
+                        </Col>
+                        {(getConfigValue('enableErrorAdvise') && isNotQRUser(rol)) && (
                             <Col xs="auto">
                                 <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
                                     <svg
@@ -263,8 +265,9 @@ const Report = () => {
                                     {t('REPORT.WARNING_BTN')}
                                 </Button>
                             </Col>
-                        </Row>
-                    )}
+                        )}
+                    </Row>
+
                     <Tabs
                         activeKey={activeTab}
                         onSelect={(k) => setActiveTab(k)}
@@ -273,9 +276,9 @@ const Report = () => {
                         unmountOnExit // Desmontar el contenido cuando se cambia de pestaña
 
                     >
-                        {controlGeminiError(reportGemini) && (
+                        {controlGeminiError(reportGemini) || getConfigValue('enableIASummary') && (
                             <Tab eventKey="SUMMARY_TAB" title={t('REPORT.SUMMARY_TAB')}>
-                                
+
                                 <AdviceAlert
                                     tabKey="SUMMARY_TAB"
                                     adviceData={adviceData}
@@ -367,7 +370,7 @@ const Report = () => {
                             </Tab>
                         )}
 
-                        {isNotQRUser(rol) || getConfigValue('showDownloadTab') && (
+                        {isNotQRUser(rol) && getConfigValue('showDownloadTab') && (
                             <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
                                 <AdviceAlert
                                     tabKey="ASSOCIATED_DOWNLOAD_LINK"
