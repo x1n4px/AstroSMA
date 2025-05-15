@@ -19,6 +19,8 @@ const WebConfigController = require ('./routes/webConfigRoute')
 
 app.use(cors());
 app.use(express.json());
+const PORT = process.env.PORT || 3005;
+
 
 app.get("/", (req, res) => {
   res.send("Express on Vercel");
@@ -40,10 +42,9 @@ app.use('/api', FileController);
 app.use('/api', WebConfigController);
 
 
-const port = 3005;
 
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
 
