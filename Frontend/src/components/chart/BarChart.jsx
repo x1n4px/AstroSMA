@@ -14,7 +14,7 @@ function BarChart({ data }) {
 
     svg.selectAll('*').remove();
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    const margin = { top: 20, right: 20, bottom: 50, left: 40 }; // Aumentamos el margen inferior para las etiquetas diagonales
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
@@ -25,8 +25,8 @@ function BarChart({ data }) {
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     if (data && data.length > 0) {
-      const labelKey = Object.keys(data[0])[0]; // Obtener el primer nombre de propiedad
-      const valueKey = Object.keys(data[0])[1]; // Obtener el segundo nombre de propiedad
+      const labelKey = Object.keys(data[0])[0];
+      const valueKey = Object.keys(data[0])[1];
 
       const x = d3
         .scaleBand()
@@ -40,7 +40,15 @@ function BarChart({ data }) {
         .nice()
         .range([innerHeight, 0]);
 
-      g.append('g').attr('transform', `translate(0,${innerHeight})`).call(d3.axisBottom(x));
+      const xAxis = g.append('g')
+        .attr('transform', `translate(0,${innerHeight})`)
+        .call(d3.axisBottom(x))
+        .selectAll('text')
+        .style('text-anchor', 'end')
+        .attr('dx', '-.8em')
+        .attr('dy', '.15em')
+        .attr('transform', 'rotate(-65)'); // Rotamos las etiquetas
+
       g.append('g').call(d3.axisLeft(y));
 
       g.selectAll('.bar')

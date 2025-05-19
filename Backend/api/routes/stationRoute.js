@@ -6,5 +6,7 @@ const StationController = require('../controllers/stationController');
 router.get('/stations', StationController.getAllStations);
 router.get('/stations/nearby', StationController.getNearbyStations);
 router.get('/stations/associated/:id', StationController.getAsocciatedStations);
+router.put('/stations/:id', StationController.updateStationStatus);
+
 
 module.exports = router;

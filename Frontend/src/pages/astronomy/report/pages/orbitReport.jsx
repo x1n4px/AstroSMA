@@ -23,7 +23,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
     const handleOrbitChange = (event) => {
         setSelectedOrbitIndex(parseInt(event.target.value));
     };
- 
+
 
     return (
         <Container>
@@ -120,17 +120,9 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                             parseFloat(selectedOrbit.q) > 0
                         ) && (
                                 <>
-                                <div style={{ width: '100%', height: 'auto', marginBottom: '150px' }}>
-                                    {/* <BolideOrbitVisualization orbit={selectedOrbit} date={reportDate}/> */}
-                                    {/* <GlobeWithObject
-                                        key={selectedOrbit.Ar}
-                                        orbitalElements={selectedOrbit}
-                                        lat={observatory.latitude}
-                                        lon={observatory.longitude}
-                                        reportDate={reportDate}
-                                    /> */}
-                                    <OrbitalView date="2022-01-22" />
-                                    <OrbitalView3D date="2022-01-22" orbit={selectedOrbit} />
+                                    <div style={{ width: '100%', height: 'auto', marginBottom: '150px' }}>
+
+                                        <OrbitalView3D date={selectedOrbit.Fecha} orbit={selectedOrbit} />
                                     </div>
                                 </>
                             )}

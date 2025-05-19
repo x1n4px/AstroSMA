@@ -17,8 +17,9 @@ function Register() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [error, setError] = useState('');
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [acceptedTermsInModal, setAcceptedTermsInModal] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const [institution, setInstitution] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
@@ -81,7 +82,27 @@ function Register() {
   };
 
   const handleShowTermsModal = () => setShowTermsModal(true);
-  const handleCloseTermsModal = () => setShowTermsModal(false);
+  const handleCloseTermsModal = () => {setShowTermsModal(false); setAcceptedTerms(false); setAcceptedTermsInModal(false);};
+    
+
+  const handleMainCheckboxChange = (e) => {
+    setAcceptedTerms(e.target.checked);
+    // Si se marca el checkbox principal, también abrimos el modal
+    if (e.target.checked) {
+      handleShowTermsModal();
+    }
+  };
+
+  // Función para manejar el cambio del checkbox dentro del modal
+  const handleTermsInModalChange = (e) => {
+    setAcceptedTermsInModal(e.target.checked);
+  };
+
+  // Función para manejar el cierre del modal y actualizar el estado principal
+  const handleCloseAndConfirmTerms = () => {
+    setAcceptedTerms(acceptedTermsInModal);
+    setShowTermsModal(false);
+  };
 
   return (
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', position: 'relative' }}>
@@ -173,7 +194,7 @@ function Register() {
                         </>
                       }
                       checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                      onChange={handleMainCheckboxChange}
                     />
                   </Form.Group>
                   {error && <Alert variant="danger">{error}</Alert>}
@@ -189,14 +210,27 @@ function Register() {
           </Col>
         </Row>
 
-        <Modal show={showTermsModal} onHide={handleCloseTermsModal}>
+        <Modal centered size="xl" show={showTermsModal} onHide={handleCloseTermsModal}>
           <Modal.Header closeButton>
             <Modal.Title>{t('TERMS_AND_CONDITIONS.TITLE')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <TermsAndConditions />
+            <Form.Group className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label={t('TERMS_AND_CONDITIONS.ACCEPT_MODAL_BTN')}
+                checked={acceptedTermsInModal}
+                onChange={handleTermsInModalChange}
+              />
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
+            {acceptedTermsInModal && (
+              <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleCloseAndConfirmTerms}>
+                {t('TERMS_AND_CONDITIONS.ACCEPT_BTN')}
+              </Button>
+            )}
             <Button variant="secondary" onClick={handleCloseTermsModal}>
               {t('TERMS_AND_CONDITIONS.CLOSE_BTN')}
             </Button>

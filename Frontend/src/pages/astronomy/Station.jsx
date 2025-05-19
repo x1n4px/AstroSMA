@@ -1,15 +1,18 @@
 import StationMapChart from '@/components/map/StationMapChart';
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, ListGroup, Badge } from 'react-bootstrap';
-import { getStations } from '@/services/stationService';
-
+import { getStations, updateStationStatus } from '@/services/stationService';
+import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
+import { useLocation } from "react-router-dom";
+import BackToAdminPanel from '@/components/admin/BackToAdminPanel.jsx'; // Asegúrate de que la ruta sea correcta
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
 function Station() {
     const { t } = useTranslation(['text']);
-
+    const location = useLocation();
+    console.log(location.pathname === '/admin-panel/station-panel');
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -19,11 +22,13 @@ function Station() {
     const mapRef = useRef(null);
     const mapInstance = useRef(null); // Para almacenar la instancia del mapa
 
+    const rol = localStorage.getItem('rol');
+
+
     useEffect(() => {
         const fetchStations = async () => {
             try {
                 const data = await getStations();
-                console.log(data)
                 setStations(data);
             } catch (err) {
                 setError(err);
@@ -56,9 +61,27 @@ function Station() {
         });
     };
 
+
+    const fetchUpdateStation = async (id) => {
+        try {
+            const response = await updateStationStatus(id);
+            setStations(prevStations =>
+                prevStations.map(st =>
+                    st.id === id ? { ...st, state: st.state === 0 ? 1 : 0 } : st
+                )
+            );
+        } catch (error) {
+            console.error('Error fetching report data:', error);
+            setError(error);
+        }
+    }
+
     const mapKey = `${latitude}-${longitude}-${zoom}`;
 
     return (
+
+        <> 
+        {location.pathname === '/admin-panel/station-panel' && <BackToAdminPanel />}
         <div style={{ padding: '20px' }}>
             <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>{t('STATION.TITLE')}</h1>
             <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
@@ -110,15 +133,39 @@ function Station() {
                                     <span className="fw-bold">{station.stationName}</span>
                                 </div>
                                 <div className="text-center" style={{ minWidth: '150px' }}>
-                                    <Badge
-                                        bg={station.state === 0 ? 'success' : station.state === 1 ? 'warning' : 'primary'}
-                                        className="text-capitalize"
-                                    >
-                                       {station.state === 0 ? t('STATION.STATUS.ACTIVE') : station.state === 1 ? t('STATION.STATUS.CONSTRUCTING') : t('STATION.STATUS.COLLABORATION')}
+                                    {(isAdminUser(rol) && location.pathname === '/admin-panel/station-panel') ? (
+                                        <Button
+                                            variant={station.state === 0 ? 'success' : 'danger'}
+                                            size="sm"
+                                            onClick={() => fetchUpdateStation(station.id)}
+                                        >
+                                            {station.state === 0
+                                                ? t('STATION.ACTION.ACTIVATE')
+                                                : t('STATION.ACTION.DEACTIVATE')}
+                                        </Button>
+                                    ) : (
+                                        <Badge
+                                            bg={
+                                                station.state === 0
+                                                    ? 'success'
+                                                    : station.state === 1
+                                                        ? 'warning'
+                                                        : 'primary'
+                                            }
+                                            className="text-capitalize"
+                                        >
+                                            {station.state === 0
+                                                ? t('STATION.STATUS.ACTIVE')
+                                                : station.state === 1
+                                                    ? t('STATION.STATUS.CONSTRUCTING')
+                                                    : t('STATION.STATUS.COLLABORATION')}
                                         </Badge>
+                                    )}
+
                                 </div>
+
                                 <Button variant="outline-primary" size="sm" onClick={() => cambiarDato(station.latitude, station.longitude, 10)}>
-                                {t('STATION.SHOW_BUTTON')}
+                                    {t('STATION.SHOW_BUTTON')}
                                 </Button>
                             </ListGroup.Item>
                         ))}
@@ -126,6 +173,7 @@ function Station() {
                 )}
             </div>
         </div>
+        </>
     );
 }
 

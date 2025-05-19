@@ -24,8 +24,6 @@ const getGeneral = async (req, res) => {
     const commonQueries = {
       monthObservationsFrequency: `SELECT DATE_FORMAT(Fecha, '%Y-%m') AS mes_anio, COUNT(*) AS total_observaciones 
                                  FROM Informe_Z GROUP BY mes_anio ORDER BY mes_anio DESC LIMIT 12`,
-      meteorInflowAzimuthDistribution: `SELECT FLOOR(Azimut / 10) * 10 AS azimut_agrupado, COUNT(*) AS cantidad 
-                                      FROM Informe_Z GROUP BY azimut_agrupado ORDER BY azimut_agrupado`,
       hourWithMoreDetection: `SELECT CAST(Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, 
                             (CAST(Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z 
                             GROUP BY hora_numerica ORDER BY hora_numerica`,
@@ -47,24 +45,6 @@ const getGeneral = async (req, res) => {
                                               UNION ALL
                                               SELECT 'Meteoro', COUNT(*) FROM Meteoro;
                                               `,
-      meteorLastYear: `SELECT 
-                                              DATE_FORMAT(Fecha, '%Y-%m') AS mes,
-                                              COUNT(*) AS total
-                                            FROM Meteoro
-                                            WHERE Fecha >= DATE_SUB(
-                                                (SELECT MAX(Fecha) FROM Meteoro), 
-                                                INTERVAL 12 MONTH
-                                            )
-                                            GROUP BY DATE_FORMAT(Fecha, '%Y-%m')
-                                            ORDER BY mes DESC;
-                                                `,
-      activeShower: `SELECT * FROM Lluvia l
-          INNER JOIN (SELECT Identificador, MAX(Año) AS AñoMax FROM Lluvia  GROUP BY Identificador
-          ) latest
-          ON l.Identificador = latest.Identificador AND l.Año = latest.AñoMax WHERE (
-              DATE_FORMAT(CURDATE(), '%m-%d') BETWEEN DATE_FORMAT(l.Fecha_Inicio, '%m-%d') AND DATE_FORMAT(l.Fecha_Fin, '%m-%d')
-          )
-          ORDER BY l.Año DESC`,
       percentageFromLastBolideMonth: `SELECT 
     curr.anio AS year,
     curr.mes AS month,
@@ -164,34 +144,6 @@ ORDER BY curr.year DESC, curr.month DESC;`
                 GROUP BY ocurrencias
                 ORDER BY ocurrencias`,
 
-      groupChart: option < 4
-        ? `(SELECT "Distancia" AS Categoria, SUM(iz.Distancia_recorrida_Estacion_1) AS Distancia_1, 
-            SUM(iz.Distancia_recorrida_Estacion_2) AS Distancia_2 FROM Informe_Z iz GROUP BY Categoria LIMIT ?) 
-            UNION ALL 
-            (SELECT "Tiempo" AS Categoria, SUM(iz.Tiempo_Estacion_1) AS Tiempo_1, 
-            SUM(iz.Tiempo_trayectoria_en_estacion_2) AS Tiempo_2 FROM Informe_Z iz GROUP BY Categoria LIMIT ?) 
-            UNION ALL 
-            (SELECT "Error" AS Categoria, AVG(iz.Error_distancia_Estacion_1) AS Error_1, 
-            AVG(iz.Error_distancia_Estacion_2) AS Error_2 FROM Informe_Z iz GROUP BY Categoria LIMIT ?)`
-        : `SELECT "Distancia" AS Categoria, SUM(iz.Distancia_recorrida_Estacion_1) AS Distancia_1, 
-            SUM(iz.Distancia_recorrida_Estacion_2) AS Distancia_2 FROM Informe_Z iz 
-            ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
-            UNION ALL 
-            SELECT "Tiempo" AS Categoria, SUM(iz.Tiempo_Estacion_1) AS Tiempo_1, 
-            SUM(iz.Tiempo_trayectoria_en_estacion_2) AS Tiempo_2 FROM Informe_Z iz 
-            ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
-            UNION ALL 
-            SELECT "Error" AS Categoria, AVG(iz.Error_distancia_Estacion_1) AS Error_1, 
-            AVG(iz.Error_distancia_Estacion_2) AS Error_2 FROM Informe_Z iz 
-            ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}`,
-
-      // Otras consultas dinámicas...
-      relationBtwTrajectoryAngleAndDistance: `SELECT Ángulo_diedro_entre_planos_trayectoria as angle, 
-                                            (Distancia_recorrida_Estacion_1 + Distancia_recorrida_Estacion_2) / 2 AS averageDistance 
-                                            FROM Informe_Z WHERE Distancia_recorrida_Estacion_1 IS NOT NULL 
-                                            AND Distancia_recorrida_Estacion_2 IS NOT NULL 
-                                            ${option >= 4 ? "AND Fecha >= ?" : ""}
-                                            ${option < 4 ? "LIMIT ?" : ""}`,
 
       predictableImpact: `WITH Ranked AS (
                           SELECT 
@@ -225,26 +177,40 @@ ORDER BY curr.year DESC, curr.month DESC;`
                           ORDER BY Ángulo_diedro_entre_planos_trayectoria DESC
                           ${option < 4 ? "LIMIT ?" : ""}`,
 
-      excentricitiesOverNinety: `SELECT iz.IdInforme, iz.Fecha, iz.Hora, eo.e 
-                               FROM Informe_Z iz JOIN Elementos_Orbitales eo 
-                               ON eo.Informe_Z_IdInforme = iz.IdInforme 
-                               WHERE CAST(SUBSTRING_INDEX(eo.e, ' ', 1) AS DECIMAL(10,8)) > 0.9 
-                               ${option >= 4 ? "AND iz.Fecha >= ?" : ""}
-                               ${option < 4 ? "LIMIT ?" : ""}`,
-
-      distanceWithErrorFromObservatory: `SELECT iz.Observatorio_Número, iz.Distancia_recorrida_Estacion_1, 
-                                       iz.Error_distancia_Estacion_1 FROM Informe_Z iz 
-                                       ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
-                                       ${option < 4 ? "LIMIT ?" : ""}`,
-
-      velocityDispersionVersusDihedralAngle: `SELECT Ángulo_diedro_entre_planos_trayectoria AS angle, 
-                                            Velocidad_media as averageDistance FROM Informe_Z 
-                                            ${option >= 4 ? "WHERE Fecha >= ?" : ""}
-                                            ${option < 4 ? "LIMIT ?" : ""}`
+      lastNMeteors: `
+SELECT 
+    iz.Fecha,
+    iz.Hora,
+    FALSE AS isRadiant,
+    iz.Meteoro_Identificador,
+      iz.IdInforme
+FROM Informe_Z iz
+WHERE iz.Meteoro_Identificador IN (
+    SELECT Identificador FROM (
+        SELECT Identificador
+        FROM Meteoro
+        ${option >= 4 ? "WHERE Fecha >= ?" : ""}
+        ORDER BY Fecha DESC
+        ${option < 4 ? "LIMIT ?" : ""}
+    ) AS ultimos
+)
+UNION ALL
+SELECT 
+    ir.Fecha, ir.Hora, TRUE AS isRadiant, ir.Meteoro_Identificador, ir.Identificador
+FROM Informe_Radiante ir WHERE ir.Meteoro_Identificador IN (
+    SELECT Identificador FROM (
+        SELECT Identificador FROM Meteoro
+        ${option >= 4 ? "WHERE Fecha >= ?" : ""}
+        ORDER BY Fecha DESC
+       ${option < 4 ? "LIMIT ?" : ""}
+    ) AS ultimos
+)
+ORDER BY Fecha DESC,Hora DESC;
+      `
     };
 
     // Ejecutar todas las consultas
-    const queryParams = option < 4 ? [limit] : [dateFilterValue];
+    const queryParams = option < 4 ? [limit, limit] : [dateFilterValue, dateFilterValue];
     const queryPromises = {
       // Consultas comunes
       ...Object.fromEntries(
@@ -256,20 +222,8 @@ ORDER BY curr.year DESC, curr.month DESC;`
       // Consultas dinámicas
       barChartData: pool.query(dynamicQueries.barChart, queryParams),
       pieChartData: pool.query(dynamicQueries.pieChart, queryParams),
-      groupChartDataUnformat: option < 4
-        ? pool.query(dynamicQueries.groupChart, [limit, limit, limit])
-        : pool.query(dynamicQueries.groupChart, [dateFilterValue, dateFilterValue, dateFilterValue]),
-      relationBtwTrajectoryAngleAndDistance: pool.query(
-        dynamicQueries.relationBtwTrajectoryAngleAndDistance, queryParams
-      ),
       predictableImpact: pool.query(dynamicQueries.predictableImpact, queryParams),
-      excentricitiesOverNinety: pool.query(dynamicQueries.excentricitiesOverNinety, queryParams),
-      distanceWithErrorFromObservatory: pool.query(
-        dynamicQueries.distanceWithErrorFromObservatory, queryParams
-      ),
-      velocityDispersionVersusDihedralAngle: pool.query(
-        dynamicQueries.velocityDispersionVersusDihedralAngle, queryParams
-      )
+      lastNMeteors: pool.query(dynamicQueries.lastNMeteors, queryParams),
     };
 
     // Esperar todas las consultas
@@ -282,23 +236,15 @@ ORDER BY curr.year DESC, curr.month DESC;`
     const processedData = {
       barChartData: data.barChartData,
       pieChartData: data.pieChartData,
-      groupChartData: formatGroupBarChartData(data.groupChartDataUnformat),
       monthObservationsFrequency: data.monthObservationsFrequency,
-      meteorInflowAzimuthDistribution: data.meteorInflowAzimuthDistribution,
-      relationBtwTrajectoryAngleAndDistance: data.relationBtwTrajectoryAngleAndDistance,
       hourWithMoreDetection: data.hourWithMoreDetection,
       impactMapFormat: formatImpactMap(data.predictableImpact),
-      excentricitiesOverNinety: data.excentricitiesOverNinety,
-      lastReport: data.lastReport,
-      distanceWithErrorFromObservatory: data.distanceWithErrorFromObservatory,
-      velocityDispersionVersusDihedralAngle: data.velocityDispersionVersusDihedralAngle,
+      lastNMeteors: data.lastNMeteors,
       observatoryDataFormatted: data.observatory.map(transform),
       lastReportMap: formatLastReportMap(data.lastReportMap),
       showerPerYearData: data.showerPerYear,
       processedLastReport: processLastReport(data.lastReport),
       counterReport: data.counterReport,
-      meteorLastYear: data.meteorLastYear,
-      activeShower: data.activeShower,
       percentageFromLastBolideMonth: data.percentageFromLastBolideMonth,
       curvePercentageGroupLastYearBolido: data.curvePercentageGroupLastYearBolido,
     };

@@ -111,12 +111,12 @@ function PieChart({ data }) {
   // Use flex column on the wrapper to stack the SVG and the legend div.
   // Let the SVG take flexible space (flexGrow: 1) and the legend take its natural space.
   return (
-    <div ref={wrapperRef} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px', boxSizing: 'border-box' }}>
+    <div ref={wrapperRef} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '0px', boxSizing: 'border-box'}}>
       {/* SVG takes full width and grows vertically in the flex container */}
       {/* minHeight helps ensure it renders with some initial size even if parent height is tricky */}
-      <svg ref={svgRef} style={{ width: '100%', flexGrow: 1, minHeight: '200px' }}></svg>
+      <svg ref={svgRef} style={{ width: '100%',height: 'auto', minHeight: '150px', maxHeight: '70%' }}></svg>
       {/* Legend div takes its natural height and is centered horizontally */}
-      <div ref={legendRef} className="legend" style={{ marginTop: '20px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', overflow: 'auto' }}>
+      <div ref={legendRef} className="legend" style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', overflow: 'auto' }}>
         {/* D3 will populate this div with legend items */}
       </div>
     </div>

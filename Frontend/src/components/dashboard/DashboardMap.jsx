@@ -5,20 +5,21 @@ import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
 import { formatDate } from '@/pipe/formatDate.jsx'
 import truncateDecimal from '@/pipe/truncateDecimal';
 import { Link } from 'react-router-dom';
+import { MapPin, Navigation, Calendar, Gauge, RefreshCw } from "lucide-react"
 
 
 const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
   const { t } = useTranslation(['text']);
 
   return (
-    <div style={{ maxHeight: '500px', height: '450px' }}>
+    <div style={{ maxHeight: '700px', height: '650px' }}>
       <Row className="justify-content-center mt-4" >
         {/* Use Col components as direct children of Row for grid layout */}
 
         {/* First Container (Map) */}
         {/* On mobile (xs), take full width (col-12). On medium screens and up (md), take 7 columns out of 12 (col-md-7 for ~58.3%). */}
         {/* Add margin-bottom on mobile (mb-3) for spacing when stacked */}
-        <Col xs={12} md={8} className="mb-3 mb-md-0" style={{ maxHeight: '450px' }}>
+        <Col xs={12} md={8} className="mb-3 mb-md-0" style={{ maxHeight: '650px' }}>
           <div
             className="flex-grow-1 position-relative" // Use h-100 to fill the column height
             style={{
@@ -55,72 +56,95 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
         {/* Second Container (Details) - Modernized */}
         {/* On mobile (xs), take full width (col-12). On medium screens and up (md), take 5 columns out of 12 (col-md-5 for ~41.7%). */}
         {/* Add subtle shadow (shadow-sm) */}
-        <Col xs={12} md={4} style={{ maxHeight: '400px' }}>
-          <div
-            className="p-3 d-flex flex-column justify-content-between h-100 shadow-sm" // Use h-100 to fill the column height
-            style={{
-              backgroundColor: '#fff',
-              borderRadius: '10px',
-              border: '1px solid #ddd',
-              // Spacing handled by Col gutters and internal elements
-            }}
-          >
-            <div>
+        <Col xs={12} md={4} style={{ maxHeight: '600px' }}>
+         
 
-              <h6 className="text-secondary mb-3 d-flex align-items-center gap-2">
-                <span className="fw-bold">{formatDate(lastReportData?.Fecha)}  {lastReportData?.Hora.substring(0, 8)}</span>
-              </h6>
+          <Card className="shadow-sm h-100 border rounded-4 overflow-hidden" style={{ backgroundColor: '#f8f9fa' }}>
+            <Card.Body className="p-4">
+              <div className="d-flex align-items-center mb-4">
+                <Calendar size={20} className="me-2" style={{ color: "#980100" }} />
+                <span className="text-muted">{formatDate(lastReportData?.Fecha)}  {lastReportData?.Hora.substring(0, 8)}</span>
+              </div>
+
+              {/* Estación 1 */}
+              <div className="mb-4 pb-3" style={{ borderBottom: "1px solid #f0f0f0" }}>
+                <h5 className="mb-3" style={{ color: "#980100" }}>
+                  {t('HOME.LAST_BOLIDE_DATA.STATION')} 1
+                </h5>
+
+                <div className="d-flex align-items-center mb-2">
+                  <MapPin size={18} className="me-2" style={{ color: "#980100" }} />
+                  <div>
+                    <div className="text-muted small">{t('HOME.LAST_BOLIDE_DATA.START')}</div>
+                    <div className="fw-light">
+                      {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-center mb-2">
+                  <Navigation size={18} className="me-2" style={{ color: "#980100" }} />
+                  <div>
+                    <div className="text-muted small">{t('HOME.LAST_BOLIDE_DATA.END')}</div>
+                    <div className="fw-light">
+                      {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
+                    </div>
+                  </div>
+                </div>
 
 
-              <h6 className="text-secondary mb-3 fw-bold">
-                {t('HOME.LAST_BOLIDE_DATA.STATION')} 1
-              </h6>
+              </div>
 
-              <p className="mb-2 text-muted" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-body">{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.latitude}, {lastReportData?.Inicio_de_la_trayectoria_Estacion_1?.longitude}
-              </p>
+              {/* Estación 2 */}
+              <div className="mb-4">
+                <h5 className="mb-3" style={{ color: "#980100" }}>
+                  {t('HOME.LAST_BOLIDE_DATA.STATION')} 2
+                </h5>
 
-              <p className="mb-2 text-muted" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-body">{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.latitude}, {lastReportData?.Fin_de_la_trayectoria_Estacion_1?.longitude}
-              </p>
+                <div className="d-flex align-items-center mb-2">
+                  <MapPin size={18} className="me-2" style={{ color: "#980100" }} />
+                  <div>
+                    <div className="text-muted small">{t('HOME.LAST_BOLIDE_DATA.START')}</div>
+                    <div className="fw-light">
+                      {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
+                    </div>
+                  </div>
+                </div>
 
+                <div className="d-flex align-items-center mb-2">
+                  <Navigation size={18} className="me-2" style={{ color: "#980100" }} />
+                  <div>
+                    <div className="text-muted small">{t('HOME.LAST_BOLIDE_DATA.END')}</div>
+                    <div className="fw-light">
+                      {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
+                    </div>
+                  </div>
+                </div>
 
-              <h6 className="text-secondary mb-3 fw-bold">
-                {t('HOME.LAST_BOLIDE_DATA.STATION')} 2
-              </h6>
+              </div>
 
-              <p className="mb-2 text-muted" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-body">{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.latitude}, {lastReportData?.Inicio_de_la_trayectoria_Estacion_2?.longitude}
-              </p>
+              <div className="mb-4">
+                <div className="d-flex align-items-center">
+                  <Gauge size={18} className="me-2" style={{ color: "#980100" }} />
+                  <div>
+                    <div className="text-muted small">{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}</div>
+                    <div className="fw-light">{truncateDecimal(lastReportData?.Velocidad_media)} km/s</div>
+                  </div>
+                </div>
+              </div>
 
-              <p className="mb-2 text-muted" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-body">{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.latitude}, {lastReportData?.Fin_de_la_trayectoria_Estacion_2?.longitude}
-              </p>
+              {/* Botón de actualizar */}
+              <Button as={Link} to={`/report/${lastReportData?.IdInforme}`}
+                variant="outline-danger"
+                className="w-100 d-flex align-items-center justify-content-center"
 
-              <hr className="my-3" style={{ borderColor: '#eee' }} />
-
-              <p className="mb-0 text-muted" style={{ fontSize: '0.95rem' }}>
-                <strong className="text-body">{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}:</strong> {truncateDecimal(lastReportData?.Velocidad_media)} km/s
-              </p>
-            </div>
-
-            {/* Link Button */}
-            <div className="mt-4">
-              <Link to={`/report/${lastReportData?.IdInforme}`}
-                className="btn w-100 d-flex flex-column align-items-center justify-content-center"
-                style={{
-                  backgroundColor: '#980100',
-                  border: 'none',
-                  borderRadius: '30px',
-                  color: '#f8f9fa',
-                  padding: '0.5rem 1rem',
-                  textDecoration: 'none',
-                }}
+                style={{ borderColor: "#980100", color: "#980100", borderRadius: "8px", padding: "10px" }}
               >
-                <span style={{ fontSize: '1rem', fontWeight: 'bold' }}>Ver más</span>
-              </Link>
-            </div>
-          </div>
+                <RefreshCw size={18} className="me-2" />
+                {t('HOME.LAST_BOLIDE_DATA.SHOW_BTN')}
+              </Button>
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
     </div>

@@ -5,7 +5,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { isTokenExpired } from '@/auth/auth.jsx'
 
 const Login = lazy(() => import('@/pages/Auth/Login'));
-const Dashboard = lazy(() => import('@/pages/basic/Dashboard'));
 const Register = lazy(() => import('@/pages/Auth/Register'));
 const Station = lazy(() => import('@/pages/astronomy/Station'));
 const Bolide = lazy(() => import('@/pages/astronomy/bolide'));
@@ -24,7 +23,7 @@ const AuditPanel = lazy(() => import('./components/admin/auditPanel'));
 const ConfigPanel = lazy(() => import('./components/admin/configPanel'));
 const UserPanel = lazy(() => import('./components/admin/userPanel'));
 const ShowerInfo = lazy(() => import('./pages/astronomy/report/showerInfo.jsx'));
-const Dashb2 = lazy(() => import('./pages/basic/dashb2.jsx'));
+const Dashboard = lazy(() => import('./pages/basic/Dashboard.jsx'));
 
 const Layout = lazy(() => import('./layout/Layout.jsx'));
 
@@ -162,7 +161,7 @@ function App() {
             <Route path="dashboard"
               element={
                 <ProtectedRoute requiredRoleMask="ALL_USER">
-                  <Dashb2 />
+                  <Dashboard />
                 </ProtectedRoute>}
             />
             <Route path="station" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Station /></ProtectedRoute>} />
@@ -179,6 +178,7 @@ function App() {
             <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
             <Route path="/admin-panel/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
             <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
+            <Route path="/admin-panel/station-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <Station /></ProtectedRoute>} />
             <Route path="/shower-info/:selectedCode?" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ShowerInfo /></ProtectedRoute>} />
 
 

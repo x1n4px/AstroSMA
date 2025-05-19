@@ -48,3 +48,20 @@ export const getAsocciatedStations = async (id) => {
         throw error;
     }
 }
+
+
+export const updateStationStatus = async (id) => {
+    try {
+        console.log(id)
+        const response = await axios.put(`${apiUrl}/stations/${id}`,
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}

@@ -8,6 +8,7 @@ import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
 import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
 import { audit } from '@/services/auditService'
+import { getConfigValue } from '@/utils/getConfigValue';
 
 
 // Internationalization
@@ -332,7 +333,7 @@ const CustomizeSearch = () => {
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
                         {reportData.length > 0 && (
-                            <Button disabled
+                            <Button disabled={!getConfigValue('showDownloadTab')}
                                 style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
                                 onClick={() => {
                                     handleCSV()

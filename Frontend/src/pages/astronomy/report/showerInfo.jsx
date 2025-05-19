@@ -109,13 +109,13 @@ const MoonReport = () => {
                 <Row>
                     <Col md={6}>
                         <Form.Group controlId="lluviaSelect">
-                            <Form.Label>Selecciona una lluvia</Form.Label>
+                            <Form.Label>{t('SHOWER_INFO.TITLE')}</Form.Label>
                             <Form.Select
                                 value={selectedCode}
                                 onChange={handleSelectChange}
                                 disabled={loading}
                             >
-                                <option value="">-- Seleccione una lluvia --</option>
+                                <option value="">{t('SHOWER_INFO.TITLE')}</option>
                                 {Array.isArray(lluvias) && lluvias.map((lluvia) => (
                                     <option key={lluvia.Identificador} value={lluvia.Identificador}>
                                         {lluvia.Identificador} - {lluvia.Nombre}
@@ -127,7 +127,7 @@ const MoonReport = () => {
 
                     <Col md={3}>
                         <Form.Group controlId="anioInicio">
-                            <Form.Label>Año de inicio</Form.Label>
+                            <Form.Label>{t('SHOWER_INFO.START_YEAR')}</Form.Label>
                             <Form.Control
                                 type="number"
                                 min="1900"
@@ -141,7 +141,7 @@ const MoonReport = () => {
 
                     <Col md={3}>
                         <Form.Group controlId="anioFin">
-                            <Form.Label>Año de fin</Form.Label>
+                            <Form.Label>{t('SHOWER_INFO.END_YEAR')}</Form.Label>
                             <Form.Control
                                 type="number"
                                 min="1900"
@@ -162,7 +162,7 @@ const MoonReport = () => {
                             disabled={loading}
                         >
                             <i className="bi bi-eraser me-2"></i>
-                            Limpiar
+                            {t('SHOWER_INFO.CLEAR_BTN')}
                         </Button>
 
                         <Button
@@ -171,7 +171,7 @@ const MoonReport = () => {
                             disabled={loading || !selectedCode}
                         >
                             <i className="bi bi-search me-2"></i>
-                            Buscar
+                            {t('SHOWER_INFO.SEARCH_BTN')}
                         </Button>
                     </Col>
                 </Row>
@@ -182,7 +182,7 @@ const MoonReport = () => {
                                 <Form.Check
                                     type="switch"
                                     id="dual-station-switch"
-                                    label="Informes de dos estaciones"
+                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_REPORT_Z')}
                                     value={showDualStationReports}
                                     checked={showDualStationReports}
                                     onChange={(e) => setShowDualStationReports(e.target.checked)}
@@ -191,7 +191,7 @@ const MoonReport = () => {
                                 <Form.Check
                                     type="switch"
                                     id="radiant-switch"
-                                    label="Informes radiantes"
+                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_RADIANT_REPORT')}
                                     value={showRadiantReports}
                                     checked={showRadiantReports}
                                     onChange={(e) => setShowRadiantReports(e.target.checked)}
@@ -200,7 +200,7 @@ const MoonReport = () => {
                                 <Form.Check
                                     type="switch"
                                     id="radiant-switch"
-                                    label="Mostrar gráfico"
+                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_GRAPH')}
                                     value={showCurveGraph}
                                     checked={showCurveGraph}
                                     onChange={(e) => setShowCurveGraph(e.target.checked)}
@@ -211,9 +211,11 @@ const MoonReport = () => {
                 )}
             </Container>
 
-            <Container className="py-4">
-                {showCurveGraph && (
-                    <CurveLineChart data={showerGraph} />
+            <Container className="py-4" >
+                {showCurveGraph && report.length > 0  && (
+                    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+                        <CurveLineChart data={showerGraph} />
+                    </div>
                 )}
             </Container>
             <Container className="my-4 p-4 ">
@@ -223,23 +225,23 @@ const MoonReport = () => {
                             <div className="p-2 rounded me-3" style={{ backgroundColor: '#980100' }}>
                                 <i className="bi bi-droplet text-white fs-4"></i>
                             </div>
-                            <h4 className="mb-0 " style={{ color: '#980100' }}>Datos de la lluvia: {selectedLluvia.Code} - {selectedLluvia.ShowerNameDesignation}</h4>
+                            <h4 className="mb-0 " style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.TITLE')}: {selectedLluvia.Code} - {selectedLluvia.ShowerNameDesignation}</h4>
                         </div>
 
                         <Row>
                             <Col md={6}>
                                 <Card className="mb-3 shadow-sm">
                                     <Card.Header className="text-white" style={{ backgroundColor: '#980100' }}>
-                                        <h5 className="mb-0">Información Básica</h5>
+                                        <h5 className="mb-0">{t('SHOWER_INFO.DATA.BASIC_INFO')}</h5>
                                     </Card.Header>
                                     <Card.Body>
                                         <ul className="list-unstyled">
                                             <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>Actividad:</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.ACTIVITY')}:</strong>
                                                 <span className="ms-2">{selectedLluvia.Activity}</span>
                                             </li>
                                             <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>Fecha:</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.DATE')}:</strong>
                                                 <span className="ms-2">{selectedLluvia.SubDate}</span>
                                             </li>
                                             <li className="mb-2">
@@ -258,24 +260,24 @@ const MoonReport = () => {
                             <Col md={6}>
                                 <Card className="mb-3 shadow-sm">
                                     <Card.Header className="text-white" style={{ backgroundColor: '#980100' }}>
-                                        <h5 className="mb-0">Parámetros Orbitales</h5>
+                                        <h5 className="mb-0">{t('SHOWER_INFO.DATA.ORBITAL_PARAMS')}:</h5>
                                     </Card.Header>
                                     <Card.Body>
                                         <ul className="list-unstyled">
                                             <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>Excentricidad (e):</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.EXCENTRICITY')} (e):</strong>
                                                 <span className="ms-2">{selectedLluvia.e}</span>
                                             </li>
                                             <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>Semieje mayor (a):</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.MAX_SEMIEJE')} (a):</strong>
                                                 <span className="ms-2">{selectedLluvia.a}</span>
                                             </li>
                                             <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>Perihelio (q):</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.PERIHELION')} (q):</strong>
                                                 <span className="ms-2">{selectedLluvia.q}</span>
                                             </li>
                                             <li>
-                                                <strong style={{ color: '#980100' }}>Distancia mínima:</strong>
+                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.MIN_DISTANCE')}:</strong>
                                                 <span className="ms-2">{selectedLluvia.Distancia_mínima_entre_radianes_y_trayectoria}</span>
                                             </li>
                                         </ul>
@@ -344,7 +346,7 @@ const MoonReport = () => {
                                                     variant="outline-primary"
                                                     size="sm"
                                                 >
-                                                    Ver detalles
+                                                    {t('SHOWER_INFO.SHOW_DETAILS_BTN')}
                                                 </Link>
                                             </div>
                                         </Card.Body>
@@ -401,7 +403,7 @@ const MoonReport = () => {
                                                     variant="outline-primary"
                                                     size="sm"
                                                 >
-                                                    Ver detalles
+                                                    {t('SHOWER_INFO.SHOW_DETAILS_BTN')}
                                                 </Link>
                                             </div>
                                         </Card.Body>

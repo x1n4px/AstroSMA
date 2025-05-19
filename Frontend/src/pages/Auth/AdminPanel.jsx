@@ -46,6 +46,16 @@ const AdminPanel = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="col-md-6 mt-4">
+                    <div className="card">
+                        <div className="card-header">{t('ADMIN.CARDS.STATION.TITLE')}</div>
+                        <div className="card-body">
+                            <p>{t('ADMIN.CARDS.STATION.SUBTITLE')}</p>
+                            <Link to="/admin-panel/station-panel" style={{ backgroundColor: '#980100', border: '#980100' }} className="btn btn-success btn-block">{t('ADMIN.CARDS.STATION.BUTTON')}</Link>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

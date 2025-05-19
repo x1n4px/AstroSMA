@@ -178,11 +178,30 @@ function findStationsInRange(stations, refLat, refLon, radiusKm) {
 }
 
 
+const updateStationStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [result] = await pool.query(`UPDATE Observatorio SET Activo = CASE WHEN Activo = '0' THEN '1' ELSE '0' END WHERE Número = ?;`, [ id]);
+        console.log(result);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Station not found' });
+        }
+
+        return res.json({ message: 'Station status updated successfully' });
+    } catch (error) {
+        console.error('Error updating station status:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
 
 
 
 module.exports = {
     getAllStations,
     getNearbyStations,
-    getAsocciatedStations
+    getAsocciatedStations,
+    updateStationStatus
 };

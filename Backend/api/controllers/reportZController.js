@@ -612,7 +612,7 @@ const testing = async (req, res) => {
         // 1. Find all reports associated with the specified shower code and radiant distance < 5
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
         // and filter by the radiant distance threshold.
-        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1 FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador = ?`;
+        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1 FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
 
         const params = [selectedCode];
 
@@ -628,13 +628,14 @@ const testing = async (req, res) => {
         }
 
         const [capReports] = await pool.query(query, params);
-        const [radiantReport] = await pool.query(`SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador = ?;`, [showerCode]);
+        console.log(capReports.length);
+        const [radiantReport] = await pool.query(`SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador LIKE CONCAT('%', ?, '%');`, [showerCode]);
         const [showerGraph] = await pool.query(`
             SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections, ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2) AS percentage_change
             FROM ( 
-                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador = ? GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
+                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
             LEFT JOIN (
-                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador = ? GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
+                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
             ) AS prev ON (curr.year = prev.year AND curr.month = prev.month + 1) OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12) ORDER BY curr.year ASC, curr.month ASC;
             `, [showerCode, showerCode]);
 
@@ -683,6 +684,7 @@ const testing = async (req, res) => {
             });
         }
 
+        console.log(capReports.length)
         // 3. Loop through each CAP report found
         for (const report of capReports) {
             const currentReportId = report.IdInforme;
@@ -736,7 +738,7 @@ const testing = async (req, res) => {
                 });
             }
 
-            
+             
 
             if (report_memberships.length > 0) {
                 const maxMembership = report_memberships.reduce((max, current) => {
@@ -754,8 +756,6 @@ const testing = async (req, res) => {
                     orbitalMemberships: maxMembership.membership
                 });
             } else {
-                console.warn(`No memberships found for report ${currentReportId}`);
-                // Puedes también añadir un fallback si lo deseas
                 all_reports_results.push({
                     reportId: currentReportId,
                     fecha: currentReportFecha,
@@ -770,11 +770,12 @@ const testing = async (req, res) => {
             
         }
 
+        console.log(all_reports_results.length)
         // 6. Return the accumulated results for all processed CAP reports
         res.json({
             shower: capShowerEstablished,
             reportResults: all_reports_results.filter(item => item.orbitalMemberships > 1),
-            radiantReport: all_radiant_reports.filter(item => item.distance < 120),
+            radiantReport: all_radiant_reports.filter(item => item.distance < 80),
             showerGraph: showerGraph
         });
 
