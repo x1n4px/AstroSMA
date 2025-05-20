@@ -126,7 +126,9 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         activeShowerData.map((shower, index) => (
                                             <tr key={index}>
                                                 <td>{shower.Lluvia_Identificador}</td>
-                                                <td>{shower.Nombre}</td>
+                                                <td><Link to={`/shower-info/${shower.Identificador}`} target="_blank" rel="noopener noreferrer">
+                                                        {shower.Nombre}
+                                                    </Link></td>
                                                 <td>{shower.Ar_de_la_fecha}</td>
                                                 <td>{shower.De_de_la_fecha}</td>
                                                 <td>{shower.Ar_más_cercano}</td>

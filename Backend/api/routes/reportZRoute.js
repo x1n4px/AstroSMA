@@ -9,7 +9,7 @@ router.get('/reportz', validateJWT, ReportZController.getAllReportZ);
 router.post('/reportz/advice', validateJWT, ReportZController.saveReportAdvice);
 router.get('/reportz/search', validateJWT, ReportZController.getReportzWithCustomSearch);
 
-router.get('/reportz/testing/:selectedCode/:dateIn/:dateOut', ReportZController.testing);
+router.post('/reportz/showerInfo/:selectedCode/:dateIn/:dateOut', ReportZController.getReportZListFromRain);
 router.delete('/reportz/advice/:id', validateJWT, ReportZController.deleteReportAdvice);
 
 

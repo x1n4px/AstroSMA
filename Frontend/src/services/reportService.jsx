@@ -47,9 +47,9 @@ export const getReportZ = async (id) => {
 }
 
 
-export const getReportZListFromRain = async(selectedCode, dateIn, dateOut) => {
+export const getReportZListFromRain = async(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold) => {
     try {
-        const response = await axios.get(`${apiUrl}/reportz/testing/${selectedCode}/${dateIn}/${dateOut}`, {
+        const response = await axios.post(`${apiUrl}/reportz/showerInfo/${selectedCode}/${dateIn}/${dateOut}`, {membershipThreshold, distanceThreshold},  {
             headers: {
                 'x-token': token, // Agrega el token como encabezado x-token
             },

@@ -42,3 +42,42 @@ export const getAllUsers = async () => {
 }
 
 
+export const modifyUserRol = async (userId, newRol) => {
+    try {
+        const response = await axios.put(
+            `${apiUrl}/user/updateRole`,
+            { id: userId, rol: newRol },
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                    'x-rol': rol // Agrega el rol como encabezado x-rol
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error modifying user role:', error);
+        throw error;
+    }
+};
+
+
+export const modifyUserPass = async (userId, oldPassword, newPassword) => {
+    try {
+        console.log(userId, oldPassword, newPassword)
+        const response = await axios.put(
+            `${apiUrl}/user/updatePassword`,
+            { id: userId, oldPassword, newPassword },
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                    'x-rol': rol // Agrega el rol como encabezado x-rol
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error modifying user password:', error);
+        throw error;
+    }
+};

@@ -29,10 +29,14 @@ function Register() {
   useEffect(() => {
     const fetchCountries = async () => {
       const countries = await getCountry();
-      console.log(countries);
+      countries.sort((a, b) => {
+        if (a.id === 199) return -1;
+        if (b.id === 199) return 1;
+        return 0;
+      });
       setCountryOptions(countries.map(country => ({
         value: country.id,
-        label: country.nombre,
+        label: country.nicename,
       })));
     };
     fetchCountries();
@@ -82,8 +86,8 @@ function Register() {
   };
 
   const handleShowTermsModal = () => setShowTermsModal(true);
-  const handleCloseTermsModal = () => {setShowTermsModal(false); setAcceptedTerms(false); setAcceptedTermsInModal(false);};
-    
+  const handleCloseTermsModal = () => { setShowTermsModal(false); setAcceptedTerms(false); setAcceptedTermsInModal(false); };
+
 
   const handleMainCheckboxChange = (e) => {
     setAcceptedTerms(e.target.checked);

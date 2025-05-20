@@ -604,11 +604,12 @@ const getPhaseName = (p) => {
     return 'Unknown'; // Fallback, should not happen
 };
 
-const testing = async (req, res) => {
+const getReportZListFromRain = async (req, res) => {
     try {
-        const { selectedCode, dateIn, dateOut } = req.params;
+        const { selectedCode, dateIn, dateOut} = req.params;
+        const {membershipThreshold=1, distanceThreshold=80} = req.body;
+        console.log(membershipThreshold)
         const showerCode = selectedCode.replace(/[0-9]/g, ''); // The specific shower code to process
-        console.log(dateIn, dateOut, showerCode);
         // 1. Find all reports associated with the specified shower code and radiant distance < 5
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
         // and filter by the radiant distance threshold.
@@ -628,7 +629,6 @@ const testing = async (req, res) => {
         }
 
         const [capReports] = await pool.query(query, params);
-        console.log(capReports.length);
         const [radiantReport] = await pool.query(`SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador LIKE CONCAT('%', ?, '%');`, [showerCode]);
         const [showerGraph] = await pool.query(`
             SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections, ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2) AS percentage_change
@@ -684,7 +684,6 @@ const testing = async (req, res) => {
             });
         }
 
-        console.log(capReports.length)
         // 3. Loop through each CAP report found
         for (const report of capReports) {
             const currentReportId = report.IdInforme;
@@ -770,12 +769,11 @@ const testing = async (req, res) => {
             
         }
 
-        console.log(all_reports_results.length)
         // 6. Return the accumulated results for all processed CAP reports
         res.json({
             shower: capShowerEstablished,
-            reportResults: all_reports_results.filter(item => item.orbitalMemberships > 1),
-            radiantReport: all_radiant_reports.filter(item => item.distance < 80),
+            reportResults: all_reports_results.filter(item => item.orbitalMemberships > membershipThreshold),
+            radiantReport: all_radiant_reports.filter(item => item.distance < distanceThreshold),
             showerGraph: showerGraph
         });
 
@@ -794,6 +792,6 @@ module.exports = {
     getReportZ,
     saveReportAdvice,
     getReportzWithCustomSearch,
-    testing,
+    getReportZListFromRain,
     deleteReportAdvice
 };

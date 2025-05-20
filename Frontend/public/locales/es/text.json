@@ -12,7 +12,22 @@
         "DELETE_BTN": "Eliminar",
         "TITLE": "Información de Perfil",
         "INSTITUTION": "Institución",
-        "COUNTRY": "País"
+        "COUNTRY": "País",
+        "SHOW_PASSWORD_FORM": "Cambiar contraseña",
+        "HIDE_PASSWORD_FORM": "Ocultar cambio de contraseña",
+        "CURRENT_PASSWORD": "Contraseña actual",
+        "NEW_PASSWORD": "Nueva contraseña",
+        "CONFIRM_PASSWORD": "Confirmar nueva contraseña",
+        "CHANGE_PASSWORD_BTN": "Guardar nueva contraseña",
+        "PASSWORD_MISMATCH": "Las contraseñas no coinciden.",
+        "PASSWORD_CHANGE_SUCCESS": "Contraseña actualizada con éxito.",
+        "PASSWORD_CHANGE_ERROR": "Error al cambiar la contraseña.",
+        "LOADING": "Cargando perfil...",
+        "UPDATE_SUCCESS": "Perfil actualizado correctamente.",
+        "UPDATE_ERROR": "Error al actualizar el perfil.",
+        "FETCH_ERROR": "Error al obtener los datos del usuario.",
+        "MODIFY_PASSWORD": "Modificar contraseña",
+        "CANCEL": "Cancelar"
     },
     "NAVBAR": {
         "BTN_HOME": "Inicio",
@@ -151,49 +166,47 @@
         "TITLE": "Términos y Condiciones de Uso",
         "LAST_UPDATED": "2025-03-17",
         "ACCEPT_BTN": "Aceptar",
-        "ACCEPT_MODAL_BTN":"He leido y acepto los términos y condiciones",
+        "ACCEPT_MODAL_BTN": "He leido y acepto los términos y condiciones",
         "CLOSE_BTN": "Cerrar",
         "SECTION": [
-            {
-                "TITLE": "1. Aceptación de los Términos",
-                "CONTENT": "Al registrarse como miembro o usuario de la Sociedad de Astronomía de Málaga (en adelante, \"la Sociedad\"), usted acepta cumplir con estos Términos y Condiciones en su totalidad. Al acceder o utilizar los servicios, recursos, plataformas digitales (como sitio web, foros, bases de datos, etc.) y participar en las actividades de la Sociedad, usted manifiesta haber leído, comprendido y aceptado estos Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de estos términos, por favor, no se registre ni utilice los servicios de la Sociedad."
-            },
-            {
-                "TITLE": "2. Membresía y Registro de Usuario",
-                "CONTENT": "Para acceder a ciertos recursos y participar plenamente en las actividades de la Sociedad, puede ser necesario registrarse y/o hacerse miembro. Usted se compromete a proporcionar información veraz, precisa, actual y completa durante el proceso de registro. Usted es responsable de mantener la confidencialidad de su contraseña y cuenta, y es plenamente responsable de todas las actividades que ocurran bajo su cuenta."
-            },
-            {
-                "TITLE": "3. Uso de Datos y Obligación de Citación",
-                "CONTENT": "La Sociedad puede poner a disposición de sus miembros y usuarios diversos datos, información, materiales, imágenes, observaciones, resultados de proyectos (en adelante, \"los Datos\") a través de sus plataformas, actividades o publicaciones. **EL USO DE CUALQUIERA DE ESTOS DATOS POR PARTE DEL USUARIO, YA SEA PARA FINES DE INVESTIGACIÓN, DIVULGACIÓN, PUBLICACIONES (IMPRESAS O DIGITALES), PRESENTACIONES, TRABAJOS ACADÉMICOS O CUALQUIER OTRA FINALIDAD, DEBE IR CLARAMENTE CITADO, RECONOCIENDO EXPRESAMENTE A LA SOCIEDAD DE ASTRONOMÍA DE MÁLAGA COMO LA FUENTE DE DICHOS DATOS.** La forma de citación recomendada es: **\"Datos proporcionados por la Sociedad de Astronomía de Málaga\"** o una mención similar que identifique inequívocamente a la Sociedad como origen de los datos. En publicaciones científicas o académicas, se ruega incluir una referencia completa a la fuente específica si estuviera disponible (por ejemplo, publicación de la Sociedad, proyecto concreto, etc.). Esta obligación de citación se aplica independientemente de la cantidad o el formato de los Datos utilizados. El incumplimiento de esta obligación de citación podrá dar lugar a la revisión o revocación de su membresía o acceso a los recursos de la Sociedad."
-            },
-            {
-                "TITLE": "4. Propiedad Intelectual",
-                "CONTENT": "La Sociedad conserva todos los derechos de propiedad intelectual sobre los contenidos, logotipos, diseños y materiales generados por ella, a menos que se indique expresamente lo contrario. El uso de los Datos conforme a la cláusula 3 no transfiere al usuario ningún derecho de propiedad sobre los mismos, más allá del permiso de uso bajo la condición de citación. Los usuarios que aporten contenidos, datos u otros materiales a la Sociedad para su posible difusión o uso en actividades de la Sociedad otorgan a esta una licencia no exclusiva, mundial y libre de regalías para utilizar, reproducir, modificar, adaptar, publicar, traducir, distribuir y mostrar dichos contenidos en relación con los fines de la Sociedad, siempre que se mantenga el reconocimiento de la autoría original cuando sea aplicable y factible."
-            },
-            {
-                "TITLE": "5. Código de Conducta",
-                "CONTENT": "Los miembros y usuarios se comprometen a mantener un comportamiento respetuoso, cordial y constructivo en todas las interacciones dentro de la Sociedad y en relación con sus actividades. Se prohíbe cualquier forma de acoso, discriminación, lenguaje ofensivo o cualquier otra conducta que pueda perjudicar a otros miembros o al buen nombre de la Sociedad."
-            },
-            {
-                "TITLE": "6. Privacidad y Protección de Datos",
-                "CONTENT": "La Sociedad recopilará y tratará sus datos personales de acuerdo con la legislación vigente en materia de protección de datos. La finalidad principal del tratamiento de sus datos es la gestión de su membresía o registro, la organización de actividades y la comunicación interna de la Sociedad. Sus datos no serán cedidos a terceros sin su consentimiento expreso, salvo obligación legal. Usted podrá ejercer sus derechos de acceso, rectificación, cancelación, oposición, limitación y portabilidad de sus datos dirigiendo una comunicación a la Secretaría de la Sociedad. Para más detalles sobre el tratamiento de sus datos, consulte nuestra Política de Privacidad [si existe un documento separado de Política de Privacidad, añadir enlace o indicación de dónde encontrarlo]."
-            },
-            {
-                "TITLE": "7. Limitación de Responsabilidad",
-                "CONTENT": "La Sociedad se esfuerza por ofrecer información y recursos precisos y actualizados, pero no garantiza la exactitud, integridad o idoneidad de los Datos para cualquier fin particular. La Sociedad no se hace responsable de los daños o perjuicios que puedan derivarse del uso de los Datos o de la participación en las actividades de la Sociedad. La Sociedad no se hace responsable de las opiniones o contenidos generados por los usuarios en las plataformas de la Sociedad."
-            },
-            {
-                "TITLE": "8. Modificaciones de los Términos",
-                "CONTENT": "La Sociedad se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Se notificará a los usuarios sobre cambios significativos. La continuación en el uso de los servicios de la Sociedad después de dichas modificaciones constituirá su aceptación de los nuevos términos."
-            },
-            {
-                "TITLE": "9. Legislación Aplicable y Jurisdicción",
-                "CONTENT": "Los presentes Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes de España. Cualquier disputa que surja en relación con estos términos se someterá a la jurisdicción exclusiva de los tribunales de Málaga."
-            },
-            {
-                "TITLE": "10. Contacto",
-                "CONTENT": "Si tiene alguna pregunta sobre estos Términos y Condiciones, por favor, póngase en contacto con la Secretaría de la Sociedad de Astronomía de Málaga a través de [dirección de correo electrónico o formulario de contacto]."
-            }
+            [
+                {
+                    "TITLE": "1. Aceptación de los Términos",
+                    "CONTENT": "Al registrarse como usuario de la base de datos de la Red de la Universidad de Málaga (en adelante, UMA) y de la Sociedad Malagueña de Astronomía (en adelante, SMA), usted acepta cumplir con estos Términos y Condiciones en su totalidad. Al acceder o utilizar los servicios, recursos, plataformas digitales (como sitio web, foros, bases de datos, etc.), usted manifiesta haber leído, comprendido y aceptado estos Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de estos términos, por favor, no se registre ni utilice los servicios de la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía (en adelante, Red UMA/SMA)."
+                },
+                {
+                    "TITLE": "2. Membresía y Registro de Usuario",
+                    "CONTENT": "Para acceder a la base de datos de la Red UMA/SMA es necesario registrarse. Usted se compromete a proporcionar información veraz, precisa, actual y completa durante el proceso de registro. Usted es responsable de mantener la confidencialidad de su contraseña y cuenta, y es plenamente responsable de todas las actividades que ocurran bajo su cuenta."
+                },
+                {
+                    "TITLE": "3. Uso de Datos y Obligación de Citación",
+                    "CONTENT": "La SMA puede poner a disposición de sus usuarios diversos datos, información, materiales, imágenes, observaciones, cálculos, resultados de proyectos (en adelante, \"los Datos\") a través de sus plataformas, actividades o publicaciones. EL USO DE CUALQUIERA DE ESTOS DATOS POR PARTE DEL USUARIO, YA SEA PARA FINES DE INVESTIGACIÓN, DIVULGACIÓN, PUBLICACIONES (IMPRESAS O DIGITALES), PRESENTACIONES, TRABAJOS ACADÉMICOS O CUALQUIER OTRA FINALIDAD, DEBE IR CLARAMENTE CITADO, RECONOCIENDO EXPRESAMENTE A LA RED DE LA UNIVERSIDAD DE MÁLAGA Y DE LA SOCIEDAD MALAGUEÑA DE ASTRONOMÍA COMO LA FUENTE DE DICHOS DATOS. La forma de citación recomendada es: \"Datos proporcionados por la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía\" o una mención similar que identifique inequívocamente a la Red UMA/SMA como origen de los datos. En publicaciones científicas o académicas, se ruega incluir una referencia completa a la fuente específica si estuviera disponible (por ejemplo, publicación de la Sociedad, proyecto concreto, etc.). Esta obligación de citación se aplica independientemente de la cantidad o el formato de los Datos utilizados. El incumplimiento de esta obligación de citación podrá dar lugar a la revisión o revocación de su membresía o acceso a los recursos de la Red UMA/SMA."
+                },
+                {
+                    "TITLE": "4. Propiedad Intelectual",
+                    "CONTENT": "La UMA y la SMA conservan todos los derechos de propiedad intelectual sobre los contenidos, logotipos, diseños y materiales generados por ella, a menos que se indique expresamente lo contrario. El uso de los Datos conforme a la cláusula 3 no transfiere al usuario ningún derecho de propiedad sobre los mismos, más allá del permiso de uso bajo la condición de citación. Los usuarios que aporten contenidos, datos u otros materiales a la Red UMA/SMA para su posible difusión o uso en actividades de la UMA o la SMA otorgan a estas licencia no exclusiva, mundial y libre de regalías para utilizar, reproducir, modificar, adaptar, publicar, traducir, distribuir y mostrar dichos contenidos en relación con los fines de la Red, siempre que se mantenga el reconocimiento de la autoría original cuando sea aplicable y factible."
+                },
+                {
+                    "TITLE": "5. Privacidad y Protección de Datos",
+                    "CONTENT": "La SMA recopilará y tratará sus datos personales de acuerdo con la legislación vigente en materia de protección de datos. La finalidad principal del tratamiento de sus datos es la gestión de su membresía o registro, la organización de actividades y la comunicación interna de la Sociedad. Sus datos no serán cedidos a terceros sin su consentimiento expreso, salvo obligación legal. Usted podrá ejercer sus derechos de acceso, rectificación, cancelación, oposición, limitación y portabilidad de sus datos dirigiendo una comunicación a la Secretaría de la SMA (secretaria@astromalaga.es). Para más detalles sobre el tratamiento de sus datos, consulte nuestra Política de Privacidad [si existe un documento separado de Política de Privacidad, añadir enlace o indicación de dónde encontrarlo]."
+                },
+                {
+                    "TITLE": "6. Limitación de Responsabilidad",
+                    "CONTENT": "La UMA y la SMA se esfuerzan por ofrecer información y recursos precisos y actualizados, pero no garantiza la exactitud, integridad o idoneidad de los Datos para cualquier fin particular. La UMA y la SMA no se hacen responsables de los daños o perjuicios que puedan derivarse del uso de los Datos."
+                },
+                {
+                    "TITLE": "7. Modificaciones de los Términos",
+                    "CONTENT": "La Red UMA/SMA se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Se notificará a los usuarios sobre cambios significativos. La continuación en el uso de los servicios de la Red UMA/SMA después de dichas modificaciones constituirá su aceptación de los nuevos términos."
+                },
+                {
+                    "TITLE": "8. Legislación Aplicable y Jurisdicción",
+                    "CONTENT": "Los presentes Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes de España. Cualquier disputa que surja en relación con estos términos se someterá a la jurisdicción exclusiva de los tribunales de Málaga."
+                },
+                {
+                    "TITLE": "9. Contacto",
+                    "CONTENT": "Si tiene alguna pregunta sobre estos Términos y Condiciones, por favor, póngase en contacto con la Secretaría de la Sociedad Malagueña de Astronomía a través de [dirección de correo electrónico o formulario de contacto]."
+                }
+            ]
         ]
     },
     "INFERRED_DATA": {
@@ -743,7 +756,8 @@
                 "SURNAME": "Apellido",
                 "EMAIL": "Correo Electrónico",
                 "INSTITUTION": "Institución",
-                "COUNTRY": "País"
+                "COUNTRY": "País",
+                "ROL": "Permisos"
             }
         }
     },
@@ -833,6 +847,8 @@
     "SHOWER_INFO": {
         "TITLE": "Seleccionar una lluvia",
         "START_YEAR": "Año de inicio",
+        "MEMBERSHIP_THRESHOLD": "Grado de asociación mínimo",
+        "DISTANCE_THRESHOLD": "Distancia máxima",
         "END_YEAR": "Año de fin",
         "SEARCH_BTN": "Buscar",
         "CLEAR_BTN": "Limpiar",
@@ -853,5 +869,11 @@
             "MAX_SEMIEJE": "Semieje mayor"
         },
         "SHOW_DETAILS_BTN": "Ver detalles"
+    },
+    "ROL": {
+        "ADMIN": "Administrador",
+        "USER": "Básico",
+        "GUEST": "Invitado",
+        "UNKNOWN": "Desconocido"
     }
 }

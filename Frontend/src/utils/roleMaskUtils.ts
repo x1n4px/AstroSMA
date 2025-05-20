@@ -1,3 +1,5 @@
+
+
 // utils/roleMaskUtils.ts
 export const QR_USER_ROL = '00000000';
 export const BASIC_USER_ROL = '00000001';
@@ -32,6 +34,8 @@ export const allUser = (mask: string): boolean => {
 };
 
 export const controlGeminiError = (error: string): boolean => {
-    return error !== GEMINI_ERROR_CONTROL;
+  return error !== GEMINI_ERROR_CONTROL;
 };
 
+
+ 

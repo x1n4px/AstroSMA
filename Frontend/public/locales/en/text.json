@@ -12,7 +12,22 @@
         "DELETE_BTN": "Delete",
         "TITLE": "Profile Information",
         "INSTITUTION": "Institution",
-        "COUNTRY": "Country"
+        "COUNTRY": "Country",
+        "SHOW_PASSWORD_FORM": "Change password",
+        "HIDE_PASSWORD_FORM": "Hide password change",
+        "CURRENT_PASSWORD": "Current password",
+        "NEW_PASSWORD": "New password",
+        "CONFIRM_PASSWORD": "Confirm new password",
+        "CHANGE_PASSWORD_BTN": "Save new password",
+        "PASSWORD_MISMATCH": "Passwords do not match.",
+        "PASSWORD_CHANGE_SUCCESS": "Password updated successfully.",
+        "PASSWORD_CHANGE_ERROR": "Error changing the password.",
+        "LOADING": "Loading profile...",
+        "UPDATE_SUCCESS": "Profile updated successfully.",
+        "UPDATE_ERROR": "Error updating profile.",
+        "FETCH_ERROR": "Error fetching user data.",
+        "MODIFY_PASSWORD": "Modify password",
+        "CANCEL": "Cancel"
     },
     "NAVBAR": {
         "BTN_HOME": "Home",
@@ -152,47 +167,43 @@
         "LAST_UPDATED": "2025-03-17",
         "CLOSE_BTN": "Close",
         "ACCEPT_BTN": "Accept",
-        "ACCEPT_MODAL_BTN":"I accept the terms and conditions",
+        "ACCEPT_MODAL_BTN": "I accept the terms and conditions",
         "SECTION": [
             {
                 "TITLE": "1. Acceptance of Terms",
-                "CONTENT": "By registering as a member or user of the Malaga Astronomy Society (hereinafter, \"the Society\"), you agree to comply with these Terms and Conditions in full. By accessing or using the services, resources, digital platforms (such as website, forums, databases, etc.) and participating in the Society's activities, you acknowledge that you have read, understood and accepted these Terms and Conditions in full. If you do not agree with any of these terms, please do not register or use the Society's services."
+                "CONTENT": "By registering as a user of the database of the Network of the University of Málaga (hereinafter, UMA) and the Sociedad Malagueña de Astronomía (hereinafter, SMA), you agree to fully comply with these Terms and Conditions. By accessing or using the services, resources, or digital platforms (such as the website, forums, databases, etc.), you acknowledge that you have read, understood, and accepted these Terms and Conditions in their entirety. If you do not agree with any of these terms, please do not register or use the services of the UMA/SMA Network."
             },
             {
                 "TITLE": "2. Membership and User Registration",
-                "CONTENT": "To access certain resources and fully participate in the Society's activities, it may be necessary to register and/or become a member. You agree to provide truthful, accurate, current and complete information during the registration process. You are responsible for maintaining the confidentiality of your password and account, and are fully responsible for all activities that occur under your account."
+                "CONTENT": "To access the UMA/SMA Network database, you must register. You agree to provide true, accurate, current, and complete information during the registration process. You are responsible for maintaining the confidentiality of your password and account and are fully responsible for all activities that occur under your account."
             },
             {
-                "TITLE": "3. Data Use and Citation Obligation",
-                "CONTENT": "The Society may make available to its members and users various data, information, materials, images, observations, project results (hereinafter, \"the Data\") through its platforms, activities or publications. **THE USE OF ANY OF THIS DATA BY THE USER, WHETHER FOR RESEARCH, DISSEMINATION, PUBLICATIONS (PRINT OR DIGITAL), PRESENTATIONS, ACADEMIC WORKS OR ANY OTHER PURPOSE, MUST BE CLEARLY CITED, EXPRESSLY ACKNOWLEDGING THE MALAGA ASTRONOMY SOCIETY AS THE SOURCE OF SUCH DATA.** The recommended citation form is: **\"Data provided by the Malaga Astronomy Society\"** or a similar mention that clearly identifies the Society as the source of the data. In scientific or academic publications, please include a complete reference to the specific source if available (e.g., Society publication, specific project, etc.). This citation obligation applies regardless of the quantity or format of the Data used. Failure to comply with this citation obligation may result in the review or revocation of your membership or access to the Society's resources."
+                "TITLE": "3. Data Usage and Citation Requirement",
+                "CONTENT": "The SMA may provide users with various data, information, materials, images, observations, calculations, and project results (hereinafter, \"the Data\") through its platforms, activities, or publications. THE USE OF ANY OF THESE DATA BY THE USER—WHETHER FOR RESEARCH, OUTREACH, PUBLICATIONS (PRINTED OR DIGITAL), PRESENTATIONS, ACADEMIC WORKS, OR ANY OTHER PURPOSE—MUST BE CLEARLY CITED, EXPRESSLY ACKNOWLEDGING THE UMA/SMA NETWORK AS THE SOURCE. The recommended citation format is: \"Data provided by the Network of the University of Málaga and the Sociedad Malagueña de Astronomía\" or a similar mention that clearly identifies the UMA/SMA Network as the data source. In scientific or academic publications, a full reference to the specific source should be included if available (e.g., specific SMA publication or project). This citation requirement applies regardless of the quantity or format of the data used. Failure to comply with this citation obligation may result in the review or revocation of your membership or access to UMA/SMA Network resources."
             },
             {
                 "TITLE": "4. Intellectual Property",
-                "CONTENT": "The Society retains all intellectual property rights over the contents, logos, designs and materials generated by it, unless expressly stated otherwise. The use of the Data in accordance with clause 3 does not transfer to the user any property rights over them, beyond the permission of use under the condition of citation. Users who provide content, data or other materials to the Society for possible dissemination or use in the Society's activities grant the Society a non-exclusive, worldwide, royalty-free license to use, reproduce, modify, adapt, publish, translate, distribute and display such content in relation to the Society's purposes, provided that recognition of the original authorship is maintained when applicable and feasible."
+                "CONTENT": "UMA and SMA retain all intellectual property rights over the content, logos, designs, and materials they generate, unless expressly stated otherwise. The use of Data in accordance with clause 3 does not transfer any ownership rights to the user, beyond a usage license under the citation condition. Users who contribute content, data, or other materials to the UMA/SMA Network for potential dissemination or use in UMA or SMA activities grant UMA and SMA a non-exclusive, worldwide, royalty-free license to use, reproduce, modify, adapt, publish, translate, distribute, and display such content in connection with the Network's purposes, provided that original authorship is acknowledged when applicable and feasible."
             },
             {
-                "TITLE": "5. Code of Conduct",
-                "CONTENT": "Members and users agree to maintain respectful, cordial and constructive behavior in all interactions within the Society and in relation to its activities. Any form of harassment, discrimination, offensive language or any other conduct that may harm other members or the good name of the Society is prohibited."
+                "TITLE": "5. Privacy and Data Protection",
+                "CONTENT": "SMA will collect and process your personal data in accordance with current data protection legislation. The main purpose of processing your data is the management of your membership or registration, the organization of activities, and internal communication within the Society. Your data will not be shared with third parties without your express consent, except where legally required. You may exercise your rights of access, rectification, cancellation, objection, restriction, and data portability by contacting the SMA Secretariat (secretaria@astromalaga.es). For more details on how your data is processed, please consult our Privacy Policy [if a separate Privacy Policy document exists, insert link or indication of where to find it]."
             },
             {
-                "TITLE": "6. Privacy and Data Protection",
-                "CONTENT": "The Society will collect and process your personal data in accordance with current data protection legislation. The main purpose of processing your data is to manage your membership or registration, the organization of activities and the Society's internal communication. Your data will not be transferred to third parties without your express consent, except by legal obligation. You may exercise your rights of access, rectification, cancellation, opposition, limitation and portability of your data by sending a communication to the Society's Secretariat. For more details on the processing of your data, see our Privacy Policy [if there is a separate Privacy Policy document, add link or indication of where to find it]."
+                "TITLE": "6. Limitation of Liability",
+                "CONTENT": "UMA and SMA strive to provide accurate and up-to-date information and resources, but do not guarantee the accuracy, completeness, or suitability of the Data for any particular purpose. UMA and SMA are not responsible for any damages or losses that may result from the use of the Data."
             },
             {
-                "TITLE": "7. Limitation of Liability",
-                "CONTENT": "The Society strives to offer accurate and updated information and resources, but does not guarantee the accuracy, completeness or suitability of the Data for any particular purpose. The Society is not responsible for damages or losses that may result from the use of the Data or from participation in the Society's activities. The Society is not responsible for the opinions or content generated by users on the Society's platforms."
+                "TITLE": "7. Modifications to the Terms",
+                "CONTENT": "The UMA/SMA Network reserves the right to modify these Terms and Conditions at any time. Users will be notified of any significant changes. Continued use of the UMA/SMA Network services after such modifications constitutes your acceptance of the new terms."
             },
             {
-                "TITLE": "8. Modifications of Terms",
-                "CONTENT": "The Society reserves the right to modify these Terms and Conditions at any time. Users will be notified of significant changes. Continued use of the Society's services after such modifications will constitute your acceptance of the new terms."
+                "TITLE": "8. Governing Law and Jurisdiction",
+                "CONTENT": "These Terms and Conditions shall be governed by and construed in accordance with the laws of Spain. Any disputes arising in relation to these terms shall be subject to the exclusive jurisdiction of the courts of Málaga."
             },
             {
-                "TITLE": "9. Applicable Law and Jurisdiction",
-                "CONTENT": "These Terms and Conditions shall be governed by and construed in accordance with the laws of Spain. Any dispute arising in connection with these terms shall be submitted to the exclusive jurisdiction of the courts of Malaga."
-            },
-            {
-                "TITLE": "10. Contact",
-                "CONTENT": "If you have any questions about these Terms and Conditions, please contact the Secretariat of the Malaga Astronomy Society via [email address or contact form]."
+                "TITLE": "9. Contact",
+                "CONTENT": "If you have any questions about these Terms and Conditions, please contact the Secretariat of the Sociedad Malagueña de Astronomía via [email address or contact form]."
             }
         ]
     },
@@ -743,7 +754,8 @@
                 "SURNAME": "Surname",
                 "EMAIL": "Email",
                 "INSTITUTION": "Institution",
-                "COUNTRY": "Country"
+                "COUNTRY": "Country",
+                "ROL": "Role"
             }
         }
     },
@@ -833,6 +845,8 @@
     "SHOWER_INFO": {
         "TITLE": "Select a shower",
         "START_YEAR": "Start year",
+        "MEMBERSHIP_THRESHOLD": "Minimum Association degree",
+        "DISTANCE_THRESHOLD": "Maximum distance",
         "END_YEAR": "End year",
         "SEARCH_BTN": "Search",
         "CLEAR_BTN": "Clear",
@@ -853,5 +867,11 @@
             "MAX_SEMIEJE": "Major semi-axis"
         },
         "SHOW_DETAILS_BTN": "View details"
+    },
+    "ROL": {
+        "ADMIN": "Administrator",
+        "USER": "Basic",
+        "GUEST": "Guest",
+        "UNKNOWN": "Unknown"
     }
 }

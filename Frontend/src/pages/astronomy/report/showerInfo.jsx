@@ -29,6 +29,8 @@ const MoonReport = () => {
     const [showRadiantReports, setShowRadiantReports] = useState(true);
     const [showCurveGraph, setShowCurveGraph] = useState(true);
     const [showerGraph, setShowerGraph] = useState([]);
+    const [membershipThreshold, setMembershipThreshold] = useState(1);
+    const [distanceThreshold, setDistanceThreshold] = useState(80);
 
 
     // Cargar la lista de lluvias al inicio
@@ -81,8 +83,7 @@ const MoonReport = () => {
     const fetchMoonData = async () => {
         setLoading(true);
         try {
-            const data = await getReportZListFromRain(selectedCode, dateIn, dateOut);
-            console.log('Moon data:', data);
+            const data = await getReportZListFromRain(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold);
             setReport(data.reportResults);
             setRain(data.establishedShowerDataUsed);
             setRadiantReport(data.radiantReport);
@@ -97,6 +98,14 @@ const MoonReport = () => {
             setLoading(false);
         }
     };
+
+    const handleMembershipThresholdChange = ((value) => {
+        setMembershipThreshold(value);
+    });
+
+    const handleDistanceThresholdChange = ((value) => {
+        setDistanceThreshold(value);
+    });
 
 
     const handleSelectChange = (e) => {
@@ -149,6 +158,40 @@ const MoonReport = () => {
                                 placeholder="Ej: 2024"
                                 value={dateOut}
                                 onChange={(e) => setDateOut(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
+                <Row className="mt-3">
+                    <Col md={6}>
+                        <Form.Group controlId="membershipThreshold">
+                            <Form.Label>{t('SHOWER_INFO.MEMBERSHIP_THRESHOLD')}</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={membershipThreshold}
+                                onChange={(e) => handleMembershipThresholdChange(Number(e.target.value))}
+                            >
+                                <option value="1">{t('DISTANCE.VERYFAR')}</option>
+                                <option value="3">{t('DISTANCE.FAR')}</option>
+                                <option value="5">{t('DISTANCE.CLOSE')}</option>
+                                <option value="7">{t('DISTANCE.VERYCLOSE')}</option>
+                            </Form.Control>
+                        </Form.Group>
+
+                    </Col>
+
+                    <Col md={6}>
+                        <Form.Group controlId="distanceThreshold">
+                            <Form.Label>{t('SHOWER_INFO.DISTANCE_THRESHOLD')}</Form.Label>
+                            <Form.Control
+                                type="number"
+                                min="0"
+                                max="200"
+                                step="1"
+                                placeholder="80"
+                                value={distanceThreshold}
+                                onChange={(e) => handleDistanceThresholdChange(e.target.value)}
                             />
                         </Form.Group>
                     </Col>
@@ -212,7 +255,7 @@ const MoonReport = () => {
             </Container>
 
             <Container className="py-4" >
-                {showCurveGraph && report.length > 0  && (
+                {showCurveGraph && report.length > 0 && (
                     <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
                         <CurveLineChart data={showerGraph} />
                     </div>
@@ -301,7 +344,7 @@ const MoonReport = () => {
                 !loading && report && (
                     <Container className="py-4">
 
-                        <Row xs={1} md={3} lg={4} className="g-4">
+                        <Row xs={2} md={3} lg={5} className="g-4">
                             {showDualStationReports && report.map((r) => (
                                 <Col key={r.hora}>
                                     <Card className="h-100 shadow-sm border-0 hover-shadow transition-all">
