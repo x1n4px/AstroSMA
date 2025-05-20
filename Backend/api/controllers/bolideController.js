@@ -212,7 +212,6 @@ const getBolideWithCustomSearch = async (req, res) => {
         // Ejecutar la consulta
         [allBolides] = await pool.query(query, params);
 
-        console.log(allBolides)
 
         if ((latLonChecked === 'true' && latFilter && lonFilter && ratioFilter) ||
           (heightChecked === 'true' && heightFilter)) {

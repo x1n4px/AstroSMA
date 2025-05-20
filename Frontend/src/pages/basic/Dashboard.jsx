@@ -54,9 +54,7 @@ const Dashboard = () => {
     const [counterReport, setCounterReport] = useState([]);
     const [percentageFromLastBolideMonth, setPercentageFromLastBolideMonth] = useState();
     const [curvePercentageGroupLastYearBolido, setCurvePercentageGroupLastYearBolido] = useState([]);
-    const handleSearch = () => {
-        console.log('Search button clicked');
-    };
+   
 
     const Box = ({ children, className = '', color = '#f8f9fa' }) => (
         <Card className={`h-100 shadow-sm ${className} `} style={{ backgroundColor: color }}>

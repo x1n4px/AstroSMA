@@ -137,10 +137,8 @@ const getNearbyStations = async (req, res) => {
 const getAsocciatedStations = async (req, res) => {
     try {
         const { id } = req.query;
-        console.log(id)
         const arrayAleatorio = stations.sort(() => Math.random() - 0.5);
         const associatedStations = arrayAleatorio.slice(0, 2);
-        console.log(associatedStations);
         return res.json(associatedStations);
 
     } catch (error) {
@@ -183,7 +181,6 @@ const updateStationStatus = async (req, res) => {
         const { id } = req.params;
 
         const [result] = await pool.query(`UPDATE Observatorio SET Activo = CASE WHEN Activo = '0' THEN '1' ELSE '0' END WHERE Número = ?;`, [ id]);
-        console.log(result);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Station not found' });
         }

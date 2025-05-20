@@ -251,7 +251,6 @@ ORDER BY Fecha DESC,Hora DESC;
 
     res.json(processedData);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -298,7 +297,6 @@ const getGeneralHome = async (req, res) => {
       stations: convertedStations
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };

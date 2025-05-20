@@ -110,8 +110,6 @@ function membershipPerihelion(bolideValue, showerValue) {
 
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
-    console.log('Bolide:', bolide);
-    console.log('Shower:', shower);
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
     if (pertenenciaDMRTV === 0) {
         return 0;

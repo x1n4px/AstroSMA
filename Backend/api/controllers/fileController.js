@@ -7,7 +7,6 @@ const os = require('os');
 
 const getOrbitFile = (req, res) => {
   const { anio, mes, dia, hora, minuto, segundo, fileName, id1, id2 } = req.params;
-  console.log(id1, id2)
  
   // Validación básica
   if (![anio, mes, dia, hora, minuto, segundo].every(p => /^\d+$/.test(p))) {
@@ -25,7 +24,6 @@ const getOrbitFile = (req, res) => {
   const formattedDate = `${yyyy}${MM}${dd}`;
   const formattedTime = `${hh}${mm}${ss}`;
   const homeDir = os.homedir();
-  console.log(homeDir)
   let filePath = '';
 
   if(id1 === 'x' || id2 === 'x'){
@@ -45,7 +43,6 @@ const getOrbitFile = (req, res) => {
   }
 
 
-  console.log(filePath);
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {

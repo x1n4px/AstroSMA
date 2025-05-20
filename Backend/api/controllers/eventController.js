@@ -77,11 +77,8 @@ const updateEvent = async (req, res) => {
     try {
         const { id } = req.params;
         const { event_date, description, startTime, endTime, isWebOpen, active } = req.body;
-        console.log(id)
-        console.log(startTime)
         // Verificar si el evento existe
         const [existingEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [id]);
-        console.log(existingEvent)
         if (existingEvent.length === 0) {
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
@@ -102,7 +99,6 @@ const updateEvent = async (req, res) => {
             res.status(404).json({ message: 'Evento no encontrado' });
         }
     } catch (error) {
-        console.log(error)
         res.status(500).json({ error: error.message });
     }
 }

@@ -608,7 +608,6 @@ const getReportZListFromRain = async (req, res) => {
     try {
         const { selectedCode, dateIn, dateOut} = req.params;
         const {membershipThreshold=1, distanceThreshold=80} = req.body;
-        console.log(membershipThreshold)
         const showerCode = selectedCode.replace(/[0-9]/g, ''); // The specific shower code to process
         // 1. Find all reports associated with the specified shower code and radiant distance < 5
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'

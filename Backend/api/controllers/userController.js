@@ -62,7 +62,6 @@ const updateUserRole = async (req, res) => {
 const updatePassword = async (req, res) => {
     try {
         const { id, oldPassword, newPassword } = req.body;
-        console.log(id, oldPassword, newPassword);
         if (!id || !oldPassword || !newPassword) {
             return res.status(400).json({ error: 'User ID, old password, and new password are required' });
         }
