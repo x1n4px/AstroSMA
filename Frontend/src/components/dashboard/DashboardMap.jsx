@@ -12,7 +12,7 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
   const { t } = useTranslation(['text']);
 
   return (
-    <div style={{ maxHeight: '700px', height: '650px' }}>
+    <div style={{ minHeight: '700px', height: 'auto' }}>
       <Row className="justify-content-center mt-4" >
         {/* Use Col components as direct children of Row for grid layout */}
 

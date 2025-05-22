@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, renewToken, QRLoginUser } = require('../controllers/authController');
+const { registerUser, loginUser, renewToken, QRLoginUser, sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail } = require('../controllers/authController');
 const { check } = require('express-validator');
 const { validarFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
@@ -31,6 +31,14 @@ router.get('/renew',
     validateJWT,
     renewToken
 )
+
+router.post('/sendPasswordResetEmail',
+    sendPasswordResetEmail
+);
+
+router.get('/checkToken', checkUuidValidity)
+
+router.post('/resetPassword', resetPasswordFromEmail);
 
 
 module.exports = router;

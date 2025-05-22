@@ -6,50 +6,64 @@ const os = require('os');
 
 
 const getOrbitFile = (req, res) => {
-  const { anio, mes, dia, hora, minuto, segundo, fileName, id1, id2 } = req.params;
- 
-  // Validación básica
-  if (![anio, mes, dia, hora, minuto, segundo].every(p => /^\d+$/.test(p))) {
-    return res.status(400).json({ error: 'Todos los parámetros deben ser numéricos' });
+  const {
+    button,
+    year, month, day,
+    hour, minute, second,
+    fileName,
+    id1, id2
+  } = req.query;
+
+
+  if (!button || !year || !month || !day || !hour || !minute || !second || !fileName) {
+    return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
   }
 
-  // Asegurar formato correcto (rellenando con ceros si es necesario)
-  const yyyy = anio.padStart(4, '0');
-  const MM = mes.padStart(2, '0');
-  const dd = dia.padStart(2, '0');
-  const hh = hora.padStart(2, '0');
-  const mm = minuto.padStart(2, '0');
-  const ss = segundo.padStart(2, '0');
 
-  const formattedDate = `${yyyy}${MM}${dd}`;
-  const formattedTime = `${hh}${mm}${ss}`;
+  // Asegurar formato correcto (rellenando con ceros si es necesario)
+  const pathToBase = '/sma/Meteoros/Detecciones/';
+
+  const formattedDate = `${year}${month}${day}`;
+  const formattedTime = `${hour}${minute}${second}`;
+  const formatFull = `${year}${month}${day}${hour}${minute}${second}`;
   const homeDir = os.homedir();
   let filePath = '';
 
-  if(id1 === 'x' || id2 === 'x'){
+  if (button === 'UFOORBIT') {
     filePath = path.join(
-      homeDir+'/sma/Meteoros/Detecciones/'+
-      yyyy+'/'+    formattedDate+'/'+
-      formattedTime+'/'+
+      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
       fileName
     );
-  } else {
+  } else if (button === 'WMPL') {
     filePath = path.join(
-      homeDir+'/sma/Meteoros/Detecciones/'+
-      yyyy+'/'+    formattedDate+'/'+
-      formattedTime+'/'+
-      'Trayectoria-'+id1+'-'+id2+'/Gritsevich-'+yyyy+MM+dd+hh+mm+ss+'-'+id1+'-'+id2
+      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
+      fileName
+    );
+  } else if (button === 'GRITSEVICH') {
+    filePath = path.join(
+      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
+      'Trayectoria-' + id1 + '-' + id2 + '/Gritsevich-' 
+      + formatFull + '-' + id1 + '-' + id2 + '/' +
+      fileName
+    );
+  } else if (button === 'METEORGLOW') {
+    filePath = path.join(
+      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' + 
+      'Trayectoria-'+id1+'-'+id2+'/Magnitudes-'+year+month+day+hour+minute+second+'-'+id1+'-'+id2+'/'
+    );
+  } else if (button === 'RAWDATA') {
+    filePath = path.join(
+      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' + 
+      'Trayectoria-'+id1+'-'+id2+'/Coordenadas-'+year+month+day+hour+minute+second+'-'+id1+'.csv'
     );
   }
-
-
 
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       return res.status(404).json({ error: 'Archivo no encontrado' });
     }
 
-    res.download(filePath, 'UFOORBIT.trz', (err) => {
+    res.download(filePath, fileName, (err) => {
       if (err) {
         console.error('Error al enviar archivo:', err);
         res.status(500).send('Error al enviar el archivo');
@@ -57,6 +71,7 @@ const getOrbitFile = (req, res) => {
     });
   });
 };
+
 
 module.exports = {
   getOrbitFile,

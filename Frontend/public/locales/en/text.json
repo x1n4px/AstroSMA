@@ -299,7 +299,11 @@
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Download associated report",
             "DESCRIPTION": "Download the report associated with the active shower",
-            "LINK": "Download {{name}} ( {{cty}} Software)"
+            "LINK": "Download {{name}} ( {{cty}} Software)",
+            "METEOR_GLOW":"Download instrumental magnitudes (brightnesses) of the meteor",
+            "RAW_DATA": "Download raw meteor data",
+            "ERROR_GENERAL": "Error downloading {{software}}. Please try again."
+
         },
         "PENDING": {
             "TITLE": "Atmospheric trajectory",
@@ -873,5 +877,52 @@
         "USER": "Basic",
         "GUEST": "Guest",
         "UNKNOWN": "Unknown"
+    },
+    "RESET_PASSWORD": {
+        "BACK_TO_LOGIN": "Back to login page",
+        "EMAIL": {
+            "HEADER": "Password Recovery",
+            "TITLE": "Email",
+            "PLACEHOLDER": "Enter your email",
+            "ERROR": {
+                "EMAIL_NOT_FOUND": "Email not found",
+                "EMAIL_INVALID": "Invalid email"
+            },
+            "ALERT": {
+                "REGISTER_EMAIL": "If your email is registered, you will receive a reset link. Please check your inbox (and spam)."
+            },
+            "BUTTON": "Send recovery link"
+        },
+        "PASSWORD": {
+            "HEADER": "Set new password",
+            "TITLE": "New password",
+            "TITLE_CONFIRM": "Confirm new password",
+            "PLACEHOLDER": "Enter your new password",
+            "PLACEHOLDER_CONFIRM": "Confirm your new password",
+            "ALERT": {
+                "PASSWORD_CHANGED": "Password successfully changed, redirecting to login page",
+                "PASSWORD_CONFIRM_CHANGED": "Password successfully confirmed"
+            },
+            "ERROR": {
+                "PASSWORD_INVALID": "Invalid password",
+                "PASSWORD_CONFIRM_INVALID": "Passwords do not match"
+            },
+            "BUTTON": "Reset password"
+        },
+        "LINK": {
+            "LINK_VALID": "Validating link...",
+            "LINK_REQUEST": "Request a new link"
+        },
+        "ERROR": {
+            "LINK_EXPIRED": "The link has expired. Please request a new link",
+            "LINK_INVALID": "The link is not valid, please request a new link",
+            "LINK_NOT_FOUND": "The link is not found in the database",
+            "EMAIL_EMPTY": "Email cannot be empty",
+            "PASSWORD_EMPTY": "Password cannot be empty",
+            "PASSWORD_CONFIRM_EMPTY": "Password confirmation cannot be empty",
+            "SEND_EMAIL": "Error sending the email, please try again",
+            "PASSWORD_DONT_MATCH": "Passwords do not match",
+            "PASSWORD": "Error changing the password, please try again"
+        }
     }
 }

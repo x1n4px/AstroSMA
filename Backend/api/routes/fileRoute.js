@@ -3,7 +3,7 @@ const router = express.Router();
 const {getOrbitFile} = require('../controllers/fileController');
 
 
-router.get('/detecciones/:anio/:mes/:dia/:hora/:minuto/:segundo/:fileName/:id1/:id2', getOrbitFile);
+router.get('/detecciones', getOrbitFile);
 
 
 module.exports = router;

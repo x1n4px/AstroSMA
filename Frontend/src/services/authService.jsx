@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ConstructionIcon } from 'lucide-react';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -59,3 +60,32 @@ export const QRLogin = async (path) => {
         throw error;
     }
 }
+
+
+export const sendPasswordResetEmail = async (email) => {
+    try {
+        const response = await axios.post(`${apiUrl}/sendPasswordResetEmail`, { email });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const checkUuidValidity = async (token) => {
+    try {
+        const response = await axios.get(`${apiUrl}/checkToken?token=${token}`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+ export const resetPasswordFromEmail = async (password, token) => {
+    try {
+        console.log(password, token);
+        const response = await axios.post(`${apiUrl}/resetPassword`, { password, token });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+ }

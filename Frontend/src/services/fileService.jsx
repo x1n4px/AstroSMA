@@ -2,9 +2,8 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const getOrbitFile = async (Fecha, Hora, fileName, id1, id2) => {
+export const getOrbitFile = async (button, Fecha, Hora, fileName, id1, id2) => {
     try {
-        console.log(Fecha, Hora, fileName)
         // Extract date components
         const year = Fecha.substring(0,4);
         const month = Fecha.substring(5,7);
@@ -15,9 +14,15 @@ export const getOrbitFile = async (Fecha, Hora, fileName, id1, id2) => {
         const minute = Hora.substring(3,5); 
         const second = Hora.substring(6,8);
 
-        const response = await axios.get(`${apiUrl}/detecciones/${year}/${month}/${day}/${hour}/${minute}/${second}/${fileName}/${id1}/${id2}`);
+        const response = await axios.get(`${apiUrl}/detecciones`, {
+            params: {
+              button, year, month, day, hour, minute, second, fileName, id1, id2
+            }
+          });
+          
         return response.data;
     } catch (error) {
+        console.log('Error fetching file:', error);
         throw error;
     }
 };

@@ -301,7 +301,11 @@
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Descargar informe asociado",
             "DESCRIPTION": "Descargar el informe asociado a la lluvia activa",
-            "LINK": "Descargar {{name}} ( {{cty}} Software)"
+            "LINK": "Descargar {{name}} ( {{cty}} Software)",
+            "METEOR_GLOW":"Descargar magnitudes instrumentales (brillos) del meteoro",
+            "RAW_DATA": "Descargar datos en bruto del meteoro",
+            "ERROR_GENERAL": "Error al descargar {{software}}. Por favor, inténtalo de nuevo."
+
         },
         "PENDING": {
             "TITLE": "Trayectoria atmosférica",
@@ -875,5 +879,52 @@
         "USER": "Básico",
         "GUEST": "Invitado",
         "UNKNOWN": "Desconocido"
+    },
+    "RESET_PASSWORD": {
+        "BACK_TO_LOGIN": "Volver a la página de inicio de sesión",
+        "EMAIL": {
+            "HEADER": "Recuperación de contraseña",
+            "TITLE": "Correo electrónico",
+            "PLACEHOLDER": "Introduce tu correo electrónico",
+            "ERROR": {
+                "EMAIL_NOT_FOUND": "Correo electrónico no encontrado",
+                "EMAIL_INVALID": "Correo electrónico inválido"
+            },
+            "ALERT": {
+                "REGISTER_EMAIL":"Si tu email está registrado, recibirás un enlace de restablecimiento. Por favor, revisa tu bandeja de entrada (y spam)."
+            },
+            "BUTTON": "Enviar enlace de recuperación"
+        },
+        "PASSWORD": {
+            "HEADER": "Establecer nueva contraseña",
+            "TITLE": "Nueva contraseña",
+            "TITLE_CONFIRM": "Confirmar nueva contraseña",
+            "PLACEHOLDER": "Introduce tu nueva contraseña",
+            "PLACEHOLDER_CONFIRM": "Confirma tu nueva contraseña",
+            "ALERT": {
+                "PASSWORD_CHANGED": "Contraseña cambiada con éxito, redirigiendo a la página de inicio de sesión",
+                "PASSWORD_CONFIRM_CHANGED": "Contraseña confirmada con éxito"
+            },
+            "ERROR": {
+                "PASSWORD_INVALID": "Contraseña inválida",
+                "PASSWORD_CONFIRM_INVALID": "Las contraseñas no coinciden"
+            },
+            "BUTTON": "Restablecer contraseña"
+        },
+        "LINK": {
+            "LINK_VALID": "Validando enlace...",
+            "LINK_REQUEST": "Solicitar un nuevo enlace"
+        },
+        "ERROR": {
+            "LINK_EXPIRED": "El enlace ha expirado. Por favor, solicita un nuevo enlace",
+            "LINK_INVALID": "El enlace no es válido, por favor, solicita un nuevo enlace",
+            "LINK_NOT_FOUND": "El enlace no se encuentra en la base de datos",
+            "EMAIL_EMPTY": "El correo electrónico no puede estar vacío",
+            "PASSWORD_EMPTY": "La contraseña no puede estar vacía",
+            "PASSWORD_CONFIRM_EMPTY": "La confirmación de la contraseña no puede estar vacía",
+            "SEND_EMAIL": "Error al enviar el correo electrónico, por favor, inténtalo de nuevo",
+            "PASSWORD_DONT_MATCH": "Las contraseñas no coinciden",
+            "PASSWORD": "Error al cambiar la contraseña, por favor, inténtalo de nuevo" 
+        }
     }
 }

@@ -24,6 +24,7 @@ const ConfigPanel = lazy(() => import('./components/admin/configPanel'));
 const UserPanel = lazy(() => import('./components/admin/userPanel'));
 const ShowerInfo = lazy(() => import('./pages/astronomy/report/showerInfo.jsx'));
 const Dashboard = lazy(() => import('./pages/basic/Dashboard.jsx'));
+const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'));
 
 const Layout = lazy(() => import('./layout/Layout.jsx'));
 
@@ -128,6 +129,8 @@ function App() {
       <Suspense fallback={<div>Cargando página...</div>}>
         <Routes>
           <Route path="/home" element={<Home />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/reset-password/:uuid" element={<ResetPassword />} />
           <Route
             path="/login"
             element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={loginHandler} />}

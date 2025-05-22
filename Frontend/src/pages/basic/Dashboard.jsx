@@ -54,7 +54,7 @@ const Dashboard = () => {
     const [counterReport, setCounterReport] = useState([]);
     const [percentageFromLastBolideMonth, setPercentageFromLastBolideMonth] = useState();
     const [curvePercentageGroupLastYearBolido, setCurvePercentageGroupLastYearBolido] = useState([]);
-   
+
 
     const Box = ({ children, className = '', color = '#f8f9fa' }) => (
         <Card className={`h-100 shadow-sm ${className} `} style={{ backgroundColor: color }}>
@@ -138,20 +138,19 @@ const Dashboard = () => {
                 {/* Main Content Area */}
                 <main className="dashboard-content p-4">
                     {/* Map Section */}
-                    <Row className="mb-4" style={{ height: 'auto' }}>
-                        <div>
-                            <h5>{t('DASHBOARD.GRAPH.SECOND.TITLE')}</h5>
+                    <Container className="main-container mb-4" style={{ maxWidth: '100%' }}>
+                    <Row className="mb-4 flex-column-reverse flex-md-row">
+                            <Col xs={12}>
+                                <h5>{t('DASHBOARD.GRAPH.SECOND.TITLE')}</h5>
 
-                            {loading ? (
-                                <MapSkeleton height="400px" />
-                            ) : (
+                                {loading ? (
+                                    <MapSkeleton height="400px" />
+                                ) : (
 
-                                <DasboardMap observatoryData={observatoryData} lastReportMap={lastReportMap} lastReportData={lastReportData} />
-                            )}
-                        </div>
-                    </Row>
-
-                    <Container className="main-container" style={{ maxWidth: '100%' }}>
+                                    <DasboardMap observatoryData={observatoryData} lastReportMap={lastReportMap} lastReportData={lastReportData} />
+                                )}
+                            </Col>
+                        </Row>
                         {/* Row 1 */}
                         <Row className="mb-4">
                             {/* Caja 1 - 4 subcajas (50% width) */}
@@ -225,7 +224,7 @@ const Dashboard = () => {
 
                             {/* Caja 2 - (50% width) */}
                             <Col md={6}>
-                                <Box key="box5">
+                                <Box key="boxx5">
                                     <h5>{t('DASHBOARD.GRAPH.SEVENTH.TITLE')}</h5>
                                     {loading ? (
                                         <ChartSkeleton height="300px" />
@@ -235,7 +234,7 @@ const Dashboard = () => {
                                             {/* <GroupedBarChart data={showerPerYearData} /> */}
                                             <ListGroup style={{ overflowY: 'auto', maxHeight: '300px', height: '100%' }}>
                                                 {lastNMeteors?.map((item) => (
-                                                    <ListGroup.Item key={`${item.Fecha}-${item.Hora}`}>
+                                                    <ListGroup.Item key={`${item.Fecha}-${item.Hora}-${item.IdInforme}`} >
                                                         <Button
                                                             as={Link}
                                                             to={item?.isRadiant ? `/radiant-report/${item.IdInforme}` : `/report/${item.IdInforme}`}
@@ -244,15 +243,15 @@ const Dashboard = () => {
                                                             <div>
                                                                 <div className="fw-bold">MET - {item.Meteoro_Identificador}</div>
                                                                 <small className="text-muted">
-                                                                    {formatDate(item.Fecha)} - {item.Hora.substring(0,8)}
+                                                                    {formatDate(item.Fecha)} - {item.Hora.substring(0, 8)}
                                                                 </small>
                                                             </div>
 
 
-                                                            <Badge bg={item.isRadiant  ? "#804000" : "success"} className="rounded-pill" style={{ backgroundColor: '#804000' }}>
+                                                            <Badge bg={item.isRadiant ? "#804000" : "success"} className="rounded-pill" style={{ backgroundColor: '#804000' }}>
                                                                 {item.isRadiant ? t('HOME.SMART_INFO.RADIAN_REPORTS') : t('HOME.SMART_INFO.Z_REPORTS')}
                                                             </Badge>
-                                                            
+
 
 
                                                         </Button>

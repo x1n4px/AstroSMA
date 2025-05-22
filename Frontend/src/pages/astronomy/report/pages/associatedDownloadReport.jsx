@@ -1,80 +1,176 @@
-import React from 'react';
-import { Button, Container } from 'react-bootstrap';
-import {audit} from '../../../../services/auditService'
+import React, { useState } from 'react';
+import { Button, Container, Alert, Spinner, Row, Col, Card } from 'react-bootstrap'; // Added Row, Col, Card
+import { audit } from '@/services/auditService';
 import { useTranslation } from 'react-i18next';
-import { getOrbitFile } from '../../../../services/fileService';
+import { getOrbitFile } from '@/services/fileService';
 
-const AssociatedDownloadReport = ({report}) => {
+// Make sure you have Bootstrap Icons CSS included in your project.
+// For example, in your public/index.html:
+// <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+const downloadItems = [
+    {
+        id: 'ufoorbit',
+        icon: 'bi-archive-fill', // Example icon for tgz/archives
+        apiButtonName: 'UFOORBIT', // Used as Card Title
+        fileName: 'UFOORBIT.tgz',
+        translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', // For button text
+        translationValues: { name: 'UFOORBIT', cty: 'Japanese' }, // cty for Card Subtitle
+    },
+    {
+        id: 'wmpl',
+        icon: 'bi-file-text-fill', // Example icon for text files
+        apiButtonName: 'WMPL',
+        fileName: 'wmpl.txt',
+        translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
+        translationValues: { name: 'WMPL', cty: 'Australian' },
+    },
+    {
+        id: 'gritsevich',
+        icon: 'bi-file-earmark-zip-fill', // Example icon for zip files
+        apiButtonName: 'GRITSEVICH',
+        fileName: 'Gritsevich.zip', // Assuming it's a zip
+        translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
+        translationValues: { name: 'Gritsevich', cty: 'Finland' },
+    },
+    {
+        id: 'meteorglow',
+        icon: 'bi-graph-up-arrow', // Example icon for data/analysis
+        apiButtonName: 'METEORGLOW',
+        fileName: 'MeteorGlow_data.zip', // Example filename
+        translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.METEOR_GLOW',
+        translationValues: {}, // No specific 'name' or 'cty' for this structure here
+    },
+    {
+        id: 'rawdata',
+        icon: 'bi-database-fill-down', // Example icon for raw data
+        apiButtonName: 'RAWDATA',
+        fileName: 'RawData.zip', // Example filename
+        translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.RAW_DATA',
+        translationValues: {},
+    },
+];
+
+const AssociatedDownloadReport = ({ report }) => {
     const { t } = useTranslation(['text']);
+    const [loadingSoftware, setLoadingSoftware] = useState(null);
+    const [error, setError] = useState(null);
 
-    const handleDownload = async (button, software) => {
+    const handleDownload = async (apiButtonName, fileNameToDownload) => {
+        setLoadingSoftware(fileNameToDownload);
+        setError(null);
         try {
-            let id1 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número ;
-            let id2 = (software !== 'Gritsevich') ? 'x' : report.Observatorio_Número2 ;
+            const fileData = await getOrbitFile(
+                apiButtonName,
+                report.Fecha,
+                report.Hora,
+                fileNameToDownload,
+                report.Observatorio_Número,
+                report.Observatorio_Número2
+            );
 
-            const fileData = await getOrbitFile(report.Fecha, report.Hora, software, id1, id2);
-            
-            // Create a Blob from the file data
             const blob = new Blob([fileData], { type: 'application/octet-stream' });
-            
-            // Create a temporary URL for the Blob
             const url = window.URL.createObjectURL(blob);
-            
-            // Create a link element and trigger the download
             const link = document.createElement('a');
             link.href = url;
-            link.download = `${software}`;
+            link.download = fileNameToDownload;
             document.body.appendChild(link);
             link.click();
-            
-            // Clean up
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
-            // Call the audit function
-            const data = {
+            const auditData = {
                 isGuest: false,
                 isMobile: isMobile,
-                button_name: button,
+                button_name: apiButtonName,
                 event_type: 'DOWNLOAD',
-                event_target: `Descarga datos asociados a ${software} en /report/${report.IdInforme} en la pestaña de descargar informe asociado`,
-                report_id: report.IdInforme
+                event_target: `Descarga datos asociados a ${apiButtonName} en /report/${report.IdInforme} en la pestaña de descargar informe asociado`,
+                report_id: report.IdInforme,
             };
-            await audit(data);
-            console.log('Audit successful');
-        } catch (error) {
-            console.error('Error during download or audit:', error);
+            await audit(auditData);
+
+        } catch (err) {
+            setError(t('REPORT.ASSOCIATED_DOWNLOAD_LINK.ERROR_GENERAL', { software: apiButtonName}));
+        } finally {
+            setLoadingSoftware(null);
         }
     };
 
     return (
-        <Container className="mt-4">
-            <h2>{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}</h2>
-            <p>{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.DESCRIPTION')}</p>
-            <div className="d-flex flex-column gap-3">
-                <Button
-                    style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('UFOORBIT','UFOORBIT.tgz')}
-                >
-                    {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'UFOORBIT', cty: 'Japanese'})}
-                </Button>
-                <Button
-                    style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('WMPL', 'wmpl.txt')}
-                >
-                    {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'WMPL', cty: 'Australian'})}
-                </Button>
-                <Button
-                    style={{backgroundColor: '#980100', border: '#980100', color: 'white'}}
-                    onClick={() => handleDownload('GRITSEVICH', 'Gritsevich')}
+        <Container className="mt-4 mb-5"> {/* Added mb-5 for more spacing at the bottom */}
+            <h2 className="mb-3">{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}</h2>
+            <p className="mb-4">{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.DESCRIPTION')}</p>
+
+            {error && (
+                <Alert variant="danger" onClose={() => setError(null)} dismissible className="mb-4">
+                    {error}
+                </Alert>
+            )}
+
+            <Row className="g-4"> {/* g-4 provides gap between columns and rows */}
+                {downloadItems.map((item) => {
+                    const isLoading = loadingSoftware === item.fileName;
+                    // Determine Card Title and Subtitle
+                    let cardTitle = item.apiButtonName;
+                    if (item.translationKey === 'REPORT.ASSOCIATED_DOWNLOAD_LINK.METEOR_GLOW' || item.translationKey === 'REPORT.ASSOCIATED_DOWNLOAD_LINK.RAW_DATA') {
+                        // For items like MeteorGlow or RawData, the key itself provides a good title
+                        cardTitle = t(item.translationKey);
+                    } else if (item.translationValues && item.translationValues.name) {
+                        cardTitle = item.translationValues.name;
+                    }
                     
-                >
-                    {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', {name: 'Gritsevich', cty: 'Finland'})}
-                </Button>
-            </div>
+                    const cardSubtitle = item.translationValues?.cty || null;
+
+                    return (
+                        <Col xs={12} md={6} key={item.id} className="d-flex"> {/* d-flex to help with equal height cards in a row */}
+                            <Card className="w-100 shadow-sm"> {/* shadow-sm adds a subtle lift */}
+                                <Card.Body className="d-flex flex-column"> {/* flex-column to push button to bottom */}
+                                    <div className="d-flex align-items-start mb-3">
+                                        {item.icon && <i className={`bi ${item.icon} fs-1 me-3 text-danger`}></i>} {/* Icon: fs-1 for larger size */}
+                                        <div>
+                                            <Card.Title as="h5" className="mb-1">{cardTitle}</Card.Title>
+                                            {cardSubtitle && (
+                                                <Card.Subtitle className="text-muted">{cardSubtitle}</Card.Subtitle>
+                                            )}
+                                        </div>
+                                    </div>
+                                    
+                                    {/* You could add a Card.Text here for more detailed description if needed */}
+                                    {/* <Card.Text className="text-muted small">
+                                        {t('REPORT.ASSOCIATED_DOWNLOAD_LINK.FILE_TYPE_INFO', {type: item.fileName.split('.').pop()})}
+                                    </Card.Text> */}
+
+                                    <Button
+                                        style={{ backgroundColor: '#980100', borderColor: '#980100' }} // Custom button color
+                                        onClick={() => handleDownload(item.apiButtonName, item.fileName)}
+                                        disabled={isLoading || (loadingSoftware !== null && loadingSoftware !== item.fileName)}
+                                        className="mt-auto" // Pushes button to the bottom of the card
+                                    >
+                                        {isLoading ? (
+                                            <>
+                                                <Spinner
+                                                    as="span"
+                                                    animation="border"
+                                                    size="sm"
+                                                    role="status"
+                                                    aria-hidden="true"
+                                                />
+                                                <span className="ms-2">{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LOADING_TEXT')}</span>
+                                            </>
+                                        ) : (
+                                            // Use the original translation key for button text for consistency
+                                            t(item.translationKey, item.translationValues)
+                                        )}
+                                    </Button>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    );
+                })}
+            </Row>
         </Container>
     );
 };

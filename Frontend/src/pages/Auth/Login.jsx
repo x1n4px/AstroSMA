@@ -32,13 +32,13 @@ function Login({ onLogin }) {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
-      
+
       const { token, rol, config } = await loginUser(email, password, isMobile);
       if (config) {
         localStorage.setItem('config', JSON.stringify(config));
       }
-     
-     
+
+
       onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {
@@ -88,6 +88,11 @@ function Login({ onLogin }) {
                 <Button variant="outline-secondary" className="w-100" as={Link} to="/register" style={{ color: '#980100', borderColor: '#980100' }}>
                   {t('LOGIN.REGISTER_BTN')}
                 </Button>
+                <div className="text-center mt-3"> {/* Contenedor que centra el texto */}
+                  <a href="/reset-password" className=" d-inline-block" style={{ color: '#980100', borderColor: '#980100' }}>
+                    ¿Olvidaste tu contraseña?
+                  </a>
+                </div>
               </Card.Body>
             </Card>
           </Col>

@@ -3,7 +3,7 @@
     margin: 0 auto;
   }
   
-  @media (min-width: 1024px) {
+  @media (min-width: 1280px) {
     .responsive-div {
       width: 70%;
     }
