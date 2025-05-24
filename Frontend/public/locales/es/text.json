@@ -169,7 +169,6 @@
         "ACCEPT_MODAL_BTN": "He leido y acepto los términos y condiciones",
         "CLOSE_BTN": "Cerrar",
         "SECTION": [
-            [
                 {
                     "TITLE": "1. Aceptación de los Términos",
                     "CONTENT": "Al registrarse como usuario de la base de datos de la Red de la Universidad de Málaga (en adelante, UMA) y de la Sociedad Malagueña de Astronomía (en adelante, SMA), usted acepta cumplir con estos Términos y Condiciones en su totalidad. Al acceder o utilizar los servicios, recursos, plataformas digitales (como sitio web, foros, bases de datos, etc.), usted manifiesta haber leído, comprendido y aceptado estos Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de estos términos, por favor, no se registre ni utilice los servicios de la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía (en adelante, Red UMA/SMA)."
@@ -206,7 +205,6 @@
                     "TITLE": "9. Contacto",
                     "CONTENT": "Si tiene alguna pregunta sobre estos Términos y Condiciones, por favor, póngase en contacto con la Secretaría de la Sociedad Malagueña de Astronomía a través de [dirección de correo electrónico o formulario de contacto]."
                 }
-            ]
         ]
     },
     "INFERRED_DATA": {
