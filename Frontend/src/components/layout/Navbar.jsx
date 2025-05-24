@@ -52,22 +52,28 @@ const Navbar = () => {
                   <Dropdown.Item as={Link} to="/profile" onClick={() => setExpanded(false)}>
                     {t('NAVBAR.BTN_PROFILE')}
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={handleLogout}>
-                    {t('NAVBAR.BTN_LOGOUT')}
-                  </Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/request" onClick={() => setExpanded(false)}>
+                      Mis solicitudes
+                    </Dropdown.Item>
+
                   {isAdminUser(roleMask) && (
                     <Dropdown.Item as={Link} to="/admin-panel" onClick={() => setExpanded(false)}>
                       Panel de administrador
                     </Dropdown.Item>
                   )}
+                  <Dropdown.Item onClick={handleLogout}>
+                    {t('NAVBAR.BTN_LOGOUT')}
+                  </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             ) : (
               <Nav.Link onClick={handleLogout} style={{ color: 'white' }}> {t('NAVBAR.BTN_LOGOUT')}</Nav.Link>
             )}
             {/* Language Dropdown */}
-            <Dropdown align="end"> {/* Added align="end" to keep dropdown on the right */}
-              <Dropdown.Toggle variant="outline-light" id="language-dropdown"> {/* Changed id for clarity */}
+            <Nav.Link onClick={() => changeLanguage('en')} style={{ color: 'white' }}><img src="/flag/en.webp" alt="English" style={{ width: '20px', marginRight: '0.1rem' }} /></Nav.Link>
+            <Nav.Link onClick={() => changeLanguage('es')} style={{ color: 'white' }}><img src="/flag/es.webp" alt="Español" style={{ width: '20px', marginRight: '0.5rem' }} /></Nav.Link>
+            {/* <Dropdown align="end">  
+              <Dropdown.Toggle variant="outline-light" id="language-dropdown">  
                 <img src={`/flag/${i18n.language}.webp`} alt={i18n.language.toUpperCase()} style={{ width: '20px' }} />
               </Dropdown.Toggle>
 
@@ -78,26 +84,9 @@ const Navbar = () => {
                 <Dropdown.Item onClick={() => changeLanguage('es')}>
                   <img src="/flag/es.webp" alt="Spanish" style={{ width: '20px', marginRight: '0.5rem' }} /> Español
                 </Dropdown.Item>
-                {/* Uncomment and add more language options as needed */}
-                {/*
-                <Dropdown.Item onClick={() => changeLanguage('fr')}>
-                  <img src="/flag/fr.webp" alt="French" style={{ width: '20px', marginRight: '0.5rem' }} /> Français
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('de')}> {/* Use 'de' for German code */}
-                {/* <img src="/flag/ge.webp" alt="German" style={{ width: '20px', marginRight: '0.5rem' }} /> Deutsch
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('ja')}> {/* Use 'ja' for Japanese code */}
-                {/* <img src="/flag/jp.webp" alt="Japanese" style={{ width: '20px', marginRight: '0.5rem' }} /> 日本語
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => changeLanguage('ru')}> {/* Use 'ru' for Russian code */}
-                {/* <img src="/flag/rs.webp" alt="Russian" style={{ width: '20px', marginRight: '0.5rem' }} /> Русский
-                </Dropdown.Item>
-                 <Dropdown.Item onClick={() => changeLanguage('uk')}> {/* Use 'uk' for Ukrainian code */}
-                {/* <img src="/flag/ua.webp" alt="Ukrainian" style={{ width: '20px', marginRight: '0.5rem' }} /> Українська
-                </Dropdown.Item>
-                */}
+                
               </Dropdown.Menu>
-            </Dropdown>
+            </Dropdown> */}
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>

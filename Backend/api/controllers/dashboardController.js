@@ -245,7 +245,7 @@ ORDER BY Fecha DESC,Hora DESC;
       showerPerYearData: data.showerPerYear,
       processedLastReport: processLastReport(data.lastReport),
       counterReport: data.counterReport,
-      percentageFromLastBolideMonth: data.percentageFromLastBolideMonth,
+      percentageFromLastBolideMonth: data.percentageFromLastBolideMonth[0],
       curvePercentageGroupLastYearBolido: data.curvePercentageGroupLastYearBolido,
     };
 

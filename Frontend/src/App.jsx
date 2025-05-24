@@ -25,6 +25,7 @@ const UserPanel = lazy(() => import('./components/admin/userPanel'));
 const ShowerInfo = lazy(() => import('./pages/astronomy/report/showerInfo.jsx'));
 const Dashboard = lazy(() => import('./pages/basic/Dashboard.jsx'));
 const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'));
+const Request = lazy(() => import('./pages/basic/Request.jsx'));
 
 const Layout = lazy(() => import('./layout/Layout.jsx'));
 
@@ -183,7 +184,8 @@ function App() {
             <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
             <Route path="/admin-panel/station-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <Station /></ProtectedRoute>} />
             <Route path="/shower-info/:selectedCode?" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ShowerInfo /></ProtectedRoute>} />
-
+            <Route path="/request" element={<ProtectedRoute requiredRoleMask="ALL_USER"><Request /></ProtectedRoute>} />
+            <Route path="/admin-panel/request-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <Request /></ProtectedRoute>} />
 
             {/* Otras rutas protegidas */}
           </Route>

@@ -606,8 +606,8 @@ const getPhaseName = (p) => {
 
 const getReportZListFromRain = async (req, res) => {
     try {
-        const { selectedCode, dateIn, dateOut} = req.params;
-        const {membershipThreshold=1, distanceThreshold=80} = req.body;
+        const { selectedCode, dateIn, dateOut } = req.params;
+        const { membershipThreshold = 1, distanceThreshold = 80 } = req.body;
         const showerCode = selectedCode.replace(/[0-9]/g, ''); // The specific shower code to process
         // 1. Find all reports associated with the specified shower code and radiant distance < 5
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
@@ -643,7 +643,7 @@ const getReportZListFromRain = async (req, res) => {
             return res.json({ message: `No reports found for shower code '${showerCode}' with radiant distance < 5.`, reportResults: [] });
         }
 
-    
+
         // 2. Fetch the established shower data for this code from established_meteor_showers
         // We fetch all relevant parameters needed for the calculateMembership function.
         const [establishedShowerData] = await pool.query(`SELECT ms.Code, ms.Activity, ms.ShowerNameDesignation, ms.SubDate, ms.Ra as Ar, ms.De, ms.E as e, ms.A as a, ms.Q as q FROM established_meteor_showers ms WHERE ms.Code = ? ;`, [showerCode]);
@@ -728,21 +728,21 @@ const getReportZListFromRain = async (req, res) => {
             // 5. Calculate Membership for each set of orbital elements against the established CAP shower data
             for (const ob_str of orbitalElements) {
                 // Parse orbital elements from strings to numbers using the helper function
-                const parsed_ob = {e: parseOrbitalFloat(ob_str.e_str),a: parseOrbitalFloat(ob_str.a_str),q: parseOrbitalFloat(ob_str.q_str),Ar: parseOrbitalFloat(ob_str.Ar_str),De: parseOrbitalFloat(ob_str.De_str)};
-               
+                const parsed_ob = { e: parseOrbitalFloat(ob_str.e_str), a: parseOrbitalFloat(ob_str.a_str), q: parseOrbitalFloat(ob_str.q_str), Ar: parseOrbitalFloat(ob_str.Ar_str), De: parseOrbitalFloat(ob_str.De_str) };
+
                 let membershipValue = calculateMembership(parsed_ob, capShowerEstablished);
                 report_memberships.push({
                     membership: membershipValue,
                 });
             }
 
-             
+
 
             if (report_memberships.length > 0) {
                 const maxMembership = report_memberships.reduce((max, current) => {
                     return current.membership > max.membership ? current : max;
                 }, report_memberships[0]);
-            
+
                 all_reports_results.push({
                     reportId: currentReportId,
                     fecha: currentReportFecha,
@@ -765,7 +765,7 @@ const getReportZListFromRain = async (req, res) => {
                     orbitalMemberships: 1 // o 0, '', etc. según tu lógica
                 });
             }
-            
+
         }
 
         // 6. Return the accumulated results for all processed CAP reports
@@ -783,6 +783,35 @@ const getReportZListFromRain = async (req, res) => {
     }
 };
 
+const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, PuntosZWO, TrayectoriaMedida, TrayectoriaPorRegresion } = require("../models");
+
+
+const test = async (req, res) => {
+    try {
+        const informe = await ReportZ.findByPk(req.params.id, {
+            include: [
+                { model: Meteoro },
+                { model: Observatorio, as: "Observatorio1" },
+                { model: Observatorio, as: "Observatorio2" },
+                { model: LluviaActiva },
+                { model: ElementosOrbitales },
+                { model: PuntosZWO },
+                { model: TrayectoriaMedida },
+                {model: TrayectoriaPorRegresion},
+            ]
+        });
+
+
+        if (!informe) {
+            return res.status(404).json({ error: "Informe no encontrado" });
+        }
+
+        res.json(informe);
+    } catch (error) {
+        console.error('Error al obtener el informe por ID:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 
 
@@ -792,5 +821,6 @@ module.exports = {
     saveReportAdvice,
     getReportzWithCustomSearch,
     getReportZListFromRain,
-    deleteReportAdvice
+    deleteReportAdvice,
+    test
 };

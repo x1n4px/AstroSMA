@@ -300,10 +300,9 @@
             "TITLE": "Download associated report",
             "DESCRIPTION": "Download the report associated with the active shower",
             "LINK": "Download {{name}} ( {{cty}} Software)",
-            "METEOR_GLOW":"Download instrumental magnitudes (brightnesses) of the meteor",
+            "METEOR_GLOW": "Download instrumental magnitudes (brightnesses) of the meteor",
             "RAW_DATA": "Download raw meteor data",
             "ERROR_GENERAL": "Error downloading {{software}}. Please try again."
-
         },
         "PENDING": {
             "TITLE": "Atmospheric trajectory",
@@ -466,8 +465,16 @@
             "METEOR": "meteor"
         }
     },
+    "DOWNLOAD_MODAL": {
+        "TITLE": "Request Download",
+        "MESSAGE": "You are about to request the download of this file. This request will be reviewed by an administrator before it can be approved. You can check the status in the 'My Requests' panel. Please provide a description for your request:",
+        "DESCRIPTION_LABEL": "Description:",
+        "DESCRIPTION_PLACEHOLDER": "Write a brief description of your download request...",
+        "CLOSE_BUTTON": "Close",
+        "ACCEPT_BUTTON": "Submit Request"
+    },
     "CUSTOMIZE_SEARCH": {
-        "DOWNLOAD_CSV": "Download CSV",
+        "DOWNLOAD_CSV": "Request CSV",
         "HEIGHT": "Height",
         "LATLON": "Latitude/Longitude",
         "LATITUDE": "Latitude",
@@ -704,6 +711,11 @@
                 "TITLE": "Stations",
                 "SUBTITLE": "Station editing",
                 "BUTTON": "View stations"
+            },
+            "REQUEST": {
+                "TITLE": "Download Requests",
+                "SUBTITLE": "Data download requests",
+                "BUTTON": "View requests"
             }
         },
         "EVENT_PAGE": {
@@ -923,6 +935,42 @@
             "SEND_EMAIL": "Error sending the email, please try again",
             "PASSWORD_DONT_MATCH": "Passwords do not match",
             "PASSWORD": "Error changing the password, please try again"
+        }
+    },
+    "REQUEST": {
+        "TITLE": "My Requests",
+        "TITLE_ADMIN": "Request Manager",
+        "PENDING_REQUESTS": "Pending Requests",
+        "PROCESS_REQUESTS": "Processed Requests",
+        "NO_REQUESTS": "No requests",
+        "TABLE": {
+            "REQUESTER": "Requester",
+            "REVIEWER": "Reviewer",
+            "REQUEST_DATE": "Request Date",
+            "REQUEST_TYPE": "Request Type",
+            "REQUEST_STATUS": "Request Status",
+            "REQUEST_ACTION": "Action",
+            "REQUEST_DOWNLOAD": "Download",
+            "ACCEPT_BTN": "Accept",
+            "REJECT_BTN": "Reject",
+            "PENDING_BTN": "Pending",
+            "FROM": "From",
+            "TO": "To",
+            "ENTITY": "Entity",
+            "REQUESTED_DATA": "Requested Data",
+            "DESCRIPTION": "Description",
+            "STATUS": "Status",
+            "ACTION": "Action",
+            "HEIGHT": "Height",
+            "LATITUDE": "Latitude",
+            "LONGITUDE": "Longitude",
+            "SEARCH_RADIUS": "Search Radius"
+        },
+        "STATUS": {
+            "PENDING": "Pending",
+            "ACCEPTED": "Accepted",
+            "REJECTED": "Rejected",
+            "UNKNOWN": "Unknown"
         }
     }
 }

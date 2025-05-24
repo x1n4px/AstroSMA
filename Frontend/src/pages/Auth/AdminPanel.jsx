@@ -33,6 +33,11 @@ const AdminPanel = () => {
             key: 'STATION',
             icon: <FaChargingStation className="me-2" />,
             link: "/admin-panel/station-panel"
+        },
+        {
+            key: 'REQUEST',
+            icon: <FaChargingStation className="me-2" />,
+            link: "/admin-panel/request-panel"
         }
     ];
 

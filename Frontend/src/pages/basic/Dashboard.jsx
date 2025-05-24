@@ -52,7 +52,7 @@ const Dashboard = () => {
     const [lastReportMap, setLastReportMap] = useState([]);
     const [lastReportData, setLastReportData] = useState();
     const [counterReport, setCounterReport] = useState([]);
-    const [percentageFromLastBolideMonth, setPercentageFromLastBolideMonth] = useState();
+    const [percentageFromLastBolideMonth, setPercentageFromLastBolideMonth] = useState([]);
     const [curvePercentageGroupLastYearBolido, setCurvePercentageGroupLastYearBolido] = useState([]);
 
 
@@ -139,7 +139,7 @@ const Dashboard = () => {
                 <main className="dashboard-content p-4">
                     {/* Map Section */}
                     <Container className="main-container mb-4" style={{ maxWidth: '100%' }}>
-                    <Row className="mb-4 flex-column-reverse flex-md-row">
+                        <Row className="mb-4 flex-column-reverse flex-md-row">
                             <Col xs={12}>
                                 <h5>{t('DASHBOARD.GRAPH.SECOND.TITLE')}</h5>
 
@@ -205,7 +205,7 @@ const Dashboard = () => {
                                                 <Box key="box5" color={'#980100'}>
                                                     <div className="d-flex flex-column justify-content-center align-items-center">
                                                         <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>{t('HOME.SMART_INFO.MONTH_DETECTIONS')}</span>
-                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth[0]?.current_detections}</small>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth?.current_detections ?? '_'}</small>
                                                     </div>
                                                 </Box>
                                             </Col>
@@ -213,7 +213,7 @@ const Dashboard = () => {
                                                 <Box key="box6" color={'#980100'}>
                                                     <div className="d-flex flex-column justify-content-center align-items-center">
                                                         <span style={{ fontWeight: '500', fontSize: '1rem', color: 'lightgray' }}>{t('HOME.SMART_INFO.LAST_MONTH_DETECTIONS')}</span>
-                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth[0]?.previous_month_detections}</small>
+                                                        <small style={{ fontWeight: '600', fontSize: '1.25rem', color: 'white' }}>{percentageFromLastBolideMonth?.previous_month_detections ?? '_'}</small>
                                                     </div>
                                                 </Box>
                                             </Col>

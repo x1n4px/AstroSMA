@@ -9,8 +9,8 @@ import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
 import { audit } from '@/services/auditService'
 import { getConfigValue } from '@/utils/getConfigValue';
-
-
+import { createRequest } from '@/services/requestService.jsx'
+import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx'
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 const CustomizeSearch = () => {
     const { t } = useTranslation(['text']);
-    const [heightFilter, setAlturaFilter] = useState('');
+    const [heightFilter, setAlturaFilter] = useState();
     const [latFilter, setLatFilter] = useState();
     const [lonFilter, setLonFilter] = useState();
     const [heightChecked, setAlturaChecked] = useState(false);
@@ -38,6 +38,7 @@ const CustomizeSearch = () => {
 
     const [modalReport, setModalReport] = useState(null); // Estado para el informe del modal
     const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
+    const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false); // Nuevo estado para el modal de descarga
 
 
     const handleApplyFilters = async () => {
@@ -64,60 +65,47 @@ const CustomizeSearch = () => {
         }
     };
 
-    const handleApplyFiltersCSV = async () => {
+    const handleApplyFiltersCSV = async (description) => {
         try {
-            const response = await getBolideWithCustomSearchCSV({
-                heightFilter,
-                latFilter,
-                lonFilter,
-                ratioFilter,
-                heightChecked,
-                latLonChecked,
-                dateRangeChecked,
-                startDate,
-                endDate,
-                actualPage,
-                reportType
-            });
+            const requestBody = {
+                height: heightFilter ?? null,
+                latitude: latFilter ?? null,
+                longitude: lonFilter ?? null,
+                ratio: ratioFilter ?? null,
+                from_date: startDate,
+                to_date: endDate,
+                report_type: reportType,
+                description: description 
+            };
+
+            const response = await createRequest(requestBody);
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    
+
             // Call the audit function
             const data = {
                 isGuest: false,
                 isMobile: isMobile,
                 button_name: 'CSV',
                 event_type: 'DOWNLOAD',
-                event_target: `Descarga datos asociados a CSV en búsqueda personalizada`,
+                event_target: `Solicitud de descarga de datos asociados a CSV en búsqueda personalizada`,
                 report_id: 0
             };
             await audit(data);
-    
-            // Verifica que la respuesta sea un blob (archivo)
-            if (response.data instanceof Blob) {
-                const url = window.URL.createObjectURL(response.data);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'meteor_reports.xlsx'); // Usa el mismo nombre que en el servidor
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                console.error('La respuesta no contiene un archivo válido');
-            }
+
         } catch (error) {
             console.error('Error al descargar el archivo:', error);
         }
     };
 
-    
+
     function audit() {
-        
+
     }
 
 
     const handleCSV = () => {
-        handleApplyFiltersCSV();
+        setShowDownloadConfirmModal(true);
     }
 
 
@@ -166,6 +154,12 @@ const CustomizeSearch = () => {
             handleApplyFilters();
         }
     };
+
+    const handleConfirmDownload = (description) => {
+        setShowDownloadConfirmModal(false);
+        handleApplyFiltersCSV(description);
+    };
+
 
     const handleNextPage = () => {
         if (actualPage < totalPages - 1) {
@@ -371,6 +365,11 @@ const CustomizeSearch = () => {
 
                     <CustomizeSearchModal report={modalReport} show={showModal} onHide={handleCloseModal} />
 
+                    <DownloadConfirmModal
+                        show={showDownloadConfirmModal}
+                        onHide={() => setShowDownloadConfirmModal(false)}
+                        onConfirm={handleConfirmDownload}
+                    />
 
                     <nav aria-label="Page navigation example">
                         <ul className="pagination justify-content-center py-4">

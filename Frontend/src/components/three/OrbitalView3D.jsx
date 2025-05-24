@@ -104,6 +104,7 @@ OtherObject.propTypes = {
 
 const OrbitalView3D = ({ date, orbit }) => {
   // Cálculo de la órbita y posición de la Tierra
+  console.log(orbit);
   const earthOrbitalData = useMemo(() => {
     if (!date) return null;
     const currentDate = (typeof date === 'string') ? new Date(date) : date;
@@ -216,7 +217,7 @@ const OrbitalView3D = ({ date, orbit }) => {
 
     // Puntos para la elipse de la otra órbita
     const otherOrbitPoints = [];
-    const numOrbitPoints = 128; // Número de segmentos
+    const numOrbitPoints = 256; // Número de segmentos
 
     // Calcular la matriz de rotación 3D a partir de Omega, i, omega
     // Usamos la fórmula de transformación estándar de coordenadas orbitales (perihelio en +X, plano XY)
@@ -252,32 +253,54 @@ const OrbitalView3D = ({ date, orbit }) => {
 
      // Calcular la posición del Nodo Ascendente (donde cruza el plano XZ y Y pasa de - a +)
      // Esto ocurre cuando sin(omega + v) = 0, y v es tal que el cruce es ascendente.
-     // Si i está entre 0 y pi, el nodo ascendente ocurre cuando omega + v = 2pi, 4pi, etc. -> v = 2pi - omega (o -omega)
-     // Usaremos el nodo ascendente (v = 2pi - omega)
+     // Esto ocurre cuando omega + v = 2pi, 4pi, etc.
+     // Entonces, trueAnomaly_ascending_node = 2 * Math.PI - omega_rad (o simplemente -omega_rad si el resultado se normaliza después)
      let trueAnomaly_ascending_node = (2 * Math.PI - omega_rad);
      // Asegurarse de que la anomalía verdadera esté en [0, 2pi)
      while (trueAnomaly_ascending_node < 0) trueAnomaly_ascending_node += 2 * Math.PI;
      while (trueAnomaly_ascending_node >= 2 * Math.PI) trueAnomaly_ascending_node -= 2 * Math.PI;
 
-     const r_node_pos = p_other / (1 + e_other * Math.cos(trueAnomaly_ascending_node));
+     const r_node_pos_asc = p_other / (1 + e_other * Math.cos(trueAnomaly_ascending_node));
 
-     // Recalcular cos(omega + v_node) y sin(omega + v_node) para el nodo ascendente
-     const cos_w_plus_v_node = Math.cos(omega_rad + trueAnomaly_ascending_node); // Esto debería ser cos(2pi) = 1 (si omega+v_node = 2pi)
-     const sin_w_plus_v_node = Math.sin(omega_rad + trueAnomaly_ascending_node); // Esto debería ser sin(2pi) = 0 (si omega+v_node = 2pi)
+     const cos_w_plus_v_node_asc = Math.cos(omega_rad + trueAnomaly_ascending_node);
+     const sin_w_plus_v_node_asc = Math.sin(omega_rad + trueAnomaly_ascending_node);
 
       // Transformación a coordenadas de la escena para la posición del Nodo Ascendente
-      // Notar que y_scene debería ser 0 aquí si la fórmula es correcta y sin(w+v) = 0
-      const x_node_scene = r_node_pos * (cos_Omega * cos_w_plus_v_node - sin_Omega * sin_w_plus_v_node * cos_i);
-      const z_node_scene = r_node_pos * (sin_Omega * cos_w_plus_v_node + cos_Omega * sin_w_plus_v_node * cos_i);
-      const y_node_scene = r_node_pos * (sin_w_plus_v_node * sin_i); // Esto debería ser muy cercano a 0
+      const x_node_scene_asc = r_node_pos_asc * (cos_Omega * cos_w_plus_v_node_asc - sin_Omega * sin_w_plus_v_node_asc * cos_i);
+      const z_node_scene_asc = r_node_pos_asc * (sin_Omega * cos_w_plus_v_node_asc + cos_Omega * sin_w_plus_v_node_asc * cos_i);
+      const y_node_scene_asc = r_node_pos_asc * (sin_w_plus_v_node_asc * sin_i); // Esto debería ser muy cercano a 0
+
+      const ascendingNodePosition = new THREE.Vector3(x_node_scene_asc, y_node_scene_asc, z_node_scene_asc);
+
+     // Calcular la posición del Nodo Descendente
+     // Esto ocurre cuando sin(omega + v) = 0, pero con un cruce descendente.
+     // Es decir, cuando omega + v = Math.PI (o 3pi, etc.)
+     let trueAnomaly_descending_node = (Math.PI - omega_rad);
+      // Asegurarse de que la anomalía verdadera esté en [0, 2pi)
+     while (trueAnomaly_descending_node < 0) trueAnomaly_descending_node += 2 * Math.PI;
+     while (trueAnomaly_descending_node >= 2 * Math.PI) trueAnomaly_descending_node -= 2 * Math.PI;
+
+     const r_node_pos_desc = p_other / (1 + e_other * Math.cos(trueAnomaly_descending_node));
+
+     const cos_w_plus_v_node_desc = Math.cos(omega_rad + trueAnomaly_descending_node);
+     const sin_w_plus_v_node_desc = Math.sin(omega_rad + trueAnomaly_descending_node); // Esto debería ser muy cercano a 0
+
+      // Transformación a coordenadas de la escena para la posición del Nodo Descendente
+      const x_node_scene_desc = r_node_pos_desc * (cos_Omega * cos_w_plus_v_node_desc - sin_Omega * sin_w_plus_v_node_desc * cos_i);
+      const z_node_scene_desc = r_node_pos_desc * (sin_Omega * cos_w_plus_v_node_desc + cos_Omega * sin_w_plus_v_node_desc * cos_i);
+      const y_node_scene_desc = r_node_pos_desc * (sin_w_plus_v_node_desc * sin_i); // Esto debería ser muy cercano a 0, pero con signo opuesto al ascendente si no fuera 0 exacto
+
+      const descendingNodePosition = new THREE.Vector3(x_node_scene_desc, y_node_scene_desc, z_node_scene_desc);
 
 
     return {
       otherOrbitPoints,
-      otherObjectPosition: [x_node_scene, y_node_scene, z_node_scene], // Posición del objeto en el Nodo Ascendente
+      otherObjectPosition: [x_node_scene_asc, y_node_scene_asc, z_node_scene_asc], // Posición del objeto en el Nodo Ascendente
       objectName: orbit.Informe_Z_IdInforme ? `Objeto ${orbit.Informe_Z_IdInforme}` : 'Otro Objeto',
       semiMajorAxis: orbit.a, // Mantener en AU para la etiqueta
       eccentricity: orbit.e,
+      ascendingNodePosition,
+      descendingNodePosition, // Añadir la posición del nodo descendente
     };
 
   }, [orbit]); // Recalcular si cambian los datos de la órbita
@@ -291,7 +314,8 @@ const OrbitalView3D = ({ date, orbit }) => {
   }
 
   const { earthPosition, earthOrbitPoints, currentDate } = earthOrbitalData;
-  const { otherOrbitPoints, otherObjectPosition, objectName, semiMajorAxis, eccentricity } = otherOrbitalData || {}; // Desestructurar condicionalmente
+  // Desestructurar descendingNodePosition también
+  const { otherOrbitPoints, otherObjectPosition, objectName, semiMajorAxis, eccentricity, ascendingNodePosition, descendingNodePosition } = otherOrbitalData || {};
 
 
   return (
@@ -326,6 +350,15 @@ const OrbitalView3D = ({ date, orbit }) => {
                 <OtherObject position={otherObjectPosition} />
                  {/* Trayectoria de la Otra Órbita */}
                 <Line points={otherOrbitPoints} color="blue" lineWidth={1} />
+
+                {/* Línea que une el Nodo Ascendente, el Sol y el Nodo Descendente */}
+                {ascendingNodePosition && descendingNodePosition && (
+                    <Line
+                        points={[descendingNodePosition, new THREE.Vector3(0, 0, 0), ascendingNodePosition]}
+                        color="lime" // Color verde para la nueva línea
+                        lineWidth={2}
+                    />
+                )}
 
                  {/* Etiqueta del Otro Objeto */}
                  {/* <Text

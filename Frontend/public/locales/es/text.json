@@ -302,10 +302,9 @@
             "TITLE": "Descargar informe asociado",
             "DESCRIPTION": "Descargar el informe asociado a la lluvia activa",
             "LINK": "Descargar {{name}} ( {{cty}} Software)",
-            "METEOR_GLOW":"Descargar magnitudes instrumentales (brillos) del meteoro",
+            "METEOR_GLOW": "Descargar magnitudes instrumentales (brillos) del meteoro",
             "RAW_DATA": "Descargar datos en bruto del meteoro",
             "ERROR_GENERAL": "Error al descargar {{software}}. Por favor, inténtalo de nuevo."
-
         },
         "PENDING": {
             "TITLE": "Trayectoria atmosférica",
@@ -469,7 +468,7 @@
         }
     },
     "CUSTOMIZE_SEARCH": {
-        "DOWNLOAD_CSV": "Descargar CSV",
+        "DOWNLOAD_CSV": "Solicitar CSV",
         "HEIGHT": "Altura",
         "LATLON": "Latitud/Longitud",
         "LATITUDE": "Latitud",
@@ -522,6 +521,15 @@
             }
         }
     },
+    "DOWNLOAD_MODAL": {
+    "TITLE": "Solicitar Descarga",
+    "MESSAGE": "Estás a punto de solicitar la descarga del archivo. Esta solicitud será revisada por un administrador antes de su aprobación. Podrás consultar el estado en el panel de 'Mis solicitudes'. Por favor, proporciona una descripción para esta solicitud:",
+    "DESCRIPTION_LABEL": "Descripción:",
+    "DESCRIPTION_PLACEHOLDER": "Escribe una breve descripción de tu solicitud de descarga...",
+    "CLOSE_BUTTON": "Cerrar",
+    "ACCEPT_BUTTON": "Enviar Solicitud"
+}
+,
     "STATION": {
         "TITLE": "Mapa de estaciones espaciales",
         "DESCRIPTION": "La red de bólidos y Meteoros de la Universidad de Málaga",
@@ -706,6 +714,11 @@
                 "TITLE": "Estaciones",
                 "SUBTITLE": "Edición de estaciones",
                 "BUTTON": "Ver estaciones"
+            },
+            "REQUEST": {
+                "TITLE": "Solicitudes de descarga",
+                "SUBTITLE": "Solicitudes de descarga de datos",
+                "BUTTON": "Ver solicitudes"
             }
         },
         "EVENT_PAGE": {
@@ -891,7 +904,7 @@
                 "EMAIL_INVALID": "Correo electrónico inválido"
             },
             "ALERT": {
-                "REGISTER_EMAIL":"Si tu email está registrado, recibirás un enlace de restablecimiento. Por favor, revisa tu bandeja de entrada (y spam)."
+                "REGISTER_EMAIL": "Si tu email está registrado, recibirás un enlace de restablecimiento. Por favor, revisa tu bandeja de entrada (y spam)."
             },
             "BUTTON": "Enviar enlace de recuperación"
         },
@@ -924,7 +937,43 @@
             "PASSWORD_CONFIRM_EMPTY": "La confirmación de la contraseña no puede estar vacía",
             "SEND_EMAIL": "Error al enviar el correo electrónico, por favor, inténtalo de nuevo",
             "PASSWORD_DONT_MATCH": "Las contraseñas no coinciden",
-            "PASSWORD": "Error al cambiar la contraseña, por favor, inténtalo de nuevo" 
+            "PASSWORD": "Error al cambiar la contraseña, por favor, inténtalo de nuevo"
+        }
+    },
+    "REQUEST": {
+        "TITLE": "Mis solicitudes",
+        "TITLE_ADMIN": "Gestor de solicitudes",
+        "PENDING_REQUESTS": "Solicitudes pendientes",
+        "PROCESS_REQUESTS": "Solicitudes procesadas",
+        "NO_REQUESTS": "No hay solicitudes",
+        "TABLE": {
+            "REQUESTER": "Solicitante",
+            "REVIEWER": "Revisor",
+            "REQUEST_DATE": "Fecha de solicitud",
+            "REQUEST_TYPE": "Tipo de solicitud",
+            "REQUEST_STATUS": "Estado de la solicitud",
+            "REQUEST_ACTION": "Acción",
+            "REQUEST_DOWNLOAD": "Descargar",
+            "ACCEPT_BTN": "Aceptar",
+            "REJECT_BTN": "Rechazar",
+            "PENDING_BTN": "Pendiente",
+            "FROM": "Desde",
+            "TO": "Hasta",
+            "ENTITY": "Entidad",
+            "REQUESTED_DATA": "Datos solicitados",
+            "DESCRIPTION": "Descripción",
+            "STATUS": "Estado",
+            "ACTION": "Acciones",
+            "HEIGHT": "Altura",
+            "LATITUDE": "Latitud",
+            "LONGITUDE": "Longitud",
+            "SEARCH_RADIUS": "Radio de Búsqueda"
+        },
+        "STATUS": {
+            "PENDING": "Pendiente",
+            "ACCEPTED": "Aceptada",
+            "REJECTED": "Rechazada",
+            "UNKNOWN": "Desconocida"
         }
     }
 }

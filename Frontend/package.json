@@ -43,6 +43,7 @@
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^6.30.0",
     "react-select": "^5.10.1",
+    "sequelize": "^6.37.7",
     "three": "^0.174.0"
   },
   "devDependencies": {

@@ -13,9 +13,9 @@ const ActiveShowerRoute = require('./routes/activeShowerRoute')
 const RadiantReportRoute = require('./routes/radiantReportRoute')
 const auditRoute = require('./routes/auditRoute')
 const EventRoute = require('./routes/eventRoute')
-const FileController = require ('./routes/fileRoute')
-const WebConfigController = require ('./routes/webConfigRoute')
-
+const FileRoute = require ('./routes/fileRoute')
+const WebConfigRoute = require ('./routes/webConfigRoute')
+const RequestRoute = require('./routes/requestRoute') 
 
 app.use(cors());
 app.use(express.json());
@@ -38,8 +38,9 @@ app.use('/api', ActiveShowerRoute);
 app.use('/api', RadiantReportRoute);
 app.use('/api', auditRoute);
 app.use('/api', EventRoute);
-app.use('/api', FileController);
-app.use('/api', WebConfigController);
+app.use('/api', FileRoute);
+app.use('/api', WebConfigRoute);
+app.use('/api', RequestRoute);
 
 
 

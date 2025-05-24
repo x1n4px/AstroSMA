@@ -334,10 +334,12 @@ const getBolideWithCustomSearch = async (req, res) => {
 
 
 const ExcelJS = require('exceljs');
+const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, PuntosZWO, TrayectoriaMedida, TrayectoriaPorRegresion } = require("../models");
 
 const getBolideWithCustomSearchCSV = async (req, res) => {
   try {
     const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType } = req.query;
+    console.log(heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType )
     const offs = actualPage * 50;
     /*    REPORT_TYPE
         1: "Todos los bólidos sin filtros"
@@ -564,7 +566,8 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       'Error_alturas_Estacion_2', 'Tiempo_Estacion_1', 'Velocidad_media', 'Tiempo_trayectoria_en_estacion_2',
       'Ecuacion_del_movimiento_en_Kms', 'Ecuacion_del_movimiento_en_gs', 'Error_Velocidad',
       'Velocidad_Inicial_Estacion_2', 'Aceleración_en_Kms', 'Aceleración_en_gs', 'Método_utilizado',
-      'Ecuacion_parametrica_IdEc', 'Meteoro_Identificador'
+      'Ecuacion_parametrica_IdEc', 'Meteoro_Identificador', 'Lluvia_Activa', 'Elementos_Orbitales',
+      'Puntos_ZWO', 'Trayectoria_Medida', 'Trayectoria_Por_Regresion'
 
 
     ]);
@@ -572,18 +575,31 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
     const meteorIds = allBolides.map(b => b.Identificador);
     const informeZIDs = allBolides.map(b => b.IDs_Informe_Z !== null ? b.IDs_Informe_Z.split("/") : null).flat().filter(Boolean); let informeZData = [];
     if (informeZIDs.length > 0) {
-      const placeholders = informeZIDs.map(() => '?').join(', ');
-      const query = `SELECT * FROM Informe_Z iz WHERE iz.IdInforme IN (${placeholders})`;
+      informeZData = await ReportZ.findAll({
+        where: {
+          IdInforme: informeZIDs
+        },
+        include: [
+          { model: Meteoro },
+          { model: Observatorio, as: "Observatorio1" },
+          { model: Observatorio, as: "Observatorio2" },
+          { model: LluviaActiva },
+          { model: ElementosOrbitales },
+          { model: PuntosZWO },
+          { model: TrayectoriaMedida },
+          { model: TrayectoriaPorRegresion },
+        ]
+      });
 
-      [informeZData] = await pool.query(query, [...informeZIDs]);
     }
+
 
 
     informeZData.forEach(row => {
       informeZSheet.addRow([
         row.IdInforme,
-        row.Observatorio_Número2,
-        row.Observatorio_Número,
+        row.Observatorio2,
+        row.Observatorio1,
         row.Fecha,
         row.Hora,
         row.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1,
@@ -620,7 +636,12 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
         row.Aceleración_en_gs,
         row.Método_utilizado,
         row.Ecuacion_parametrica_IdEc,
-        row.Meteoro_Identificador
+        row.Meteoro,
+        row.LluviaActiva,
+        row.ElementosOrbitales,
+        row.PuntosZWO,
+        row.TrayectoriaMedida,
+        row.TrayectoriaPorRegresion
       ]);
     });
 
