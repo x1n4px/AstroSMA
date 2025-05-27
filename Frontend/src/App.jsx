@@ -98,6 +98,7 @@ function App() {
     const token = localStorage.getItem('authToken');
     if (isTokenExpired(token)) {
       localStorage.removeItem('authToken');
+      
     }
 
     if (token) {

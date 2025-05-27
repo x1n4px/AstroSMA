@@ -53,12 +53,12 @@ const Navbar = () => {
                     {t('NAVBAR.BTN_PROFILE')}
                   </Dropdown.Item>
                     <Dropdown.Item as={Link} to="/request" onClick={() => setExpanded(false)}>
-                      Mis solicitudes
+                      {t('NAVBAR.BTN_REQUEST')}
                     </Dropdown.Item>
 
                   {isAdminUser(roleMask) && (
                     <Dropdown.Item as={Link} to="/admin-panel" onClick={() => setExpanded(false)}>
-                      Panel de administrador
+                      {t('NAVBAR.BTN_ADMIN_PANEL')}
                     </Dropdown.Item>
                   )}
                   <Dropdown.Item onClick={handleLogout}>

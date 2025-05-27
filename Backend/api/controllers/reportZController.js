@@ -613,7 +613,6 @@ const getReportZListFromRain = async (req, res) => {
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
         // and filter by the radiant distance threshold.
         let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1 FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
-
         const params = [selectedCode];
 
         if (dateIn !== 'null' && dateOut !== 'null') {
@@ -626,7 +625,6 @@ const getReportZListFromRain = async (req, res) => {
             query += ` AND YEAR(iz.Fecha) <= ?`;
             params.push(dateOut);
         }
-
         const [capReports] = await pool.query(query, params);
         const [radiantReport] = await pool.query(`SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador LIKE CONCAT('%', ?, '%');`, [showerCode]);
         const [showerGraph] = await pool.query(`
@@ -647,7 +645,6 @@ const getReportZListFromRain = async (req, res) => {
         // 2. Fetch the established shower data for this code from established_meteor_showers
         // We fetch all relevant parameters needed for the calculateMembership function.
         const [establishedShowerData] = await pool.query(`SELECT ms.Code, ms.Activity, ms.ShowerNameDesignation, ms.SubDate, ms.Ra as Ar, ms.De, ms.E as e, ms.A as a, ms.Q as q FROM established_meteor_showers ms WHERE ms.Code = ? ;`, [showerCode]);
-
 
 
         if (establishedShowerData.length === 0) {

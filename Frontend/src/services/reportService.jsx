@@ -49,12 +49,11 @@ export const getReportZ = async (id) => {
 
 export const getReportZListFromRain = async(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold) => {
     try {
-        const response = await axios.post(`${apiUrl}/reportz/showerInfo/${selectedCode}/${dateIn}/${dateOut}`, {membershipThreshold, distanceThreshold},  {
+        const response = await axios.post(`${apiUrl}/reportz/showerInfo/${selectedCode}/${dateIn === '' ? null : dateIn }/${dateOut === '' ? null : dateOut }`, {membershipThreshold, distanceThreshold},  {
             headers: {
                 'x-token': token, // Agrega el token como encabezado x-token
             },
         });
-        
         return response.data;
     } catch (error) {
         throw error;

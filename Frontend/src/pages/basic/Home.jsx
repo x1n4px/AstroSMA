@@ -14,7 +14,8 @@ import SolarSystem from '../../components/three/SolarSystem';
 import { Link } from 'react-router-dom';
 import BarChart from '@/components/chart/BarChart';
 import StationMapChart from '@/components/map/StationMapChart';
-
+import DasboardMap from '@/components/dashboard/DashboardMap.jsx';
+import MapSkeleton from '@/components/skeleton/MapSkeleton';
 
 const teamMembers = [
     { name: 'Alberto Castellón', role: 'Presidente', image: 'https://francis.naukas.com/files/2022/06/D20220608-small-photo-alberto-castellon-serrano-info-uma.jpg' },
@@ -168,7 +169,7 @@ const Home = () => {
                 <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
                     <h1 style={{ color: '#f8f9fa' }}>{t('HOME.TITLE')}</h1>
                     <p style={{ color: '#f8f9fe' }}>{t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport[0]?.Fecha)}</p>
-                    <div className="d-flex">
+                    {/* <div className="d-flex">
                         <div
                             className="flex-grow-1 position-relative"
                             style={{
@@ -261,7 +262,18 @@ const Home = () => {
 
                             </div>
                         </div>
+                    </div> */}
+                    <div >
+                        {loading ? (
+                            <MapSkeleton height="400px" />
+                        ) : (
+
+                            <DasboardMap observatoryData={observatory} lastReportMap={lastReportMap} lastReportData={lastReport} />
+                        )}
+                       
+
                     </div>
+
                     <div className="d-flex">
                         <div
                             className="p-4 mt-4 d-flex justify-content-between align-items-center mb-4"
@@ -307,7 +319,7 @@ const Home = () => {
                 </div>
             </div>
             <NextRain />
-           
+
             <div style={{ backgroundColor: '#f8f9fa', padding: '60px 0' }}>
                 <Container>
                     {/* Sección del gráfico de barras */}
@@ -316,14 +328,14 @@ const Home = () => {
                             <Card className="border-0 shadow-sm">
                                 <Card.Body>
                                     <Card.Title className="text-center mb-4" style={{ fontSize: '1.8rem', color: '#212529' }}>
-                                    {t('HOME.LAST_YEAR_ACTIVITY.TITLE')}
+                                        {t('HOME.LAST_YEAR_ACTIVITY.TITLE')}
                                     </Card.Title>
                                     <div style={{ height: '400px', width: '100%' }}>
                                         <BarChart data={meteorLastYear} key={`key-a2214`} />
                                     </div>
                                     <div className="text-center mt-3">
                                         <small className="text-muted">
-                                        {t('HOME.LAST_YEAR_ACTIVITY.DATA_INFO')}
+                                            {t('HOME.LAST_YEAR_ACTIVITY.DATA_INFO')}
                                         </small>
                                     </div>
                                 </Card.Body>
@@ -333,49 +345,49 @@ const Home = () => {
                 </Container>
             </div>
             <div style={{ backgroundColor: '#e9ecef', padding: '60px 0' }}> {/* Light gray background for better contrast */}
-            <Container>
-                <Row className="justify-content-center mb-4">
-                    <Col md={8} className="text-center">
-                        <h2>{t('HOME.STATION.TITLE') || 'Mapa de Estaciones Asociadas SMA'}</h2> {/* More descriptive title */}
-                        <p className="lead">{t('HOME.STATION.DESCRIPTION')}</p> {/* Informative subtitle */}
-                    </Col>
-                </Row>
-                <Row className="justify-content-center">
-                    <Col md={12}> {/* Make the map take full width within the container */}
-                        {firstMapLoaded && (
-                            <div style={{ borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}> {/* Added visual enhancements */}
-                                <StationMapChart
-                                    ref={(ref) => {
-                                        mapRef.current = ref;
-                                        if (ref && ref.leafletElement) {
-                                            mapInstance.current = ref.leafletElement;
-                                        }
-                                    }}
-                                    key={'sma_stations_map'}  
-                                    data={observatory}
-                                    activePopUp={true}  
-                                    latitude={40.415417}
-                                    longitude={-3.695642}
-                                    zoom={6}
-                                    useStatinIcon={true} 
-                                />
-                            </div>
-                        )}
-                        {!firstMapLoaded && observatory && observatory.length === 0 && (
-                            <p className="text-center mt-3">{t('HOME.STATION.NO_STATIONS_AVAILABLE')}</p>
-                        )}
-                        {!firstMapLoaded && !observatory && (
-                            <p className="text-center mt-3">{t('HOME.STATION.LOADING_STATIONS')}</p>
-                        )}
-                    </Col>
-                </Row>
-                <Row className="justify-content-center mt-4">
-                    <Col md="auto" className="text-center">
-                        <p className="text-muted small">{t('HOME.STATION.MAP_INTERACTIVE_INFO') }</p>
-                    </Col>
-                </Row>
-            </Container>
-        </div>
+                <Container>
+                    <Row className="justify-content-center mb-4">
+                        <Col md={8} className="text-center">
+                            <h2>{t('HOME.STATION.TITLE') || 'Mapa de Estaciones Asociadas SMA'}</h2> {/* More descriptive title */}
+                            <p className="lead">{t('HOME.STATION.DESCRIPTION')}</p> {/* Informative subtitle */}
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-center">
+                        <Col md={12}> {/* Make the map take full width within the container */}
+                            {firstMapLoaded && (
+                                <div style={{ borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}> {/* Added visual enhancements */}
+                                    <StationMapChart
+                                        ref={(ref) => {
+                                            mapRef.current = ref;
+                                            if (ref && ref.leafletElement) {
+                                                mapInstance.current = ref.leafletElement;
+                                            }
+                                        }}
+                                        key={'sma_stations_map'}
+                                        data={observatory}
+                                        activePopUp={true}
+                                        latitude={40.415417}
+                                        longitude={-3.695642}
+                                        zoom={6}
+                                        useStatinIcon={true}
+                                    />
+                                </div>
+                            )}
+                            {!firstMapLoaded && observatory && observatory.length === 0 && (
+                                <p className="text-center mt-3">{t('HOME.STATION.NO_STATIONS_AVAILABLE')}</p>
+                            )}
+                            {!firstMapLoaded && !observatory && (
+                                <p className="text-center mt-3">{t('HOME.STATION.LOADING_STATIONS')}</p>
+                            )}
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-center mt-4">
+                        <Col md="auto" className="text-center">
+                            <p className="text-muted small">{t('HOME.STATION.MAP_INTERACTIVE_INFO')}</p>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
 
             <div style={{ backgroundColor: '#980100', padding: '0px 0' }}>
                 <Container className="py-5" >
@@ -491,7 +503,7 @@ const Home = () => {
                                         margin: '0 auto',
                                         lineHeight: '1.5'
                                     }}>
-                                       {t('HOME.ASTRONOMIC_CTO.NOTE')}
+                                        {t('HOME.ASTRONOMIC_CTO.NOTE')}
                                     </small>
                                 </Col>
                             </Row>
@@ -506,7 +518,7 @@ const Home = () => {
                         <Col md={8} className="text-center">
                             <h2 style={{ color: '#000', marginBottom: '20px' }}>{t('HOME.SOLAR_SYSTEM.TITLE')}</h2>
                             <p style={{ color: '#980100', fontSize: '1.1rem' }}>
-                            {t('HOME.SOLAR_SYSTEM.DESCRIPTION')}
+                                {t('HOME.SOLAR_SYSTEM.DESCRIPTION')}
                             </p>
                         </Col>
                     </Row>
@@ -557,7 +569,7 @@ const Home = () => {
                             <div className="text-center mb-4">
                                 <h2 style={{ color: '#212529' }}>{t('HOME.TEAM.TITLE')}</h2>
                                 <p className="text-muted mb-4">
-                                {t('HOME.TEAM.DESCRIPTION')}
+                                    {t('HOME.TEAM.DESCRIPTION')}
                                 </p>
                             </div>
 

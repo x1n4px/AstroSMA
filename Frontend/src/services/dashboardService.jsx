@@ -23,6 +23,7 @@ export const getGeneralHome = async (option) => {
 
     try {
         const response = await axios.get(`${apiUrl}/dashboard/home`);
+        console.log(response.data);
         return response.data;
     } catch (error) {
         throw error;

@@ -63,7 +63,7 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
             <Card.Body className="p-4">
               <div className="d-flex align-items-center mb-4">
                 <Calendar size={20} className="me-2" style={{ color: "#980100" }} />
-                <span className="text-muted">{formatDate(lastReportData?.Fecha)}  {lastReportData?.Hora.substring(0, 8)}</span>
+                <span className="text-muted">{formatDate(lastReportData?.Fecha)}  {lastReportData?.Hora}</span>
               </div>
 
               {/* Estación 1 */}

@@ -34,7 +34,9 @@
         "BTN_STATIONS": "Estaciones",
         "BTN_LOGOUT": "Cerrar sesión",
         "BTN_PROFILE": "Perfil",
-        "BTN_ACTIVE_RAIN": "Lluvia Activa"
+        "BTN_ACTIVE_RAIN": "Lluvia Activa",
+        "BTN_REQUEST": "Mis solicitudes",
+        "BTN_ADMIN_PANEL": "Panel de administración"
     },
     "FOOTER": {
         "FOLLOW": "Síguenos en nuestras redes sociales",

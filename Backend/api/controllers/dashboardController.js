@@ -20,92 +20,46 @@ const getGeneral = async (req, res) => {
       default: limit = null;
     }
 
+    
+
     // Consultas comunes que no dependen del límite/fecha
     const commonQueries = {
-      monthObservationsFrequency: `SELECT DATE_FORMAT(Fecha, '%Y-%m') AS mes_anio, COUNT(*) AS total_observaciones 
-                                 FROM Informe_Z GROUP BY mes_anio ORDER BY mes_anio DESC LIMIT 12`,
-      hourWithMoreDetection: `SELECT CAST(Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, 
-                            (CAST(Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z 
-                            GROUP BY hora_numerica ORDER BY hora_numerica`,
+      monthObservationsFrequency: `SELECT DATE_FORMAT(Fecha, '%Y-%m') AS mes_anio, COUNT(*) AS total_observaciones FROM Informe_Z GROUP BY mes_anio ORDER BY mes_anio DESC LIMIT 12`,
+      hourWithMoreDetection: `SELECT CAST(Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, (CAST(Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z GROUP BY hora_numerica ORDER BY hora_numerica`,
       observatory: 'SELECT * FROM Observatorio',
-      showerPerYear: `SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, 
-                     MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la 
-                     ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, 
-                     la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador`,
-      lastReportMap: `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, 
-                     iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, 
-                     iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora 
-                     FROM Informe_Z iz ORDER BY iz.IdInforme DESC LIMIT 1`,
+      showerPerYear: `SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador`,
+      lastReportMap: `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz ORDER BY iz.IdInforme DESC LIMIT 1`,
       lastReport: `SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT 1`,
       counterReport: `SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z
-                                              UNION ALL
-                                              SELECT 'Informe_Radiante', COUNT(*) FROM Informe_Radiante
-                                              UNION ALL
-                                              SELECT 'Informe_Fotometria', COUNT(*) FROM Informe_Fotometria
-                                              UNION ALL
-                                              SELECT 'Meteoro', COUNT(*) FROM Meteoro;
-                                              `,
+                      UNION ALL
+                      SELECT 'Informe_Radiante', COUNT(*) FROM Informe_Radiante
+                      UNION ALL
+                      SELECT 'Informe_Fotometria', COUNT(*) FROM Informe_Fotometria
+                      UNION ALL
+                      SELECT 'Meteoro', COUNT(*) FROM Meteoro; `,
       percentageFromLastBolideMonth: `SELECT 
-    curr.anio AS year,
-    curr.mes AS month,
-    curr.num_detections AS current_detections,
-    prev.num_detections AS previous_month_detections,
-    ROUND(
-        IF(prev.num_detections = 0, NULL,
-           ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100),
-        2
-    ) AS percentage_change
-FROM (
-    SELECT 
-        YEAR(Fecha) AS anio,
-        MONTH(Fecha) AS mes,
-        COUNT(*) AS num_detections
-    FROM Meteoro
-    WHERE 
-        YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro)
-        AND MONTH(Fecha) = (SELECT MONTH(MAX(Fecha)) FROM Meteoro WHERE YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro))
-    GROUP BY YEAR(Fecha), MONTH(Fecha)
-) AS curr
-LEFT JOIN (
-    SELECT 
-        YEAR(Fecha) AS anio,
-        MONTH(Fecha) AS mes,
-        COUNT(*) AS num_detections
-    FROM Meteoro
-    GROUP BY YEAR(Fecha), MONTH(Fecha)
-) AS prev
-ON (curr.anio = prev.anio AND curr.mes = prev.mes + 1)
-   OR (curr.anio = prev.anio + 1 AND curr.mes = 1 AND prev.mes = 12);
-`,
-      curvePercentageGroupLastYearBolido: `SELECT 
-    curr.year,
-    curr.month,
-    curr.num_detections,
-    prev.num_detections AS previous_month_detections,
-    ROUND(
-        IF(prev.num_detections = 0, NULL,
-           ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100),
-        2
-    ) AS percentage_change
-FROM (
-    SELECT 
-        YEAR(Fecha) AS year,
-        MONTH(Fecha) AS month,
-        COUNT(*) AS num_detections
-    FROM Informe_Z
-    GROUP BY YEAR(Fecha), MONTH(Fecha)
-) AS curr
-LEFT JOIN (
-    SELECT 
-        YEAR(Fecha) AS year,
-        MONTH(Fecha) AS month,
-        COUNT(*) AS num_detections
-    FROM Informe_Z
-    GROUP BY YEAR(Fecha), MONTH(Fecha)
-) AS prev
-ON (curr.year = prev.year AND curr.month = prev.month + 1)
-   OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12)
-ORDER BY curr.year DESC, curr.month DESC;`
+                                        curr.anio AS year,
+                                        curr.mes AS month,
+                                        curr.num_detections AS current_detections,
+                                        prev.num_detections AS previous_month_detections,
+                                        ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2) AS percentage_change
+                                    FROM (
+                                        SELECT YEAR(Fecha) AS anio,MONTH(Fecha) AS mes,COUNT(*) AS num_detections
+                                        FROM Meteoro
+                                        WHERE YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro) AND MONTH(Fecha) = (SELECT MONTH(MAX(Fecha)) FROM Meteoro WHERE YEAR(Fecha) = (SELECT YEAR(MAX(Fecha)) FROM Meteoro))
+                                        GROUP BY YEAR(Fecha), MONTH(Fecha)
+                                    ) AS curr
+                                    LEFT JOIN (
+                                        SELECT  YEAR(Fecha) AS anio, MONTH(Fecha) AS mes, COUNT(*) AS num_detections FROM Meteoro GROUP BY YEAR(Fecha), MONTH(Fecha)
+                                    ) AS prev
+                                    ON (curr.anio = prev.anio AND curr.mes = prev.mes + 1)
+                                    OR (curr.anio = prev.anio + 1 AND curr.mes = 1 AND prev.mes = 12);`,
+      curvePercentageGroupLastYearBolido: `SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections,
+                                           ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2 ) AS percentage_change
+                                           FROM ( SELECT YEAR(Fecha) AS year,MONTH(Fecha) AS month,COUNT(*) AS num_detections FROM Informe_Z GROUP BY YEAR(Fecha), MONTH(Fecha) ) AS curr
+                                           LEFT JOIN ( SELECT YEAR(Fecha) AS year, MONTH(Fecha) AS month, COUNT(*) AS num_detections FROM Informe_Z GROUP BY YEAR(Fecha), MONTH(Fecha)) AS prev
+                                          ON (curr.year = prev.year AND curr.month = prev.month + 1) OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12)
+                                          ORDER BY curr.year DESC, curr.month DESC;`
     };
 
     // Consultas que dependen de límite o fecha
@@ -130,45 +84,27 @@ ORDER BY curr.year DESC, curr.month DESC;`
             FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""} 
             GROUP BY RangoVelocidad`,
 
-      pieChart: `WITH conteo_meteoros AS (
-                  SELECT m.Identificador, COUNT(*) as ocurrencias
-                  FROM Meteoro m
-                  JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+      pieChart: `SELECT COUNT(*) as cantidad_meteoros, ocurrencias
+                FROM (
+                    SELECT m.Identificador, COUNT(*) as ocurrencias
+                    FROM Meteoro m
+                    JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
                   ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
                   GROUP BY m.Identificador
-                  HAVING COUNT(*) >= 1
+                    HAVING COUNT(*) >= 1
                   ${option < 4 ? "LIMIT ?" : ""}
-                )
-                SELECT COUNT(*) as cantidad_meteoros, ocurrencias
-                FROM conteo_meteoros
+                ) AS conteo_meteoros
                 GROUP BY ocurrencias
-                ORDER BY ocurrencias`,
+                ORDER BY ocurrencias;`,
 
 
       predictableImpact: `WITH Ranked AS (
-                          SELECT 
-                              m.Identificador, 
-                              iz.Ángulo_diedro_entre_planos_trayectoria, 
-                              iz.Inicio_de_la_trayectoria_Estacion_1,
-                              iz.Inicio_de_la_trayectoria_Estacion_2,
-                              iz.Fin_de_la_trayectoria_Estacion_1,
-                              iz.Fin_de_la_trayectoria_Estacion_2,
-                              iz.Fecha,
-                              ROW_NUMBER() OVER (
-                                  PARTITION BY m.Identificador 
-                                  ORDER BY iz.Ángulo_diedro_entre_planos_trayectoria DESC
-                              ) AS rn
-                          FROM Meteoro m
-                          JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+                          SELECT m.Identificador, iz.Ángulo_diedro_entre_planos_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1,iz.Inicio_de_la_trayectoria_Estacion_2,iz.Fin_de_la_trayectoria_Estacion_1,iz.Fin_de_la_trayectoria_Estacion_2,iz.Fecha,
+                              ROW_NUMBER() OVER ( PARTITION BY m.Identificador  ORDER BY iz.Ángulo_diedro_entre_planos_trayectoria DESC) AS rn
+                          FROM Meteoro m JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
                           ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
                           )
-                          SELECT 
-                              Identificador, 
-                              Inicio_de_la_trayectoria_Estacion_1,
-                              Inicio_de_la_trayectoria_Estacion_2,
-                              Fin_de_la_trayectoria_Estacion_1,
-                              Fin_de_la_trayectoria_Estacion_2,
-                              Fecha
+                          SELECT  Identificador,  Inicio_de_la_trayectoria_Estacion_1, Inicio_de_la_trayectoria_Estacion_2, Fin_de_la_trayectoria_Estacion_1, Fin_de_la_trayectoria_Estacion_2, Fecha
                           FROM Ranked
                           WHERE rn = 1 AND (Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido' 
                           AND Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido' 
@@ -177,36 +113,13 @@ ORDER BY curr.year DESC, curr.month DESC;`
                           ORDER BY Ángulo_diedro_entre_planos_trayectoria DESC
                           ${option < 4 ? "LIMIT ?" : ""}`,
 
-      lastNMeteors: `
-SELECT 
-    iz.Fecha,
-    iz.Hora,
-    FALSE AS isRadiant,
-    iz.Meteoro_Identificador,
-      iz.IdInforme
-FROM Informe_Z iz
-WHERE iz.Meteoro_Identificador IN (
-    SELECT Identificador FROM (
-        SELECT Identificador
-        FROM Meteoro
-        ${option >= 4 ? "WHERE Fecha >= ?" : ""}
-        ORDER BY Fecha DESC
-        ${option < 4 ? "LIMIT ?" : ""}
-    ) AS ultimos
-)
-UNION ALL
-SELECT 
-    ir.Fecha, ir.Hora, TRUE AS isRadiant, ir.Meteoro_Identificador, ir.Identificador
-FROM Informe_Radiante ir WHERE ir.Meteoro_Identificador IN (
-    SELECT Identificador FROM (
-        SELECT Identificador FROM Meteoro
-        ${option >= 4 ? "WHERE Fecha >= ?" : ""}
-        ORDER BY Fecha DESC
-       ${option < 4 ? "LIMIT ?" : ""}
-    ) AS ultimos
-)
-ORDER BY Fecha DESC,Hora DESC;
-      `
+      lastNMeteors: `SELECT  iz.Fecha, iz.Hora, FALSE AS isRadiant, iz.Meteoro_Identificador, iz.IdInforme
+                      FROM Informe_Z iz
+                      WHERE iz.Meteoro_Identificador IN (SELECT Identificador FROM ( SELECT Identificador FROM Meteoro ${option >= 4 ? "WHERE Fecha >= ?" : ""} ORDER BY Fecha DESC ${option < 4 ? "LIMIT ?" : ""}) AS ultimos)
+                      UNION ALL
+                      SELECT ir.Fecha, ir.Hora, TRUE AS isRadiant, ir.Meteoro_Identificador, ir.Identificador
+                      FROM Informe_Radiante ir WHERE ir.Meteoro_Identificador IN ( SELECT Identificador FROM ( SELECT Identificador FROM Meteoro ${option >= 4 ? "WHERE Fecha >= ?" : ""} ORDER BY Fecha DESC ${option < 4 ? "LIMIT ?" : ""} ) AS ultimos )
+                      ORDER BY Fecha DESC,Hora DESC; `
     };
 
     // Ejecutar todas las consultas
@@ -243,7 +156,7 @@ ORDER BY Fecha DESC,Hora DESC;
       observatoryDataFormatted: data.observatory.map(transform),
       lastReportMap: formatLastReportMap(data.lastReportMap),
       showerPerYearData: data.showerPerYear,
-      processedLastReport: processLastReport(data.lastReport),
+      processedLastReport: processLastReport(data.lastReport)[0],
       counterReport: data.counterReport,
       percentageFromLastBolideMonth: data.percentageFromLastBolideMonth[0],
       curvePercentageGroupLastYearBolido: data.curvePercentageGroupLastYearBolido,
@@ -265,8 +178,7 @@ const getGeneralHome = async (req, res) => {
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     const dateFilterValue = oneMonthAgo.toISOString().split('T')[0];
 
-    const lastReportMapQuery = `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`;
-    const [lastReportMapUNF] = await pool.query(lastReportMapQuery);
+     const [lastReportMap] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`);
     const [lastReport] = await pool.query(`SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC LIMIT 1;`);
     const [counterReport] = await pool.query(`SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z
                                               UNION ALL
@@ -290,8 +202,8 @@ const getGeneralHome = async (req, res) => {
     const [stations] = await pool.query('SELECT * FROM Observatorio');
     const convertedStations = transform(stations);
     res.json({
-      lastReportMap: formatLastReportMap(lastReportMapUNF),
-      processedReports: processLastReport(lastReport),
+      lastReportMap: formatLastReportMap(lastReportMap),
+      processedReports: processLastReport(lastReport)[0],
       counterReport,
       meteorLastYear,
       stations: convertedStations

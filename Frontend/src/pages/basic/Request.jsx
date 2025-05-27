@@ -305,7 +305,7 @@ export default function Request() {
                                 <Card.Body>
                                     {processedRequests.length === 0 ? (
                                         <div className="text-center py-5">
-                                            <p className="text-muted">{t('REQUEST.TABLE.NO_REQUESTS')}</p>
+                                            <p className="text-muted">{t('REQUEST.NO_REQUESTS')}</p>
                                         </div>
                                     ) : (
                                         <div className="table-responsive">
