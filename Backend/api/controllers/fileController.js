@@ -19,7 +19,8 @@ const getOrbitFile = (req, res) => {
     return res.status(400).json({ error: 'Faltan parámetros obligatorios' });
   }
 
-
+  const fullPath = process.env.FULL_PATH;
+  console.log('Full path:', fullPath);
   // Asegurar formato correcto (rellenando con ceros si es necesario)
   const pathToBase = '/sma/Meteoros/Detecciones/';
 
@@ -31,33 +32,33 @@ const getOrbitFile = (req, res) => {
 
   if (button === 'UFOORBIT') {
     filePath = path.join(
-      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
+      fullPath + year + '/' + formattedDate + '/' + formattedTime + '/' +
       fileName
     );
   } else if (button === 'WMPL') {
     filePath = path.join(
-      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
+      fullPath + year + '/' + formattedDate + '/' + formattedTime + '/' +
       fileName
     );
   } else if (button === 'GRITSEVICH') {
     filePath = path.join(
-      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' +
+      fullPath + year + '/' + formattedDate + '/' + formattedTime + '/' +
       'Trayectoria-' + id1 + '-' + id2 + '/Gritsevich-' 
       + formatFull + '-' + id1 + '-' + id2 + '/' +
       fileName
     );
   } else if (button === 'METEORGLOW') {
     filePath = path.join(
-      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' + 
+      fullPath + year + '/' + formattedDate + '/' + formattedTime + '/' + 
       'Trayectoria-'+id1+'-'+id2+'/Magnitudes-'+year+month+day+hour+minute+second+'-'+id1+'-'+id2+'/'
     );
   } else if (button === 'RAWDATA') {
     filePath = path.join(
-      homeDir + pathToBase + year + '/' + formattedDate + '/' + formattedTime + '/' + 
+      fullPath + year + '/' + formattedDate + '/' + formattedTime + '/' + 
       'Trayectoria-'+id1+'-'+id2+'/Coordenadas-'+year+month+day+hour+minute+second+'-'+id1+'.csv'
     );
   }
-
+  console.log(filePath)
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       return res.status(404).json({ error: 'Archivo no encontrado' });
