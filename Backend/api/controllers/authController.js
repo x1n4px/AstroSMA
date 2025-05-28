@@ -5,7 +5,7 @@ const { extraerUserId } = require('../middlewares/extractJWT')
 require('dotenv').config();
 const auditEvent = require('../middlewares/audit')
 const crypto = require("crypto");
-const {sendMail} = require('../email/mailer');
+const { sendMail } = require('../email/mailer');
 
 const registerUser = async (req, res) => {
     try {
@@ -48,8 +48,8 @@ const registerUser = async (req, res) => {
               <p>Esperamos que disfrutes explorando los datos astronómicos con nosotros.</p>
               <p>Un saludo,<br>Sociedad Malagueña de Astronomía</p>
             `
-          });
-          
+        });
+
 
         // Generar el token JWT
         const token = jwt.sign({ userId: newId }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -68,26 +68,50 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password, isMobile } = req.body;
+
+        // Validación básica
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
         if (rows.length === 0) {
-            return res.status(401).json({ message: 'Credenciales inválidas' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
+
         const user = rows[0];
         const rol = user.rol;
+
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            return res.status(401).json({ message: 'Credenciales inválidas' });
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
+
+        // Comprobar si ya existe la IP para este usuario
+        //const ip = ipLocationData?.ip;
+        //console.log('IP address:', ip);
+        //if (ip) {
+        //    const [existing] = await pool.query(
+        //        'SELECT * FROM user_ips WHERE user_id = ? AND ip_address = ?',
+        //        [user.id, ip]
+        //    );
+
+        //    if (existing.length === 0) {
+                // Insertar la nueva IP para ese usuario
+        //        await pool.query(
+        //            'INSERT INTO user_ips (user_id, ip_address, region, city) VALUES (?, ?, ?, ?)',
+        //            [user.id, ip, ipLocationData.region || null, ipLocationData.city || null]
+        //        );
+        //    }
+        //}
 
         const [config] = await pool.query('SELECT key_value, value FROM config');
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'Inicio de sesión', isMobile);
+        const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'User login', isMobile);
+
         res.json({ token, rol, config });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 
 const QRLoginUser = async (req, res) => {
     try {
@@ -145,8 +169,8 @@ const sendPasswordResetEmail = async (req, res) => {
               <p>Si tú no solicitaste este cambio, puedes ignorar este mensaje.</p>
               <p>Un saludo,<br>Sociedad Malagueña de Astronomía</p>
             `
-          }
-          );
+        }
+        );
 
         // Aquí deberías enviar el token al correo electrónico del usuario
         // Por simplicidad, solo lo devolveremos en la respuesta

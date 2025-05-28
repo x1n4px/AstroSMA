@@ -785,25 +785,27 @@ const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, Puntos
 
 const test = async (req, res) => {
     try {
-        const informe = await ReportZ.findByPk(req.params.id, {
-            include: [
-                { model: Meteoro },
-                { model: Observatorio, as: "Observatorio1" },
-                { model: Observatorio, as: "Observatorio2" },
-                { model: LluviaActiva },
-                { model: ElementosOrbitales },
-                { model: PuntosZWO },
-                { model: TrayectoriaMedida },
-                {model: TrayectoriaPorRegresion},
-            ]
-        });
+        //const informe = await ReportZ.findByPk(req.params.id, {
+        //    include: [
+        //        { model: Meteoro },
+        //        { model: Observatorio, as: "Observatorio1" },
+        //        { model: Observatorio, as: "Observatorio2" },
+        //        { model: LluviaActiva },
+        //        { model: ElementosOrbitales },
+        //        { model: PuntosZWO },
+        //        { model: TrayectoriaMedida },
+        //        {model: TrayectoriaPorRegresion},
+        //    ]
+        //});
+        //
+        //
+        //if (!informe) {
+        //    return res.status(404).json({ error: "Informe no encontrado" });
+        //}
 
-
-        if (!informe) {
-            return res.status(404).json({ error: "Informe no encontrado" });
-        }
-
-        res.json(informe);
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        console.log('IP del cliente:', ip);
+        res.json(ip);
     } catch (error) {
         console.error('Error al obtener el informe por ID:', error);
         res.status(500).json({ error: error.message });

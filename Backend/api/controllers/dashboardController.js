@@ -98,20 +98,30 @@ const getGeneral = async (req, res) => {
                 ORDER BY ocurrencias;`,
 
 
-      predictableImpact: `WITH Ranked AS (
-                          SELECT m.Identificador, iz.Ángulo_diedro_entre_planos_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1,iz.Inicio_de_la_trayectoria_Estacion_2,iz.Fin_de_la_trayectoria_Estacion_1,iz.Fin_de_la_trayectoria_Estacion_2,iz.Fecha,
-                              ROW_NUMBER() OVER ( PARTITION BY m.Identificador  ORDER BY iz.Ángulo_diedro_entre_planos_trayectoria DESC) AS rn
-                          FROM Meteoro m JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
-                          ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
-                          )
-                          SELECT  Identificador,  Inicio_de_la_trayectoria_Estacion_1, Inicio_de_la_trayectoria_Estacion_2, Fin_de_la_trayectoria_Estacion_1, Fin_de_la_trayectoria_Estacion_2, Fecha
-                          FROM Ranked
-                          WHERE rn = 1 AND (Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido' 
-                          AND Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido' 
-                          AND Fin_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido' 
-                          AND Fin_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido')
-                          ORDER BY Ángulo_diedro_entre_planos_trayectoria DESC
-                          ${option < 4 ? "LIMIT ?" : ""}`,
+      predictableImpact: `SELECT iz1.Meteoro_Identificador AS Identificador,
+                                iz1.Inicio_de_la_trayectoria_Estacion_1,
+                                iz1.Inicio_de_la_trayectoria_Estacion_2,
+                                iz1.Fin_de_la_trayectoria_Estacion_1,
+                                iz1.Fin_de_la_trayectoria_Estacion_2,
+                                iz1.Fecha,
+                                iz1.Ángulo_diedro_entre_planos_trayectoria
+                          FROM Informe_Z iz1
+                          JOIN (
+                              SELECT iz.Meteoro_Identificador, MAX(iz.Ángulo_diedro_entre_planos_trayectoria) AS max_angulo
+                              FROM Informe_Z iz
+                              JOIN Meteoro m ON iz.Meteoro_Identificador = m.Identificador
+                              WHERE iz.Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido'
+                                AND iz.Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido'
+                                AND iz.Fin_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido'
+                                AND iz.Fin_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido'
+                              GROUP BY iz.Meteoro_Identificador
+                          ) top_iz
+                            ON iz1.Meteoro_Identificador = top_iz.Meteoro_Identificador
+                            AND iz1.Ángulo_diedro_entre_planos_trayectoria = top_iz.max_angulo
+                            ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
+                          ORDER BY iz1.Ángulo_diedro_entre_planos_trayectoria DESC
+                          ${option < 4 ? "LIMIT ?" : ""};
+                          `,
 
       lastNMeteors: `SELECT  iz.Fecha, iz.Hora, FALSE AS isRadiant, iz.Meteoro_Identificador, iz.IdInforme
                       FROM Informe_Z iz

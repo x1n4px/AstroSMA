@@ -1,22 +1,35 @@
 import axios from 'axios';
 import { ConstructionIcon } from 'lucide-react';
+import { getIpAndLocation } from './networkService'
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 export const loginUser = async (email, password, isMobile) => {
     try {
-        const response = await axios.post(`${apiUrl}/login`, {
-            email: email,
-            password: password,
-            isMobile: isMobile
-        });
-        console.log(response.data);
-         // Si la llamada es exitosa y la respuesta contiene un token
-         if (response.data && response.data.token) {
+
+        // Obtener la IP y la ubicación del usuario
+        const ipLocationData = await getIpAndLocation();
+        const response = await axios.post(
+            `${apiUrl}/login`,
+            {
+                email: email,
+                password: password,
+                isMobile: isMobile,
+                ipLocationData: ipLocationData
+            },
+            {
+                headers: {
+                    'X-Client-IP': ipLocationData?.ip // o simplemente ip si lo tienes separado
+                }
+            }
+        );
+        
+        // Si la llamada es exitosa y la respuesta contiene un token
+        if (response.data && response.data.token) {
             console.log('Token recibido:', response.data.token);
             localStorage.setItem('authToken', response.data.token);
             localStorage.setItem('loginTime', new Date().toISOString());
-           
+
             // Aquí también podrías guardar otra información del usuario si es necesario
             // localStorage.setItem('userId', response.data.userId);
         }
@@ -80,7 +93,7 @@ export const checkUuidValidity = async (token) => {
     }
 }
 
- export const resetPasswordFromEmail = async (password, token) => {
+export const resetPasswordFromEmail = async (password, token) => {
     try {
         console.log(password, token);
         const response = await axios.post(`${apiUrl}/resetPassword`, { password, token });
@@ -88,4 +101,4 @@ export const checkUuidValidity = async (token) => {
     } catch (error) {
         throw error;
     }
- }
+}

@@ -16,6 +16,7 @@ import BarChart from '@/components/chart/BarChart';
 import StationMapChart from '@/components/map/StationMapChart';
 import DasboardMap from '@/components/dashboard/DashboardMap.jsx';
 import MapSkeleton from '@/components/skeleton/MapSkeleton';
+import {getIpAndLocation} from '@/services/networkService.jsx'
 
 const teamMembers = [
     { name: 'Alberto Castellón', role: 'Presidente', image: 'https://francis.naukas.com/files/2022/06/D20220608-small-photo-alberto-castellon-serrano-info-uma.jpg' },
@@ -56,7 +57,6 @@ const Home = () => {
     const fetchData = async () => {
         try {
             const responseD = await getGeneralHome(searchRange);
-            console.log(responseD)
             setLastReport(responseD.processedReports);
             setLastReportMap(responseD.lastReportMap);
             setCounterReport(responseD.counterReport);
@@ -93,29 +93,18 @@ const Home = () => {
 
     useEffect(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
         const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-        // Tu código de IP + ubicación
-        fetch('https://api.ipify.org?format=json')
-            .then(response => response.json())
-            .then(data => {
-                setIpAddress(data.ip);
-                fetch(`https://ipapi.co/${data.ip}/json/`)
-                    .then(res => res.json())
-                    .then(locationData => {
-                        handleAudit(isMobile);
 
-                        setLocation(locationData);
-                    })
-                    .catch(err => {
-                        setError('Error fetching location data.');
-                        console.error('Error fetching location:', err);
-                    });
-            })
-            .catch(err => {
-                setError('Error fetching IP address.');
-                console.error('Error fetching IP:', err);
-            });
+        // Tu código de IP + ubicación
+        getIpAndLocation().then(result => {
+            if (result.success) {
+                handleAudit(isMobile);
+                setIpAddress(result.ip);
+                setLocation(result.location);
+            } else {
+                setError(result.error);
+            }
+        });
     }, []);
 
 
@@ -270,7 +259,7 @@ const Home = () => {
 
                             <DasboardMap observatoryData={observatory} lastReportMap={lastReportMap} lastReportData={lastReport} />
                         )}
-                       
+
 
                     </div>
 
