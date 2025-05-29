@@ -49,19 +49,19 @@ const updateEvent = async (req, res) => {
         console.log("Update Request Body:", req.body); // Log request body for debugging
 
         // Verificar si el evento existe
-        const [existingEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [id]);
+        const [existingEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [id]);
         if (existingEvent.length === 0) {
             return res.status(404).json({ message: 'Evento no encontrado' });
         }
 
         const [result] = await pool.query(
-            `UPDATE astro.event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ?, code = ? WHERE id = ?`,
+            `UPDATE event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ?, code = ? WHERE id = ?`,
             [event_date, description, startTime, endTime, isWebOpen, active, code, id]
         );
 
         if (result.affectedRows > 0) {
             // Return the updated event data, including isWebOpen and code
-            const [updatedEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [id]);
+            const [updatedEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [id]);
             res.json(updatedEvent[0]); // Return the full updated object
         } else {
             res.status(404).json({ message: 'Evento no encontrado' });
@@ -84,12 +84,12 @@ const createEvent = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `INSERT INTO astro.event_config (event_date, description, active, startTime, endTime, isWebOpen, code) VALUES(?, ?, ?, ?, ?, ?, ?);`,
+            `INSERT INTO event_config (event_date, description, active, startTime, endTime, isWebOpen, code) VALUES(?, ?, ?, ?, ?, ?, ?);`,
             [event_date, description, active, startTime, endTime, isWebOpen, code]
         );
 
         // Fetch the newly created event to ensure all fields are returned consistently
-        const [newEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [result.insertId]);
+        const [newEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [result.insertId]);
 
         res.status(201).json(newEvent[0]); // Return the full new object
     } catch (error) {
