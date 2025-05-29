@@ -134,7 +134,7 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
               </div>
 
               {/* Botón de actualizar */}
-              <Button as={Link} to={`/report/${lastReportData?.IdInforme}`}
+              <Button as={Link} to={`/report/${lastReportData?.IdInforme}/INFERRED_DATA_TAB`}
                 variant="outline-danger"
                 className="w-100 d-flex align-items-center justify-content-center"
 

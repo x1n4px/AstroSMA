@@ -32,8 +32,10 @@ const Report = () => {
     const { t } = useTranslation(['text']);
     const params = useParams();
     const navigate = useNavigate();
-    const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
-    const [activeTab, setActiveTab] = useState('INFERRED_DATA_TAB');
+    const id = params?.reportId || '-1'; // Asegura que id tenga un valor válido
+    const initialTab = params?.tab || 'INFERRED_DATA_TAB'; // Obtiene la pestaña de la URL o usa una por defecto
+
+    const [activeTab, setActiveTab] = useState(initialTab); // Inicializa activeTab con el valor de la URL
     const [reportData, setReportData] = useState(null);
     const [observatoryData, setObservatoryData] = useState([]);
     const [orbitalData, setOrbitalData] = useState([]);
@@ -125,13 +127,12 @@ const Report = () => {
         );
     };
 
-
-    //useEffect(() => {
-    //    if (getConfigValue('showDownloadTab') || reportGemini === 'azd112') {
-    //        setActiveTab('INFERRED_DATA_TAB');
-    //    }
-    //}, [reportGemini]);
-
+    // Este useEffect asegura que el activeTab se sincronice con el parámetro de la URL
+    useEffect(() => {
+        if (params?.tab && params.tab !== activeTab) {
+            setActiveTab(params.tab);
+        }
+    }, [params.tab]);
 
 
     useEffect(() => {
@@ -236,6 +237,11 @@ const Report = () => {
     };
 
 
+    // Función para manejar el cambio de pestaña y la actualización de la URL
+    const handleTabSelect = (tabKey) => {
+        setActiveTab(tabKey);
+        navigate(`/report/${id}/${tabKey}`);
+    };
 
     return (
         <Container>
@@ -255,7 +261,7 @@ const Report = () => {
                                 <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width="1em" 
+                                        width="1em"
                                         height="1em"
                                         viewBox="0 0 24 24"
                                         className="text-dark me-2"
@@ -270,10 +276,10 @@ const Report = () => {
 
                     <Tabs
                         activeKey={activeTab}
-                        onSelect={(k) => setActiveTab(k)}
+                        onSelect={handleTabSelect} // Usa la nueva función para manejar la selección
                         className="mb-3"
-                        mountOnEnter 
-                        unmountOnExit 
+                        mountOnEnter
+                        unmountOnExit
 
                     >
                         {controlGeminiError(reportGemini) || getConfigValue('enableIASummary') && (
@@ -437,4 +443,4 @@ const Report = () => {
     );
 };
 
-export default Report
+export default Report;

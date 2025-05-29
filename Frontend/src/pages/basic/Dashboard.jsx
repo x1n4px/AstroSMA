@@ -235,7 +235,7 @@ const Dashboard = () => {
                                                     <ListGroup.Item key={`${item.Fecha}-${item.Hora}-${item.IdInforme}`} >
                                                         <Button
                                                             as={Link}
-                                                            to={item?.isRadiant ? `/radiant-report/${item.IdInforme}` : `/report/${item.IdInforme}`}
+                                                            to={item?.isRadiant ? `/radiant-report/${item.IdInforme}` : `/report/${item.IdInforme}/INFERRED_DATA_TAB`}
                                                             className="d-flex justify-content-between align-items-center bg-white text-dark border-0"
                                                         >
                                                             <div>
