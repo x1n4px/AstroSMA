@@ -13,6 +13,7 @@ import { createRequest } from '@/services/requestService.jsx'
 import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx'
 // Internationalization
 import { useTranslation } from 'react-i18next';
+import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
 
 
 
@@ -35,6 +36,7 @@ const CustomizeSearch = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [reportType, setReportType] = useState('1'); // Estado para el tipo de informe
     const itemsPerPage = 50;
+    const roleMask = (localStorage.getItem('rol'));
 
     const [modalReport, setModalReport] = useState(null); // Estado para el informe del modal
     const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
@@ -326,7 +328,7 @@ const CustomizeSearch = () => {
                         }>
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
-                        {reportData.length > 0 && (
+                        { (isNotQRUser(roleMask)) && reportData.length > 0 && (
                             <Button disabled={!getConfigValue('showDownloadTab')}
                                 style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
                                 onClick={() => {

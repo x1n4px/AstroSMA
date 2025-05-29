@@ -33,7 +33,6 @@ export const getAllUsers = async () => {
                 'x-rol': rol // Agrega el rol como encabezado x-rol
             },
         });
-        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -64,7 +63,6 @@ export const modifyUserRol = async (userId, newRol) => {
 
 export const modifyUserPass = async (userId, oldPassword, newPassword) => {
     try {
-        console.log(userId, oldPassword, newPassword)
         const response = await axios.put(
             `${apiUrl}/user/updatePassword`,
             { id: userId, oldPassword, newPassword },
@@ -81,3 +79,33 @@ export const modifyUserPass = async (userId, oldPassword, newPassword) => {
         throw error;
     }
 };
+
+
+export const blockUser = async (userId) => {
+    try {
+        console.log(token);
+        const response = await axios.put(
+            `${apiUrl}/user/${userId}/updateUserBlockedStatus`,{},
+            {
+                headers: {
+                    'x-token': token, // Agrega el token como encabezado x-token
+                    'x-rol': rol // Agrega el rol como encabezado x-rol
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error blocking user:', error);
+        throw error;
+    }
+}
+
+
+export const unblockUser = async (userId) => {
+    try {
+        console.log(userId)
+    } catch (error) {
+        console.error('Error unblocking user:', error);
+        throw error;
+    }
+}

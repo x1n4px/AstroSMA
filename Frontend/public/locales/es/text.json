@@ -128,7 +128,8 @@
         "PASSWORD": "Contraseña",
         "LOGIN_BTN": "Iniciar sesión",
         "REGISTER_BTN": "Registrarse",
-        "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?"
+        "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+        "LOGIN_PASSWORLESS": "Iniciar sesión sin contraseña"
     },
     "REGISTER": {
         "TITLE": "Registrarse",
@@ -146,7 +147,11 @@
             "EMAIL_ALREADY_EXISTS": "El correo electrónico ya está registrado",
             "INVALID_EMAIL": "Correo electrónico inválido",
             "TERMS_AND_CONDITIONS": "Debe aceptar los términos y condiciones",
-            "CREDENTIALS": "Credenciales inválidas"
+            "CREDENTIALS": "Credenciales inválidas",
+            "NOT_FOUND":" Usuario no encontrado",
+            "FORBIDDEN": "Acceso restringido",
+            "GENERAL": "Error al procesar la solicitud. Por favor, inténtalo de nuevo más tarde."
+
         },
         "TERM": {
             "ACEPT": "Acepto los ",
@@ -558,8 +563,8 @@
             "COLLABORATION": "Colaboración"
         },
         "ACTION": {
-            "ACTIVATE": "Activar",
-            "DEACTIVATE": "Desactivar"
+            "ACTIVATE": "Marcar como en construcción",
+            "DEACTIVATE": "Marcar como activa"
         }
     },
     "ORBIT_REPORT": {
@@ -722,20 +727,32 @@
             }
         },
         "EVENT_PAGE": {
-            "TITLE": "Listado de eventos",
-            "SUBTITLE": "",
-            "ADD_BUTTON": "Añadir Evento",
-            "EDIT_BUTTON": "Modificar Evento",
-            "DELETE_BUTTON": "Eliminar Evento",
-            "MODAL": {
-                "TITLE": "Evento",
-                "DATE": "Fecha",
-                "DESCRIPTION": "Descripción",
-                "START_TIME": "Hora de inicio",
-                "END_TIME": "Hora de fin",
-                "ACTIVE": "Está activo",
-                "ACTIVE_WEB": "Activar web pública"
-            }
+          "TITLE": "Lista de Eventos",
+          "ADD_BUTTON": "Añadir Evento",
+          "SHOW_QR": "Mostrar Código QR",
+          "EDIT_EVENT": "Editar Evento",
+          "DELETE_EVENT": "Eliminar Evento",
+          "STATUS_ACTIVE": "Activo",
+          "STATUS_INACTIVE": "Inactivo",
+          "CODE_LABEL": "Código",
+          "MODAL": {
+            "TITLE": "Detalles del Evento",
+            "DATE": "Fecha del Evento",
+            "DESCRIPTION": "Descripción",
+            "START_TIME": "Hora de Inicio",
+            "END_TIME": "Hora de Fin",
+            "ACTIVE": "Activo",
+            "ACTIVE_WEB": "Acceso Web Abierto",
+            "CODE": "Código de Acceso",
+            "CLOSE_BUTTON": "Cerrar",
+            "SAVE_BUTTON": "Guardar Evento"
+          },
+          "QR_MODAL": {
+            "TITLE": "Código QR del Evento",
+            "SCAN_INSTRUCTION": "Escanea este código QR para acceder al evento:",
+            "NO_CODE": "No hay código QR disponible para este evento.",
+            "CLOSE_BUTTON": "Cerrar"
+          }
         },
         "AUDIT_PAGE": {
             "TITLE": "Panel de auditoría ",
@@ -975,5 +992,24 @@
             "REJECTED": "Rechazada",
             "UNKNOWN": "Desconocida"
         }
-    }
+    },
+    "PASSWORDLESS": {
+        "TITLE": "Acceso con código",
+        "CODE_LABEL": "Código de acceso",
+        "CODE_HELP": "Introduce el código generado desde la aplicación o escanea el QR",
+        "ERROR": {
+          "EMPTY_CODE": "Por favor, introduce un código de acceso",
+          "INVALID_CODE": "Código de acceso inválido o expirado",
+          "CODE_NOT_FOUND": "Código de acceso no encontrado",
+          "CODE_USED": "Este código ya ha sido utilizado",
+          "GENERAL": "Error de acceso. Verifica el código e inténtalo de nuevo."
+        },
+        "VERIFYING": "Verificando acceso...",
+        "ACCESS": "Acceder",
+        "INFO": "Los códigos se generan desde dentro de la aplicación y tienen tiempo limitado",
+        "HELP_TITLE": "¿Cómo obtener un código?",
+        "HELP_TEXT": "Solicita a un administrador que genere un código desde la aplicación",
+        "BACK": "Volver al login",
+        "QR_DETECTED": "Código QR detectado automáticamente"
+      }
 }

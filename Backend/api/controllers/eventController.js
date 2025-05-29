@@ -45,8 +45,7 @@ const getEventById = async (req, res) => {
 // Crear un nuevo evento
 const createEvent = async (req, res) => {
     try {
-        const { event_date, description, active } = req.body;
-
+        const { event_date, description, startTime, endTime, isWebOpen, active, code } = req.body;
         // Validación básica
         if (!event_date || !description) {
             return res.status(400).json({ message: 'Fecha y descripción son requeridos' });
@@ -58,8 +57,8 @@ const createEvent = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `INSERT INTO event_config (event_date, description, active) VALUES (?, ?, ?)`,
-            [event_date, description, active || '0']
+            `INSERT INTO astro.event_config (event_date, description, active, startTime, endTime, isWebOpen, code) VALUES(?, ?, ?, ?, ?, ?, ?);`,
+            [event_date, description, active, startTime, endTime, isWebOpen, code]
         );
 
         res.status(201).json({
@@ -69,6 +68,7 @@ const createEvent = async (req, res) => {
             active: active || '0'
         });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: error.message });
     }
 }
@@ -76,7 +76,7 @@ const createEvent = async (req, res) => {
 const updateEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { event_date, description, startTime, endTime, isWebOpen, active } = req.body;
+        const { event_date, description, startTime, endTime, isWebOpen, active, code } = req.body;
         // Verificar si el evento existe
         const [existingEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [id]);
         if (existingEvent.length === 0) {
@@ -89,8 +89,8 @@ const updateEvent = async (req, res) => {
         }
 
         const [result] = await pool.query(
-            `UPDATE event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ? WHERE id = ?`,
-            [event_date, description, startTime, endTime, isWebOpen, active, id]
+            `UPDATE event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ?, code = ? WHERE id = ?`,
+            [event_date, description, startTime, endTime, isWebOpen, active, code, id]
         );
 
         if (result.affectedRows > 0) {

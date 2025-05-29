@@ -9,6 +9,7 @@ export const loginUser = async (email, password, isMobile) => {
 
         // Obtener la IP y la ubicación del usuario
         const ipLocationData = await getIpAndLocation();
+        console.log('IP y ubicación obtenidas:', ipLocationData.ip);
         const response = await axios.post(
             `${apiUrl}/login`,
             {
@@ -63,11 +64,23 @@ export const registerUser = async (email, password, name, surname, countryId, in
 
 
 
-export const QRLogin = async (path) => {
+export const LoginPasswordless = async (code) => {
     try {
-        const response = await axios.post(`${apiUrl}/QRlogin`, {
-            path: path
+        const response = await axios.post(`${apiUrl}/login/passwordless`, {
+            code: code
         });
+
+        // Si la llamada es exitosa y la respuesta contiene un token
+        if (response.data && response.data.token) {
+            console.log('Token recibido:', response.data.token);
+            localStorage.setItem('authToken', response.data.token);
+            localStorage.setItem('loginTime', new Date().toISOString());
+
+            // Aquí también podrías guardar otra información del usuario si es necesario
+            // localStorage.setItem('userId', response.data.userId);
+        }
+        localStorage.setItem('rol', response.data.rol);
+
         return response.data;
     } catch (error) {
         throw error;

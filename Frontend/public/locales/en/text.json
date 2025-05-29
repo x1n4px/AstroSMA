@@ -128,7 +128,8 @@
         "PASSWORD": "Password",
         "LOGIN_BTN": "Login",
         "REGISTER_BTN": "Register",
-        "FORGOT_PASSWORD": "Forgot your password?"
+        "FORGOT_PASSWORD": "Forgot your password?",
+        "LOGIN_PASSWORLESS": "Login without password"
     },
     "REGISTER": {
         "TITLE": "Register",
@@ -146,7 +147,10 @@
             "EMAIL_ALREADY_EXISTS": "Email already registered",
             "INVALID_EMAIL": "Invalid email",
             "TERMS_AND_CONDITIONS": "You must accept the terms and conditions",
-            "CREDENTIALS": "Invalid credentials"
+            "CREDENTIALS": "Invalid credentials",
+            "NOT_FOUND":" User not found",
+            "FORBIDDEN": "Forbidden",
+            "GENERAL": "An error occurred, please try again later"
         },
         "TERM": {
             "ACEPT": "I accept the ",
@@ -557,8 +561,8 @@
             "COLLABORATION": "Collaboration"
         },
         "ACTION": {
-            "ACTIVATE": "Activate",
-            "DEACTIVATE": "Deactivate"
+            "ACTIVATE": "Mark as under construction",
+            "DEACTIVATE": "Mark as active"
         }
     },
     "ORBIT_REPORT": {
@@ -721,20 +725,32 @@
             }
         },
         "EVENT_PAGE": {
-            "TITLE": "Event list",
-            "SUBTITLE": "",
-            "ADD_BUTTON": "Add Event",
-            "EDIT_BUTTON": "Modify Event",
-            "DELETE_BUTTON": "Delete Event",
-            "MODAL": {
-                "TITLE": "Event",
-                "DATE": "Date",
-                "DESCRIPTION": "Description",
-                "START_TIME": "Start time",
-                "END_TIME": "End time",
-                "ACTIVE": "Is active",
-                "ACTIVE_WEB": "Activate public web"
-            }
+          "TITLE": "Event List",
+          "ADD_BUTTON": "Add Event",
+          "SHOW_QR": "Show QR Code",
+          "EDIT_EVENT": "Edit Event",
+          "DELETE_EVENT": "Delete Event",
+          "STATUS_ACTIVE": "Active",
+          "STATUS_INACTIVE": "Inactive",
+          "CODE_LABEL": "Code",
+          "MODAL": {
+            "TITLE": "Event Details",
+            "DATE": "Event Date",
+            "DESCRIPTION": "Description",
+            "START_TIME": "Start Time",
+            "END_TIME": "End Time",
+            "ACTIVE": "Active",
+            "ACTIVE_WEB": "Web Access Open",
+            "CODE": "Access Code",
+            "CLOSE_BUTTON": "Close",
+            "SAVE_BUTTON": "Save Event"
+          },
+          "QR_MODAL": {
+            "TITLE": "Event QR Code",
+            "SCAN_INSTRUCTION": "Scan this QR code to access the event:",
+            "NO_CODE": "No QR code available for this event.",
+            "CLOSE_BUTTON": "Close"
+          }
         },
         "AUDIT_PAGE": {
             "TITLE": "Audit panel ",
@@ -974,5 +990,24 @@
             "REJECTED": "Rejected",
             "UNKNOWN": "Unknown"
         }
-    }
+    },
+    "PASSWORDLESS": {
+        "TITLE": "Access with Code",
+        "CODE_LABEL": "Access Code",
+        "CODE_HELP": "Enter the code generated from the application or scan the QR",
+        "ERROR": {
+          "EMPTY_CODE": "Please enter an access code",
+          "INVALID_CODE": "Invalid or expired access code",
+          "CODE_NOT_FOUND": "Access code not found",
+          "CODE_USED": "This code has already been used",
+          "GENERAL": "Access error. Verify the code and try again."
+        },
+        "VERIFYING": "Verifying access...",
+        "ACCESS": "Access",
+        "INFO": "Codes are generated from within the application and are time-limited",
+        "HELP_TITLE": "How to get a code?",
+        "HELP_TEXT": "Ask an administrator to generate a code from the application",
+        "BACK": "Back to login",
+        "QR_DETECTED": "QR code automatically detected"
+      }
 }

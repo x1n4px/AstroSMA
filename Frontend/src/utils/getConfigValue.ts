@@ -8,7 +8,7 @@ export function getConfigValue(key) {
     try {
       const configArray = JSON.parse(configData);
       const found = configArray.find(item => item.key_value === key);
-  
+      console.log(found)
       if (!found) return null;
       if (found.value === 'true') return true;
       if (found.value === 'false') return false;

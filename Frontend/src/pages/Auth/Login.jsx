@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col, Image } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '@/services/authService';
+import LanguageNavbar from '@/components/layout/LanguageNavbar';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -32,25 +33,33 @@ function Login({ onLogin }) {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
-
       const { token, rol, config } = await loginUser(email, password, isMobile);
       if (config) {
         localStorage.setItem('config', JSON.stringify(config));
       }
 
-
       onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {
-      setError(<>
-        {t('REGISTER.ERROR.CREDENTIALS')}
-      </>);
+      console.error('Login error:', error.response.status === 403);
+      if (error.response.status === 403) {
+        setError(t('REGISTER.ERROR.FORBIDDEN'));
+      } else if (error.response.status === 404) {
+        setError(t('REGISTER.ERROR.NOT_FOUND'));
+      } else if (error.response.status === 401) {
+        setError(t('REGISTER.ERROR.CREDENTIALS'));
+      } else {
+        setError(t('REGISTER.ERROR.GENERAL'));
+      }
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', position: 'relative' }}>
-      <Container className="d-flex justify-content-center align-items-center vh-100">
+    // Apply flexbox to the root div to manage vertical space
+    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <LanguageNavbar />
+      {/* The main content area will now take up the remaining vertical space */}
+      <Container className="d-flex justify-content-center align-items-center flex-grow-1">
         <Row className="justify-content-center w-100">
           <Col xs={12} sm={10} md={8} lg={6}>
             <Card style={{ borderColor: '#980100', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
@@ -85,12 +94,15 @@ function Login({ onLogin }) {
                     {t('LOGIN.TITLE')}
                   </Button>
                 </Form>
-                <Button variant="outline-secondary" className="w-100" as={Link} to="/register" style={{ color: '#980100', borderColor: '#980100' }}>
+                <Button variant="outline-secondary" className="w-100 mb-3" as={Link} to="/register" style={{ color: '#980100', borderColor: '#980100' }}>
                   {t('LOGIN.REGISTER_BTN')}
                 </Button>
-                <div className="text-center mt-3"> {/* Contenedor que centra el texto */}
+                <Button variant="outline-secondary" className="w-100" as={Link} to="/qr-login" style={{ color: '#980100', borderColor: '#980100' }}>
+                  {t('LOGIN.LOGIN_PASSWORLESS')}
+                </Button>
+                <div className="text-center mt-3">
                   <a href="/reset-password" className=" d-inline-block" style={{ color: '#980100', borderColor: '#980100' }}>
-                    ¿Olvidaste tu contraseña?
+                    {t('LOGIN.FORGOT_PASSWORD')}
                   </a>
                 </div>
               </Card.Body>
@@ -100,7 +112,7 @@ function Login({ onLogin }) {
       </Container>
 
       {showLogos && (
-        <div style={{ position: 'absolute', bottom: '20px', right: '20px' }}>
+        <div style={{ position: 'fixed', bottom: '20px', right: '20px' }}> {/* Use position: fixed */}
           {/*<Image src={'/logoSMA.webp'} alt="SMA Logo" style={{ maxWidth: '100px', margin: '0 5px' }} />
           <Image src={'/logoUMA.webp'} alt="UMA Logo" style={{ maxWidth: '100px', margin: '0 5px' }} />*/}
         </div>

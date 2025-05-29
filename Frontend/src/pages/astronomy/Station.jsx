@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 function Station() {
     const { t } = useTranslation(['text']);
     const location = useLocation();
-    console.log(location.pathname === '/admin-panel/station-panel');
     const [stations, setStations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -80,70 +79,59 @@ function Station() {
 
     return (
 
-        <> 
-        {location.pathname === '/admin-panel/station-panel' && <BackToAdminPanel />}
-        <div style={{ padding: '20px' }}>
-            <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>{t('STATION.TITLE')}</h1>
-            <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
-                {t('STATION.DESCRIPTION')}
-            </p>
+        <>
+            {location.pathname === '/admin-panel/station-panel' && <BackToAdminPanel />}
+            <div style={{ padding: '20px' }}>
+                <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>{t('STATION.TITLE')}</h1>
+                <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
+                    {t('STATION.DESCRIPTION')}
+                </p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                {loading ? (
-                    <p>{t('STATION.LOADING_MSG')}</p>
-                ) : error ? (
-                    <p>{t('STATION.ERROR_MSG')}</p>
-                ) : (
-                    <StationMapChart
-                        ref={(ref) => {
-                            mapRef.current = ref;
-                            if (ref && ref.leafletElement) {
-                                mapInstance.current = ref.leafletElement;
-                            }
-                        }}
-                        key={mapKey}
-                        data={stations}
-                        activePopUp={true}
-                        latitude={latitude}
-                        longitude={longitude}
-                        zoom={zoom}
-                    />
-                )}
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+                    {loading ? (
+                        <p>{t('STATION.LOADING_MSG')}</p>
+                    ) : error ? (
+                        <p>{t('STATION.ERROR_MSG')}</p>
+                    ) : (
+                        <StationMapChart
+                            ref={(ref) => {
+                                mapRef.current = ref;
+                                if (ref && ref.leafletElement) {
+                                    mapInstance.current = ref.leafletElement;
+                                }
+                            }}
+                            key={mapKey}
+                            data={stations}
+                            activePopUp={true}
+                            latitude={latitude}
+                            longitude={longitude}
+                            zoom={zoom}
+                        />
+                    )}
+                </div>
 
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>{t('STATION.STATION_LIST')}</h2>
-            <div>
-                {loading ? (
-                    <p>{t('STATION.ERROR_MSG')}</p>
-                ) : error ? (
-                    <p>{t('STATION.ERROR_MSG')}</p>
-                ) : (
-                    <ListGroup>
-                        {stations.map((station) => (
-                            <ListGroup.Item key={station.id} className="d-flex justify-content-between align-items-center">
-                                <div className="d-flex align-items-center flex-grow-1">
-                                    <span
-                                        className="rounded-circle me-2"
-                                        style={{
-                                            width: '12px',
-                                            height: '12px',
-                                            backgroundColor: station.state === 0 ? 'green' : station.state === 1 ? 'orange' : 'blue',
-                                        }}
-                                    ></span>
-                                    <span className="fw-bold">{station.stationName}</span>
-                                </div>
-                                <div className="text-center" style={{ minWidth: '150px' }}>
-                                    {(isAdminUser(rol) && location.pathname === '/admin-panel/station-panel') ? (
-                                        <Button
-                                            variant={station.state === 0 ? 'success' : 'danger'}
-                                            size="sm"
-                                            onClick={() => fetchUpdateStation(station.id)}
-                                        >
-                                            {station.state === 0
-                                                ? t('STATION.ACTION.ACTIVATE')
-                                                : t('STATION.ACTION.DEACTIVATE')}
-                                        </Button>
-                                    ) : (
+                <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>{t('STATION.STATION_LIST')}</h2>
+                <div>
+                    {loading ? (
+                        <p>{t('STATION.ERROR_MSG')}</p>
+                    ) : error ? (
+                        <p>{t('STATION.ERROR_MSG')}</p>
+                    ) : (
+                        <ListGroup>
+                            {stations.map((station) => (
+                                <ListGroup.Item key={station.id} className="d-flex justify-content-between align-items-center">
+                                    <div className="d-flex align-items-center flex-grow-1">
+                                        <span
+                                            className="rounded-circle me-2"
+                                            style={{
+                                                width: '12px',
+                                                height: '12px',
+                                                backgroundColor: station.state === 0 ? 'green' : station.state === 1 ? 'orange' : 'blue',
+                                            }}
+                                        ></span>
+                                        <span className="fw-bold">{station.stationName}</span>
+                                    </div>
+                                    <div className="text-center" style={{ minWidth: '150px' }}>
                                         <Badge
                                             bg={
                                                 station.state === 0
@@ -160,19 +148,31 @@ function Station() {
                                                     ? t('STATION.STATUS.CONSTRUCTING')
                                                     : t('STATION.STATUS.COLLABORATION')}
                                         </Badge>
-                                    )}
+                                    </div>
+                                    <div className="text-center mx-2" style={{ minWidth: '150px' }}>
+                                        {(isAdminUser(rol) && location.pathname === '/admin-panel/station-panel') && (
+                                            <Button
+                                                variant={station.state === 0 ? 'warning' : 'success'}
+                                                size="sm"
+                                                onClick={() => fetchUpdateStation(station.id)}
+                                            >
+                                                {station.state === 0
+                                                    ? t('STATION.ACTION.ACTIVATE')
+                                                    : t('STATION.ACTION.DEACTIVATE')}
+                                            </Button>
+                                        ) }
 
-                                </div>
+                                    </div>
 
-                                <Button variant="outline-primary" size="sm" onClick={() => cambiarDato(station.latitude, station.longitude, 10)}>
-                                    {t('STATION.SHOW_BUTTON')}
-                                </Button>
-                            </ListGroup.Item>
-                        ))}
-                    </ListGroup>
-                )}
+                                    <Button variant="outline-primary" size="sm" onClick={() => cambiarDato(station.latitude, station.longitude, 10)}>
+                                        {t('STATION.SHOW_BUTTON')}
+                                    </Button>
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    )}
+                </div>
             </div>
-        </div>
         </>
     );
 }

@@ -1,11 +1,9 @@
 // middlewares/checkUserBlockedByIp.js
 const pool = require('../database/connection');
-const { response } = require('express-validator');
 
-const checkUserBlockedByIp = async (req, res = response, next) => {
+const checkUserBlockedByIp = async (req, res, next) => {
     try {
-        const clientIp = req.headers['x-Client-ip'];
-        console.log('Client IP:', clientIp);
+        const clientIp = req.header('x-client-ip');
         if (!clientIp) {
             return res.status(400).json({ message: 'Missing IP address in headers' });
         }

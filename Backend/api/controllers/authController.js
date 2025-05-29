@@ -67,7 +67,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password, isMobile } = req.body;
+        const { email, password, isMobile, ipLocationData } = req.body;
 
         // Validación básica
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
@@ -83,23 +83,21 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Comprobar si ya existe la IP para este usuario
-        //const ip = ipLocationData?.ip;
-        //console.log('IP address:', ip);
-        //if (ip) {
-        //    const [existing] = await pool.query(
-        //        'SELECT * FROM user_ips WHERE user_id = ? AND ip_address = ?',
-        //        [user.id, ip]
-        //    );
+        const ip = ipLocationData?.ip;
+        if (ip) {
+            const [existing] = await pool.query(
+                'SELECT * FROM user_ips WHERE user_id = ? AND ip_address = ?',
+                [user.id, ip]
+            );
 
-        //    if (existing.length === 0) {
+            if (existing.length === 0) {
                 // Insertar la nueva IP para ese usuario
-        //        await pool.query(
-        //            'INSERT INTO user_ips (user_id, ip_address, region, city) VALUES (?, ?, ?, ?)',
-        //            [user.id, ip, ipLocationData.region || null, ipLocationData.city || null]
-        //        );
-        //    }
-        //}
+                await pool.query(
+                    'INSERT INTO user_ips (user_id, ip_address, region, city) VALUES (?, ?, ?, ?)',
+                    [user.id, ip, ipLocationData.region || null, ipLocationData.location || null]
+                );
+            }
+        }
 
         const [config] = await pool.query('SELECT key_value, value FROM config');
 
@@ -113,14 +111,26 @@ const loginUser = async (req, res) => {
 };
 
 
-const QRLoginUser = async (req, res) => {
+const LoginPasswordless = async (req, res) => {
     try {
-        const { path } = req.body;
-        const token = jwt.sign({ userId: path }, process.env.JWT_SECRET, { expiresIn: '2h' });
+        const { code } = req.body;
+        // Verificar si el código existe en la tabla "event_config"
+        const [eventConfig] = await pool.query('SELECT * FROM event_config WHERE code = ? AND isWebOpen = 1 AND event_date = CURDATE() AND CURTIME() BETWEEN startTime AND endTime;', [code]);
+
+        if (eventConfig.length === 0) {
+            return res.status(400).json({ message: 'Código inválido o evento no disponible' });
+        }
+
+        // Generar el token JWT con 2 horas de expiración
+        const token = jwt.sign({ userId: -1 }, process.env.JWT_SECRET, { expiresIn: '2h' });
         const rol = '00000000';
-        res.json({ token, rol });
+        const [config] = await pool.query('SELECT key_value, value FROM config');
+        auditEvent('EVENT LOGIN', -1, 'Login', -1, 0, 'Inicio de sesión en evento', false);
+
+        res.json({ token, rol, config });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error en LoginPasswordless:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
 
@@ -154,7 +164,6 @@ const sendPasswordResetEmail = async (req, res) => {
 
         // 3. Guardar el token y la expiración en la base de datos
         await pool.query('INSERT INTO astro.password_reset_tokens (user_id, token, expires_at, used) VALUES(?, ?, ?, 0);', [user[0].id, token, expiresAt]);
-        console.log(token);
 
 
         await sendMail({
@@ -240,4 +249,4 @@ const resetPasswordFromEmail = async (req, res) => {
 }
 
 
-module.exports = { registerUser, loginUser, renewToken, QRLoginUser, sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail };
+module.exports = { registerUser, loginUser, renewToken, LoginPasswordless, sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail };

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, renewToken, QRLoginUser, sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail } = require('../controllers/authController');
+const { registerUser, loginUser, renewToken, LoginPasswordless, sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail } = require('../controllers/authController');
 const { check } = require('express-validator');
 const { validarFields } = require('../middlewares/validate-fields');
 const { validateJWT } = require('../middlewares/validate-jwt');
@@ -21,12 +21,12 @@ router.post('/login',
         check('email', 'El email es obligatorio').isEmail(),
         check('password', 'La contraseña es obligatoria').not().isEmpty(),
         validarFields,
-        //checkUserBlockedByIp
+        checkUserBlockedByIp
     ],
     loginUser);
 
-router.post('/QRlogin',
-    QRLoginUser
+router.post('/login/passwordless',
+    LoginPasswordless
 )
 
 router.get('/renew',
