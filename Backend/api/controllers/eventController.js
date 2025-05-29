@@ -41,19 +41,46 @@ const getEventById = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
+// Actualizar un evento existente
+const updateEvent = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { event_date, description, startTime, endTime, isWebOpen, active, code } = req.body;
+        console.log("Update Request Body:", req.body); // Log request body for debugging
+
+        // Verificar si el evento existe
+        const [existingEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [id]);
+        if (existingEvent.length === 0) {
+            return res.status(404).json({ message: 'Evento no encontrado' });
+        }
+
+        const [result] = await pool.query(
+            `UPDATE astro.event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ?, code = ? WHERE id = ?`,
+            [event_date, description, startTime, endTime, isWebOpen, active, code, id]
+        );
+
+        if (result.affectedRows > 0) {
+            // Return the updated event data, including isWebOpen and code
+            const [updatedEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [id]);
+            res.json(updatedEvent[0]); // Return the full updated object
+        } else {
+            res.status(404).json({ message: 'Evento no encontrado' });
+        }
+    } catch (error) {
+        console.error("Error updating event:", error); // Use console.error for errors
+        res.status(500).json({ error: error.message });
+    }
+}
 
 // Crear un nuevo evento
 const createEvent = async (req, res) => {
     try {
         const { event_date, description, startTime, endTime, isWebOpen, active, code } = req.body;
+        console.log("Create Request Body:", req.body); // Log request body for debugging
+
         // Validación básica
         if (!event_date || !description) {
             return res.status(400).json({ message: 'Fecha y descripción son requeridos' });
-        }
-
-        // Desactivar otros eventos si este se marca como activo
-        if (active === '1') {
-            await pool.query(`UPDATE event_config SET active = '0' WHERE active = '1'`);
         }
 
         const [result] = await pool.query(
@@ -61,44 +88,12 @@ const createEvent = async (req, res) => {
             [event_date, description, active, startTime, endTime, isWebOpen, code]
         );
 
-        res.status(201).json({
-            id: result.insertId,
-            event_date,
-            description,
-            active: active || '0'
-        });
+        // Fetch the newly created event to ensure all fields are returned consistently
+        const [newEvent] = await pool.query(`SELECT * FROM astro.event_config WHERE id = ?`, [result.insertId]);
+
+        res.status(201).json(newEvent[0]); // Return the full new object
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message });
-    }
-}
-// Actualizar un evento existente
-const updateEvent = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { event_date, description, startTime, endTime, isWebOpen, active, code } = req.body;
-        // Verificar si el evento existe
-        const [existingEvent] = await pool.query(`SELECT * FROM event_config WHERE id = ?`, [id]);
-        if (existingEvent.length === 0) {
-            return res.status(404).json({ message: 'Evento no encontrado' });
-        }
-
-        // Si se está activando este evento, desactivar los demás
-        if (active === '1') {
-            await pool.query(`UPDATE event_config SET active = '0' WHERE active = '1' AND id != ?`, [id]);
-        }
-
-        const [result] = await pool.query(
-            `UPDATE event_config SET event_date = ?, description = ?, startTime = ?, endTime = ?, isWebOpen = ?, active = ?, code = ? WHERE id = ?`,
-            [event_date, description, startTime, endTime, isWebOpen, active, code, id]
-        );
-
-        if (result.affectedRows > 0) {
-            res.json({ id, event_date, description, startTime, endTime, active });
-        } else {
-            res.status(404).json({ message: 'Evento no encontrado' });
-        }
-    } catch (error) {
+        console.error("Error creating event:", error); // Use console.error for errors
         res.status(500).json({ error: error.message });
     }
 }

@@ -12,80 +12,119 @@ import BackToAdminPanel from './BackToAdminPanel';
 import QRCodeComponent from "../QRCodeComponent";
 
 const EventComponent = () => {
-    const { t } = useTranslation(['text']); // Removed i18n as it's not directly used here
+    const { t } = useTranslation(['text']);
 
     const [events, setEvents] = useState([]);
-    const [showModal, setShowModal] = useState(false); // For Add/Edit Event Modal
-    const [showQrCodeModal, setShowQrCodeModal] = useState(false); // For QR Code Modal
+    const [showModal, setShowModal] = useState(false);
+    const [showQrCodeModal, setShowQrCodeModal] = useState(false);
     const [currentEvent, setCurrentEvent] = useState(null);
-    const [qrCodeText, setQrCodeText] = useState(''); // State to hold the text for the QR code
+    const [qrCodeText, setQrCodeText] = useState('');
 
     useEffect(() => {
-        // Fetch all events on component mount
         const fetchEvents = async () => {
             const fetchedEvents = await getAllEvents();
-            setEvents(fetchedEvents);
+            // Crucial: Ensure active and isWebOpen are booleans here
+            const processedEvents = fetchedEvents.map(event => ({
+                ...event,
+                active: !!event.active, // Convert 0/1 or any truthy/falsy to true/false boolean
+                isWebOpen: !!event.isWebOpen, // Convert 0/1 or any truthy/falsy to true/false boolean
+            }));
+            setEvents(processedEvents);
         };
         fetchEvents();
     }, []);
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setCurrentEvent({
-            ...currentEvent,
-            [name]: type === "checkbox" ? checked : value,
-        });
+        setCurrentEvent(prevEvent => ({ // Use functional update for safety
+            ...prevEvent,
+            [name]: type === "checkbox" ? checked : value, // Checkboxes set directly as booleans
+        }));
     };
 
     const handleSaveEvent = async () => {
-        if (currentEvent.id) {
-            // Update existing event
-            console.log(currentEvent);
-            // Ensure event_date is in YYYY-MM-DD format before sending
-            currentEvent.event_date = new Date(currentEvent.event_date).toISOString().split('T')[0];
-            const updatedEvent = await updateEvent(currentEvent.id, currentEvent);
-            setEvents(events.map((event) => (event.id === currentEvent.id ? updatedEvent : event)));
-        } else {
-            // Add new event
-            const newEvent = await createEvent(currentEvent);
-            setEvents([...events, newEvent]);
+        if (!currentEvent) return; // Guard clause in case currentEvent is null
+
+        const eventToSave = { ...currentEvent };
+
+        // Ensure event_date is in YYYY-MM-DD format
+        if (eventToSave.event_date) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(eventToSave.event_date)) {
+                 eventToSave.event_date = new Date(eventToSave.event_date).toISOString().split('T')[0];
+            }
         }
-        setShowModal(false);
-        setCurrentEvent(null);
+
+        // Convert booleans to 1 or 0 for the backend (MySQL TINYINT(1))
+        eventToSave.active = eventToSave.active ? 1 : 0;
+        eventToSave.isWebOpen = eventToSave.isWebOpen ? 1 : 0;
+
+        try {
+            let savedEventData;
+            if (eventToSave.id) {
+                // Update existing event
+                savedEventData = await updateEvent(eventToSave.id, eventToSave);
+            } else {
+                // Add new event
+                savedEventData = await createEvent(eventToSave);
+            }
+
+            // Crucial: Convert 0/1 from backend response back to booleans for frontend state
+            const processedSavedEvent = {
+                ...savedEventData,
+                active: !!savedEventData.active, // Convert 0/1 to boolean
+                isWebOpen: !!savedEventData.isWebOpen, // Convert 0/1 to boolean
+            };
+
+            if (eventToSave.id) {
+                setEvents(events.map((event) => (event.id === processedSavedEvent.id ? processedSavedEvent : event)));
+            } else {
+                setEvents([...events, processedSavedEvent]);
+            }
+            setShowModal(false);
+            setCurrentEvent(null);
+        } catch (error) {
+            console.error("Error saving event:", error);
+            // Optionally, provide user feedback about the error
+        }
     };
 
     const handleEditEvent = (event) => {
-        // Format date for the input type="date"
-        event.event_date = formatDate(event.event_date, 'yyyy-mm-dd');
-        setCurrentEvent(event);
+        // Crucial: Convert 0/1 to booleans when setting currentEvent for editing
+        setCurrentEvent({
+            ...event,
+            event_date: new Date(event.event_date).toISOString().split('T')[0],
+            active: !!event.active, // Ensure it's a boolean for the checkbox
+            isWebOpen: !!event.isWebOpen, // Ensure it's a boolean for the checkbox
+        });
         setShowModal(true);
     };
 
     const handleAddEvent = () => {
+        // Initialize currentEvent with proper boolean defaults
         setCurrentEvent({
             event_date: "",
             description: "",
             startTime: "",
             endTime: "",
-            isWebOpen: false,
-            active: false,
+            isWebOpen: false, // Default to boolean false
+            active: false, // Default to boolean false
             code: ""
         });
         setShowModal(true);
     };
 
     const handleDeleteEvent = async (id) => {
-        await deleteEvent(id);
-        setEvents(events.filter((event) => event.id !== id));
+        try {
+            await deleteEvent(id);
+            setEvents(events.filter((event) => event.id !== id));
+        } catch (error) {
+            console.error("Error deleting event:", error);
+        }
     };
 
-    // New handler for showing the QR code modal
     const handleShowQRCode = (eventCode) => {
-        // Construct the full URL for the QR code.
-        // Assuming the base URL for QR login is /qr-login/
-        // You might need to adjust `window.location.origin` or add a specific base path
-        const currentPath = window.location.origin; // e.g., "http://localhost:3000"
-        const qrPath = "/qr-login/"; // The path where your QR login component is located
+        const currentPath = window.location.origin;
+        const qrPath = "/qr-login/";
         const fullQrCodeText = `${currentPath}${qrPath}${eventCode}`;
         setQrCodeText(fullQrCodeText);
         setShowQrCodeModal(true);
@@ -96,7 +135,7 @@ const EventComponent = () => {
             <BackToAdminPanel />
 
             <div className="container my-4">
-                <h2>{t('ADMIN.EVENT_PAGE.TITLE')}</h2> {/* Added translation */}
+                <h2>{t('ADMIN.EVENT_PAGE.TITLE')}</h2>
                 <ul className="list-group">
                     {events.map((event) => (
                         <li
@@ -104,10 +143,8 @@ const EventComponent = () => {
                             className={`list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center p-3 mb-2 rounded ${event.active ? "list-group-item-success border-success" : "border-secondary"}`}
                             style={{ borderLeft: event.active ? '5px solid #28a745' : '5px solid #6c757d', transition: 'all 0.3s ease-in-out' }}
                         >
-                            {/* Event Details Section */}
                             <div className="flex-grow-1 mb-2 mb-md-0">
                                 <div className="d-flex align-items-center mb-1">
-                                    {/* Active/Inactive Badge */}
                                     <span className={`badge me-2 ${event.active ? 'bg-success' : 'bg-secondary'}`}>
                                         {event.active ? t('ADMIN.EVENT_PAGE.STATUS_ACTIVE') : t('ADMIN.EVENT_PAGE.STATUS_INACTIVE')}
                                     </span>
@@ -121,22 +158,19 @@ const EventComponent = () => {
                                 <div className="fw-normal">
                                     {event.description}
                                 </div>
-                                {/* Web Access Code and QR Code */}
-                                {event.isWebOpen === 1 && (
+                                {event.isWebOpen && (
                                     <div className="mt-2 d-flex align-items-center">
                                         <span>{t('ADMIN.EVENT_PAGE.CODE_LABEL')}: <strong className="text-dark">{event.code}</strong></span>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Actions Section */}
                             <div className="d-flex align-items-center mt-2 mt-md-0">
-                                {/* QR Code Button - Only show if isWebOpen and code exists */}
                                 {(event.isWebOpen && event.code) ? (
                                     <Button
-                                        variant="outline-dark" // Use outline variant for a softer look
+                                        variant="outline-dark"
                                         className="me-2 d-flex align-items-center justify-content-center"
-                                        style={{ backgroundColor: 'transparent', border: 'none' }} // Circular button
+                                        style={{ backgroundColor: 'transparent', border: 'none' }}
                                         onClick={() => handleShowQRCode(event.code)}
                                         title={t('ADMIN.EVENT_PAGE.SHOW_QR')}
                                     >
@@ -148,9 +182,9 @@ const EventComponent = () => {
                                 ) : (<></>)}
 
                                 <Button
-                                    variant="outline-primary" // Use outline variant for edit
+                                    variant="outline-primary"
                                     className="me-2 d-flex align-items-center justify-content-center"
-                                    style={{ backgroundColor: 'transparent', border: 'none' }} // Circular button
+                                    style={{ backgroundColor: 'transparent', border: 'none' }}
                                     onClick={() => handleEditEvent(event)}
                                     title={t('ADMIN.EVENT_PAGE.EDIT_EVENT')}
                                 >
@@ -161,7 +195,7 @@ const EventComponent = () => {
                                 </Button>
 
                                 <Button
-                                    variant="outline-danger" // Use outline variant for delete
+                                    variant="outline-danger"
                                     className="d-flex align-items-center justify-content-center"
                                     style={{ backgroundColor: 'transparent', border: 'none' }}
                                     onClick={() => handleDeleteEvent(event.id)}
@@ -228,7 +262,7 @@ const EventComponent = () => {
                                     type="checkbox"
                                     label={t('ADMIN.EVENT_PAGE.MODAL.ACTIVE')}
                                     name="active"
-                                    checked={currentEvent?.active || false}
+                                    checked={currentEvent?.active || false} // This should be a boolean
                                     onChange={handleInputChange}
                                 />
                             </Form.Group>
@@ -237,13 +271,13 @@ const EventComponent = () => {
                                     type="checkbox"
                                     label={t('ADMIN.EVENT_PAGE.MODAL.ACTIVE_WEB')}
                                     name="isWebOpen"
-                                    checked={currentEvent?.isWebOpen || false}
+                                    checked={currentEvent?.isWebOpen || false} // This should be a boolean
                                     onChange={handleInputChange}
                                 />
                             </Form.Group>
-                            {currentEvent?.isWebOpen && (
+                            {currentEvent?.isWebOpen && ( // This also expects a boolean
                                 <Form.Group className="mb-3">
-                                    <Form.Label>{t('ADMIN.EVENT_PAGE.MODAL.CODE')}</Form.Label> {/* Corrected label */}
+                                    <Form.Label>{t('ADMIN.EVENT_PAGE.MODAL.CODE')}</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="code"
