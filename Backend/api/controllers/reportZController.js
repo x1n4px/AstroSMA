@@ -40,7 +40,16 @@ const getReportZ = async (req, res) => {
         }
 
         const { id } = req.params;
-        const [report] = await pool.query('SELECT iz.* FROM Informe_Z iz WHERE IdInforme = ?', [id]);
+        const [report] = await pool.query(`
+            SELECT 
+            iz.*,
+            CONCAT(o1.Nombre_Observatorio, ' (', o1.Número, ')') AS ob1,
+            CONCAT(o2.Nombre_Observatorio , ' (', o2.Número, ')') AS ob2
+            FROM Informe_Z iz
+            LEFT JOIN Observatorio o1 ON iz.Observatorio_Número = o1.Número 
+            LEFT JOIN Observatorio o2 ON iz.Observatorio_Número2 = o2.Número 
+            WHERE iz.IdInforme = ?;
+            `, [id]);
 
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
@@ -72,30 +81,27 @@ const getReportZ = async (req, res) => {
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
         const [orbitalElement] = await pool.query(`
-            SELECT 
-  ob.Informe_Z_IdInforme,
-  ob.Calculados_con,
-  SUBSTRING_INDEX(ob.Vel__Inf, ' ', 1) AS Vel__Inf,
-  SUBSTRING_INDEX(ob.Vel__Geo, ' ', 1) AS Vel__Geo,
-  SUBSTRING_INDEX(ob.Ar, ' ', 1) AS Ar,
-  SUBSTRING_INDEX(ob.De, ' ', 1) AS De,
-  SUBSTRING_INDEX(ob.i, ' ', 1) AS i,
-  SUBSTRING_INDEX(ob.p, ' ', 1) AS p,
-  SUBSTRING_INDEX(ob.a, ' ', 1) AS a,
-  SUBSTRING_INDEX(ob.e, ' ', 1) AS e,
-  SUBSTRING_INDEX(ob.q, ' ', 1) AS q,
-  SUBSTRING_INDEX(ob.T, ' ', 1) AS T,
-  SUBSTRING_INDEX(ob.omega, ' ', 1) AS omega,
-SUBSTRING_INDEX(SUBSTRING(ob.Omega_grados_votos_max_min, 2), ' ', 1) AS Omega_grados_votos_max_min,
-	iz.Fecha, iz.Hora
-FROM 
-  Elementos_Orbitales ob
-JOIN Informe_Z iz ON iz.IdInforme = ob.Informe_Z_IdInforme
-WHERE 
-  ob.Informe_Z_IdInforme = ?
-;
-
-            `, [id]);
+                SELECT 
+                ob.Informe_Z_IdInforme,
+                ob.Calculados_con,
+                SUBSTRING_INDEX(ob.Vel__Inf, ' ', 1) AS Vel__Inf,
+                SUBSTRING_INDEX(ob.Vel__Geo, ' ', 1) AS Vel__Geo,
+                SUBSTRING_INDEX(ob.Ar, ' ', 1) AS Ar,
+                SUBSTRING_INDEX(ob.De, ' ', 1) AS De,
+                SUBSTRING_INDEX(ob.i, ' ', 1) AS i,
+                SUBSTRING_INDEX(ob.p, ' ', 1) AS p,
+                SUBSTRING_INDEX(ob.a, ' ', 1) AS a,
+                SUBSTRING_INDEX(ob.e, ' ', 1) AS e,
+                SUBSTRING_INDEX(ob.q, ' ', 1) AS q,
+                SUBSTRING_INDEX(ob.T, ' ', 1) AS T,
+                SUBSTRING_INDEX(ob.omega, ' ', 1) AS omega,
+                SUBSTRING_INDEX(SUBSTRING(ob.Omega_grados_votos_max_min, 2), ' ', 1) AS Omega_grados_votos_max_min,
+                    iz.Fecha, iz.Hora
+                FROM 
+                Elementos_Orbitales ob
+                JOIN Informe_Z iz ON iz.IdInforme = ob.Informe_Z_IdInforme
+                WHERE 
+                ob.Informe_Z_IdInforme = ?;`, [id]);
         const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
@@ -351,6 +357,17 @@ function membershipPerihelion(bolideValue, showerValue) {
     }
 }
 
+function membershipInclination(bolideValue, showerValue) {
+    const tolerancia = 1; // más tolerante que 0.1
+    const diferencia = Math.abs(bolideValue - showerValue);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
 
 // Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
@@ -361,16 +378,13 @@ function calculateMembership(bolide, shower) {
 
     const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
     const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
-    const membershipQ = membershipPerihelion(parseFloat(bolide.q), parseFloat(shower.q));
-
-
+    //const membershipQ = membershipPerihelion(parseFloat(bolide.q), parseFloat(shower.q));
+    const membershipI = membershipInclination(parseFloat(bolide.i), parseFloat(shower.i));
     const totalMembership =
         (pertenenciaDMRTV * 0.7) +
         (membershipE * 0.1) +
         (membershipA * 0.1) +
-        (membershipQ * 0.1);
-
-
+        (membershipI * 0.1);
     // Escalar a valor entre 1 y 9
     const finalValue = Math.round(totalMembership * 8) + 1;
     return finalValue;
@@ -393,7 +407,8 @@ async function IMOShowers(id) {
             SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
             SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
             SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
-            SUBSTRING_INDEX(eo.De, ' ', 1) AS De 
+            SUBSTRING_INDEX(eo.De, ' ', 1) AS De,
+            SUBSTRING_INDEX(eo.i, ' ', 1) AS i
         FROM Elementos_Orbitales eo 
         WHERE eo.Informe_Z_IdInforme = ?;
     `, [report.IdInforme]);
@@ -405,7 +420,6 @@ async function IMOShowers(id) {
         LEFT JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador AND l.Año = la.Lluvia_Año 
         WHERE iz.IdInforme = ?;
     `, [report.IdInforme]);
-
     let lluvias_datos = [];
 
     for (const lluvia of lluvias) {
@@ -418,8 +432,9 @@ async function IMOShowers(id) {
                 AVG(De) AS De, 
                 AVG(E) AS e, 
                 AVG(A) AS a, 
-                AVG(Q) AS q
-            FROM meteor_showers ms 
+                AVG(Q) AS q,
+                AVG(Incl) as i
+            FROM established_meteor_showers ms 
             WHERE ms.Code LIKE ?;
         `, [idLimpio]);
 
@@ -505,8 +520,8 @@ async function IAUShowers(id, date) {
 
 
     const [lluvias] = await pool.query(`
-        SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q
-        FROM meteor_showers ms
+        SELECT ms.Code, ms.Activity, ms.SubDate, ms.Ra as Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q, ms.Incl as i
+        FROM established_meteor_showers ms
         WHERE 
         ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 30
         AND ms.Code != ""
@@ -517,7 +532,7 @@ async function IAUShowers(id, date) {
 
     for (const lluvia of lluvias) {
         const cosValues = zwoData.map((punto) => {
-            return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De);
+            return cosDist(punto.Ar_Grados, punto.De_Grados, lluvia.Ra, lluvia.De, lluvia.i);
         });
 
         const mediaCos = cosValues.reduce((a, b) => a + b, 0) / cosValues.length;
@@ -609,10 +624,11 @@ const getReportZListFromRain = async (req, res) => {
         const { selectedCode, dateIn, dateOut } = req.params;
         const { membershipThreshold = 1, distanceThreshold = 80 } = req.body;
         const showerCode = selectedCode.replace(/[0-9]/g, ''); // The specific shower code to process
+        console.log(showerCode)
         // 1. Find all reports associated with the specified shower code and radiant distance < 5
         // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
         // and filter by the radiant distance threshold.
-        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1 FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
+        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Azimut, iz.Dist_Cenital FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
         const params = [selectedCode];
 
         if (dateIn !== 'null' && dateOut !== 'null') {
@@ -644,7 +660,7 @@ const getReportZListFromRain = async (req, res) => {
 
         // 2. Fetch the established shower data for this code from established_meteor_showers
         // We fetch all relevant parameters needed for the calculateMembership function.
-        const [establishedShowerData] = await pool.query(`SELECT ms.Code, ms.Activity, ms.ShowerNameDesignation, ms.SubDate, ms.Ra as Ar, ms.De, ms.E as e, ms.A as a, ms.Q as q FROM established_meteor_showers ms WHERE ms.Code = ? ;`, [showerCode]);
+        const [establishedShowerData] = await pool.query(`SELECT ms.Code, ms.Activity, ms.ShowerNameDesignation, ms.SubDate, ROUND(AVG(ms.Ra), 3) AS Ar, ROUND(AVG(ms.De), 3) AS De, ROUND(AVG(ms.E), 3) AS e, ROUND(AVG(ms.A), 3) AS a, ROUND(AVG(ms.Q), 3) AS q, ROUND(AVG(ms.Incl), 3) AS i FROM established_meteor_showers ms WHERE ms.Code = ?;`, [showerCode]);
 
 
         if (establishedShowerData.length === 0) {
@@ -654,13 +670,14 @@ const getReportZListFromRain = async (req, res) => {
 
         // Use the first entry from the established shower data array as the reference orbit
         const capShowerEstablished = establishedShowerData[0];
-        capShowerEstablished.Distancia_mínima_entre_radianes_y_trayectoria = capReports[0].Distancia_mínima_entre_radianes_y_trayectoria;
+        
         const all_reports_results = []; // This array will store the results for each processed report
         const all_radiant_reports = []; // This array will store the results for each processed radiant report
         for (const report of radiantReport) {
             const currentReportId = report.Identificador;
             const currentReportFecha = report.Fecha;
             const currentReportHora = report.Hora;
+
             const moonPhaseData = getMoonPosition(new Date(currentReportFecha));
             // Limpiar los milisegundos a solo 3 dígitos como máximo
             const horaLimpia = report.Hora.replace(/^(\d{2}:\d{2}:\d{2})\.(\d{3})\d*$/, '$1.$2');
@@ -687,6 +704,7 @@ const getReportZListFromRain = async (req, res) => {
             const currentReportHora = report.Hora;
             const reportRadiantDistance = report.Distancia_mínima_entre_radianes_y_trayectoria; // Keep track of this value
 
+            capShowerEstablished.Distancia_mínima_entre_radianes_y_trayectoria = report.Distancia_mínima_entre_radianes_y_trayectoria;
 
             // Calculate Moon Phase
             const ss = (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1))
@@ -714,10 +732,9 @@ const getReportZListFromRain = async (req, res) => {
 
 
 
-
             // 4. Fetch Orbital Elements for the current report
             // Preserve the SUBSTRING_INDEX logic for parsing string values
-            const [orbitalElements] = await pool.query(` SELECT SUBSTRING_INDEX(eo.e, ' ', 1) AS e_str, SUBSTRING_INDEX(eo.a, ' ', 1) AS a_str, SUBSTRING_INDEX(eo.q, ' ', 1) AS q_str, SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar_str, SUBSTRING_INDEX(eo.De, ' ', 1) AS De_str FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [currentReportId]);
+            const [orbitalElements] = await pool.query(` SELECT SUBSTRING_INDEX(eo.e, ' ', 1) AS e_str, SUBSTRING_INDEX(eo.a, ' ', 1) AS a_str, SUBSTRING_INDEX(eo.q, ' ', 1) AS q_str, SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar_str, SUBSTRING_INDEX(eo.De, ' ', 1) AS De_str, SUBSTRING_INDEX(eo.i, ' ', 1) AS i_str  FROM Elementos_Orbitales eo WHERE eo.Informe_Z_IdInforme = ?;`, [currentReportId]);
 
 
             const report_memberships = []; // To store membership results for this specific report
@@ -725,7 +742,8 @@ const getReportZListFromRain = async (req, res) => {
             // 5. Calculate Membership for each set of orbital elements against the established CAP shower data
             for (const ob_str of orbitalElements) {
                 // Parse orbital elements from strings to numbers using the helper function
-                const parsed_ob = { e: parseOrbitalFloat(ob_str.e_str), a: parseOrbitalFloat(ob_str.a_str), q: parseOrbitalFloat(ob_str.q_str), Ar: parseOrbitalFloat(ob_str.Ar_str), De: parseOrbitalFloat(ob_str.De_str) };
+                const parsed_ob = { e: parseOrbitalFloat(ob_str.e_str), a: parseOrbitalFloat(ob_str.a_str), q: parseOrbitalFloat(ob_str.q_str), Ar: parseOrbitalFloat(ob_str.Ar_str), De: parseOrbitalFloat(ob_str.De_str), i: parseOrbitalFloat(ob_str.i_str) };
+
 
                 let membershipValue = calculateMembership(parsed_ob, capShowerEstablished);
                 report_memberships.push({
@@ -744,6 +762,8 @@ const getReportZListFromRain = async (req, res) => {
                     reportId: currentReportId,
                     fecha: currentReportFecha,
                     hora: currentReportHora,
+                    azimut: report.Azimut,
+                    distanciaCenital: report.Dist_Cenital,
                     radiantDistance: reportRadiantDistance,
                     moonIlumination,
                     moonPhase: getPhaseName(moonIlumination.phase),
@@ -764,6 +784,7 @@ const getReportZListFromRain = async (req, res) => {
             }
 
         }
+
 
         // 6. Return the accumulated results for all processed CAP reports
         res.json({

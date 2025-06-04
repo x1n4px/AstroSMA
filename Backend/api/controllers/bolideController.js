@@ -129,25 +129,29 @@ const getBolideWithCustomSearch = async (req, res) => {
       case '1':
         // Obtener todos los bólidos sin filtros
         query = `
-        SELECT m.*, 
-          CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ,
-          CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant,
-          1 AS hasReportPhotometry,
-          GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
-          GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
-          GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-        FROM Meteoro m 
-        LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
-        LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
-        INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador`;
-        // Agregar filtro por rango de fechas si está activado
+            SELECT m.*, 
+              1 AS hasReportZ,
+              1 AS hasReportRadiant,
+              1 AS hasReportPhotometry,
+              GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
+              GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
+              GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
+            FROM Meteoro m 
+            INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+            INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
+            INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador
+          `;
+
+        // Filtro por rango de fechas, si está activado
         if (dateRangeChecked === 'true' && startDate && endDate) {
           query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
           params.push(startDate, endDate);
         }
-        // Agregar LIMIT y OFFSET
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
+
+        // Agrupación y paginación
+        query += ` GROUP BY m.Identificador LIMIT 50 OFFSET ?`;
         params.push(offs);
+
 
 
         [allBolides] = await pool.query(query, params);
@@ -339,7 +343,7 @@ const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, Puntos
 const getBolideWithCustomSearchCSV = async (req, res) => {
   try {
     const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType } = req.query;
-    console.log(heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType )
+    console.log(heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType)
     const offs = actualPage * 50;
     /*    REPORT_TYPE
         1: "Todos los bólidos sin filtros"
@@ -731,23 +735,76 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
 
 
 
-
-
+const splitIds = (str) => {
+  if (!str || typeof str !== 'string') return [];
+  return str
+    .split('/')
+    .map(id => parseInt(id.trim(), 10))
+    .filter(id => Number.isInteger(id));
+};
 
 const getReportData = async (req, res) => {
   try {
     const { IDs_Informe_Z, IDs_Informe_Radiante, IDs_Informe_Fotometria } = req.query;
 
-    const [reportData] = await pool.query('SELECT * FROM Informe_Z WHERE IdInforme IN (?)', [IDs_Informe_Z]);
-    const [reportDataRadiant] = await pool.query('SELECT * FROM Informe_Radiante WHERE Identificador IN (?)', [IDs_Informe_Radiante]);
-    const [reportDataPhotometry] = await pool.query('SELECT * FROM Informe_Fotometria WHERE Identificador IN (?)', [IDs_Informe_Fotometria]);
-    res.json({ reportData, reportDataRadiant, reportDataPhotometry });
+    const idsInformeZ = splitIds(IDs_Informe_Z);
+    const idsInformeRadiante = splitIds(IDs_Informe_Radiante);
+    const idsInformeFotometria = splitIds(IDs_Informe_Fotometria);
+
+
+    const results = {
+      reportData: [],
+      reportDataRadiant: [],
+      reportDataPhotometry: [],
+    };
+
+    if (idsInformeZ.length) {
+      const [data] = await pool.query(
+        `SELECT iz.IdInforme, iz.Fecha, iz.Hora,
+         CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio ) AS Ob1,   
+         CONCAT(o2.Número, ' - ', o2.Nombre_Observatorio ) AS Ob2 
+         FROM Informe_Z iz 
+         LEFT JOIN Observatorio o1 ON iz.Observatorio_Número = o1.Número 
+         LEFT JOIN Observatorio o2 ON iz.Observatorio_Número2 = o2.Número 
+         WHERE iz.IdInforme IN (?)`,
+        [idsInformeZ]
+      );
+      results.reportData = data;
+    }
+
+    if (idsInformeRadiante.length) {
+      const [data] = await pool.query(
+        `SELECT Identificador, Hora, Fecha, Trayectorias_estimadas_para,
+         Distancia_angular_grados, Velocidad_angular_grad_sec,
+         CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio ) AS Ob2 
+         FROM Informe_Radiante ir 
+         LEFT JOIN Observatorio o1 ON ir.Observatorio_Número = o1.Número 
+         WHERE Identificador IN (?)`,
+        [idsInformeRadiante]
+      );
+      results.reportDataRadiant = data;
+    }
+
+    if (idsInformeFotometria.length) {
+      const [data] = await pool.query(
+        `SELECT Fecha, Hora, Identificador, Estrellas_visibles,
+         Estrellas_usadas_para_regresion 
+         FROM Informe_Fotometria 
+         WHERE Identificador IN (?)`,
+        [idsInformeFotometria]
+      );
+      results.reportDataPhotometry = data;
+    }
+
+    res.json(results);
 
   } catch (error) {
     console.error('Error al obtener los bolidos:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
+
 
 
 // ------------------------------------------- AUX FUNCTIONS ------------------------------------------- //

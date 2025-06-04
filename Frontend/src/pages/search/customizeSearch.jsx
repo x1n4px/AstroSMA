@@ -58,6 +58,7 @@ const CustomizeSearch = () => {
                 actualPage,
                 reportType
             });
+            console.log(response);
             setReportData(response.data);
             setTotalItems(response.totalItems);
             setSearchButton(true);

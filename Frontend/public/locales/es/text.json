@@ -252,7 +252,7 @@
             "measure": "radianes"
         },
         "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE": {
-            "label": "Coordenadas Astronómicas del Radiante (Eclíptica - Fecha)",
+            "label": "Coordenadas Astronómicas del Radiante (Fecha ar, de)",
             "measure": ""
         },
         "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
@@ -306,7 +306,7 @@
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Descargar informe asociado",
             "DESCRIPTION": "Descargar el informe asociado a la lluvia activa",
-            "LINK": "Descargar {{name}} ( {{cty}} Software)",
+            "LINK": "Descargar {{name}}",
             "METEOR_GLOW": "Descargar magnitudes instrumentales (brillos) del meteoro",
             "RAW_DATA": "Descargar datos en bruto del meteoro",
             "ERROR_GENERAL": "Error al descargar {{software}}. Por favor, inténtalo de nuevo."
@@ -319,7 +319,12 @@
             "INITIAL_HEIGHT": "Altura Inicial",
             "END_COORDINATES": " Coordenadas de Fin",
             "FINAL_DISTANCE": " Distancia Final",
-            "FINAL_HEIGHT": "Altura Final"
+            "FINAL_HEIGHT": "Altura Final",
+            "DISTANCE_TRAVELLED": " Distancia Recorrida (Estación {{id}})",
+            "TIME_TRAVELLED": " Tiempo Recorrido (Estación {{id}})",
+            "AVERAGE_VELOCITY": " Velocidad Media",
+            "INITIAL_VELOCITY": " Velocidad Inicial (Estación {{id}})",
+            "ACCELERATION": " Aceleración en Km/sec²"
         },
         "ZWO": "Ajuste de puntos y trayectoria",
         "ASSOCIATED_STATIONS": {
@@ -370,8 +375,8 @@
                         "T": "t",
                         "S": "s",
                         "V": "v",
-                        "LAMBDA": "Lambda",
-                        "PHI": "Phi",
+                        "LAMBDA": "λ",
+                        "PHI": "φ",
                         "RA": "Ra (Estación {{id}})",
                         "DE": "De (Estación {{id}})"
                     }
@@ -724,6 +729,11 @@
                 "TITLE": "Solicitudes de descarga",
                 "SUBTITLE": "Solicitudes de descarga de datos",
                 "BUTTON": "Ver solicitudes"
+            },
+            "RAIN": {
+                "TITLE": "Lluvias",
+                "SUBTITLE": "Listado de lluvias",
+                "BUTTON": "Ver Lluvias"
             }
         },
         "EVENT_PAGE": {
@@ -793,7 +803,65 @@
                 "COUNTRY": "País",
                 "ROL": "Permisos"
             }
-        }
+        },
+        "ACTIVE_RAIN": {
+      "TITLE": "Listado de Lluvias por Año",
+      "SELECT_YEAR_LABEL": "Selecciona el Año:",
+      "SELECT_YEAR_PLACEHOLDER": "Selecciona un año",
+      "SEARCH_BUTTON": "Buscar Lluvias",
+      "CREATE_BUTTON": "Crear Nueva Lluvia",
+      "DUPLICATE_ALL_BUTTON": "Duplicar Todas las Lluvias",
+      "LOADING_MESSAGE": "Cargando...",
+      "NO_RAIN_FOUND": "No se encontraron lluvias para el año {year}.",
+      "TABLE_IDENTIFIER": "Identificador",
+      "TABLE_NAME": "Nombre",
+      "TABLE_START_DATE": "Fecha Inicio",
+      "TABLE_END_DATE": "Fecha Fin",
+      "TABLE_SPEED": "Velocidad (km/s)",
+      "TABLE_ACTIONS": "Acciones",
+      "MODIFY_BUTTON": "Modificar",
+      "DELETE_BUTTON": "Eliminar",
+      "CREATE_MODAL_TITLE": "Crear Nueva Lluvia",
+      "MODIFY_MODAL_TITLE": "Modificar Lluvia",
+      "FORM_IDENTIFIER_LABEL": "Identificador",
+      "FORM_IDENTIFIER_PLACEHOLDER": "ACE",
+      "FORM_YEAR_LABEL": "Año",
+      "FORM_YEAR_PLACEHOLDER": "Introduce el año",
+      "FORM_NAME_LABEL": "Nombre",
+      "FORM_NAME_PLACEHOLDER": "Introduce el nombre de la lluvia",
+      "FORM_START_DATE_LABEL": "Fecha de Inicio",
+      "FORM_END_DATE_LABEL": "Fecha de Fin",
+      "FORM_SPEED_LABEL": "Velocidad (km/h)",
+      "FORM_SPEED_PLACEHOLDER": "Introduce la velocidad",
+      "FORM_CANCEL_BUTTON": "Cancelar",
+      "FORM_SAVE_BUTTON": "Guardar Cambios",
+      "FORM_CREATE_BUTTON": "Crear Lluvia",
+      "VALIDATION_YEAR_REQUIRED": "El Año es obligatorio y debe ser un número.",
+      "VALIDATION_NAME_REQUIRED": "El Nombre es obligatorio.",
+      "VALIDATION_START_DATE_REQUIRED": "La Fecha de Inicio es obligatoria.",
+      "VALIDATION_END_DATE_REQUIRED": "La Fecha de Fin es obligatoria.",
+      "VALIDATION_SPEED_REQUIRED": "La Velocidad es obligatoria y debe ser un número.",
+      "DELETE_CONFIRM_TITLE": "Confirmar Eliminación",
+      "DELETE_CONFIRM_MESSAGE": "¿Estás seguro de que quieres eliminar esta lluvia? Esta acción no se puede deshacer.",
+      "DUPLICATE_CONFIRM_TITLE": "Duplicar Lluvias",
+      "DUPLICATE_CONFIRM_MESSAGE": "Introduce el año al que quieres duplicar todas las lluvias existentes:",
+      "DUPLICATE_YEAR_PLACEHOLDER": "Ej: 2025",
+      "CONFIRM_BUTTON": "Confirmar",
+      "INFO_MODAL_CLOSE": "Cerrar",
+      "SUCCESS_TITLE": "Éxito",
+      "ERROR_TITLE": "Error",
+      "WARNING_TITLE": "Advertencia",
+      "DELETE_SUCCESS": "Lluvia eliminada con éxito.",
+      "DELETE_ERROR": "Error al eliminar la lluvia. Inténtalo de nuevo.",
+      "DUPLICATE_SUCCESS": "Todas las lluvias duplicadas al año {year} con éxito.",
+      "DUPLICATE_ERROR": "Error al duplicar las lluvias. Inténtalo de nuevo.",
+      "INVALID_YEAR_ALERT": "Año inválido. Por favor, introduce un número válido.",
+      "UPDATE_SUCCESS": "Lluvia modificada con éxito.",
+      "UPDATE_ERROR": "Error al modificar la lluvia. Inténtalo de nuevo.",
+      "CREATE_SUCCESS": "Lluvia creada con éxito.",
+      "CREATE_ERROR": "Error al crear la lluvia. Inténtalo de nuevo.",
+      "FETCH_ERROR": "Error al cargar las lluvias. Inténtalo de nuevo."
+    }
     },
     "DISTANCE": {
         "VERYFAR": "Muy poco posible",

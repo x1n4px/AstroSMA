@@ -6,14 +6,13 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
     const mapRef = useRef(null);
     const polylineRefs = useRef([]);
     const markerRefs = useRef([]);
-    const mapContainerRef = useRef(null); // Referencia al contenedor del mapa
+    const mapContainerRef = useRef(null);
 
     useEffect(() => {
         if (!data || data.length === 0) {
             return;
         }
 
-        // Inicializar el mapa solo si no existe
         if (!mapRef.current && mapContainerRef.current) {
             const map = L.map(mapContainerRef.current).setView([lat, lon], zoom);
             mapRef.current = map;
@@ -23,26 +22,21 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
             }).addTo(map);
         }
 
-        // Asegurarse de que el mapa esté inicializado antes de continuar
         if (mapRef.current) {
-            // Limpiar elementos anteriores
             polylineRefs.current.forEach(polyline => polyline.remove());
             markerRefs.current.forEach(marker => marker.remove());
             polylineRefs.current = [];
             markerRefs.current = [];
 
-            // Procesar cada conjunto de trayectorias
             data.forEach((trajectorySet, index) => {
                 Object.entries(trajectorySet).forEach(([stationId, stationData]) => {
                     const { start, end, id } = stationData;
 
-                    // Convertir coordenadas a números
                     const startLat = parseFloat(start.latitude);
                     const startLon = parseFloat(start.longitude);
                     const endLat = parseFloat(end.latitude);
                     const endLon = parseFloat(end.longitude);
 
-                    // Crear línea con estilo basado en el stationId
                     const color = stationId === 'st1' ? '#3388ff' : '#ff7800';
                     const weight = stationId === 'st1' ? 7 : 5;
 
@@ -59,19 +53,32 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
                         }
                     ).addTo(mapRef.current);
 
-                    polyline.bindPopup(`Trayectoria ${stationId} - Conjunto ${index + 1}`);
+                    // --- Modificación aquí para el botón en el popup de la polilínea ---
+                    const polylinePopupContent = `
+                        <button onclick="window.location.href='/report/${id}'">Ver Reporte</button>
+                    `;
+                    polyline.bindPopup(polylinePopupContent);
+                    // -------------------------------------------------------------------
+
                     polylineRefs.current.push(polyline);
 
-                    // Añadir marcadores
                     const startMarker = L.marker([startLat, startLon], {
                         icon: L.divIcon({
                             className: `custom-marker ${stationId}`,
                             html: `<div></div>`,
                             iconSize: [24, 24]
                         })
-                    })
-                        .bindPopup(`Inicio ${stationId} - Conjunto ${id}<br>Lat: ${startLat.toFixed(6)}<br>Lon: ${startLon.toFixed(6)}`)
-                        .addTo(mapRef.current);
+                    }).addTo(mapRef.current);
+
+                    // --- Modificación aquí para el botón en el popup del marcador de inicio ---
+                    const startMarkerPopupContent = `
+                        Inicio <br>
+                        Lat: ${startLat.toFixed(6)}<br>
+                        Lon: ${startLon.toFixed(6)}<br>
+                        <button onclick="window.location.href='/report/${id}'">Ver Reporte</button>
+                    `;
+                    startMarker.bindPopup(startMarkerPopupContent);
+                    // --------------------------------------------------------------------------
 
                     const endMarker = L.marker([endLat, endLon], {
                         icon: L.divIcon({
@@ -79,9 +86,17 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
                             html: `<div></div>`,
                             iconSize: [24, 24]
                         })
-                    })
-                        .bindPopup(`Fin ${stationId} - Conjunto ${index + 1}<br>Lat: ${endLat.toFixed(6)}<br>Lon: ${endLon.toFixed(6)}`)
-                        .addTo(mapRef.current);
+                    }).addTo(mapRef.current);
+
+                    // --- Modificación aquí para el botón en el popup del marcador final ---
+                    const endMarkerPopupContent = `
+                        Fin <br>
+                        Lat: ${endLat.toFixed(6)}<br>
+                        Lon: ${endLon.toFixed(6)}<br>
+                        <button onclick="window.location.href='/report/${id}'">Ver Reporte</button>
+                    `;
+                    endMarker.bindPopup(endMarkerPopupContent);
+                    // -----------------------------------------------------------------------
 
                     markerRefs.current.push(startMarker, endMarker);
                 });
@@ -94,39 +109,54 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
                         iconUrl: ('/antena4.png'),
                         iconSize: [25, 25],
                     }),
-                })
-                    .bindPopup(`Observatorio<br>Lat: ${latitude.toFixed(6)}<br>Lon: ${longitude.toFixed(6)}`)
-                    .addTo(mapRef.current);
+                }).addTo(mapRef.current);
+
+                // --- Modificación aquí para el botón en el popup del observatorio ---
+                const observatoryPopupContent = `
+                    Observatorio<br>
+                    Lat: ${latitude.toFixed(6)}<br>
+                    Lon: ${longitude.toFixed(6)}<br>
+                    <button onclick="window.location.href='/observatory-report/${latitude}-${longitude}'">Ver Reporte del Observatorio</button>
+                `;
+                marker.bindPopup(observatoryPopupContent);
+                // -------------------------------------------------------------------
 
                 markerRefs.current.push(marker);
             });
 
-            // Añadir el observatorio al mapa
-            const observatoryMarker = L.marker([lat, lon], {
+            // Añadir el observatorio principal al mapa (si es diferente de los observatorios del array)
+            // Considera si este marcador es realmente necesario si ya estás iterando sobre `observatory`
+            const mainObservatoryMarker = L.marker([lat, lon], {
                 icon: L.divIcon({
                     className: 'custom-marker observatory',
                     html: `<div></div>`,
                     iconSize: [24, 24]
                 })
-            })
-                .bindPopup(`Observatorio<br>Lat: ${lat.toFixed(6)}<br>Lon: ${lon.toFixed(6)}`)
-                .addTo(mapRef.current);
-            markerRefs.current.push(observatoryMarker);
+            }).addTo(mapRef.current);
 
-            // Ajustar el zoom para mostrar todas las trayectorias
+            // --- Modificación aquí para el botón en el popup del observatorio principal ---
+            const mainObservatoryPopupContent = `
+                Observatorio Principal<br>
+                Lat: ${lat.toFixed(6)}<br>
+                Lon: ${lon.toFixed(6)}<br>
+                <button onclick="window.location.href='/main-observatory-report'">Ver Reporte Principal</button>
+            `;
+            mainObservatoryMarker.bindPopup(mainObservatoryPopupContent);
+            // ----------------------------------------------------------------------------
+            markerRefs.current.push(mainObservatoryMarker);
+
+
             if (polylineRefs.current.length > 0) {
                 const group = new L.featureGroup(polylineRefs.current);
                 mapRef.current.fitBounds(group.getBounds().pad(0.2));
             }
         }
 
-        // Función de limpieza
         return () => {
-            // No eliminar el mapa aquí, solo limpiar las referencias
             polylineRefs.current = [];
             markerRefs.current = [];
         };
-    }, [data, lat, lon, zoom]);
+    }, [data, lat, lon, zoom, observatory]); // Añadido 'observatory' a las dependencias
 
     return <div ref={mapContainerRef} id="map" style={{ width: '100%', height: '100%', minHeight: eminHeight }}></div>;
 };

@@ -26,6 +26,8 @@ import { saveReportAdvice, deleteReportAdvice } from '@/services/reportService.j
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
 import { getConfigValue } from '@/utils/getConfigValue';
+import { AstronomyLoader } from '@/components/loader/AstronomyLoader.jsx';
+import GeminiSpinnerOverlay from '@/components/GeminiSpinnerOverlay';
 
 
 const Report = () => {
@@ -66,68 +68,7 @@ const Report = () => {
         Informe_Z_Id: id
     });
 
-    const GeminiSpinnerOverlay = () => {
-        const [size, setSize] = useState(100);
-        const [colorIndex, setColorIndex] = useState(0);
-        const colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 
-        useEffect(() => {
-            const interval = setInterval(() => {
-                setColorIndex((prev) => (prev + 1) % colors.length);
-                setSize((prev) => (prev % 150) + 50);
-            }, 800);
-
-            return () => clearInterval(interval);
-        }, []);
-
-        return (
-            <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgb(255, 255, 255)',
-                color: 'black',
-                zIndex: 9999,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                <div style={{
-                    width: '150px',
-                    height: '150px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <Spinner
-                        animation="border"
-                        variant={colors[colorIndex]}
-                        style={{
-                            width: `${size}px`,
-                            height: `${size}px`,
-                            transition: 'all 0.5s ease'
-                        }}
-                    />
-                </div>
-
-                <h3 className="mt-4">Generando análisis...</h3>
-                <p>Por favor espere, esto puede tomar unos momentos</p>
-
-                <Button
-                    variant="outline-danger"
-                    className="mt-4"
-                    onClick={() => navigate('/dashboard')}
-                >
-                    Cancelar generación
-                </Button>
-            </div>
-        );
-    };
-
-    // Este useEffect asegura que el activeTab se sincronice con el parámetro de la URL
     useEffect(() => {
         if (params?.tab && params.tab !== activeTab) {
             setActiveTab(params.tab);
@@ -182,7 +123,6 @@ const Report = () => {
     }, [id]);
 
     const handleCloseSave = () => {
-        // Procesar los datos del formulario aquí
         try {
             if (!formData.Description || formData.Tab === 'NULL') {
                 return;
@@ -225,7 +165,7 @@ const Report = () => {
             'MAP_TAB': 'MAP_TAB',
             'ACTIVE_RAIN_TAB': 'ACTIVE_RAIN_TAB',
             'STATIONS': 'STATIONS',
-            'TRAJECTORY': 'TRAJECTORY',
+            'ORBIT': 'ORBIT',
             'PENDING_TAB': 'PENDING_TAB',
             'ZWO': 'ZWO',
             'PHOTOMETRY': 'PHOTOMETRY',
@@ -242,6 +182,9 @@ const Report = () => {
         setActiveTab(tabKey);
         navigate(`/report/${id}/${tabKey}`);
     };
+     if (loading) {
+        return <AstronomyLoader />;
+      }
 
     return (
         <Container>
@@ -332,9 +275,9 @@ const Report = () => {
                         </Tab>
 
                         {orbitalData.length > 0 && (
-                            <Tab eventKey="TRAJECTORY" title={t('REPORT.TRAJECTORY')}>
+                            <Tab eventKey="ORBIT" title={t('REPORT.TRAJECTORY')}>
                                 <AdviceAlert
-                                    tabKey="TRAJECTORY"
+                                    tabKey="ORBIT"
                                     adviceData={adviceData}
                                     onRemoveAdvice={handleRemoveAdvice}
                                     rol={rol}
@@ -405,7 +348,7 @@ const Report = () => {
                                         <option value="MAP_TAB">{t('REPORT.MAP_TAB')}</option>
                                         <option value="ACTIVE_RAIN_TAB">{t('REPORT.ACTIVE_RAIN_TAB')}</option>
                                         <option value="STATIONS">{t('REPORT.STATIONS')}</option>
-                                        <option value="TRAJECTORY">{t('REPORT.TRAJECTORY')}</option>
+                                        <option value="ORBIT">{t('REPORT.TRAJECTORY')}</option>
                                         <option value="PENDING_TAB">{t('REPORT.PENDING.TITLE')}</option>
                                         <option value="ZWO">{t('REPORT.ZWO')}</option>
                                         <option value="ASSOCIATED_STATIONS">{t('REPORT.ASSOCIATED_STATIONS.TITLE')}</option>

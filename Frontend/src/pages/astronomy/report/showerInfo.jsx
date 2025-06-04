@@ -10,6 +10,7 @@ import { Link, useParams } from 'react-router-dom';
 import { getAllShower } from '@/services/activeShower'
 import { useTranslation } from 'react-i18next';
 import CurveLineChart from '@/components/chart/CurveLineChart.jsx'
+import truncateDecimal from '@/pipe/truncateDecimal';
 
 // Componente Skeleton para tarjetas
 const CardSkeleton = () => (
@@ -94,15 +95,15 @@ const MoonReport = () => {
     const { getDistanceLabel } = useLogicDistance();
     const [lluvias, setLluvias] = useState([]);
     const [selectedLluvia, setSelectedLluvia] = useState(null);
-    
+
     // Estados de carga separados
     const [loadingShowers, setLoadingShowers] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
-    
+
     // Estados de error
     const [showersError, setShowersError] = useState(null);
     const [dataError, setDataError] = useState(null);
-    
+
     const [showDualStationReports, setShowDualStationReports] = useState(true);
     const [showRadiantReports, setShowRadiantReports] = useState(true);
     const [showCurveGraph, setShowCurveGraph] = useState(true);
@@ -163,17 +164,18 @@ const MoonReport = () => {
         setDataError(null);
         try {
             const data = await getReportZListFromRain(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold);
+            console.log('Fetched data:', data); // Log para depuración
             setReport(data.reportResults || []);
             setRain(data.establishedShowerDataUsed);
             setRadiantReport(data.radiantReport || []);
             setShowerGraph(data.showerGraph || []);
             setSelectedLluvia(data.shower);
-            
+
             // Mostrar secciones solo si hay datos
             setShowDualStationReports(data.reportResults && data.reportResults.length > 0);
             setShowRadiantReports(data.radiantReport && data.radiantReport.length > 0);
             setShowCurveGraph(data.showerGraph && data.showerGraph.length > 0);
-            
+
         } catch (error) {
             console.error('Error fetching moon data:', error);
             setDataError('Error al cargar los datos del reporte. Por favor, intenta nuevamente.');
@@ -381,41 +383,44 @@ const MoonReport = () => {
 
                 {/* Switches de visualización */}
                 {(selectedLluvia || loadingData) && (
-                    <Row className="mt-4 pt-4">
-                        <Form className="mb-3">
-                            <Stack direction="horizontal" gap={4}>
-                                <Form.Check
-                                    type="switch"
-                                    id="dual-station-switch"
-                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_REPORT_Z')}
-                                    value={showDualStationReports}
-                                    checked={showDualStationReports}
-                                    onChange={(e) => setShowDualStationReports(e.target.checked)}
-                                    disabled={loadingData}
-                                />
-
-                                <Form.Check
-                                    type="switch"
-                                    id="radiant-switch"
-                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_RADIANT_REPORT')}
-                                    value={showRadiantReports}
-                                    checked={showRadiantReports}
-                                    onChange={(e) => setShowRadiantReports(e.target.checked)}
-                                    disabled={loadingData}
-                                />
-
-                                <Form.Check
-                                    type="switch"
-                                    id="curve-switch"
-                                    label={t('SHOWER_INFO.CHECKBOX.SHOW_GRAPH')}
-                                    value={showCurveGraph}
-                                    checked={showCurveGraph}
-                                    onChange={(e) => setShowCurveGraph(e.target.checked)}
-                                    disabled={loadingData}
-                                />
-                            </Stack>
-                        </Form>
-                    </Row>
+                    <>
+                        <hr />
+                        <Row className="mt-4 pt-4">
+                            <Form className="mb-3">
+                                <Stack direction="horizontal" gap={4}>
+                                    <Form.Check
+                                        type="switch"
+                                        id="dual-station-switch"
+                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_REPORT_Z')}
+                                        value={showDualStationReports}
+                                        checked={showDualStationReports}
+                                        onChange={(e) => setShowDualStationReports(e.target.checked)}
+                                        disabled={loadingData}
+                                    />
+                                    {(report.length > 0 ? ` (${report.length})` : '')}
+                                    <Form.Check
+                                        type="switch"
+                                        id="radiant-switch"
+                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_RADIANT_REPORT')}
+                                        value={showRadiantReports}
+                                        checked={showRadiantReports}
+                                        onChange={(e) => setShowRadiantReports(e.target.checked)}
+                                        disabled={loadingData}
+                                    />
+                                    {(report.length > 0 ? ` (${radiantReport.length})` : '')}
+                                    <Form.Check
+                                        type="switch"
+                                        id="curve-switch"
+                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_GRAPH')}
+                                        value={showCurveGraph}
+                                        checked={showCurveGraph}
+                                        onChange={(e) => setShowCurveGraph(e.target.checked)}
+                                        disabled={loadingData}
+                                    />
+                                </Stack>
+                            </Form>
+                        </Row>
+                    </>
                 )}
             </Container>
 
@@ -521,7 +526,7 @@ const MoonReport = () => {
                                             </li>
                                             <li>
                                                 <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.MIN_DISTANCE')}:</strong>
-                                                <span className="ms-2">{selectedLluvia.Distancia_mínima_entre_radianes_y_trayectoria}</span>
+                                                <span className="ms-2">{truncateDecimal(selectedLluvia.Distancia_mínima_entre_radianes_y_trayectoria)}</span>
                                             </li>
                                         </ul>
                                     </Card.Body>
@@ -535,7 +540,7 @@ const MoonReport = () => {
             {/* Lista de tarjetas */}
             <Container className="py-4">
                 {loadingData && (
-                    <Row xs={2} md={3} lg={5} className="g-4">
+                    <Row xs={1} md={2} lg={4} className="g-4">
                         {[...Array(10)].map((_, index) => (
                             <Col key={`skeleton-${index}`}>
                                 <CardSkeleton />
@@ -545,7 +550,7 @@ const MoonReport = () => {
                 )}
 
                 {!loadingData && (report.length > 0 || radiantReport.length > 0) && (
-                    <Row xs={2} md={3} lg={5} className="g-4">
+                    <Row xs={1} md={2} lg={4} className="g-4">
                         {showDualStationReports && report.map((r) => (
                             <Col key={r.hora}>
                                 <Card className="h-100 shadow-sm border-0 hover-shadow transition-all">
@@ -570,6 +575,12 @@ const MoonReport = () => {
                                                 <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
                                                 {getDistanceLabel(r?.orbitalMemberships)}
                                             </Card.Title>
+                                            {r.azimut !== null && r.distanciaCenital !== null && (
+                                                <Card.Title className="h6 d-flex flex-column">
+                                                    <small className="">{t('INFERRED_DATA.AZIMUTH.label')}: {truncateDecimal(r.azimut)}º</small>
+                                                    <small className="">{t('INFERRED_DATA.ZENITHAL_DISTANCE.label')}: {truncateDecimal(r?.distanciaCenital)}</small>
+                                                </Card.Title>
+                                            )}
                                         </div>
 
                                         <div className="mt-auto text-center">
@@ -622,6 +633,7 @@ const MoonReport = () => {
                                                 <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
                                                 {getDistanceLabel(r?.distance)}
                                             </Card.Title>
+
                                         </div>
 
                                         <div className="mt-auto text-center">

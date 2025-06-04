@@ -1,6 +1,5 @@
 import React from 'react';
-import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button, Spinner } from 'react-bootstrap';
-import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
+import { Alert, Button } from 'react-bootstrap';
 
 
 const AdviceAlert = ({ tabKey, adviceData, onRemoveAdvice, rol }) => {

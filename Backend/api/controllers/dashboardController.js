@@ -98,28 +98,11 @@ const getGeneral = async (req, res) => {
                 ORDER BY ocurrencias;`,
 
 
-      predictableImpact: `SELECT iz1.Meteoro_Identificador AS Identificador,
-                                iz1.Inicio_de_la_trayectoria_Estacion_1,
-                                iz1.Inicio_de_la_trayectoria_Estacion_2,
-                                iz1.Fin_de_la_trayectoria_Estacion_1,
-                                iz1.Fin_de_la_trayectoria_Estacion_2,
-                                iz1.Fecha,
-                                iz1.Ángulo_diedro_entre_planos_trayectoria
-                          FROM Informe_Z iz1
-                          JOIN (
-                              SELECT iz.Meteoro_Identificador, MAX(iz.Ángulo_diedro_entre_planos_trayectoria) AS max_angulo
-                              FROM Informe_Z iz
-                              JOIN Meteoro m ON iz.Meteoro_Identificador = m.Identificador
-                              WHERE iz.Inicio_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido'
-                                AND iz.Inicio_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido'
-                                AND iz.Fin_de_la_trayectoria_Estacion_1 NOT LIKE 'No medido'
-                                AND iz.Fin_de_la_trayectoria_Estacion_2 NOT LIKE 'No medido'
-                              GROUP BY iz.Meteoro_Identificador
-                          ) top_iz
-                            ON iz1.Meteoro_Identificador = top_iz.Meteoro_Identificador
-                            AND iz1.Ángulo_diedro_entre_planos_trayectoria = top_iz.max_angulo
+      predictableImpact: `SELECT IdInforme , Inicio_de_la_trayectoria_Estacion_1 , Fin_de_la_trayectoria_Estacion_1 , Inicio_de_la_trayectoria_Estacion_2 , Fin_de_la_trayectoria_Estacion_2, Fecha, Hora  , Meteoro_Identificador 
+                          FROM Informe_Z iz
+                          GROUP BY Meteoro_Identificador 
                             ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
-                          ORDER BY iz1.Ángulo_diedro_entre_planos_trayectoria DESC
+                          ORDER BY Fecha DESC
                           ${option < 4 ? "LIMIT ?" : ""};
                           `,
 

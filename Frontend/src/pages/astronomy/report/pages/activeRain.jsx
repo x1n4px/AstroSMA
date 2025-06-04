@@ -34,7 +34,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
     }
 
 
-
+    console.log(activeShowerData)
 
 
     const { getDistanceLabel } = useLogicDistance();

@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'; // useNavigate was not used
 import { useTranslation } from 'react-i18next';
 // Import icons (example: Font Awesome icons)
-import { FaCalendarAlt, FaClipboardList, FaCogs, FaUsers, FaChargingStation } from 'react-icons/fa';
+import { FaCalendarAlt, FaClipboardList, FaCogs, FaUsers, FaChargingStation,FaCloudRain } from 'react-icons/fa';
 
 const AdminPanel = () => {
     const { t } = useTranslation(['text']); // i18n was not used
@@ -38,6 +38,11 @@ const AdminPanel = () => {
             key: 'REQUEST',
             icon: <FaChargingStation className="me-2" />,
             link: "/admin-panel/request-panel"
+        },
+        {
+            key: 'RAIN',
+            icon: <FaCloudRain className="me-2" />,
+            link: "/admin-panel/active-rain-panel"
         }
     ];
 

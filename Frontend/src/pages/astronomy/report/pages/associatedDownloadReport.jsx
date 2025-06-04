@@ -15,7 +15,7 @@ const downloadItems = [
         apiButtonName: 'UFOORBIT', // Used as Card Title
         fileName: 'UFOORBIT.tgz',
         translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK', // For button text
-        translationValues: { name: 'UFOORBIT', cty: 'Japanese' }, // cty for Card Subtitle
+        translationValues: { name: 'UFOORBIT' }, // cty for Card Subtitle
     },
     {
         id: 'wmpl',
@@ -23,7 +23,7 @@ const downloadItems = [
         apiButtonName: 'WMPL',
         fileName: 'wmpl.txt',
         translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-        translationValues: { name: 'WMPL', cty: 'Australian' },
+        translationValues: { name: 'WMPL' },
     },
     {
         id: 'gritsevich',
@@ -31,7 +31,7 @@ const downloadItems = [
         apiButtonName: 'GRITSEVICH',
         fileName: 'Gritsevich.zip', // Assuming it's a zip
         translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-        translationValues: { name: 'Gritsevich', cty: 'Finland' },
+        translationValues: { name: 'Gritsevich' },
     },
     {
         id: 'meteorglow',

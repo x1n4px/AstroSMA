@@ -305,7 +305,7 @@
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Download associated report",
             "DESCRIPTION": "Download the report associated with the active shower",
-            "LINK": "Download {{name}} ( {{cty}} Software)",
+            "LINK": "Download {{name}}",
             "METEOR_GLOW": "Download instrumental magnitudes (brightnesses) of the meteor",
             "RAW_DATA": "Download raw meteor data",
             "ERROR_GENERAL": "Error downloading {{software}}. Please try again."
@@ -313,12 +313,17 @@
         "PENDING": {
             "TITLE": "Atmospheric trajectory",
             "STATION_DETAILS": "Station details {{id}}",
-            "START_COORDINATES": " Start Coordinates",
-            "INITIAL_DISTANCE": " Initial Distance",
+            "START_COORDINATES": "Start Coordinates",
+            "INITIAL_DISTANCE": "Initial Distance",
             "INITIAL_HEIGHT": "Initial Height",
-            "END_COORDINATES": " End Coordinates",
-            "FINAL_DISTANCE": " Final Distance",
-            "FINAL_HEIGHT": "Final Height"
+            "END_COORDINATES": "End Coordinates",
+            "FINAL_DISTANCE": "Final Distance",
+            "FINAL_HEIGHT": "Final Height",
+            "DISTANCE_TRAVELLED": "Distance Travelled (Station {{id}})",
+            "TIME_TRAVELLED": "Time Travelled (Station {{id}})",
+            "AVERAGE_VELOCITY": "Average Velocity",
+            "INITIAL_VELOCITY": "Initial Velocity (Station {{id}})",
+            "ACCELERATION": "Acceleration in Km/sec²"
         },
         "ZWO": "Point and trajectory adjustment",
         "ASSOCIATED_STATIONS": {
@@ -722,6 +727,11 @@
                 "TITLE": "Download Requests",
                 "SUBTITLE": "Data download requests",
                 "BUTTON": "View requests"
+            },
+            "RAIN": {
+                "TITLE": "Active Rain",
+                "SUBTITLE": "Active meteor showers",
+                "BUTTON": "View active rain"
             }
         },
         "EVENT_PAGE": {
@@ -791,7 +801,65 @@
                 "COUNTRY": "Country",
                 "ROL": "Role"
             }
-        }
+        },
+        "ACTIVE_RAIN": {
+      "TITLE": "Rainfalls List by Year",
+      "SELECT_YEAR_LABEL": "Select Year:",
+      "SELECT_YEAR_PLACEHOLDER": "Select a year",
+      "SEARCH_BUTTON": "Search Rainfalls",
+      "CREATE_BUTTON": "Create New Rainfall",
+      "DUPLICATE_ALL_BUTTON": "Duplicate All Rainfalls",
+      "LOADING_MESSAGE": "Loading...",
+      "NO_RAIN_FOUND": "No rainfalls found for the year {year}.",
+      "TABLE_IDENTIFIER": "Identifier",
+      "TABLE_NAME": "Name",
+      "TABLE_START_DATE": "Start Date",
+      "TABLE_END_DATE": "End Date",
+      "TABLE_SPEED": "Speed (km/s)",
+      "TABLE_ACTIONS": "Actions",
+      "MODIFY_BUTTON": "Modify",
+      "DELETE_BUTTON": "Delete",
+      "CREATE_MODAL_TITLE": "Create New Rainfall",
+      "MODIFY_MODAL_TITLE": "Modify Rainfall",
+      "FORM_IDENTIFIER_LABEL": "Identifier",
+      "FORM_IDENTIFIER_PLACEHOLDER": "ACE",
+      "FORM_YEAR_LABEL": "Year",
+      "FORM_YEAR_PLACEHOLDER": "Enter the year",
+      "FORM_NAME_LABEL": "Name",
+      "FORM_NAME_PLACEHOLDER": "Enter the rainfall name",
+      "FORM_START_DATE_LABEL": "Start Date",
+      "FORM_END_DATE_LABEL": "End Date",
+      "FORM_SPEED_LABEL": "Speed (km/h)",
+      "FORM_SPEED_PLACEHOLDER": "Enter the speed",
+      "FORM_CANCEL_BUTTON": "Cancel",
+      "FORM_SAVE_BUTTON": "Save Changes",
+      "FORM_CREATE_BUTTON": "Create Rainfall",
+      "VALIDATION_YEAR_REQUIRED": "Year is required and must be a number.",
+      "VALIDATION_NAME_REQUIRED": "Name is required.",
+      "VALIDATION_START_DATE_REQUIRED": "Start Date is required.",
+      "VALIDATION_END_DATE_REQUIRED": "End Date is required.",
+      "VALIDATION_SPEED_REQUIRED": "Speed is required and must be a number.",
+      "DELETE_CONFIRM_TITLE": "Confirm Deletion",
+      "DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete this rainfall? This action cannot be undone.",
+      "DUPLICATE_CONFIRM_TITLE": "Duplicate Rainfalls",
+      "DUPLICATE_CONFIRM_MESSAGE": "Enter the year to which you want to duplicate all existing rainfalls:",
+      "DUPLICATE_YEAR_PLACEHOLDER": "E.g.: 2025",
+      "CONFIRM_BUTTON": "Confirm",
+      "INFO_MODAL_CLOSE": "Close",
+      "SUCCESS_TITLE": "Success",
+      "ERROR_TITLE": "Error",
+      "WARNING_TITLE": "Warning",
+      "DELETE_SUCCESS": "Rainfall deleted successfully.",
+      "DELETE_ERROR": "Error deleting rainfall. Please try again.",
+      "DUPLICATE_SUCCESS": "All rainfalls duplicated to year {year} successfully.",
+      "DUPLICATE_ERROR": "Error duplicating rainfalls. Please try again.",
+      "INVALID_YEAR_ALERT": "Invalid year. Please enter a valid number.",
+      "UPDATE_SUCCESS": "Rainfall modified successfully.",
+      "UPDATE_ERROR": "Error modifying rainfall. Please try again.",
+      "CREATE_SUCCESS": "Rainfall created successfully.",
+      "CREATE_ERROR": "Error creating rainfall. Please try again.",
+      "FETCH_ERROR": "Error loading rainfalls. Please try again."
+    }
     },
     "DISTANCE": {
         "VERYFAR": "Very unlikely",

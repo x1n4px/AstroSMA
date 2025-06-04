@@ -23,7 +23,6 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                         IDs_Informe_Fotometria: report.IDs_Informe_Fotometria,
                         IDs_Informe_Z: report.IDs_Informe_Z,
                     });
-                    console.log('Report details:', details);
                     setReportZData(details.reportData);
                     setReportRadiantData(details.reportDataRadiant);
                     setReportPhotometryData(details.reportDataPhotometry);
@@ -37,7 +36,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
     }, [report, show]);
 
     return (
-        <Modal show={show} onHide={onHide} centered size="lg">
+        <Modal show={show} onHide={onHide} centered size="xl">
             <Modal.Header closeButton>
                 {report && (
                     <Modal.Title>{formatDate(report?.Fecha)} {report.Hora.substring(0, 8)}</Modal.Title>
@@ -51,7 +50,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.ID')}</th>
+                                    {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.ID')}</th> */}
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.DATE')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.HOUR')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.STATION_1')}</th>
@@ -62,11 +61,11 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                             <tbody>
                                 {reportZData.map((item, index) => (
                                     <tr>
-                                        <th scope="row">{item.IdInforme}</th>
+                                        {/* <th scope="row">{item.IdInforme}</th> */}
                                         <th>{formatDate(item.Fecha)}</th>
                                         <td>{item.Hora.toString().substring(0, 8)}</td>
-                                        <td>{item.Observatorio_Número}</td>
-                                        <td>{item.Observatorio_Número2}</td>
+                                        <td>{item.Ob1}</td>
+                                        <td>{item.Ob2}</td>
                                         <td>
                                             <Link
                                                 to={`/report/${item.IdInforme}`}
@@ -90,13 +89,12 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ID')}</th>
+                                    {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ID')}</th> */}
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.DATE')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.HOUR')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.STATION')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ASSOCIATED_RAIN')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ESTIMATED_TRAJECTORY')}</th>
-                                    <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ANGULAR_DISTANCE', {measure: 'Radian'})} </th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ANGULAR_DISTANCE', {measure: 'º'})}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ANGULAR_VELOCITY')}</th>
                                     <th></th>
@@ -105,13 +103,12 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                             <tbody>
                                 {reportRadiantData.map((item, index) => (
                                     <tr>
-                                        <th scope="row">{item.Identificador}</th>
+                                        {/* <th scope="row">{item.Identificador}</th> */}
                                         <th >{formatDate(item.Fecha)}</th>
                                         <td>{item.Hora.toString().substring(0, 8)}</td>
                                         <td>{item.Observatorio_Número}</td>
                                         <td>{item.Lluvia_Asociada}</td>
                                         <td>{item.Trayectorias_estimadas_para}</td>
-                                        <td>{item.Distancia_angular_radianes}</td>
                                         <td>{item.Distancia_angular_grados}</td>
                                         <td>{item.Velocidad_angular_grad_sec}</td>
                                         <td>
@@ -138,7 +135,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.ID')}</th>
+                                    {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.ID')}</th> */}
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.DATE')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.HOUR')}</th>
                                     <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.VISIBLE_STARS')}</th>
@@ -149,7 +146,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                             <tbody>
                                 {reportPhotometryData.map((item, index) => (
                                     <tr>
-                                        <th scope="row">{item.Identificador}</th>
+                                        {/* <th scope="row">{item.Identificador}</th> */}
                                         <td>{formatDate(item.Fecha)}</td>
                                         <td>{item.Hora.toString().substring(0, 8)}</td>
                                         <td>{item.Estrellas_visibles}</td>
