@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Row, Col, Form } from 'react-bootstrap';
-import GlobeWithObject from '@/components/three/GlobeWithObject.jsx';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 
 import { useTranslation } from 'react-i18next';
 
 import { formatDate } from '@/pipe/formatDate'
-import BolideOrbitVisualization from '../../../../components/three/BolideOrbitVisualization';
-import OrbitalView from '../../../../components/three/OrbitalView';
 import OrbitalView3D from '../../../../components/three/OrbitalView3D';
 
 const OrbitReport = ({ orbit, observatory, reportDate }) => {
     const { t } = useTranslation(['text']);
     const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0); // Usamos el índice en lugar del ID
     const selectedOrbit = orbit[selectedOrbitIndex];
-    console.log(orbit)
     useEffect(() => {
         if (orbit && orbit.length === 1) {
             setSelectedOrbitIndex(0); // Seleccionamos el primer elemento si solo hay uno

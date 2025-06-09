@@ -222,12 +222,12 @@ function formatImpactMap(impactData) {
     st1: {
       start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_1, false),
       end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_1, false),
-      id: item.Identificador
+      id: item.IdInforme
     },
     st2: {
       start: convertCoordinates(item.Inicio_de_la_trayectoria_Estacion_2, false),
       end: convertCoordinates(item.Fin_de_la_trayectoria_Estacion_2, false),
-      id: item.Identificador
+      id: item.IdInforme
     }
   }));
 }

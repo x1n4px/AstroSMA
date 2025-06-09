@@ -7,7 +7,7 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
     const polylineRefs = useRef([]);
     const markerRefs = useRef([]);
     const mapContainerRef = useRef(null);
-
+    console.log(data)
     useEffect(() => {
         if (!data || data.length === 0) {
             return;

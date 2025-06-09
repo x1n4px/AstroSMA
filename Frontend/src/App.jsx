@@ -20,7 +20,6 @@ const AdminPanel = lazy(() => import('./pages/Auth/AdminPanel'));
 const EventComponent = lazy(() => import('./components/admin/eventPanel'));
 const Home = lazy(() => import('./pages/basic/Home'));
 const AuditPanel = lazy(() => import('./components/admin/auditPanel'));
-const ConfigPanel = lazy(() => import('./components/admin/configPanel'));
 const UserPanel = lazy(() => import('./components/admin/userPanel'));
 const ShowerInfo = lazy(() => import('./pages/astronomy/report/showerInfo.jsx'));
 const Dashboard = lazy(() => import('./pages/basic/Dashboard.jsx'));
@@ -151,7 +150,7 @@ function App() {
     <Router>
       <Suspense fallback={<div>Cargando página...</div>}>
         <Routes>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/reset-password/:uuid" element={<ResetPassword />} />
           <Route
@@ -199,7 +198,6 @@ function App() {
               <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
               <Route path="/admin-panel/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
               <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />
-              <Route path="/admin-panel/config-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><ConfigPanel /></ProtectedRoute>} />
               <Route path="/admin-panel/user-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><UserPanel /></ProtectedRoute>} />
               <Route path="/admin-panel/station-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <Station /></ProtectedRoute>} />
               <Route path="/shower-info/:selectedCode?" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ShowerInfo /></ProtectedRoute>} />

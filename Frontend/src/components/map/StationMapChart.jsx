@@ -14,9 +14,9 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
   const getMarkerColor = (state) => {
     switch (state) {
       case 0:
-        return '/map-green.png';
-      case 1:
         return '/map-yellow.png';
+      case 1:
+        return '/map-green.png';
       case 2:
         return '/map-blue.png';
       default:

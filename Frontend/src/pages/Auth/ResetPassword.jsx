@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { sendPasswordResetEmail, checkUuidValidity, resetPasswordFromEmail } from '../../services/authService'; // Asegúrate de que la ruta sea correcta
 import { useTranslation } from 'react-i18next';
+import LanguageNavbar from '@/components/layout/LanguageNavbar';
 
 function ResetPassword() {
     const { t } = useTranslation(['text']);
@@ -77,7 +78,7 @@ function ResetPassword() {
             return;
         }
 
-u
+        u
         try {
             console.log(newPassword, uuid);
             await resetPasswordFromEmail(newPassword, uuid);
@@ -180,41 +181,47 @@ u
 
     // --- Lógica para la ruta '/reset-password' (solicitar email) ---
     return (
-        <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-            <Row>
-                <Col md={12} lg={12} className="mx-auto">
-                    <h2 className="text-center mb-4">{t('RESET_PASSWORD.EMAIL.HEADER')}</h2>
-                    <Form onSubmit={handleSendEmailSubmit} className="p-4 border rounded shadow-sm">
-                        {emailSent && (
-                            <Alert variant="success" className="text-center">
-                                {t('RESET_PASSWORD.EMAIL.ALERT.REGISTER_EMAIL')}
-                            </Alert>
-                        )}
-                        {emailError && <Alert variant="danger">{emailError}</Alert>}
+        <>
+            <LanguageNavbar />
 
-                        <Form.Group className="mb-3" controlId="formEmail">
-                            <Form.Label>{t('RESET_PASSWORD.EMAIL.TITLE')}</Form.Label>
-                            <Form.Control
-                                type="email"
-                                placeholder={t('RESET_PASSWORD.EMAIL.PLACEHOLDER')}
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
 
-                        <Button style={{ backgroundColor: '#980100', border: '#980100' }} type="submit" className="w-100">
-                            {t('RESET_PASSWORD.EMAIL.BUTTON')}
-                        </Button>
-                    </Form>
-                    <div className="text-center mt-3">
-                        <Button style={{ color: '#980100' }} variant="link" onClick={() => navigate('/login')}>
-                            {t('RESET_PASSWORD.BACK_TO_LOGIN')}
-                        </Button>
-                    </div>
-                </Col>
-            </Row>
-        </Container>
+            <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+
+                <Row>
+                    <Col md={12} lg={12} className="mx-auto">
+                        <h2 className="text-center mb-4">{t('RESET_PASSWORD.EMAIL.HEADER')}</h2>
+                        <Form onSubmit={handleSendEmailSubmit} className="p-4 border rounded shadow-sm">
+                            {emailSent && (
+                                <Alert variant="success" className="text-center">
+                                    {t('RESET_PASSWORD.EMAIL.ALERT.REGISTER_EMAIL')}
+                                </Alert>
+                            )}
+                            {emailError && <Alert variant="danger">{emailError}</Alert>}
+
+                            <Form.Group className="mb-3" controlId="formEmail">
+                                <Form.Label>{t('RESET_PASSWORD.EMAIL.TITLE')}</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    placeholder={t('RESET_PASSWORD.EMAIL.PLACEHOLDER')}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Button style={{ backgroundColor: '#980100', border: '#980100' }} type="submit" className="w-100">
+                                {t('RESET_PASSWORD.EMAIL.BUTTON')}
+                            </Button>
+                        </Form>
+                        <div className="text-center mt-3">
+                            <Button style={{ color: '#980100' }} variant="link" onClick={() => navigate('/login')}>
+                                {t('RESET_PASSWORD.BACK_TO_LOGIN')}
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+            </Container>
+        </>
     );
 }
 

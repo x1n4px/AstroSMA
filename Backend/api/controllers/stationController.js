@@ -1,5 +1,6 @@
 const pool = require('../database/connection');
 const { transform } = require('../middlewares/convertSexagesimalToDecimal');
+const { extraerUserId } = require('../middlewares/extractJWT')
 
 /*
 const stations = [
@@ -109,14 +110,27 @@ const stations = [
 // Función para obtener un empleado por su ID
 const getAllStations = async (req, res) => {
     try {
-        const [stations] = await pool.query('SELECT * FROM Observatorio ORDER BY Activo ASC');
-        const convertedStations = transform(stations);
-
+        const token = req.header('x-token');
+        const userId = extraerUserId(token);
+        if (!userId) {
+            return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+        }
+        // Verificar si el usuario tiene el rol adecuado
+        const [userRows] = await pool.query(
+            'SELECT rol FROM user WHERE id = ?',
+            [userId]
+        );
+        let stations = [];
+        if (userRows[0]?.rol === '10000000') { 
+            stations = await pool.query('SELECT * FROM Observatorio ORDER BY Activo ASC');
+        } else {
+            stations = await pool.query('SELECT * FROM Observatorio WHERE Activo = 1 ORDER BY Activo ASC');
+        }
+        const convertedStations = transform(stations[0]);
 
         return res.json(convertedStations);
     } catch (error) {
-        console.error('Error al obtener las estaciones:', error);
-        throw error;
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 

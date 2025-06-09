@@ -20,11 +20,6 @@ const AdminPanel = () => {
             link: "/admin-panel/audit-panel"
         },
         {
-            key: 'CONFIG',
-            icon: <FaCogs className="me-2" />,
-            link: "/admin-panel/config-panel"
-        },
-        {
             key: 'USER',
             icon: <FaUsers className="me-2" />,
             link: "/admin-panel/user-panel"

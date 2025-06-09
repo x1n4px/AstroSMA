@@ -67,7 +67,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password, isMobile, ipLocationData } = req.body;
-
+        console.log(req.body)
         // Validación básica
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
         if (rows.length === 0) {
@@ -98,12 +98,11 @@ const loginUser = async (req, res) => {
             }
         }
 
-        const [config] = await pool.query('SELECT key_value, value FROM config');
 
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
         const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'User login', isMobile);
 
-        res.json({ token, rol, config });
+        res.json({ token, rol });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -123,10 +122,9 @@ const LoginPasswordless = async (req, res) => {
         // Generar el token JWT con 2 horas de expiración
         const token = jwt.sign({ userId: -1 }, process.env.JWT_SECRET, { expiresIn: '2h' });
         const rol = '00000000';
-        const [config] = await pool.query('SELECT key_value, value FROM config');
         auditEvent('EVENT LOGIN', -1, 'Login', -1, 0, 'Inicio de sesión en evento', false);
 
-        res.json({ token, rol, config });
+        res.json({ token, rol });
     } catch (error) {
         console.error('Error en LoginPasswordless:', error);
         res.status(500).json({ error: 'Error interno del servidor' });

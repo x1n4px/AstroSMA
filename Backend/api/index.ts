@@ -14,7 +14,6 @@ const RadiantReportRoute = require('./routes/radiantReportRoute')
 const auditRoute = require('./routes/auditRoute')
 const EventRoute = require('./routes/eventRoute')
 const FileRoute = require ('./routes/fileRoute')
-const WebConfigRoute = require ('./routes/webConfigRoute')
 const RequestRoute = require('./routes/requestRoute') 
 
 app.use(cors());
@@ -39,7 +38,6 @@ app.use('/api', RadiantReportRoute);
 app.use('/api', auditRoute);
 app.use('/api', EventRoute);
 app.use('/api', FileRoute);
-app.use('/api', WebConfigRoute);
 app.use('/api', RequestRoute);
 
 

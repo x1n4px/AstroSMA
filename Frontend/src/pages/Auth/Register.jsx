@@ -5,6 +5,7 @@ import { registerUser } from '@/services/authService';
 import { Link, useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { getCountry } from '@/services/auxiliaryService';
+import LanguageNavbar from '@/components/layout/LanguageNavbar';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -110,6 +111,7 @@ function Register() {
 
   return (
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', position: 'relative' }}>
+      <LanguageNavbar />
       <Container className="d-flex justify-content-center align-items-center vh-100">
         <Row className="justify-content-center w-100">
           <Col xs={12} sm={10} md={8} lg={6}>

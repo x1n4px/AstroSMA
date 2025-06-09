@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import formatShowerState from '@/pipe/formatShowerState';
 import { useLogicDistance } from '@/pipe/useLogicDistance';
-import {convertDistanceToMembershipValue} from '../../../../pipe/converDistanceToMembershipValue'
+import {convertDistanceToMembershipValue} from '@/pipe/converDistanceToMembershipValue'
 import { Link } from 'react-router-dom';
 
 const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
@@ -15,6 +15,10 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
         if (!activeShowerData || activeShowerData.length === 0) return false;
         return activeShowerData.some(shower => shower.src);
     }, [activeShowerData]);
+
+
+    
+
 
     const showerCode = {
         "CAP": "Alpha-Capricornids",
@@ -34,7 +38,6 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
     }
 
 
-    console.log(activeShowerData)
 
 
     const { getDistanceLabel } = useLogicDistance();

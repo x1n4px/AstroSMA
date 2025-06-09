@@ -562,11 +562,11 @@
         "SHOW_BUTTON": "Ver en el mapa",
         "STATUS": {
             "ACTIVE": "Activo",
-            "CONSTRUCTING": "En construcción",
+            "CONSTRUCTING": "En Colaboración",
             "COLLABORATION": "Colaboración"
         },
         "ACTION": {
-            "ACTIVATE": "Marcar como en construcción",
+            "ACTIVATE": "Marcar como Colaboración",
             "DEACTIVATE": "Marcar como activa"
         }
     },

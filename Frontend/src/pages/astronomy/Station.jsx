@@ -126,7 +126,7 @@ function Station() {
                                             style={{
                                                 width: '12px',
                                                 height: '12px',
-                                                backgroundColor: station.state === 0 ? 'green' : station.state === 1 ? 'orange' : 'blue',
+                                                backgroundColor: station.state === 1 ? 'green' : station.state === 0 ? 'orange' : 'blue',
                                             }}
                                         ></span>
                                         <span className="fw-bold">{station.stationName}</span>
@@ -134,17 +134,17 @@ function Station() {
                                     <div className="text-center" style={{ minWidth: '150px' }}>
                                         <Badge
                                             bg={
-                                                station.state === 0
+                                                station.state === 1
                                                     ? 'success'
-                                                    : station.state === 1
+                                                    : station.state === 0
                                                         ? 'warning'
                                                         : 'primary'
                                             }
                                             className="text-capitalize"
                                         >
-                                            {station.state === 0
+                                            {station.state === 1
                                                 ? t('STATION.STATUS.ACTIVE')
-                                                : station.state === 1
+                                                : station.state === 0
                                                     ? t('STATION.STATUS.CONSTRUCTING')
                                                     : t('STATION.STATUS.COLLABORATION')}
                                         </Badge>
@@ -152,11 +152,11 @@ function Station() {
                                     <div className="text-center mx-2" style={{ minWidth: '150px' }}>
                                         {(isAdminUser(rol) && location.pathname === '/admin-panel/station-panel') && (
                                             <Button
-                                                variant={station.state === 0 ? 'warning' : 'success'}
+                                                variant={station.state === 1 ? 'warning' : 'success'}
                                                 size="sm"
                                                 onClick={() => fetchUpdateStation(station.id)}
                                             >
-                                                {station.state === 0
+                                                {station.state === 1
                                                     ? t('STATION.ACTION.ACTIVATE')
                                                     : t('STATION.ACTION.DEACTIVATE')}
                                             </Button>

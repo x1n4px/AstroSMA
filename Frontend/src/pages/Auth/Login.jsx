@@ -41,6 +41,7 @@ function Login({ onLogin }) {
       onLogin(token, rol);
       navigate('/dashboard');
     } catch (error) {
+      console.log(error)
       console.error('Login error:', error.response.status === 403);
       if (error.response.status === 403) {
         setError(t('REGISTER.ERROR.FORBIDDEN'));

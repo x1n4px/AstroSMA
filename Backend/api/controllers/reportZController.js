@@ -70,12 +70,8 @@ const getReportZ = async (req, res) => {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
 
-        let advice = [];
-        if (isAdminUser(rol)) {
-            [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.Informe_Z_Id = ? AND ie.status = 1;', [id]);
-        } else {
-            [advice] = await pool.query('SELECT * FROM Informe_Error ie WHERE ie.user_Id = ? AND ie.Informe_Z_Id = ?  AND ie.status = 1;', [user_id, id]);
-        }
+       
+        
 
         const [obs1] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número]);
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
@@ -106,7 +102,6 @@ const getReportZ = async (req, res) => {
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
-        const mapReport = calculateBolidePosition(mapReportGross[0].Azimut, mapReportGross[0].Dist_Cenital, mapReportGross[0].obs1Lat, mapReportGross[0].obs1Lon, mapReportGross[0].obs2Lat, mapReportGross[0].obs2Lon)
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
         const [slopeMapUNF] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz WHERE iz.IdInforme = ?;`, [id]);
 
@@ -149,7 +144,6 @@ const getReportZ = async (req, res) => {
         let IMOS = await IMOShowers(report[0].IdInforme);
         let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
 
-
         const response = {
             informe: processedReports[0],
             observatorios: [
@@ -162,9 +156,6 @@ const getReportZ = async (req, res) => {
             regressionTrajectory: regressionTrajectory,
             activeShower: IMOS,
             photometryReport: photometryReport,
-            mapReport: mapReport,
-            advice: advice,
-            observatoryName: observatory_name[0].Nombre_Observatorio,
             slopeMap: slopeMap,
             showers: IAUS
         };
@@ -176,35 +167,6 @@ const getReportZ = async (req, res) => {
     }
 };
 
-const saveReportAdvice = async (req, res) => {
-    try {
-        const { formData } = req.body;
-        const token = req.header('x-token');
-
-        const user_id = extraerUserId(token);
-
-        const { Description, Tab, Informe_Z_Id } = formData;
-        const Id = parseInt(Informe_Z_Id);
-
-        await pool.execute(`INSERT INTO Informe_Error (Informe_Z_Id, Tab, Description, user_Id, status) VALUES (${Id}, '${Tab.toString()}', '${Description.toString()}', ${user_id}, 1)`);
-        res.json({ message: 'Informe de error guardado correctamente' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-const deleteReportAdvice = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        await pool.execute('UPDATE Informe_Error SET status = 0 WHERE Id = ?;', [id]);
-        res.json({ message: 'Informe de error eliminado correctamente' });
-
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-
-    }
-}
 
 const getReportzWithCustomSearch = async (req, res) => {
     try {
@@ -346,17 +308,6 @@ function membershipSemiMajorAxis(valorBólido, valorLluvia) {
 }
 
 
-function membershipPerihelion(bolideValue, showerValue) {
-    const tolerancia = 0.2; // más tolerante que 0.1
-    const diferencia = Math.abs(bolideValue - showerValue);
-
-    if (diferencia > tolerancia) {
-        return 0;
-    } else {
-        return 1 - (diferencia / tolerancia);
-    }
-}
-
 function membershipInclination(bolideValue, showerValue) {
     const tolerancia = 1; // más tolerante que 0.1
     const diferencia = Math.abs(bolideValue - showerValue);
@@ -368,8 +319,6 @@ function membershipInclination(bolideValue, showerValue) {
     }
 }
 
-
-// Function to calculate the overall membership index between 1 and 9
 function calculateMembership(bolide, shower) {
     const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
     if (pertenenciaDMRTV === 0) {
@@ -378,7 +327,6 @@ function calculateMembership(bolide, shower) {
 
     const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
     const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
-    //const membershipQ = membershipPerihelion(parseFloat(bolide.q), parseFloat(shower.q));
     const membershipI = membershipInclination(parseFloat(bolide.i), parseFloat(shower.i));
     const totalMembership =
         (pertenenciaDMRTV * 0.7) +
@@ -451,7 +399,6 @@ async function IMOShowers(id) {
         });
     }
     const result = [];
-
     for (const rs of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, rs);
@@ -553,7 +500,7 @@ async function IAUShowers(id, date) {
     for (const rs of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, rs);
-            if (membership > 2) {
+            if (membership > 1) {
                 result.push({
                     ...rs,
                     membership
@@ -623,11 +570,8 @@ const getReportZListFromRain = async (req, res) => {
     try {
         const { selectedCode, dateIn, dateOut } = req.params;
         const { membershipThreshold = 1, distanceThreshold = 80 } = req.body;
-        const showerCode = selectedCode.replace(/[0-9]/g, ''); // The specific shower code to process
-        console.log(showerCode)
-        // 1. Find all reports associated with the specified shower code and radiant distance < 5
-        // We join Informe_Z with Lluvia_activa to find report IDs linked to 'CAP'
-        // and filter by the radiant distance threshold.
+        const showerCode = selectedCode.replace(/[0-9]/g, ''); 
+
         let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Azimut, iz.Dist_Cenital FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
         const params = [selectedCode];
 
@@ -801,46 +745,11 @@ const getReportZListFromRain = async (req, res) => {
     }
 };
 
-const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, PuntosZWO, TrayectoriaMedida, TrayectoriaPorRegresion } = require("../models");
-
-
-const test = async (req, res) => {
-    try {
-        //const informe = await ReportZ.findByPk(req.params.id, {
-        //    include: [
-        //        { model: Meteoro },
-        //        { model: Observatorio, as: "Observatorio1" },
-        //        { model: Observatorio, as: "Observatorio2" },
-        //        { model: LluviaActiva },
-        //        { model: ElementosOrbitales },
-        //        { model: PuntosZWO },
-        //        { model: TrayectoriaMedida },
-        //        {model: TrayectoriaPorRegresion},
-        //    ]
-        //});
-        //
-        //
-        //if (!informe) {
-        //    return res.status(404).json({ error: "Informe no encontrado" });
-        //}
-
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-        console.log('IP del cliente:', ip);
-        res.json(ip);
-    } catch (error) {
-        console.error('Error al obtener el informe por ID:', error);
-        res.status(500).json({ error: error.message });
-    }
-};
-
-
+ 
 
 module.exports = {
     getAllReportZ,
     getReportZ,
-    saveReportAdvice,
     getReportzWithCustomSearch,
     getReportZListFromRain,
-    deleteReportAdvice,
-    test
 };

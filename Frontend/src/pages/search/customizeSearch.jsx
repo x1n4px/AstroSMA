@@ -1,19 +1,15 @@
-import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Form, Accordion } from 'react-bootstrap';
-import { getBolideWithCustomSearch, getBolideWithCustomSearchCSV } from '@/services/bolideService.jsx';
-import { TextureLoader } from 'three';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
+import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx'
 import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
 import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
-import { audit } from '@/services/auditService'
-import { getConfigValue } from '@/utils/getConfigValue';
 import { createRequest } from '@/services/requestService.jsx'
 import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx'
 // Internationalization
 import { useTranslation } from 'react-i18next';
-import { isNotQRUser, isAdminUser } from '../../utils/roleMaskUtils';
+import { isNotQRUser } from '../../utils/roleMaskUtils';
 
 
 
@@ -330,7 +326,7 @@ const CustomizeSearch = () => {
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
                         { (isNotQRUser(roleMask)) && reportData.length > 0 && (
-                            <Button disabled={!getConfigValue('showDownloadTab')}
+                            <Button 
                                 style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
                                 onClick={() => {
                                     handleCSV()
