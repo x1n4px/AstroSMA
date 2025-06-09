@@ -26,6 +26,7 @@ import GeminiSpinnerOverlay from '@/components/GeminiSpinnerOverlay';
 
 const Report = () => {
     const { t } = useTranslation(['text']);
+    
     const params = useParams();
     const navigate = useNavigate();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válido

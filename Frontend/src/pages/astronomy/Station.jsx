@@ -20,7 +20,7 @@ function Station() {
     const [zoom, setZoom] = useState(6);
     const mapRef = useRef(null);
     const mapInstance = useRef(null); // Para almacenar la instancia del mapa
-
+   
     const rol = localStorage.getItem('rol');
 
 
@@ -160,7 +160,7 @@ function Station() {
                                                     ? t('STATION.ACTION.ACTIVATE')
                                                     : t('STATION.ACTION.DEACTIVATE')}
                                             </Button>
-                                        ) }
+                                        )}
 
                                     </div>
 

@@ -38,7 +38,7 @@ const Dashboard = () => {
     const [searchRange, setsearchRange] = useState(1);
     const [previousSearchRange, setPreviousSearchRange] = useState(1);
     const isInitialMount = useRef(true);
-
+    
     const [chartData, setChartData] = useState([]);
     const [pieChartData, setPieChartData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -229,7 +229,7 @@ const Dashboard = () => {
                                         <ChartSkeleton height="300px" />
                                     ) : (
                                         <div style={{ height: '300px', width: '100%', overflow: 'hidden' }}>
-                                           
+
                                             <ListGroup style={{ overflowY: 'auto', maxHeight: '300px', height: '100%' }}>
                                                 {lastNMeteors?.map((item) => (
                                                     <ListGroup.Item key={`${item.Fecha}-${item.Hora}-${item.IdInforme}`} >
@@ -329,45 +329,45 @@ const Dashboard = () => {
                                 </Box>
                             </Col>
 
-                            
+
                         </Row>
 
                         <Row className="mb-4">
                             <Col md={4}>
-                            
+
                                 <Box key="box13">
-                                <p><strong>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</strong></p>
-                                        {loading ? (
-                                            <ChartSkeleton height="150px" />
-                                        ) : (
-                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                                                <BarChart data={chartData} key={`key-a1`} />
-                                            </div>
-                                        )}
+                                    <p><strong>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</strong></p>
+                                    {loading ? (
+                                        <ChartSkeleton height="150px" />
+                                    ) : (
+                                        <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                            <BarChart data={chartData} key={`key-a1`} />
+                                        </div>
+                                    )}
                                 </Box>
                             </Col>
                             <Col md={4}>
-                          
+
                                 <Box key="box14">   <p><strong>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</strong></p>
-                                {loading ? (
-                                            <ChartSkeleton height="150px" />
-                                        ) : (
-                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                                                <LineChart data={monthObservationsFrequencyDataFormat} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
-                                            </div>
-                                        )}
+                                    {loading ? (
+                                        <ChartSkeleton height="150px" />
+                                    ) : (
+                                        <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                            <LineChart data={monthObservationsFrequencyDataFormat} xVariable={'mes_anio'} yVariable={'total_observaciones'} key={`key-a3-${chartsToShow}`} />
+                                        </div>
+                                    )}
                                 </Box>
                             </Col>
                             <Col md={4}>
-                           
+
                                 <Box key="box15">  <p><strong>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</strong></p>
-                                {loading ? (
-                                            <ChartSkeleton height="150px" />
-                                        ) : (
-                                            <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
-                                                <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
-                                            </div>
-                                        )}
+                                    {loading ? (
+                                        <ChartSkeleton height="150px" />
+                                    ) : (
+                                        <div style={{ overflow: 'hidden', aspectRatio: '1', height: '80%', width: '100%' }}>
+                                            <LineChart data={hourWithMoreDetection} xVariable={'hora_numerica'} yVariable={'total_meteoros'} key={`key-a8-${chartsToShow}`} />
+                                        </div>
+                                    )}
                                 </Box>
                             </Col>
                         </Row>

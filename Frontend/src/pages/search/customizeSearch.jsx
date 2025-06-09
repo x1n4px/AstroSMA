@@ -33,7 +33,6 @@ const CustomizeSearch = () => {
     const [reportType, setReportType] = useState('1'); // Estado para el tipo de informe
     const itemsPerPage = 50;
     const roleMask = (localStorage.getItem('rol'));
-
     const [modalReport, setModalReport] = useState(null); // Estado para el informe del modal
     const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
     const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false); // Nuevo estado para el modal de descarga

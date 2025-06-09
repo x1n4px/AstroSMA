@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import formatShowerState from '@/pipe/formatShowerState';
 import { useLogicDistance } from '@/pipe/useLogicDistance';
-import {convertDistanceToMembershipValue} from '@/pipe/converDistanceToMembershipValue'
+import { convertDistanceToMembershipValue } from '@/pipe/converDistanceToMembershipValue'
 import { Link } from 'react-router-dom';
 
 const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) => {
@@ -15,9 +15,6 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
         if (!activeShowerData || activeShowerData.length === 0) return false;
         return activeShowerData.some(shower => shower.src);
     }, [activeShowerData]);
-
-
-    
 
 
     const showerCode = {
@@ -130,8 +127,8 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                             <tr key={index}>
                                                 <td>{shower.Lluvia_Identificador}</td>
                                                 <td><Link to={`/shower-info/${shower.Identificador}`} target="_blank" rel="noopener noreferrer">
-                                                        {shower.Nombre}
-                                                    </Link></td>
+                                                    {shower.Nombre}
+                                                </Link></td>
                                                 <td>{shower.Ar_de_la_fecha}</td>
                                                 <td>{shower.De_de_la_fecha}</td>
                                                 <td>{shower.Ar_más_cercano}</td>
@@ -182,6 +179,7 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                 <thead className="thead-dark">
                                     <tr>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.ID')}</th>
+                                        <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.NAME')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.STATUS')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.DATE')}</th>
                                         <th scope="col">{t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' })}</th>
@@ -194,6 +192,13 @@ const ActiveRain = ({ activeShowerData = [], reportType, AIUShowerData = [] }) =
                                         AIUShowerData.map((shower, index) => (
                                             <tr key={index}>
                                                 <td>{shower.Code}</td>
+                                                <td>
+                                                    {shower.Status !== 1 ? shower.ShowerNameDesignation : (
+                                                        <Link to={`/shower-info/${shower.Code}`} target="_blank" rel="noopener noreferrer">
+                                                            {shower.ShowerNameDesignation}
+                                                        </Link>
+                                                    )}
+                                                </td>
                                                 <td>{formatShowerState(shower.Status, t)}</td>
                                                 <td>{formatDate(shower.SubDate)}</td>
                                                 <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria} </td>

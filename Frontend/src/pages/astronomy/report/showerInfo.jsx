@@ -95,7 +95,7 @@ const MoonReport = () => {
     const { getDistanceLabel } = useLogicDistance();
     const [lluvias, setLluvias] = useState([]);
     const [selectedLluvia, setSelectedLluvia] = useState(null);
-
+    
     // Estados de carga separados
     const [loadingShowers, setLoadingShowers] = useState(true);
     const [loadingData, setLoadingData] = useState(false);
