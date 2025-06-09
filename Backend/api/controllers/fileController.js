@@ -74,6 +74,17 @@ const getOrbitFile = (req, res) => {
 };
 
 
+
+
+const testing = (req, res) => {
+  try {
+    res.status(200).json("Prueba exitosa");
+  }catch (error) {
+    console.error('Error en la función de prueba:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}
+
 module.exports = {
-  getOrbitFile,
+  getOrbitFile, testing
 };

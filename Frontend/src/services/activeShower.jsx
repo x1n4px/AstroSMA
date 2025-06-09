@@ -62,7 +62,7 @@ export const getRainByYear = async (year) => {
                 },
             }
         );
-        return response.data.rain;
+        return response.data.rains;
     } catch (error) {
         console.error('Error fetching rain by ID:', error);
         throw error;
@@ -118,3 +118,22 @@ export const deleteRain = async (id, year) => {
         throw error;
     }
 };
+
+
+export const generateMeteorShowerTxt = async (year) => {
+    try {
+        const response = await axios.get(`${API_URL}/activeShower/generate/txt/${year}`,
+            {
+                headers: {
+                    'x-token': token,
+                    'Accept': 'text/plain', // Specify that the response is expected in plain text
+                },
+                responseType: 'text', // Ensure the response is treated as plain text
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error('Error generating meteor shower txt:', error);
+        throw error;
+    }
+}

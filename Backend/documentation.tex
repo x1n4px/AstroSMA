@@ -1,0 +1,133 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\geometry{a4paper, margin=1in}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{AstroUMA Backend Documentation}
+\fancyfoot[C]{\thepage}
+
+\title{AstroUMA Backend API Documentation}
+\author{Kilo Code}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+This document provides a detailed explanation of the AstroUMA backend API, focusing on the \texttt{reportZ} and \texttt{bolide} endpoints. It covers the functionality, logic, and middlewares used for each route.
+
+\section{Core Middlewares}
+Several middlewares are used across different routes to handle common tasks like authentication, data validation, and data transformation.
+
+\subsection{\texttt{validate-jwt.js}}
+This middleware is responsible for validating the JSON Web Token (JWT) sent in the \texttt{x-token} header of the request. It ensures that the user is authenticated before allowing access to protected routes.
+
+\subsection{\texttt{convertSexagesimalToDecimal.js}}
+This middleware provides functions to convert astronomical coordinates from sexagesimal format (degrees, minutes, seconds) to decimal degrees, which is necessary for calculations. It includes functions for both individual and bulk conversions.
+
+\subsection{\texttt{extractJWT.js}}
+This utility extracts the user ID from the JWT payload, allowing the application to identify the user making the request.
+
+\section{ReportZ Endpoints}
+The \texttt{reportZ} endpoints are primarily used for managing and retrieving detailed meteor reports (\texttt{Informe\_Z}).
+
+\subsection{GET /api/reportz/:id}
+\begin{itemize}
+    \item \textbf{Controller Function:} \texttt{getReportZ} in \texttt{reportZController.js}
+    \item \textbf{Description:} Retrieves a single, comprehensive \texttt{Informe\_Z} by its ID. This is one of the most complex endpoints, gathering data from multiple tables.
+    \item \textbf{Logic:}
+    \begin{enumerate}
+        \item It first checks for a JWT to determine the user's role.
+        \item Fetches the main report from the \texttt{Informe\_Z} table.
+        \item Retrieves associated data from other tables:
+        \begin{itemize}
+            \item \texttt{Observatorio}: Gets details of the observatories involved.
+            \item \texttt{Puntos\_ZWO}: Gets ZWO point data.
+            \item \texttt{Elementos\_Orbitales}: Gets orbital elements.
+            \item \texttt{Trayectoria\_medida} and \texttt{Trayectoria\_por\_regresion}: Gets trajectory data.
+            \item \texttt{Informe\_Fotometria}: Checks for a related photometry report.
+        \end{itemize}
+        \item \textbf{Coordinate Conversion:} Uses \texttt{convertCoordinates} and \texttt{individuaConvertSexagesimalToDecimal} to transform coordinates into a usable format.
+        \item \textbf{Fuzzy Logic for Showers:}
+        \begin{itemize}
+            \item \texttt{IMOShowers}: Calculates a membership index for established IMO meteor showers based on orbital parameters (eccentricity, semi-major axis, inclination) and the distance between the radiant and the trajectory (DMRT). It uses a weighted fuzzy logic model.
+            \item \texttt{IAUShowers}: Identifies potential associations with IAU meteor showers by calculating the angular distance between the meteor's radiant points (from ZWO data) and the shower's radiant. It calculates a probability based on this distance.
+        \end{itemize}
+        \item \textbf{Error Reports:} Based on the user's role (admin or regular user), it fetches relevant error reports (\texttt{Informe\_Error}) associated with the main report.
+        \item Finally, it assembles all the retrieved and processed data into a single JSON response.
+    \end{enumerate}
+    \item \textbf{Middlewares:} No specific middleware is applied at the route level, but the controller itself handles token extraction and role checking.
+\end{itemize}
+
+\subsection{Other \texttt{reportZ} Routes}
+\begin{itemize}
+    \item \textbf{GET /api/reportz}: (\texttt{getAllReportZ}) - Retrieves all \texttt{Informe\_Z} records. Requires JWT validation.
+    \item \textbf{POST /api/reportz/advice}: (\texttt{saveReportAdvice}) - Saves an error report submitted by a user. Requires JWT validation.
+    \item \textbf{DELETE /api/reportz/advice/:id}: (\texttt{deleteReportAdvice}) - Deletes an error report. Requires JWT validation.
+    \item \textbf{GET /api/reportz/search}: (\texttt{getReportzWithCustomSearch}) - Performs a custom search for reports based on query parameters. Requires JWT validation.
+    \item \textbf{POST /api/reportz/showerInfo/...}: (\texttt{getReportZListFromRain}) - Retrieves reports associated with a specific meteor shower, including moon phase and illumination data calculated using the \texttt{suncalc} library.
+\end{itemize}
+
+\section{Bolide Endpoints}
+The \texttt{bolide} endpoints are used for searching, retrieving, and exporting data about meteors (\texttt{Meteoro} table) and their associated reports.
+
+\subsection{GET /api/bolide/search}
+\begin{itemize}
+    \item \textbf{Controller Function:} \texttt{getBolideWithCustomSearch} in \texttt{bolideController.js}
+    \item \textbf{Description:} Provides a powerful and flexible search functionality for meteors based on a variety of criteria.
+    \item \textbf{Logic:}
+    \begin{enumerate}
+        \item It takes several query parameters: \texttt{heightFilter}, \texttt{latFilter}, \texttt{lonFilter}, \texttt{ratioFilter}, date ranges, and \texttt{reportType}.
+        \item \textbf{Dynamic Query Building:} The core of this function is a \texttt{switch} statement that constructs a SQL query dynamically based on the \texttt{reportType} parameter. This allows filtering for meteors that have specific types of reports (\texttt{Informe\_Z}, \texttt{Informe\_Radiante}, \texttt{Informe\_Fotometria}).
+        \item It uses \texttt{LEFT JOIN} and \texttt{INNER JOIN} to link the \texttt{Meteoro} table with the different report tables.
+        \item \textbf{Filtering:}
+        \begin{itemize}
+            \item \textbf{Date Range:} Filters results based on a start and end date.
+            \item \textbf{Height:} Filters based on the initial height of the trajectory, extracted from the \texttt{Inicio\_de\_la\_trayectoria\_Estacion\_1} field in \texttt{Informe\_Z}.
+            \item \textbf{Location:} After the initial database query, it performs an additional in-memory filtering step if location filters are provided. It uses the \texttt{isPointInRadius} middleware to check if the meteor's starting point is within a given radius of a specified latitude and longitude.
+        \end{itemize}
+        \item \textbf{Pagination:} Uses \texttt{LIMIT} and \texttt{OFFSET} for pagination, fetching 50 results at a time.
+        \item It returns a JSON object containing the filtered data and the total number of items.
+    \end{enumerate}
+    \item \textbf{Middlewares:}
+    \begin{itemize}
+        \item \texttt{isPointInRadius}: Used internally by the controller for location-based filtering.
+        \item \texttt{individuaConvertSexagesimalToDecimal}: Used to convert coordinates for the radius check.
+    \end{itemize}
+\end{itemize}
+
+\subsection{GET /api/bolide/search/csv}
+\begin{itemize}
+    \item \textbf{Controller Function:} \texttt{getBolideWithCustomSearchCSV} in \texttt{bolideController.js}
+    \item \textbf{Description:} This endpoint has the same filtering logic as \texttt{/api/bolide/search}, but instead of returning JSON, it generates and streams an Excel (\texttt{.xlsx}) file.
+    \item \textbf{Logic:}
+    \begin{enumerate}
+        \item It first fetches the filtered list of meteors using the same dynamic query logic as the search endpoint.
+        \item It then uses the \texttt{exceljs} library to create a workbook with multiple sheets.
+        \item It fetches the detailed data for each type of report (\texttt{Informe\_Z}, \texttt{Informe\_Radiante}, \texttt{Informe\_Fotometria}) associated with the filtered meteors.
+        \item It populates separate worksheets in the Excel file for each data type.
+        \item Finally, it sets the appropriate HTTP headers for a file download and writes the Excel workbook to the response stream.
+    \end{enumerate}
+    \item \textbf{Middlewares:} Same as \texttt{/api/bolide/search}.
+\end{itemize}
+
+\subsection{Other \texttt{bolide} Routes}
+\begin{itemize}
+    \item \textbf{GET /api/bolide}: (\texttt{getAllBolide}) - Retrieves all records from \texttt{Informe\_Z}. Requires JWT. Note: The function name is misleading as it queries \texttt{Informe\_Z}, not \texttt{Meteoro}.
+    \item \textbf{GET /api/bolide/:id}: (\texttt{getBolideById}) - Retrieves a single meteor by its ID.
+    \item \textbf{GET /api/bolide/search/reports}: (\texttt{getReportData}) - Fetches the data for different report types based on a list of IDs provided as query parameters.
+\end{itemize}
+
+\end{document}

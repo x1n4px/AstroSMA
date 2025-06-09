@@ -148,10 +148,9 @@
             "INVALID_EMAIL": "Correo electrónico inválido",
             "TERMS_AND_CONDITIONS": "Debe aceptar los términos y condiciones",
             "CREDENTIALS": "Credenciales inválidas",
-            "NOT_FOUND":" Usuario no encontrado",
+            "NOT_FOUND": " Usuario no encontrado",
             "FORBIDDEN": "Acceso restringido",
             "GENERAL": "Error al procesar la solicitud. Por favor, inténtalo de nuevo más tarde."
-
         },
         "TERM": {
             "ACEPT": "Acepto los ",
@@ -176,42 +175,42 @@
         "ACCEPT_MODAL_BTN": "He leido y acepto los términos y condiciones",
         "CLOSE_BTN": "Cerrar",
         "SECTION": [
-                {
-                    "TITLE": "1. Aceptación de los Términos",
-                    "CONTENT": "Al registrarse como usuario de la base de datos de la Red de la Universidad de Málaga (en adelante, UMA) y de la Sociedad Malagueña de Astronomía (en adelante, SMA), usted acepta cumplir con estos Términos y Condiciones en su totalidad. Al acceder o utilizar los servicios, recursos, plataformas digitales (como sitio web, foros, bases de datos, etc.), usted manifiesta haber leído, comprendido y aceptado estos Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de estos términos, por favor, no se registre ni utilice los servicios de la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía (en adelante, Red UMA/SMA)."
-                },
-                {
-                    "TITLE": "2. Membresía y Registro de Usuario",
-                    "CONTENT": "Para acceder a la base de datos de la Red UMA/SMA es necesario registrarse. Usted se compromete a proporcionar información veraz, precisa, actual y completa durante el proceso de registro. Usted es responsable de mantener la confidencialidad de su contraseña y cuenta, y es plenamente responsable de todas las actividades que ocurran bajo su cuenta."
-                },
-                {
-                    "TITLE": "3. Uso de Datos y Obligación de Citación",
-                    "CONTENT": "La SMA puede poner a disposición de sus usuarios diversos datos, información, materiales, imágenes, observaciones, cálculos, resultados de proyectos (en adelante, \"los Datos\") a través de sus plataformas, actividades o publicaciones. EL USO DE CUALQUIERA DE ESTOS DATOS POR PARTE DEL USUARIO, YA SEA PARA FINES DE INVESTIGACIÓN, DIVULGACIÓN, PUBLICACIONES (IMPRESAS O DIGITALES), PRESENTACIONES, TRABAJOS ACADÉMICOS O CUALQUIER OTRA FINALIDAD, DEBE IR CLARAMENTE CITADO, RECONOCIENDO EXPRESAMENTE A LA RED DE LA UNIVERSIDAD DE MÁLAGA Y DE LA SOCIEDAD MALAGUEÑA DE ASTRONOMÍA COMO LA FUENTE DE DICHOS DATOS. La forma de citación recomendada es: \"Datos proporcionados por la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía\" o una mención similar que identifique inequívocamente a la Red UMA/SMA como origen de los datos. En publicaciones científicas o académicas, se ruega incluir una referencia completa a la fuente específica si estuviera disponible (por ejemplo, publicación de la Sociedad, proyecto concreto, etc.). Esta obligación de citación se aplica independientemente de la cantidad o el formato de los Datos utilizados. El incumplimiento de esta obligación de citación podrá dar lugar a la revisión o revocación de su membresía o acceso a los recursos de la Red UMA/SMA."
-                },
-                {
-                    "TITLE": "4. Propiedad Intelectual",
-                    "CONTENT": "La UMA y la SMA conservan todos los derechos de propiedad intelectual sobre los contenidos, logotipos, diseños y materiales generados por ella, a menos que se indique expresamente lo contrario. El uso de los Datos conforme a la cláusula 3 no transfiere al usuario ningún derecho de propiedad sobre los mismos, más allá del permiso de uso bajo la condición de citación. Los usuarios que aporten contenidos, datos u otros materiales a la Red UMA/SMA para su posible difusión o uso en actividades de la UMA o la SMA otorgan a estas licencia no exclusiva, mundial y libre de regalías para utilizar, reproducir, modificar, adaptar, publicar, traducir, distribuir y mostrar dichos contenidos en relación con los fines de la Red, siempre que se mantenga el reconocimiento de la autoría original cuando sea aplicable y factible."
-                },
-                {
-                    "TITLE": "5. Privacidad y Protección de Datos",
-                    "CONTENT": "La SMA recopilará y tratará sus datos personales de acuerdo con la legislación vigente en materia de protección de datos. La finalidad principal del tratamiento de sus datos es la gestión de su membresía o registro, la organización de actividades y la comunicación interna de la Sociedad. Sus datos no serán cedidos a terceros sin su consentimiento expreso, salvo obligación legal. Usted podrá ejercer sus derechos de acceso, rectificación, cancelación, oposición, limitación y portabilidad de sus datos dirigiendo una comunicación a la Secretaría de la SMA (secretaria@astromalaga.es). Para más detalles sobre el tratamiento de sus datos, consulte nuestra Política de Privacidad [si existe un documento separado de Política de Privacidad, añadir enlace o indicación de dónde encontrarlo]."
-                },
-                {
-                    "TITLE": "6. Limitación de Responsabilidad",
-                    "CONTENT": "La UMA y la SMA se esfuerzan por ofrecer información y recursos precisos y actualizados, pero no garantiza la exactitud, integridad o idoneidad de los Datos para cualquier fin particular. La UMA y la SMA no se hacen responsables de los daños o perjuicios que puedan derivarse del uso de los Datos."
-                },
-                {
-                    "TITLE": "7. Modificaciones de los Términos",
-                    "CONTENT": "La Red UMA/SMA se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Se notificará a los usuarios sobre cambios significativos. La continuación en el uso de los servicios de la Red UMA/SMA después de dichas modificaciones constituirá su aceptación de los nuevos términos."
-                },
-                {
-                    "TITLE": "8. Legislación Aplicable y Jurisdicción",
-                    "CONTENT": "Los presentes Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes de España. Cualquier disputa que surja en relación con estos términos se someterá a la jurisdicción exclusiva de los tribunales de Málaga."
-                },
-                {
-                    "TITLE": "9. Contacto",
-                    "CONTENT": "Si tiene alguna pregunta sobre estos Términos y Condiciones, por favor, póngase en contacto con la Secretaría de la Sociedad Malagueña de Astronomía a través de [dirección de correo electrónico o formulario de contacto]."
-                }
+            {
+                "TITLE": "1. Aceptación de los Términos",
+                "CONTENT": "Al registrarse como usuario de la base de datos de la Red de la Universidad de Málaga (en adelante, UMA) y de la Sociedad Malagueña de Astronomía (en adelante, SMA), usted acepta cumplir con estos Términos y Condiciones en su totalidad. Al acceder o utilizar los servicios, recursos, plataformas digitales (como sitio web, foros, bases de datos, etc.), usted manifiesta haber leído, comprendido y aceptado estos Términos y Condiciones en su totalidad. Si no está de acuerdo con alguno de estos términos, por favor, no se registre ni utilice los servicios de la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía (en adelante, Red UMA/SMA)."
+            },
+            {
+                "TITLE": "2. Membresía y Registro de Usuario",
+                "CONTENT": "Para acceder a la base de datos de la Red UMA/SMA es necesario registrarse. Usted se compromete a proporcionar información veraz, precisa, actual y completa durante el proceso de registro. Usted es responsable de mantener la confidencialidad de su contraseña y cuenta, y es plenamente responsable de todas las actividades que ocurran bajo su cuenta."
+            },
+            {
+                "TITLE": "3. Uso de Datos y Obligación de Citación",
+                "CONTENT": "La SMA puede poner a disposición de sus usuarios diversos datos, información, materiales, imágenes, observaciones, cálculos, resultados de proyectos (en adelante, \"los Datos\") a través de sus plataformas, actividades o publicaciones. EL USO DE CUALQUIERA DE ESTOS DATOS POR PARTE DEL USUARIO, YA SEA PARA FINES DE INVESTIGACIÓN, DIVULGACIÓN, PUBLICACIONES (IMPRESAS O DIGITALES), PRESENTACIONES, TRABAJOS ACADÉMICOS O CUALQUIER OTRA FINALIDAD, DEBE IR CLARAMENTE CITADO, RECONOCIENDO EXPRESAMENTE A LA RED DE LA UNIVERSIDAD DE MÁLAGA Y DE LA SOCIEDAD MALAGUEÑA DE ASTRONOMÍA COMO LA FUENTE DE DICHOS DATOS. La forma de citación recomendada es: \"Datos proporcionados por la Red de la Universidad de Málaga y de la Sociedad Malagueña de Astronomía\" o una mención similar que identifique inequívocamente a la Red UMA/SMA como origen de los datos. En publicaciones científicas o académicas, se ruega incluir una referencia completa a la fuente específica si estuviera disponible (por ejemplo, publicación de la Sociedad, proyecto concreto, etc.). Esta obligación de citación se aplica independientemente de la cantidad o el formato de los Datos utilizados. El incumplimiento de esta obligación de citación podrá dar lugar a la revisión o revocación de su membresía o acceso a los recursos de la Red UMA/SMA."
+            },
+            {
+                "TITLE": "4. Propiedad Intelectual",
+                "CONTENT": "La UMA y la SMA conservan todos los derechos de propiedad intelectual sobre los contenidos, logotipos, diseños y materiales generados por ella, a menos que se indique expresamente lo contrario. El uso de los Datos conforme a la cláusula 3 no transfiere al usuario ningún derecho de propiedad sobre los mismos, más allá del permiso de uso bajo la condición de citación. Los usuarios que aporten contenidos, datos u otros materiales a la Red UMA/SMA para su posible difusión o uso en actividades de la UMA o la SMA otorgan a estas licencia no exclusiva, mundial y libre de regalías para utilizar, reproducir, modificar, adaptar, publicar, traducir, distribuir y mostrar dichos contenidos en relación con los fines de la Red, siempre que se mantenga el reconocimiento de la autoría original cuando sea aplicable y factible."
+            },
+            {
+                "TITLE": "5. Privacidad y Protección de Datos",
+                "CONTENT": "La SMA recopilará y tratará sus datos personales de acuerdo con la legislación vigente en materia de protección de datos. La finalidad principal del tratamiento de sus datos es la gestión de su membresía o registro, la organización de actividades y la comunicación interna de la Sociedad. Sus datos no serán cedidos a terceros sin su consentimiento expreso, salvo obligación legal. Usted podrá ejercer sus derechos de acceso, rectificación, cancelación, oposición, limitación y portabilidad de sus datos dirigiendo una comunicación a la Secretaría de la SMA (secretaria@astromalaga.es). Para más detalles sobre el tratamiento de sus datos, consulte nuestra Política de Privacidad [si existe un documento separado de Política de Privacidad, añadir enlace o indicación de dónde encontrarlo]."
+            },
+            {
+                "TITLE": "6. Limitación de Responsabilidad",
+                "CONTENT": "La UMA y la SMA se esfuerzan por ofrecer información y recursos precisos y actualizados, pero no garantiza la exactitud, integridad o idoneidad de los Datos para cualquier fin particular. La UMA y la SMA no se hacen responsables de los daños o perjuicios que puedan derivarse del uso de los Datos."
+            },
+            {
+                "TITLE": "7. Modificaciones de los Términos",
+                "CONTENT": "La Red UMA/SMA se reserva el derecho de modificar estos Términos y Condiciones en cualquier momento. Se notificará a los usuarios sobre cambios significativos. La continuación en el uso de los servicios de la Red UMA/SMA después de dichas modificaciones constituirá su aceptación de los nuevos términos."
+            },
+            {
+                "TITLE": "8. Legislación Aplicable y Jurisdicción",
+                "CONTENT": "Los presentes Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes de España. Cualquier disputa que surja en relación con estos términos se someterá a la jurisdicción exclusiva de los tribunales de Málaga."
+            },
+            {
+                "TITLE": "9. Contacto",
+                "CONTENT": "Si tiene alguna pregunta sobre estos Términos y Condiciones, por favor, póngase en contacto con la Secretaría de la Sociedad Malagueña de Astronomía a través de [dirección de correo electrónico o formulario de contacto]."
+            }
         ]
     },
     "INFERRED_DATA": {
@@ -532,14 +531,13 @@
         }
     },
     "DOWNLOAD_MODAL": {
-    "TITLE": "Solicitar Descarga",
-    "MESSAGE": "Estás a punto de solicitar la descarga del archivo. Esta solicitud será revisada por un administrador antes de su aprobación. Podrás consultar el estado en el panel de 'Mis solicitudes'. Por favor, proporciona una descripción para esta solicitud:",
-    "DESCRIPTION_LABEL": "Descripción:",
-    "DESCRIPTION_PLACEHOLDER": "Escribe una breve descripción de tu solicitud de descarga...",
-    "CLOSE_BUTTON": "Cerrar",
-    "ACCEPT_BUTTON": "Enviar Solicitud"
-}
-,
+        "TITLE": "Solicitar Descarga",
+        "MESSAGE": "Estás a punto de solicitar la descarga del archivo. Esta solicitud será revisada por un administrador antes de su aprobación. Podrás consultar el estado en el panel de 'Mis solicitudes'. Por favor, proporciona una descripción para esta solicitud:",
+        "DESCRIPTION_LABEL": "Descripción:",
+        "DESCRIPTION_PLACEHOLDER": "Escribe una breve descripción de tu solicitud de descarga...",
+        "CLOSE_BUTTON": "Cerrar",
+        "ACCEPT_BUTTON": "Enviar Solicitud"
+    },
     "STATION": {
         "TITLE": "Mapa de estaciones espaciales",
         "DESCRIPTION": "La red de bólidos y Meteoros de la Universidad de Málaga",
@@ -737,32 +735,32 @@
             }
         },
         "EVENT_PAGE": {
-          "TITLE": "Lista de Eventos",
-          "ADD_BUTTON": "Añadir Evento",
-          "SHOW_QR": "Mostrar Código QR",
-          "EDIT_EVENT": "Editar Evento",
-          "DELETE_EVENT": "Eliminar Evento",
-          "STATUS_ACTIVE": "Activo",
-          "STATUS_INACTIVE": "Inactivo",
-          "CODE_LABEL": "Código",
-          "MODAL": {
-            "TITLE": "Detalles del Evento",
-            "DATE": "Fecha del Evento",
-            "DESCRIPTION": "Descripción",
-            "START_TIME": "Hora de Inicio",
-            "END_TIME": "Hora de Fin",
-            "ACTIVE": "Activo",
-            "ACTIVE_WEB": "Acceso Web Abierto",
-            "CODE": "Código de Acceso",
-            "CLOSE_BUTTON": "Cerrar",
-            "SAVE_BUTTON": "Guardar Evento"
-          },
-          "QR_MODAL": {
-            "TITLE": "Código QR del Evento",
-            "SCAN_INSTRUCTION": "Escanea este código QR para acceder al evento:",
-            "NO_CODE": "No hay código QR disponible para este evento.",
-            "CLOSE_BUTTON": "Cerrar"
-          }
+            "TITLE": "Lista de Eventos",
+            "ADD_BUTTON": "Añadir Evento",
+            "SHOW_QR": "Mostrar Código QR",
+            "EDIT_EVENT": "Editar Evento",
+            "DELETE_EVENT": "Eliminar Evento",
+            "STATUS_ACTIVE": "Activo",
+            "STATUS_INACTIVE": "Inactivo",
+            "CODE_LABEL": "Código",
+            "MODAL": {
+                "TITLE": "Detalles del Evento",
+                "DATE": "Fecha del Evento",
+                "DESCRIPTION": "Descripción",
+                "START_TIME": "Hora de Inicio",
+                "END_TIME": "Hora de Fin",
+                "ACTIVE": "Activo",
+                "ACTIVE_WEB": "Acceso Web Abierto",
+                "CODE": "Código de Acceso",
+                "CLOSE_BUTTON": "Cerrar",
+                "SAVE_BUTTON": "Guardar Evento"
+            },
+            "QR_MODAL": {
+                "TITLE": "Código QR del Evento",
+                "SCAN_INSTRUCTION": "Escanea este código QR para acceder al evento:",
+                "NO_CODE": "No hay código QR disponible para este evento.",
+                "CLOSE_BUTTON": "Cerrar"
+            }
         },
         "AUDIT_PAGE": {
             "TITLE": "Panel de auditoría ",
@@ -805,63 +803,84 @@
             }
         },
         "ACTIVE_RAIN": {
-      "TITLE": "Listado de Lluvias por Año",
-      "SELECT_YEAR_LABEL": "Selecciona el Año:",
-      "SELECT_YEAR_PLACEHOLDER": "Selecciona un año",
-      "SEARCH_BUTTON": "Buscar Lluvias",
-      "CREATE_BUTTON": "Crear Nueva Lluvia",
-      "DUPLICATE_ALL_BUTTON": "Duplicar Todas las Lluvias",
-      "LOADING_MESSAGE": "Cargando...",
-      "NO_RAIN_FOUND": "No se encontraron lluvias para el año {year}.",
-      "TABLE_IDENTIFIER": "Identificador",
-      "TABLE_NAME": "Nombre",
-      "TABLE_START_DATE": "Fecha Inicio",
-      "TABLE_END_DATE": "Fecha Fin",
-      "TABLE_SPEED": "Velocidad (km/s)",
-      "TABLE_ACTIONS": "Acciones",
-      "MODIFY_BUTTON": "Modificar",
-      "DELETE_BUTTON": "Eliminar",
-      "CREATE_MODAL_TITLE": "Crear Nueva Lluvia",
-      "MODIFY_MODAL_TITLE": "Modificar Lluvia",
-      "FORM_IDENTIFIER_LABEL": "Identificador",
-      "FORM_IDENTIFIER_PLACEHOLDER": "ACE",
-      "FORM_YEAR_LABEL": "Año",
-      "FORM_YEAR_PLACEHOLDER": "Introduce el año",
-      "FORM_NAME_LABEL": "Nombre",
-      "FORM_NAME_PLACEHOLDER": "Introduce el nombre de la lluvia",
-      "FORM_START_DATE_LABEL": "Fecha de Inicio",
-      "FORM_END_DATE_LABEL": "Fecha de Fin",
-      "FORM_SPEED_LABEL": "Velocidad (km/h)",
-      "FORM_SPEED_PLACEHOLDER": "Introduce la velocidad",
-      "FORM_CANCEL_BUTTON": "Cancelar",
-      "FORM_SAVE_BUTTON": "Guardar Cambios",
-      "FORM_CREATE_BUTTON": "Crear Lluvia",
-      "VALIDATION_YEAR_REQUIRED": "El Año es obligatorio y debe ser un número.",
-      "VALIDATION_NAME_REQUIRED": "El Nombre es obligatorio.",
-      "VALIDATION_START_DATE_REQUIRED": "La Fecha de Inicio es obligatoria.",
-      "VALIDATION_END_DATE_REQUIRED": "La Fecha de Fin es obligatoria.",
-      "VALIDATION_SPEED_REQUIRED": "La Velocidad es obligatoria y debe ser un número.",
-      "DELETE_CONFIRM_TITLE": "Confirmar Eliminación",
-      "DELETE_CONFIRM_MESSAGE": "¿Estás seguro de que quieres eliminar esta lluvia? Esta acción no se puede deshacer.",
-      "DUPLICATE_CONFIRM_TITLE": "Duplicar Lluvias",
-      "DUPLICATE_CONFIRM_MESSAGE": "Introduce el año al que quieres duplicar todas las lluvias existentes:",
-      "DUPLICATE_YEAR_PLACEHOLDER": "Ej: 2025",
-      "CONFIRM_BUTTON": "Confirmar",
-      "INFO_MODAL_CLOSE": "Cerrar",
-      "SUCCESS_TITLE": "Éxito",
-      "ERROR_TITLE": "Error",
-      "WARNING_TITLE": "Advertencia",
-      "DELETE_SUCCESS": "Lluvia eliminada con éxito.",
-      "DELETE_ERROR": "Error al eliminar la lluvia. Inténtalo de nuevo.",
-      "DUPLICATE_SUCCESS": "Todas las lluvias duplicadas al año {year} con éxito.",
-      "DUPLICATE_ERROR": "Error al duplicar las lluvias. Inténtalo de nuevo.",
-      "INVALID_YEAR_ALERT": "Año inválido. Por favor, introduce un número válido.",
-      "UPDATE_SUCCESS": "Lluvia modificada con éxito.",
-      "UPDATE_ERROR": "Error al modificar la lluvia. Inténtalo de nuevo.",
-      "CREATE_SUCCESS": "Lluvia creada con éxito.",
-      "CREATE_ERROR": "Error al crear la lluvia. Inténtalo de nuevo.",
-      "FETCH_ERROR": "Error al cargar las lluvias. Inténtalo de nuevo."
-    }
+            "TITLE": "Listado de Lluvias por Año",
+            "SELECT_YEAR_LABEL": "Selecciona el Año:",
+            "SELECT_YEAR_PLACEHOLDER": "Selecciona un año",
+            "SEARCH_BUTTON": "Buscar Lluvias",
+            "CREATE_BUTTON": "Crear Nueva Lluvia",
+            "DUPLICATE_ALL_BUTTON": "Duplicar Todas las Lluvias",
+            "LOADING_MESSAGE": "Cargando...",
+            "NO_RAIN_FOUND": "No se encontraron lluvias para el año {year}.",
+            "TABLE_IDENTIFIER": "Identificador",
+            "TABLE_NAME": "Nombre",
+            "TABLE_START_DATE": "Fecha Inicio",
+            "TABLE_END_DATE": "Fecha Fin",
+            "TABLE_SPEED": "Velocidad (km/s)",
+            "TABLE_ACTIONS": "Acciones",
+            "MODIFY_BUTTON": "Modificar",
+            "DELETE_BUTTON": "Eliminar",
+            "CREATE_MODAL_TITLE": "Crear Nueva Lluvia",
+            "MODIFY_MODAL_TITLE": "Modificar Lluvia",
+            "FORM_IDENTIFIER_LABEL": "Identificador",
+            "FORM_IDENTIFIER_PLACEHOLDER": "ACE",
+            "FORM_YEAR_LABEL": "Año",
+            "FORM_YEAR_PLACEHOLDER": "Introduce el año",
+            "FORM_NAME_LABEL": "Nombre",
+            "FORM_NAME_PLACEHOLDER": "Introduce el nombre de la lluvia",
+            "FORM_START_DATE_LABEL": "Fecha de Inicio",
+            "FORM_END_DATE_LABEL": "Fecha de Fin",
+            "FORM_SPEED_LABEL": "Velocidad (km/h)",
+            "FORM_SPEED_PLACEHOLDER": "Introduce la velocidad",
+            "FORM_CANCEL_BUTTON": "Cancelar",
+            "FORM_SAVE_BUTTON": "Guardar Cambios",
+            "FORM_CREATE_BUTTON": "Crear Lluvia",
+            "VALIDATION_YEAR_REQUIRED": "El Año es obligatorio y debe ser un número.",
+            "VALIDATION_NAME_REQUIRED": "El Nombre es obligatorio.",
+            "VALIDATION_START_DATE_REQUIRED": "La Fecha de Inicio es obligatoria.",
+            "VALIDATION_END_DATE_REQUIRED": "La Fecha de Fin es obligatoria.",
+            "VALIDATION_SPEED_REQUIRED": "La Velocidad es obligatoria y debe ser un número.",
+            "DELETE_CONFIRM_TITLE": "Confirmar Eliminación",
+            "DELETE_CONFIRM_MESSAGE": "¿Estás seguro de que quieres eliminar esta lluvia? Esta acción no se puede deshacer.",
+            "DUPLICATE_CONFIRM_TITLE": "Duplicar Lluvias",
+            "DUPLICATE_CONFIRM_MESSAGE": "Introduce el año al que quieres duplicar todas las lluvias existentes:",
+            "DUPLICATE_YEAR_PLACEHOLDER": "Ej: 2025",
+            "CONFIRM_BUTTON": "Confirmar",
+            "INFO_MODAL_CLOSE": "Cerrar",
+            "SUCCESS_TITLE": "Éxito",
+            "ERROR_TITLE": "Error",
+            "WARNING_TITLE": "Advertencia",
+            "DELETE_SUCCESS": "Lluvia eliminada con éxito.",
+            "DELETE_ERROR": "Error al eliminar la lluvia. Inténtalo de nuevo.",
+            "DUPLICATE_SUCCESS": "Todas las lluvias duplicadas al año {year} con éxito.",
+            "DUPLICATE_ERROR": "Error al duplicar las lluvias. Inténtalo de nuevo.",
+            "INVALID_YEAR_ALERT": "Año inválido. Por favor, introduce un número válido.",
+            "UPDATE_SUCCESS": "Lluvia modificada con éxito.",
+            "UPDATE_ERROR": "Error al modificar la lluvia. Inténtalo de nuevo.",
+            "CREATE_SUCCESS": "Lluvia creada con éxito.",
+            "CREATE_ERROR": "Error al crear la lluvia. Inténtalo de nuevo.",
+            "FETCH_ERROR": "Error al cargar las lluvias. Inténtalo de nuevo.",
+            "EDIT_BTN": "Editar",
+            "CREATE_RADIANT_BUTTON": "Crear radiante",
+            "EDIT_RADIANT_TITLE": "Editar Radiante",
+            "CREATE_RADIANT_TITLE": "Crear Nuevo Radiante",
+            "NO_RADIANT_FOUND": "No se encontraron radiantes",
+            "RADIANT_ALPHA_LABEL": "α (Ascensión Recta)",
+            "RADIANT_DELTA_LABEL": "δ (Declinación)",
+            "RADIANT_DATE_LABEL": "Fecha",
+            "RADIANT_VALIDATION_ALPHA_REQUIRED": "La Ascensión Recta es obligatoria y debe ser un número.",
+            "RADIANT_VALIDATION_DELTA_REQUIRED": "La Declinación es obligatoria y debe ser un número.",
+            "RADIANT_VALIDATION_DATE_REQUIRED": "La Fecha es obligatoria.",
+            "RADIANT_DELETE_CONFIRM_TITLE": "Confirmar Eliminación de Radiante",
+            "RADIANT_DELETE_CONFIRM_MESSAGE": "¿Estás seguro de que quieres eliminar este radiante?",
+            "RADIANT_DELETE_SUCCESS": "Radiante eliminado con éxito.",
+            "RADIANT_DELETE_ERROR": "Error al eliminar el radiante.",
+            "RADIANT_CREATE_SUCCESS": "Radiante creado con éxito.",
+            "RADIANT_CREATE_ERROR": "Error al crear el radiante.",
+            "RADIANT_UPDATE_SUCCESS": "Radiante actualizado con éxito.",
+            "RADIANT_UPDATE_ERROR": "Error al actualizar el radiante.",
+            "GENERATE_SUCCESS" : "Informe generado con éxito.",
+            "GENERATE_ERROR": "Error al generar el informe. Por favor, inténtalo de nuevo."
+        }
     },
     "DISTANCE": {
         "VERYFAR": "Muy poco posible",
@@ -1066,11 +1085,11 @@
         "CODE_LABEL": "Código de acceso",
         "CODE_HELP": "Introduce el código generado desde la aplicación o escanea el QR",
         "ERROR": {
-          "EMPTY_CODE": "Por favor, introduce un código de acceso",
-          "INVALID_CODE": "Código de acceso inválido o expirado",
-          "CODE_NOT_FOUND": "Código de acceso no encontrado",
-          "CODE_USED": "Este código ya ha sido utilizado",
-          "GENERAL": "Error de acceso. Verifica el código e inténtalo de nuevo."
+            "EMPTY_CODE": "Por favor, introduce un código de acceso",
+            "INVALID_CODE": "Código de acceso inválido o expirado",
+            "CODE_NOT_FOUND": "Código de acceso no encontrado",
+            "CODE_USED": "Este código ya ha sido utilizado",
+            "GENERAL": "Error de acceso. Verifica el código e inténtalo de nuevo."
         },
         "VERIFYING": "Verificando acceso...",
         "ACCESS": "Acceder",
@@ -1079,5 +1098,5 @@
         "HELP_TEXT": "Solicita a un administrador que genere un código desde la aplicación",
         "BACK": "Volver al login",
         "QR_DETECTED": "Código QR detectado automáticamente"
-      }
+    }
 }

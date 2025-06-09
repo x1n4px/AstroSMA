@@ -1,7 +1,6 @@
 const pool = require('../database/connection');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { extraerUserId } = require('../middlewares/extractJWT')
 require('dotenv').config();
 const auditEvent = require('../middlewares/audit')
 const crypto = require("crypto");
