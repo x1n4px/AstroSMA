@@ -49,7 +49,6 @@ const LanguageNavbar = () => {
             />
           </button>
           
-          {/* Spanish Language Option */}
           <button
             onClick={() => changeLanguage('es')}
             style={{
