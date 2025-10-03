@@ -2,7 +2,7 @@ const { extraerUserId } = require('./extractJWT')
 const pool = require('../database/connection');
 
 const validateRol = async (req, res, next) => {
-    const token = req.header('x-token');
+    const token = req.header('Authorization');
     try {
 
 

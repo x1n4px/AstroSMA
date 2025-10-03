@@ -1,35 +1,84 @@
-import React, { useState } from 'react';
-import { Navbar as BootstrapNavbar, Nav, Container } from 'react-bootstrap';
+import React from 'react';
+import { Container } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 
 const LanguageNavbar = () => {
-  const { i18n } = useTranslation(); // No need for 't' if only changing language
-  const [expanded, setExpanded] = useState(false);
+  const { i18n } = useTranslation();
 
   // Function to change the application's language
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
-    setExpanded(false); // Close the navbar menu after selecting a language
   };
 
   return (
-    <BootstrapNavbar style={{ backgroundColor: '#f8f9fa' }} expand="lg" expanded={expanded} onToggle={setExpanded}>
-      <Container className="navbar-70-width-container">
-        <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" />
-        <BootstrapNavbar.Collapse id="responsive-navbar-nav">
-          <Nav className="ms-auto">
-            {/* English Language Option */}
-            <Nav.Link onClick={() => changeLanguage('en')} style={{ color: 'white' }}>
-              <img src="/flag/en.webp" alt="English" style={{ width: '20px', marginRight: '0.1rem' }} />
-            </Nav.Link>
-            {/* Spanish Language Option */}
-            <Nav.Link onClick={() => changeLanguage('es')} style={{ color: 'white' }}>
-              <img src="/flag/es.webp" alt="Español" style={{ width: '20px', marginRight: '0.5rem' }} />
-            </Nav.Link>
-          </Nav>
-        </BootstrapNavbar.Collapse>
+    <div style={{ 
+      backgroundColor: 'transparent', 
+      padding: '15px 0',
+    }}>
+      <Container>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          gap: '20px'
+        }}>
+          {/* English Language Option */}
+          <button
+            onClick={() => changeLanguage('en')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '5px',
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'transform 0.2s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            aria-label="Change to English"
+          >
+            <img 
+              src="/flag/en.webp" 
+              alt="English" 
+              style={{ 
+                width: '35px', 
+                height: 'auto',
+                borderRadius: '4px',
+              }} 
+            />
+          </button>
+          
+          {/* Spanish Language Option */}
+          <button
+            onClick={() => changeLanguage('es')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '5px',
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'transform 0.2s',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            aria-label="Cambiar a Español"
+          >
+            <img 
+              src="/flag/es.webp" 
+              alt="Español" 
+              style={{ 
+                width: '35px', 
+                height: 'auto',
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }} 
+            />
+          </button>
+        </div>
       </Container>
-    </BootstrapNavbar>
+    </div>
   );
 };
 

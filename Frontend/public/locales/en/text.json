@@ -303,7 +303,7 @@
         "STATIONS": "Stations",
         "TRAJECTORY": "Orbit",
         "ASSOCIATED_DOWNLOAD_LINK": {
-            "TITLE": "Download associated report",
+            "TITLE": "Resources",
             "DESCRIPTION": "Download the report associated with the active shower",
             "LINK": "Download {{name}}",
             "METEOR_GLOW": "Download instrumental magnitudes (brightnesses) of the meteor",

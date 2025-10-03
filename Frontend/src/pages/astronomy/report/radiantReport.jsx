@@ -4,8 +4,6 @@ import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button, Table } fro
 import { getRadiantReport } from '@/services/radiantReportService';
 
 import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
-import { isNotQRUser, isAdminUser, controlGeminiError } from '@/utils/roleMaskUtils';
-import { getConfigValue } from '@/utils/getConfigValue';
 import { formatDate } from '@/pipe/formatDate.jsx';
 
 // Internationalization
@@ -31,7 +29,6 @@ const RadiantReport = () => {
         setError(null);
         try {
             const response = await getRadiantReport(id); // Ajusta la URL del endpoint
-            console.log(response)
             setReportData(response.report);
             setObservatoryData(response.observatory);
             setAngularVelocity(response.angularVelocity);
@@ -60,26 +57,11 @@ const RadiantReport = () => {
 
             <Row className="justify-content-between align-items-center">
                 <Col xs="auto">
-                    <h1>{t('REPORT.TITLE_RADIAN', { id: '' })} {formatDate(reportData?.Fecha)} {reportData?.Hora.substring(0, 8)}</h1>
+                    <h1>{t('REPORT.TITLE_RADIAN', { id: '' })} {formatDate(reportData?.date)} {reportData?.time.substring(0, 8)}</h1>
 
                 </Col>
 
-                {(getConfigValue('enableErrorAdvise') && isNotQRUser(rol)) && (
-                    <Col xs="auto">
-                        <Button variant="warning" onClick={handleShow} className="d-flex align-items-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="1em" // Usar em para que el tamaño sea relativo al tamaño de la fuente
-                                height="1em"
-                                viewBox="0 0 24 24"
-                                className="text-dark me-2" // Texto oscuro y margen derecho
-                            >
-                                <path d="M12.884 2.532c-.346-.654-1.422-.654-1.768 0l-9 17A.999.999 0 0 0 3 21h18a.998.998 0 0 0 .883-1.467L12.884 2.532zM13 18h-2v-2h2v2zm-2-4V9h2l.001 5H11z"></path>
-                            </svg>
-                            {t('REPORT.WARNING_BTN')}
-                        </Button>
-                    </Col>
-                )}
+                
             </Row>
             <hr />
 

@@ -4,18 +4,16 @@ import { getIpAndLocation } from './networkService'
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const loginUser = async (email, password, isMobile) => {
+export const loginUser = async (credentials) => {
     try {
-
         // Obtener la IP y la ubicación del usuario
         const ipLocationData = await getIpAndLocation();
-        console.log('IP y ubicación obtenidas:', ipLocationData.ip);
         const response = await axios.post(
             `${apiUrl}/login`,
             {
-                email: email,
-                password: password,
-                isMobile: isMobile,
+                email: credentials.email,
+                password: credentials.password,
+                isMobile: credentials.isMobile,
                 ipLocationData: ipLocationData
             },
             {
@@ -27,7 +25,6 @@ export const loginUser = async (email, password, isMobile) => {
         
         // Si la llamada es exitosa y la respuesta contiene un token
         if (response.data && response.data.token) {
-            console.log('Token recibido:', response.data.token);
             localStorage.setItem('authToken', response.data.token);
             localStorage.setItem('loginTime', new Date().toISOString());
 

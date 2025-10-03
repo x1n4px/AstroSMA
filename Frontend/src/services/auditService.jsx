@@ -1,18 +1,11 @@
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
-const token = localStorage.getItem('authToken');
 const rol = localStorage.getItem('rol');
 
 export const audit = async (data) => {
     try {
-        const response = await axios.post(`${API_URL}/audit`, {data},
-            {
-                headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
-                },
-            }
-        );
+        const response = await axios.post(`${API_URL}/audit`, {data});
         return response.data;
     } catch (error) {
         console.error('Error fetching bolides:', error);
@@ -29,8 +22,7 @@ export const getDataByDateRange = async (startDate, endDate) => {
                 endDate: endDate
             },
             headers: {
-                'x-token': token, // Agrega el token como encabezado x-token
-                'x-rol': rol // Agrega el rol como encabezado x-rol
+                'x-rol': rol
             },
         });
         return response.data;

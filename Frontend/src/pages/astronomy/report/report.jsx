@@ -81,7 +81,7 @@ const Report = () => {
         try {
             const response = await getReportZ(id); // Ajusta la URL del endpoint
             setActiveShowerData(response.activeShower);
-            setReportData(response.informe);
+            setReportData(response.report);
             setObservatoryData(response.observatorios);
             setOrbitalData(response.orbitalElement);
             setPhotometryData(response.photometryReport);
@@ -145,7 +145,7 @@ const Report = () => {
                     <Row className="justify-content-between align-items-center">
                         <Col xs="auto">
                             {reportData && (
-                                <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.Fecha), hour: reportData?.Hora.substring(0, 8) })}</h1>
+                                <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.date), hour: reportData?.time.substring(0, 8) })}</h1>
                             )}
                         </Col>
 

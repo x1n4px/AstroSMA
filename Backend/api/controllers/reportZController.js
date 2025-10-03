@@ -6,6 +6,8 @@ const { convertCoordinates } = require('../middlewares/convertCoordinates');
 const { QR_USER_ROL } = require('../utils/roleMaskUtils')
 const { getMoonPosition, getTimes, getPosition, getMoonIllumination } = require('suncalc');
 
+const { translateObjectKeys } = require('../utils/objectTranslator')
+const { reportZMapper } = require('../mappers/reportZMapper')
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
@@ -20,7 +22,7 @@ const getAllReportZ = async (req, res) => {
 
 const getReportZ = async (req, res) => {
     try {
-        const token = req.header('x-token');
+        const token = req.header('Authorization')?.replace('Bearer ', '');
         let user_id = null;
         let rol = QR_USER_ROL;
 
@@ -51,25 +53,23 @@ const getReportZ = async (req, res) => {
             WHERE iz.IdInforme = ?;
             `, [id]);
 
+
         if (report.length === 0) {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
 
         const processedReports = report.map(report => {
             return {
-                ...report,
-                Inicio_de_la_trayectoria_Estacion_1: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
-                Fin_de_la_trayectoria_Estacion_1: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
-                Inicio_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
-                Fin_de_la_trayectoria_Estacion_2: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2)),
-                Impacto_previsible: (convertCoordinates(report.Impacto_previsible + " 0.0 0.0", false))
+                ...translateObjectKeys(report, reportZMapper),
+                trajectoryStartStation1: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_1)),
+                trajectoryEndStation1: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_1)),
+                trajectoryStartStation2: (convertCoordinates(report.Inicio_de_la_trayectoria_Estacion_2)),
+                trajectoryEndStation2: (convertCoordinates(report.Fin_de_la_trayectoria_Estacion_2)),
+                predictedImpact: (convertCoordinates(report.Impacto_previsible + " 0.0 0.0", false))
             };
         });
 
-        if (report.length === 0) {
-            return res.status(404).json({ message: 'Informe no encontrado' });
-        }
-
+     
 
 
 
@@ -92,7 +92,7 @@ const getReportZ = async (req, res) => {
                 SUBSTRING_INDEX(ob.T, ' ', 1) AS T,
                 SUBSTRING_INDEX(ob.omega, ' ', 1) AS omega,
                 SUBSTRING_INDEX(SUBSTRING(ob.Omega_grados_votos_max_min, 2), ' ', 1) AS Omega_grados_votos_max_min,
-                    iz.Fecha, iz.Hora
+                    iz.Fecha as date, iz.Hora as time
                 FROM 
                 Elementos_Orbitales ob
                 JOIN Informe_Z iz ON iz.IdInforme = ob.Informe_Z_IdInforme
@@ -145,7 +145,7 @@ const getReportZ = async (req, res) => {
         let IAUS = await IAUShowers(report[0].IdInforme, report[0].Fecha);
 
         const response = {
-            informe: processedReports[0],
+            report: processedReports[0],
             observatorios: [
                 obs1.length > 0 ? transform(obs1[0]) : null, // Manejar el caso en que obs1 esté vacío
                 obs2.length > 0 ? transform(obs2[0]) : null  // Manejar el caso en que obs2 esté vacío
@@ -259,292 +259,6 @@ const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs
 }
 
 
-
-
-
-
-
-
-
-// -------------------------------------------------------------------  fuzzy logic ----------------------------------------------------
-
-function membershipDMRT(DMRT) {
-    const umbral = 5;
-    const max = 10; // más permisivo que 30
-    if (DMRT <= umbral) {
-        return 1;
-    } else if (DMRT >= max) {
-        return 0;
-    } else {
-        return 1 - (DMRT - umbral) / (max - umbral);
-    }
-}
-
-
-
-
-// Membership function for the eccentricity (e) of the bolide
-function membershipEccentricity(bolideValue, showerValue) {
-    const tolerancia = 0.2; // antes era 0.1 → lo abrimos
-    const diferencia = Math.abs(bolideValue - showerValue);
-
-    if (diferencia > tolerancia) {
-        return 0;
-    } else {
-        return 1 - (diferencia / tolerancia);
-    }
-}
-
-
-function membershipSemiMajorAxis(valorBólido, valorLluvia) {
-    const tolerancia = 1; // en UA — mucho más flexible que 0.5
-    const diferencia = Math.abs(valorBólido - valorLluvia);
-
-    if (diferencia > tolerancia) {
-        return 0;
-    } else {
-        return 1 - (diferencia / tolerancia);
-    }
-}
-
-
-function membershipInclination(bolideValue, showerValue) {
-    const tolerancia = 1; // más tolerante que 0.1
-    const diferencia = Math.abs(bolideValue - showerValue);
-
-    if (diferencia > tolerancia) {
-        return 0;
-    } else {
-        return 1 - (diferencia / tolerancia);
-    }
-}
-
-function calculateMembership(bolide, shower) {
-    const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
-    if (pertenenciaDMRTV === 0) {
-        return 1;
-    }
-
-    const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
-    const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
-    const membershipI = membershipInclination(parseFloat(bolide.i), parseFloat(shower.i));
-    const totalMembership =
-        (pertenenciaDMRTV * 0.7) +
-        (membershipE * 0.1) +
-        (membershipA * 0.1) +
-        (membershipI * 0.1);
-    // Escalar a valor entre 1 y 9
-    const finalValue = Math.round(totalMembership * 8) + 1;
-    return finalValue;
-}
-
-
-async function IMOShowers(id) {
-    const [reports] = await pool.query(`
-        SELECT iz.IdInforme, iz.Fecha 
-        FROM Informe_Z iz 
-        WHERE iz.IdInforme = ?
-    `, [id]);
-
-    const report = reports[0];
-    if (!report) return [];
-
-    const [orbital] = await pool.query(`
-        SELECT 
-            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
-            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
-            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
-            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
-            SUBSTRING_INDEX(eo.De, ' ', 1) AS De,
-            SUBSTRING_INDEX(eo.i, ' ', 1) AS i
-        FROM Elementos_Orbitales eo 
-        WHERE eo.Informe_Z_IdInforme = ?;
-    `, [report.IdInforme]);
-
-    const [lluvias] = await pool.query(`
-        SELECT la.* , l.*
-        FROM Lluvia_activa la  
-        LEFT JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
-        LEFT JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador AND l.Año = la.Lluvia_Año 
-        WHERE iz.IdInforme = ?;
-    `, [report.IdInforme]);
-    let lluvias_datos = [];
-
-    for (const lluvia of lluvias) {
-        const idLimpio = lluvia.Lluvia_Identificador.replace(/[^a-zA-Z]/g, '');
-
-        const [lluviaData] = await pool.query(`
-            SELECT 
-                ms.Code, 
-                AVG(Ra) AS Ar, 
-                AVG(De) AS De, 
-                AVG(E) AS e, 
-                AVG(A) AS a, 
-                AVG(Q) AS q,
-                AVG(Incl) as i
-            FROM meteor_showers ms 
-            WHERE ms.Code LIKE ?;
-        `, [idLimpio]);
-
-        const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');
-
-        if (code === idLimpio) {
-            lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
-
-        }
-
-        lluvias_datos.push({
-            ...lluviaData[0],
-            ...lluvia
-        });
-    }
-    const result = [];
-    for (const rs of lluvias_datos) {
-        for (const ob of orbital) {
-            const membership = calculateMembership(ob, rs);
-            result.push({
-                ...rs,
-                membership
-            });
-        }
-    }
-
-    return result;
-}
-
-
-async function IAUShowers(id, date) {
-    const UMBRAL_GRADOS = 5;
-
-    const toRadians = deg => deg * Math.PI / 180;
-    const toDegrees = rad => rad * 180 / Math.PI;
-
-    const distanciaAngular = (ar1, de1, ar2, de2) => {
-        const α1 = toRadians(ar1), δ1 = toRadians(de1);
-        const α2 = toRadians(ar2), δ2 = toRadians(de2);
-
-        const cosDist = Math.sin(δ1) * Math.sin(δ2) +
-                        Math.cos(δ1) * Math.cos(δ2) * Math.cos(α1 - α2);
-
-        return toDegrees(Math.acos(Math.min(1, Math.max(-1, cosDist))));
-    };
-
-    // Obtener informe
-    const [[report]] = await pool.query(`
-        SELECT iz.IdInforme, iz.Fecha 
-        FROM Informe_Z iz 
-        WHERE iz.IdInforme = ?
-    `, [id]);
-    if (!report) return [];
-
-    // Obtener datos orbitales
-    const [orbital] = await pool.query(`
-        SELECT 
-            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
-            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
-            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
-            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
-            SUBSTRING_INDEX(eo.De, ' ', 1) AS De,
-            SUBSTRING_INDEX(eo.i, ' ', 1) AS i  
-        FROM Elementos_Orbitales eo 
-        WHERE eo.Informe_Z_IdInforme = ?;
-    `, [report.IdInforme]);
-
-    if (!orbital || orbital.length === 0) return [];
-
-    // Obtener lluvias activas +/-30 días
-    const fecha = new Date(report.Fecha);
-    const formatted = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
-
-    const [lluvias] = await pool.query(`
-        SELECT ms.Code, ms.Activity,ms.ShowerNameDesignation,ms.Status, ms.SubDate, ms.Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q, ms.Incl as i
-        FROM meteor_showers ms
-        WHERE 
-            ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 30
-            AND ms.Code != ""
-            AND ms.A != "" AND ms.Q != "" AND ms.E != "" AND ms.Ra != "" AND ms.De != "";
-    `, [formatted]);
-
-    if (!lluvias || lluvias.length === 0) return [];
-
-    const lluvias_datos = lluvias.map(lluvia => {
-        const distancia = distanciaAngular(
-            Number(orbital[0].Ar),
-            Number(orbital[0].De),
-            Number(lluvia.Ra),
-            Number(lluvia.De)
-        );
-        return {
-            ...lluvia,
-            Distancia_mínima_entre_radianes_y_trayectoria: distancia.toFixed(2)
-        };
-    });
-
-    const result = [];
-
-    for (const lluvia of lluvias_datos) {
-        for (const ob of orbital) {
-            const membership = calculateMembership(ob, lluvia);
-            if (membership > 1) {
-                result.push({ ...lluvia, membership });
-            }
-        }
-    }
-
-    return result;
-}
-
-
-
-
-const parseOrbitalFloat = (valueString) => {
-    if (!valueString || valueString.trim() === '') {
-        return null; // Return null for empty or whitespace-only strings
-    }
-    // Extract the first part before any space
-    const numberPart = valueString.trim().split(' ')[0];
-    const value = parseFloat(numberPart);
-    if (isNaN(value)) {
-        // Log a warning if parsing fails, but don't stop execution
-        console.warn(`Warning: Could not parse orbital value string "${valueString}" (part "${numberPart}") to float.`);
-        return null; // Return null if parsing fails
-    }
-    return value;
-};
-
-
-const getMoonPhaseDescription = (phase) => {
-    if (phase === 0) return 'New Moon';
-    if (phase > 0 && phase < 0.25) return 'Waxing Crescent';
-    if (phase === 0.25) return 'First Quarter';
-    if (phase > 0.25 && phase < 0.5) return 'Waxing Gibbous';
-    if (phase === 0.5) return 'Full Moon';
-    if (phase > 0.5 && phase < 0.75) return 'Waning Gibbous';
-    if (phase === 0.75) return 'Last Quarter';
-    if (phase > 0.75 && phase < 1) return 'Waning Crescent';
-    return 'Unknown';
-};
-
-// Helper to convert radians to degrees
-const toDegrees = rad => rad * 180 / Math.PI;
-
-// Helper to convert degrees to radians
-const toRadians = deg => deg * Math.PI / 180;
-
-// Helper to convert RA from degrees (0-360) to hours (0-24) for suncalc
-const raDegreesToHours = deg => deg / 15;
-
-const getPhaseName = (p) => {
-    if (p < 0.01 || p > 0.99) return 'New Moon';
-    if (p >= 0.01 && p < 0.24) return 'Waxing Crescent';
-    if (p >= 0.24 && p < 0.26) return 'First Quarter';
-    if (p >= 0.26 && p < 0.49) return 'Waxing Gibbous';
-    if (p >= 0.49 && p < 0.51) return 'Full Moon';
-    if (p >= 0.51 && p < 0.74) return 'Waning Gibbous';
-    if (p >= 0.74 && p < 0.76) return 'Last Quarter';
-    if (p >= 0.76 && p < 0.99) return 'Waning Crescent';
-    return 'Unknown'; // Fallback, should not happen
-};
 
 const getReportZListFromRain = async (req, res) => {
     try {
@@ -735,6 +449,292 @@ const getReportZListFromRain = async (req, res) => {
         res.status(500).json({ error: 'Error processing CAP reports', details: error.message });
     }
 };
+
+
+
+
+
+
+// -------------------------------------------------------------------  fuzzy logic ----------------------------------------------------
+
+function membershipDMRT(DMRT) {
+    const umbral = 5;
+    const max = 10; // más permisivo que 30
+    if (DMRT <= umbral) {
+        return 1;
+    } else if (DMRT >= max) {
+        return 0;
+    } else {
+        return 1 - (DMRT - umbral) / (max - umbral);
+    }
+}
+
+
+
+
+// Membership function for the eccentricity (e) of the bolide
+function membershipEccentricity(bolideValue, showerValue) {
+    const tolerancia = 0.2; // antes era 0.1 → lo abrimos
+    const diferencia = Math.abs(bolideValue - showerValue);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+
+function membershipSemiMajorAxis(valorBólido, valorLluvia) {
+    const tolerancia = 1; // en UA — mucho más flexible que 0.5
+    const diferencia = Math.abs(valorBólido - valorLluvia);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+
+function membershipInclination(bolideValue, showerValue) {
+    const tolerancia = 1; // más tolerante que 0.1
+    const diferencia = Math.abs(bolideValue - showerValue);
+
+    if (diferencia > tolerancia) {
+        return 0;
+    } else {
+        return 1 - (diferencia / tolerancia);
+    }
+}
+
+function calculateMembership(bolide, shower) {
+    const pertenenciaDMRTV = membershipDMRT(parseFloat(shower.Distancia_mínima_entre_radianes_y_trayectoria));
+    if (pertenenciaDMRTV === 0) {
+        return 1;
+    }
+
+    const membershipE = membershipEccentricity(parseFloat(bolide.e), parseFloat(shower.e));
+    const membershipA = membershipSemiMajorAxis(parseFloat(bolide.a), parseFloat(shower.a));
+    const membershipI = membershipInclination(parseFloat(bolide.i), parseFloat(shower.i));
+    const totalMembership =
+        (pertenenciaDMRTV * 0.7) +
+        (membershipE * 0.1) +
+        (membershipA * 0.1) +
+        (membershipI * 0.1);
+    // Escalar a valor entre 1 y 9
+    const finalValue = Math.round(totalMembership * 8) + 1;
+    return finalValue;
+}
+
+
+async function IMOShowers(id) {
+    const [reports] = await pool.query(`
+        SELECT iz.IdInforme, iz.Fecha 
+        FROM Informe_Z iz 
+        WHERE iz.IdInforme = ?
+    `, [id]);
+
+    const report = reports[0];
+    if (!report) return [];
+
+    const [orbital] = await pool.query(`
+        SELECT 
+            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
+            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
+            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
+            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
+            SUBSTRING_INDEX(eo.De, ' ', 1) AS De,
+            SUBSTRING_INDEX(eo.i, ' ', 1) AS i
+        FROM Elementos_Orbitales eo 
+        WHERE eo.Informe_Z_IdInforme = ?;
+    `, [report.IdInforme]);
+
+    const [lluvias] = await pool.query(`
+        SELECT la.* , l.*
+        FROM Lluvia_activa la  
+        LEFT JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
+        LEFT JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador AND l.Año = la.Lluvia_Año 
+        WHERE iz.IdInforme = ?;
+    `, [report.IdInforme]);
+    let lluvias_datos = [];
+
+    for (const lluvia of lluvias) {
+        const idLimpio = lluvia.Lluvia_Identificador.replace(/[^a-zA-Z]/g, '');
+
+        const [lluviaData] = await pool.query(`
+            SELECT 
+                ms.Code, 
+                AVG(Ra) AS Ar, 
+                AVG(De) AS De, 
+                AVG(E) AS e, 
+                AVG(A) AS a, 
+                AVG(Q) AS q,
+                AVG(Incl) as i
+            FROM meteor_showers ms 
+            WHERE ms.Code LIKE ?;
+        `, [idLimpio]);
+
+        const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');
+
+        if (code === idLimpio) {
+            lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
+
+        }
+
+        lluvias_datos.push({
+            ...lluviaData[0],
+            ...lluvia
+        });
+    }
+    const result = [];
+    for (const rs of lluvias_datos) {
+        for (const ob of orbital) {
+            const membership = calculateMembership(ob, rs);
+            result.push({
+                ...rs,
+                membership
+            });
+        }
+    }
+
+    return result;
+}
+
+
+async function IAUShowers(id, date) {
+    const UMBRAL_GRADOS = 5;
+
+    const toRadians = deg => deg * Math.PI / 180;
+    const toDegrees = rad => rad * 180 / Math.PI;
+
+    const distanciaAngular = (ar1, de1, ar2, de2) => {
+        const α1 = toRadians(ar1), δ1 = toRadians(de1);
+        const α2 = toRadians(ar2), δ2 = toRadians(de2);
+
+        const cosDist = Math.sin(δ1) * Math.sin(δ2) +
+            Math.cos(δ1) * Math.cos(δ2) * Math.cos(α1 - α2);
+
+        return toDegrees(Math.acos(Math.min(1, Math.max(-1, cosDist))));
+    };
+
+    // Obtener informe
+    const [[report]] = await pool.query(`
+        SELECT iz.IdInforme, iz.Fecha 
+        FROM Informe_Z iz 
+        WHERE iz.IdInforme = ?
+    `, [id]);
+    if (!report) return [];
+
+    // Obtener datos orbitales
+    const [orbital] = await pool.query(`
+        SELECT 
+            SUBSTRING_INDEX(eo.e, ' ', 1) AS e, 
+            SUBSTRING_INDEX(eo.a, ' ', 1) AS a, 
+            SUBSTRING_INDEX(eo.q, ' ', 1) AS q, 
+            SUBSTRING_INDEX(eo.Ar, ' ', 1) AS Ar, 
+            SUBSTRING_INDEX(eo.De, ' ', 1) AS De,
+            SUBSTRING_INDEX(eo.i, ' ', 1) AS i  
+        FROM Elementos_Orbitales eo 
+        WHERE eo.Informe_Z_IdInforme = ?;
+    `, [report.IdInforme]);
+
+    if (!orbital || orbital.length === 0) return [];
+
+    // Obtener lluvias activas +/-30 días
+    const fecha = new Date(report.Fecha);
+    const formatted = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+
+    const [lluvias] = await pool.query(`
+        SELECT ms.Code, ms.Activity,ms.ShowerNameDesignation,ms.Status, ms.SubDate, ms.Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q, ms.Incl as i
+        FROM meteor_showers ms
+        WHERE 
+            ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 30
+            AND ms.Code != ""
+            AND ms.A != "" AND ms.Q != "" AND ms.E != "" AND ms.Ra != "" AND ms.De != "";
+    `, [formatted]);
+
+    if (!lluvias || lluvias.length === 0) return [];
+
+    const lluvias_datos = lluvias.map(lluvia => {
+        const distancia = distanciaAngular(
+            Number(orbital[0].Ar),
+            Number(orbital[0].De),
+            Number(lluvia.Ra),
+            Number(lluvia.De)
+        );
+        return {
+            ...lluvia,
+            Distancia_mínima_entre_radianes_y_trayectoria: distancia.toFixed(2)
+        };
+    });
+
+    const result = [];
+
+    for (const lluvia of lluvias_datos) {
+        for (const ob of orbital) {
+            const membership = calculateMembership(ob, lluvia);
+            if (membership > 1) {
+                result.push({ ...lluvia, membership });
+            }
+        }
+    }
+
+    return result;
+}
+
+
+
+
+const parseOrbitalFloat = (valueString) => {
+    if (!valueString || valueString.trim() === '') {
+        return null; // Return null for empty or whitespace-only strings
+    }
+    // Extract the first part before any space
+    const numberPart = valueString.trim().split(' ')[0];
+    const value = parseFloat(numberPart);
+    if (isNaN(value)) {
+        // Log a warning if parsing fails, but don't stop execution
+        console.warn(`Warning: Could not parse orbital value string "${valueString}" (part "${numberPart}") to float.`);
+        return null; // Return null if parsing fails
+    }
+    return value;
+};
+
+
+const getMoonPhaseDescription = (phase) => {
+    if (phase === 0) return 'New Moon';
+    if (phase > 0 && phase < 0.25) return 'Waxing Crescent';
+    if (phase === 0.25) return 'First Quarter';
+    if (phase > 0.25 && phase < 0.5) return 'Waxing Gibbous';
+    if (phase === 0.5) return 'Full Moon';
+    if (phase > 0.5 && phase < 0.75) return 'Waning Gibbous';
+    if (phase === 0.75) return 'Last Quarter';
+    if (phase > 0.75 && phase < 1) return 'Waning Crescent';
+    return 'Unknown';
+};
+
+// Helper to convert radians to degrees
+const toDegrees = rad => rad * 180 / Math.PI;
+
+// Helper to convert degrees to radians
+const toRadians = deg => deg * Math.PI / 180;
+
+// Helper to convert RA from degrees (0-360) to hours (0-24) for suncalc
+const raDegreesToHours = deg => deg / 15;
+
+const getPhaseName = (p) => {
+    if (p < 0.01 || p > 0.99) return 'New Moon';
+    if (p >= 0.01 && p < 0.24) return 'Waxing Crescent';
+    if (p >= 0.24 && p < 0.26) return 'First Quarter';
+    if (p >= 0.26 && p < 0.49) return 'Waxing Gibbous';
+    if (p >= 0.49 && p < 0.51) return 'Full Moon';
+    if (p >= 0.51 && p < 0.74) return 'Waning Gibbous';
+    if (p >= 0.74 && p < 0.76) return 'Last Quarter';
+    if (p >= 0.76 && p < 0.99) return 'Waning Crescent';
+    return 'Unknown'; // Fallback, should not happen
+};
+
 
 
 

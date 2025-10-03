@@ -19,7 +19,6 @@ export const getIpAndLocation = async () => {
             success: true
         };
     } catch (error) {
-        console.error('Error fetching IP or location:', error);
         return {
             error: 'Failed to fetch IP or location data',
             success: false

@@ -86,16 +86,21 @@ function Register() {
     }
   };
 
-  const handleShowTermsModal = () => setShowTermsModal(true);
-  const handleCloseTermsModal = () => { setShowTermsModal(false); setAcceptedTerms(false); setAcceptedTermsInModal(false); };
-
+  const handleShowTermsModal = () => {
+    setShowTermsModal(true);
+    // Al abrir el modal, sincronizamos el estado del checkbox del modal con el principal
+    setAcceptedTermsInModal(acceptedTerms);
+  };
+  
+  const handleCloseTermsModal = () => {
+    setShowTermsModal(false);
+    // No modificamos el estado de acceptedTerms al cerrar
+    setAcceptedTermsInModal(false);
+  };
 
   const handleMainCheckboxChange = (e) => {
+    // Solo cambiamos el estado del checkbox, sin abrir el modal
     setAcceptedTerms(e.target.checked);
-    // Si se marca el checkbox principal, también abrimos el modal
-    if (e.target.checked) {
-      handleShowTermsModal();
-    }
   };
 
   // Función para manejar el cambio del checkbox dentro del modal
@@ -196,7 +201,15 @@ function Register() {
                       type="checkbox"
                       label={
                         <>
-                          {t('REGISTER.TERM.ACEPT')} <span style={{ color: '#980100', cursor: 'pointer' }} onClick={handleShowTermsModal}>{t('REGISTER.TERM.TERMS_AND_CONDITIONS')}</span>
+                          {t('REGISTER.TERM.ACEPT')} <span 
+                            style={{ color: '#980100', cursor: 'pointer', textDecoration: 'underline' }} 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleShowTermsModal();
+                            }}>
+                            {t('REGISTER.TERM.TERMS_AND_CONDITIONS')}
+                          </span>
                         </>
                       }
                       checked={acceptedTerms}
@@ -222,21 +235,10 @@ function Register() {
           </Modal.Header>
           <Modal.Body>
             <TermsAndConditions />
-            <Form.Group className="mb-3">
-              <Form.Check
-                type="checkbox"
-                label={t('TERMS_AND_CONDITIONS.ACCEPT_MODAL_BTN')}
-                checked={acceptedTermsInModal}
-                onChange={handleTermsInModalChange}
-              />
-            </Form.Group>
+             
           </Modal.Body>
           <Modal.Footer>
-            {acceptedTermsInModal && (
-              <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleCloseAndConfirmTerms}>
-                {t('TERMS_AND_CONDITIONS.ACCEPT_BTN')}
-              </Button>
-            )}
+             
             <Button variant="secondary" onClick={handleCloseTermsModal}>
               {t('TERMS_AND_CONDITIONS.CLOSE_BTN')}
             </Button>

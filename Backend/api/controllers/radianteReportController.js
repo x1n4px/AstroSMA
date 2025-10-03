@@ -1,7 +1,9 @@
 const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
 
-const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
+const { translateObjectKeys } = require('../utils/objectTranslator')
+const { radiantReportMapper } = require('../mappers/radiantReportMapper')
+
 
 const getRadiantReport = async (req, res) => {
     try {
@@ -19,8 +21,10 @@ const getRadiantReport = async (req, res) => {
         const [activeShower] = await pool.query('SELECT la.*, l.* FROM Lluvia_Activa_InfRad la JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador WHERE la.Informe_Radiante_Identificador = ? GROUP BY la.Lluvia_Identificador', [id]);
         const [angularVelocity] = await pool.query('SELECT * FROM Velociades_Angulares WHERE Informe_Radiante_Identificador = ?', [id]);
 
+
+
         const response = {
-            report: report[0],
+            report: translateObjectKeys(report[0], radiantReportMapper),
             observatory: obs1[0],
             trajectory: trajectory,
             activeShower: activeShower,

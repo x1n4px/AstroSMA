@@ -8,7 +8,7 @@ const { validateJWT } = require('../middlewares/validate-jwt');
 router.get('/reportz', validateJWT, ReportZController.getAllReportZ);
 router.get('/reportz/search', validateJWT, ReportZController.getReportzWithCustomSearch);
 router.post('/reportz/showerInfo/:selectedCode/:dateIn/:dateOut', validateJWT, ReportZController.getReportZListFromRain);
-router.get('/reportz/:id', validateJWT, ReportZController.getReportZ);
+router.get('/reportz/:id',  ReportZController.getReportZ);
 
 
 module.exports = router;

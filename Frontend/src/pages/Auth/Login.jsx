@@ -3,7 +3,7 @@ import { Form, Button, Card, Alert, Container, Row, Col, Image } from 'react-boo
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '@/services/authService';
 import LanguageNavbar from '@/components/layout/LanguageNavbar';
-
+import { useAuth } from '@/context/AuthContext.jsx'
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
@@ -14,6 +14,7 @@ function Login({ onLogin }) {
   const [error, setError] = useState('');
   const [showLogos, setShowLogos] = useState(true);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     const handleResize = () => {
@@ -33,13 +34,10 @@ function Login({ onLogin }) {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
       const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
 
-      const { token, rol, config } = await loginUser(email, password, isMobile);
-      if (config) {
-        localStorage.setItem('config', JSON.stringify(config));
-      }
+      // const { token, rol, config } = await loginUser(email, password, isMobile);
+      await login({ email, password, isMobile });
+      window.location.href = "/dashboard";
 
-      onLogin(token, rol);
-      navigate('/dashboard');
     } catch (error) {
       console.log(error)
       console.error('Login error:', error.response.status === 403);

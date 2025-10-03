@@ -33,13 +33,13 @@ function InferredDataReport({ data }) {
         <Col xs={12} md={6}>
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.DATE.label')}</Form.Label>
-            <Form.Control type="text" value={FormatDate(data.Fecha)} readOnly />
+            <Form.Control type="text" value={FormatDate(data.date)} readOnly />
           </Form.Group>
           
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.AZIMUTH.label')}</Form.Label>
             <InputGroup>
-              <Form.Control type="text" value={truncateDecimal(data.Azimut)} readOnly />
+              <Form.Control type="text" value={truncateDecimal(data.azimuth)} readOnly />
               <InputGroup.Text>°</InputGroup.Text>
             </InputGroup>
           </Form.Group>
@@ -47,7 +47,7 @@ function InferredDataReport({ data }) {
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.DIHEDRAL_ANGLE_BTW_PLANES.label')}</Form.Label>
             <InputGroup>
-              <Form.Control type="text" value={truncateDecimal(data.Ángulo_diedro_entre_planos_trayectoria)} readOnly />
+              <Form.Control type="text" value={truncateDecimal(data.trajectoryPlanesDihedralAngle)} readOnly />
               <InputGroup.Text>°</InputGroup.Text>
             </InputGroup>
           </Form.Group>
@@ -57,7 +57,7 @@ function InferredDataReport({ data }) {
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.Errores_AR_RADIANT.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={data.Errores_AR_DE_radiante?.split(" ")[0]} readOnly />
+                  <Form.Control type="text" value={data.radiantRaDeErrors?.split(" ")[0]} readOnly />
                   <InputGroup.Text>arcsec</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -65,7 +65,7 @@ function InferredDataReport({ data }) {
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={(data.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1)} readOnly />
+                  <Form.Control type="text" value={(data.celestialSphereOrthogonalityError1)} readOnly />
                   <InputGroup.Text>km²</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -75,8 +75,8 @@ function InferredDataReport({ data }) {
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE.label')}</Form.Label>
             <InputGroup>
-              <Form.Control type="text" value={(getDecimalCoordinates(data.Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha))} readOnly />
-              <InputGroup.Text>° °</InputGroup.Text>
+              <Form.Control type="text" value={(getDecimalCoordinates(data.radiantEclipticCoordinatesOfDate))} readOnly />
+              <InputGroup.Text>°</InputGroup.Text>
             </InputGroup>
           </Form.Group>
         </Col>
@@ -84,20 +84,20 @@ function InferredDataReport({ data }) {
         <Col xs={12} md={6}>
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.HOUR.label')}</Form.Label>
-            <Form.Control type="text" value={data.Hora.substring(0, 8)} readOnly />
+            <Form.Control type="text" value={data.time.substring(0, 8)} readOnly />
           </Form.Group>
           
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.ZENITHAL_DISTANCE.label')}</Form.Label>
             <InputGroup>
-              <Form.Control type="text" value={truncateDecimal(data.Dist_Cenital)} readOnly />
+              <Form.Control type="text" value={truncateDecimal(data.zenithDistance)} readOnly />
               <InputGroup.Text>°</InputGroup.Text>
             </InputGroup>
           </Form.Group>
           
           <Form.Group className="mb-2">
             <Form.Label>{t('INFERRED_DATA.STATISTICAL_WEIGHTS.label')}</Form.Label>
-            <Form.Control type="text" value={truncateDecimal(data.Peso_estadístico)} readOnly />
+            <Form.Control type="text" value={truncateDecimal(data.statisticalWeight)} readOnly />
           </Form.Group>
           
           {userRol === '10000000' && (
@@ -105,7 +105,7 @@ function InferredDataReport({ data }) {
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.Errores_DE_RADIANT.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={data.Errores_AR_DE_radiante?.split(" ")[1]} readOnly />
+                  <Form.Control type="text" value={data.radiantRaDeErrors?.split(" ")[1]} readOnly />
                   <InputGroup.Text>arcsec</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -113,7 +113,7 @@ function InferredDataReport({ data }) {
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={data.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2} readOnly />
+                  <Form.Control type="text" value={data.celestialSphereOrthogonalityError2} readOnly />
                   <InputGroup.Text>km²</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -121,15 +121,15 @@ function InferredDataReport({ data }) {
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={data.Coordenadas_astronómicas_del_radiante_J200} readOnly />
-                  <InputGroup.Text>° °</InputGroup.Text>
+                  <Form.Control type="text" value={data.radiantJ2000Coordinates} readOnly />
+                  <InputGroup.Text>°</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
 
               <Form.Group className="mb-2">
                 <Form.Label>{t('INFERRED_DATA.EQUATION_OF_MOVEMENT_IN_GS.label')}</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={data.Ecuacion_del_movimiento_en_gs} readOnly />
+                  <Form.Control type="text" value={data.accelerationGs} readOnly />
                   <InputGroup.Text>m/s²</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -141,7 +141,7 @@ function InferredDataReport({ data }) {
           <Col>
             <Form.Group className="mb-2">
               <Form.Label>{t('INFERRED_DATA.REPORT_ROUTE.label')}</Form.Label>
-              <Form.Control type="text" value={data.Ruta_del_informe} readOnly />
+              <Form.Control type="text" value={data.reportPath} readOnly />
             </Form.Group>
           </Col>
         )}

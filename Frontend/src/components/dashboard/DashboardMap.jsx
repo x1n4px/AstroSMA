@@ -10,6 +10,8 @@ import { MapPin, Navigation, Calendar, Gauge, RefreshCw } from "lucide-react"
 
 const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
   const { t } = useTranslation(['text']);
+  const token = localStorage.getItem('token');
+  console.log(token)
 
   return (
     <div style={{ minHeight: '700px', height: 'auto' }}>
@@ -134,14 +136,15 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
               </div>
 
               {/* Botón de actualizar */}
-              <Button as={Link} to={`/report/${lastReportData?.IdInforme}/INFERRED_DATA_TAB`}
+              <Button as={Link} to={token !== null ? `/report/${lastReportData?.IdInforme}/INFERRED_DATA_TAB` : "/login"}
                 variant="outline-danger"
                 className="w-100 d-flex align-items-center justify-content-center"
 
                 style={{ borderColor: "#980100", color: "#980100", borderRadius: "8px", padding: "10px" }}
               >
                 <RefreshCw size={18} className="me-2" />
-                {t('HOME.LAST_BOLIDE_DATA.SHOW_BTN')}
+                {token !== null ?  t('HOME.LAST_BOLIDE_DATA.SHOW_BTN') : t('HOME.LOGIN')}
+               
               </Button>
             </Card.Body>
           </Card>

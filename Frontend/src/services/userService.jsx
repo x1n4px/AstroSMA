@@ -2,21 +2,13 @@ import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const rol = localStorage.getItem('rol');
-const token = localStorage.getItem('authToken');
 
 export const getUser = async () => {
     try {
-        const token = localStorage.getItem('authToken'); // Obtiene el token del localStorage
 
 
         const response = await axios.get(
-            `${apiUrl}/user`, // Asegúrate que esta sea la ruta correcta.
-            {
-                headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
-                },
-            }
-        );
+            `${apiUrl}/user`);
 
         return response.data;
     } catch (error) {
@@ -29,7 +21,6 @@ export const getAllUsers = async () => {
     try {
         const response = await axios.get(`${apiUrl}/user/all`, {
             headers: {
-                'x-token': token, // Agrega el token como encabezado x-token
                 'x-rol': rol // Agrega el rol como encabezado x-rol
             },
         });
@@ -48,7 +39,6 @@ export const modifyUserRol = async (userId, newRol) => {
             { id: userId, rol: newRol },
             {
                 headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
                     'x-rol': rol // Agrega el rol como encabezado x-rol
                 },
             }
@@ -68,7 +58,6 @@ export const modifyUserPass = async (userId, oldPassword, newPassword) => {
             { id: userId, oldPassword, newPassword },
             {
                 headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
                     'x-rol': rol // Agrega el rol como encabezado x-rol
                 },
             }
@@ -88,7 +77,6 @@ export const blockUser = async (userId) => {
             `${apiUrl}/user/${userId}/updateUserBlockedStatus`,{},
             {
                 headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
                     'x-rol': rol // Agrega el rol como encabezado x-rol
                 },
             }

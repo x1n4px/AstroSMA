@@ -6,13 +6,7 @@ export const getGeneral = async (option) => {
     const token = localStorage.getItem('authToken'); // Obtiene el token del localStorage
 
     try {
-        const response = await axios.get(`${apiUrl}/dashboard?option=${option}`,
-            {
-                headers: {
-                    'x-token': token, // Agrega el token como encabezado x-token
-                },
-            }
-        );
+        const response = await axios.get(`${apiUrl}/dashboard?option=${option}`);
         return response.data;
     } catch (error) {
         throw error;
@@ -23,7 +17,6 @@ export const getGeneralHome = async (option) => {
 
     try {
         const response = await axios.get(`${apiUrl}/dashboard/home`);
-        console.log(response.data);
         return response.data;
     } catch (error) {
         throw error;

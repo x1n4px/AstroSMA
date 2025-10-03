@@ -29,7 +29,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                     <Form.Select onChange={handleOrbitChange} value={selectedOrbitIndex}>
                         {orbit.map((item, index) => (
                             <option key={index} value={index}>
-                                {formatDate(item.Fecha)} - {item.Hora.substring(0, 8)}
+                                {formatDate(item.date)} - {item.time}
                             </option>
                         ))}
                     </Form.Select>
@@ -42,7 +42,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                         <Col md={6}>
                             <Form.Group className="mb-2">
                                 <Form.Label>{t('ORBIT_REPORT.DATE.label')}</Form.Label>
-                                <Form.Control type="text" value={formatDate(selectedOrbit?.Fecha)} readOnly />
+                                <Form.Control type="text" value={formatDate(selectedOrbit?.date)} readOnly />
                             </Form.Group>
                             <Form.Group className="mb-2">
                                 <Form.Label>{t('ORBIT_REPORT.VELOCITY_INF.label')}</Form.Label>
@@ -72,7 +72,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                         <Col md={6}>
                             <Form.Group className="mb-2">
                                 <Form.Label>{t('ORBIT_REPORT.HOUR.label')}</Form.Label>
-                                <Form.Control type="text" value={selectedOrbit?.Hora.substring(0, 8)} readOnly />
+                                <Form.Control type="text" value={selectedOrbit?.time} readOnly />
                             </Form.Group>
                             <Form.Group className="mb-2">
                                 <Form.Label>{t('ORBIT_REPORT.DE.label')}</Form.Label>
@@ -118,7 +118,7 @@ const OrbitReport = ({ orbit, observatory, reportDate }) => {
                                 <>
                                     <div style={{ width: '100%', height: 'auto', marginBottom: '150px' }}>
 
-                                        <OrbitalView3D date={selectedOrbit.Fecha} orbit={selectedOrbit} />
+                                        <OrbitalView3D date={selectedOrbit.date} orbit={selectedOrbit} />
                                     </div>
                                 </>
                             )}

@@ -67,6 +67,7 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password, isMobile, ipLocationData } = req.body;
+        console.log(req.body)
         // Validación básica
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
         if (rows.length === 0) {
@@ -98,8 +99,8 @@ const loginUser = async (req, res) => {
         }
 
 
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        const saf = auditEvent('ACCESS', user.id, 'login', -1, 0, 'User login', isMobile);
+        const token = jwt.sign({ userId: user.id, role: user.rol, userIp: ip }, process.env.JWT_SECRET, { expiresIn: '12h' });
+        auditEvent('ACCESS', user.id, 'login', -1, 0, 'User login', isMobile);
 
         res.json({ token, rol });
     } catch (error) {

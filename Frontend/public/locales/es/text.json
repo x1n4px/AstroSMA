@@ -303,7 +303,7 @@
         "STATIONS": "Estaciones",
         "TRAJECTORY": "Órbita",
         "ASSOCIATED_DOWNLOAD_LINK": {
-            "TITLE": "Descargar informe asociado",
+            "TITLE": "Recursos",
             "DESCRIPTION": "Descargar el informe asociado a la lluvia activa",
             "LINK": "Descargar {{name}}",
             "METEOR_GLOW": "Descargar magnitudes instrumentales (brillos) del meteoro",
