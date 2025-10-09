@@ -333,50 +333,7 @@ const Home = () => {
                     </Row>
                 </Container>
             </div>
-            <div style={{ backgroundColor: '#e9ecef', padding: '60px 0' }}> {/* Light gray background for better contrast */}
-                <Container>
-                    <Row className="justify-content-center mb-4">
-                        <Col md={8} className="text-center">
-                            <h2>{t('HOME.STATION.TITLE') || 'Mapa de Estaciones Asociadas SMA'}</h2> {/* More descriptive title */}
-                            <p className="lead">{t('HOME.STATION.DESCRIPTION')}</p> {/* Informative subtitle */}
-                        </Col>
-                    </Row>
-                    <Row className="justify-content-center">
-                        <Col md={12}> {/* Make the map take full width within the container */}
-                            {firstMapLoaded && (
-                                <div style={{ borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}> {/* Added visual enhancements */}
-                                    <StationMapChart
-                                        ref={(ref) => {
-                                            mapRef.current = ref;
-                                            if (ref && ref.leafletElement) {
-                                                mapInstance.current = ref.leafletElement;
-                                            }
-                                        }}
-                                        key={'sma_stations_map'}
-                                        data={observatory}
-                                        activePopUp={true}
-                                        latitude={40.415417}
-                                        longitude={-3.695642}
-                                        zoom={6}
-                                        useStatinIcon={true}
-                                    />
-                                </div>
-                            )}
-                            {!firstMapLoaded && observatory && observatory.length === 0 && (
-                                <p className="text-center mt-3">{t('HOME.STATION.NO_STATIONS_AVAILABLE')}</p>
-                            )}
-                            {!firstMapLoaded && !observatory && (
-                                <p className="text-center mt-3">{t('HOME.STATION.LOADING_STATIONS')}</p>
-                            )}
-                        </Col>
-                    </Row>
-                    <Row className="justify-content-center mt-4">
-                        <Col md="auto" className="text-center">
-                            <p className="text-muted small">{t('HOME.STATION.MAP_INTERACTIVE_INFO')}</p>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
+             
 
             <div style={{ backgroundColor: '#980100', padding: '0px 0' }}>
                 <Container className="py-5" >
@@ -549,53 +506,7 @@ const Home = () => {
                 </Container>
             </div>
 
-            <div style={{ backgroundColor: '#f8f9fa', padding: '60px 0' }}>
-                <Container>
-
-                    {/* Sección del equipo */}
-                    <Row className="justify-content-center">
-                        <Col md={10}>
-                            <div className="text-center mb-4">
-                                <h2 style={{ color: '#212529' }}>{t('HOME.TEAM.TITLE')}</h2>
-                                <p className="text-muted mb-4">
-                                    {t('HOME.TEAM.DESCRIPTION')}
-                                </p>
-                            </div>
-
-                            <Row className="g-4 justify-content-center mb-4">
-                                {teamMembers.map((member, index) => (
-                                    <Col key={index} lg={3} md={6}>
-                                        <Card className="h-100 border-0 shadow-sm overflow-hidden">
-                                            <div style={{ height: '250px', overflow: 'hidden' }}>
-                                                <Card.Img
-                                                    variant="top"
-                                                    src={member.image}
-                                                    alt={member.name}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        objectFit: 'cover',
-                                                        transition: 'transform 0.3s ease'
-                                                    }}
-                                                    className="hover-zoom"
-                                                />
-                                            </div>
-                                            <Card.Body className="text-center">
-                                                <Card.Title>{member.name}</Card.Title>
-                                                <Card.Text className="text-muted">
-                                                    {member.role}
-                                                </Card.Text>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </Col>
-                    </Row>
-                </Container>
-
-
-            </div >
+             
             <Footer />
         </>
     );
