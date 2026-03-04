@@ -71,6 +71,7 @@ const Dashboard = () => {
             setPieChartData(responseD.pieChartData);
             setMonthObservationsFrequency(responseD.monthObservationsFrequency);
             setHourWithMoreDetection(responseD.hourWithMoreDetection);
+            console.log('responseD.impactMapFormat', responseD);
             setPredictableImpact(responseD.impactMapFormat);
             setExcentricitiesOverNinety(responseD.lastNMeteors);
             setObservatoryData(responseD.observatoryDataFormatted);
