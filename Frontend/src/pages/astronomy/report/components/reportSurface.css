@@ -1,0 +1,73 @@
+.report-label {
+  color: #39465f;
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 0.45rem;
+}
+
+.report-control,
+.report-select {
+  min-height: 2.6rem;
+  border: 1px solid #d5deea;
+  border-radius: 0.8rem;
+  background-color: #f8fafd;
+  color: #1f2b44;
+}
+
+.report-control[readonly] {
+  background-color: #f8fafd;
+  opacity: 1;
+}
+
+.report-control:focus,
+.report-select:focus {
+  border-color: #bdc9dc;
+  box-shadow: 0 0 0 0.18rem rgba(152, 1, 0, 0.08);
+  background-color: #ffffff;
+}
+
+.input-group > .report-control:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.report-suffix {
+  border: 1px solid #d5deea;
+  border-left: 0;
+  border-top-right-radius: 0.8rem;
+  border-bottom-right-radius: 0.8rem;
+  background-color: #eef3f8;
+  color: #53627b;
+  font-weight: 600;
+}
+
+.report-table-shell .table {
+  margin-bottom: 0;
+  color: #1f2b44;
+}
+
+.report-table-shell .table thead th {
+  border-bottom: 1px solid #dbe3ef;
+  border-top: 0;
+  background-color: #f2f6fb;
+  color: #43516a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.report-table-shell .table tbody td {
+  border-top: 1px solid #e8edf5;
+  vertical-align: middle;
+  background-color: #ffffff;
+}
+
+.report-table-shell .table tbody tr:nth-child(even) td {
+  background-color: #fbfcfe;
+}
+
+.report-table-shell .table tbody tr:hover td {
+  background-color: #f5f9ff;
+}

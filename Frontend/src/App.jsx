@@ -27,6 +27,7 @@ const ResetPassword = lazy(() => import('./pages/Auth/ResetPassword'));
 const Request = lazy(() => import('./pages/basic/Request.jsx'));
 const ActiveRainPanel = lazy(() => import('./components/admin/activeRainPanel.jsx'));
 const Layout = lazy(() => import('./layout/Layout.jsx'));
+const WorkflowsPanel = lazy(() => import('./pages/Auth/WorkflowsPanel.jsx'));
 
 import {
   QR_USER_ROL,
@@ -204,6 +205,7 @@ function App() {
               <Route path="/request" element={<ProtectedRoute requiredRoleMask="ALL_USER"><Request /></ProtectedRoute>} />
               <Route path="/admin-panel/request-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <Request /></ProtectedRoute>} />
               <Route path="/admin-panel/active-rain-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"> <ActiveRainPanel /></ProtectedRoute>} />
+              <Route path="/admin-panel/workflows" element={<ProtectedRoute requiredRoleMask="ADMIN"><WorkflowsPanel /></ProtectedRoute>} />
             </Route>
           )}
 

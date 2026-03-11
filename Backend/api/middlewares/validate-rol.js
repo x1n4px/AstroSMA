@@ -1,12 +1,10 @@
-const { extraerUserId } = require('./extractJWT')
+const { extraerUserId, normalizeToken } = require('./extractJWT')
 const pool = require('../database/connection');
 
 const validateRol = async (req, res, next) => {
-    const token = req.header('Authorization');
+    const token = normalizeToken(req.header('Authorization'));
     try {
-
-
-        const userId = extraerUserId(token);
+        const userId = req.userId ?? req.uid ?? extraerUserId(token);
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token' });
         }

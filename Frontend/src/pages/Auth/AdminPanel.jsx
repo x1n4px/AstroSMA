@@ -38,6 +38,14 @@ const AdminPanel = () => {
             key: 'RAIN',
             icon: <FaCloudRain className="me-2" />,
             link: "/admin-panel/active-rain-panel"
+        },
+        {
+            key: 'WORKFLOWS',
+            icon: <FaCogs className="me-2" />,
+            link: "/admin-panel/workflows",
+            titleFallback: 'AstroSMA Workflows',
+            subtitleFallback: 'Generador visual de informes, gráficos, mapas y consultas para administración.',
+            buttonFallback: 'Abrir Workflows'
         }
     ];
 
@@ -51,16 +59,16 @@ const AdminPanel = () => {
                         <div className="card h-100 shadow-sm"> {/* Added h-100 for equal height cards and a subtle shadow */}
                             <div className="card-header d-flex align-items-center"> {/* Used flex to align icon and title */}
                                 {section.icon}
-                                <h5 className="mb-0">{t(`ADMIN.CARDS.${section.key}.TITLE`)}</h5>
+                                <h5 className="mb-0">{t(`ADMIN.CARDS.${section.key}.TITLE`, section.titleFallback)}</h5>
                             </div>
                             <div className="card-body d-flex flex-column"> {/* Used flex to push button to bottom if content is short */}
-                                <p className="card-text">{t(`ADMIN.CARDS.${section.key}.SUBTITLE`)}</p>
+                                <p className="card-text">{t(`ADMIN.CARDS.${section.key}.SUBTITLE`, section.subtitleFallback)}</p>
                                 <Link 
                                     to={section.link} 
                                     style={{ backgroundColor: '#980100', border: '#980100' }} 
                                     className="btn btn-primary btn-block mt-auto w-100" // Changed to btn-primary for better contrast with red, mt-auto to push to bottom, w-100
                                 >
-                                    {t(`ADMIN.CARDS.${section.key}.BUTTON`)}
+                                    {t(`ADMIN.CARDS.${section.key}.BUTTON`, section.buttonFallback)}
                                 </Link>
                             </div>
                         </div>

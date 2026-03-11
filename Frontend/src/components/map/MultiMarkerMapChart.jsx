@@ -7,11 +7,8 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
     const polylineRefs = useRef([]);
     const markerRefs = useRef([]);
     const mapContainerRef = useRef(null);
-    useEffect(() => {
-        if (!data || data.length === 0) {
-            return;
-        }
 
+    useEffect(() => {
         if (!mapRef.current && mapContainerRef.current) {
             const map = L.map(mapContainerRef.current).setView([lat, lon], zoom);
             mapRef.current = map;
@@ -19,6 +16,10 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
             }).addTo(map);
+        }
+
+        if (!data || data.length === 0 || !mapRef.current) {
+            return undefined;
         }
 
         if (mapRef.current) {
@@ -102,7 +103,13 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
             });
 
             observatory?.forEach((obs) => {
-                const { latitude, longitude } = obs;
+                const latitude = Number(obs?.latitude);
+                const longitude = Number(obs?.longitude);
+
+                if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                    return;
+                }
+
                 const marker = L.marker([latitude, longitude], {
                     icon: new L.Icon({
                         iconUrl: ('/antena4.png'),
@@ -152,12 +159,21 @@ const MultiMarkerMapChart = ({ data, observatory = [], lat = 40.4168, lon = -3.7
         }
 
         return () => {
+            polylineRefs.current.forEach(polyline => polyline.remove());
+            markerRefs.current.forEach(marker => marker.remove());
             polylineRefs.current = [];
             markerRefs.current = [];
         };
-    }, [data, lat, lon, zoom, observatory]); // Añadido 'observatory' a las dependencias
+    }, [data, lat, lon, zoom, observatory]);
 
-    return <div ref={mapContainerRef} id="map" style={{ width: '100%', height: '100%', minHeight: eminHeight }}></div>;
+    useEffect(() => () => {
+        if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+        }
+    }, []);
+
+    return <div ref={mapContainerRef} style={{ width: '100%', height: '100%', minHeight: eminHeight }}></div>;
 };
 
 export default MultiMarkerMapChart;

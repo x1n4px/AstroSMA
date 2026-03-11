@@ -15,6 +15,7 @@ const auditRoute = require('./routes/auditRoute')
 const EventRoute = require('./routes/eventRoute')
 const FileRoute = require ('./routes/fileRoute')
 const RequestRoute = require('./routes/requestRoute') 
+const WorkflowsRoute = require('./routes/workflowsRoute')
 
 app.use(cors());
 app.use(express.json());
@@ -39,6 +40,7 @@ app.use('/api', auditRoute);
 app.use('/api', EventRoute);
 app.use('/api', FileRoute);
 app.use('/api', RequestRoute);
+app.use('/api', WorkflowsRoute);
 
 
 

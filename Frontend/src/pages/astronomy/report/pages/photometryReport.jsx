@@ -1,210 +1,236 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Container, Row, Col, Table } from 'react-bootstrap';
-import { getPhotometryFromId } from '@/services/photometryService.jsx'
-import { useParams, Link } from "react-router-dom";
-// Internationalization
+import React, { useEffect, useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
+import { Container, Row, Col, Table } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getPhotometryFromId } from '@/services/photometryService.jsx';
+import {
+  ReportPanel,
+  ReportField,
+  ReportMetricCard,
+  ReportMetricsGrid,
+  ReportSelectField,
+  ReportTableShell,
+  ReportEmptyState
+} from '@/pages/astronomy/report/components/ReportSurface.jsx';
 
-const PhotometryReport = ({ photometryData=[], isChild = false }) => {
-    const { t } = useTranslation(['text']);
-    const [selectedId, setSelectedId] = useState('');
-    const [photometryCData, setPhotometryCData] = useState('');
-    const [regressionData, setRegressionData] = useState([]);
-    const [meteorData, setMeteorData] = useState([]);
-    const [adjustmenPoints, setAdjustmenPoints] = useState([]);
+function TableBlock({ columns, rows }) {
+  return (
+    <ReportTableShell>
+      <Table hover responsive className="mb-0 align-middle">
+        <thead>
+          <tr>
+            {columns.map(column => (
+              <th key={column.key}>{column.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={`${columns[0].key}-${index}`}>
+              {columns.map(column => (
+                <td key={column.key}>{column.render(row)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </ReportTableShell>
+  );
+}
 
+TableBlock.propTypes = {
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
+    render: PropTypes.func.isRequired
+  })).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired
+};
 
+const PhotometryReport = ({ photometryData, isChild }) => {
+  const { t } = useTranslation(['text']);
+  const [selectedId, setSelectedId] = useState('');
+  const [photometryCData, setPhotometryCData] = useState(null);
+  const [regressionData, setRegressionData] = useState([]);
+  const [meteorData, setMeteorData] = useState(null);
+  const [adjustmenPoints, setAdjustmenPoints] = useState([]);
 
-    const params = useParams();
-    const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
+  const params = useParams();
+  const id = params?.reportId || '-1';
 
-    const handleSelectChange = (event) => {
-        setSelectedId(event.target.value);
+  useEffect(() => {
+    const fetchData = async currentId => {
+      try {
+        const response = await getPhotometryFromId(currentId);
+        setPhotometryCData(response.photometry);
+        setRegressionData(response.regressionStart || []);
+        setMeteorData(response.meteor || null);
+        setAdjustmenPoints(response.adjustPoint || []);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setPhotometryCData(null);
+        setRegressionData([]);
+        setMeteorData(null);
+        setAdjustmenPoints([]);
+      }
     };
 
-    useEffect(() => {
+    if (isChild === false && id !== '-1') {
+      fetchData(id);
+    } else if (selectedId) {
+      fetchData(selectedId);
+    }
+  }, [selectedId, isChild, id]);
 
-        const fetchData = async (id) => {
-            try {
-                const response = await getPhotometryFromId(id);
-                setPhotometryCData(response.photometry);
-                setRegressionData(response.regressionStart);
-                setMeteorData(response.meteor);
-                setAdjustmenPoints(response.adjustPoint);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                // Manejar el error adecuadamente (por ejemplo, mostrar un mensaje al usuario)
-                setPhotometryCData(null);
-            }
-        };
-        if (isChild === false && id !== '-1') {
-            // Si hay un ID en la ruta, carga los datos directamente
-            fetchData(id);
-        } else if (selectedId) {
-            // Si hay un ID seleccionado en el select, carga los datos
-            fetchData(selectedId);
-        }
-    }, [selectedId]);
+  const summaryMetrics = useMemo(() => {
+    if (!photometryCData) {
+      return [];
+    }
 
+    return [
+      { label: t('REPORT.PHOTOMETRY.INPUT.DATE'), value: photometryCData.Fecha },
+      { label: t('REPORT.PHOTOMETRY.INPUT.HOUR'), value: photometryCData.Hora },
+      { label: t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS'), value: photometryCData.Estrellas_visibles },
+      { label: t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION'), value: photometryCData.Estrellas_usadas_para_regresion },
+      { label: 'Puntos de regresion', value: regressionData.length },
+      { label: 'Puntos de ajuste', value: adjustmenPoints.length }
+    ];
+  }, [adjustmenPoints.length, photometryCData, regressionData.length, t]);
 
-    return (
-        <Container>
-            {isChild !== false && (
-                <Row>
+  const regressionColumns = [
+    { key: 'id', label: t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.START_ID'), render: row => row.Id_estrella },
+    { key: 'airmass', label: t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.AIR_MASS'), render: row => row.Masa_de_aire },
+    { key: 'catalog', label: t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.CATALOG_MAGNITUDE'), render: row => row.Magnitud_de_catalogo },
+    { key: 'instrumental', label: t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.INSTRUMENTAL_MAGNITUDE'), render: row => row.Magnitud_instrumental }
+  ];
 
-                    <Col>
-                        <h1>{t('REPORT.PHOTOMETRY.TITLE')}</h1>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Selecciona un ID:</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={selectedId}
-                                onChange={handleSelectChange}
-                            >
-                                <option value="">Selecciona un ID</option>
-                                {photometryData.map((item) => (
-                                    <option key={item.Identificador} value={item.Identificador}>
-                                        {item.Identificador}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
+  const adjustmentColumns = [
+    { key: 't', label: t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.T'), render: row => row.t },
+    { key: 'dist', label: t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.DISTANCE'), render: row => row.Dist },
+    { key: 'mc', label: t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.MC'), render: row => row.Mc },
+    { key: 'ma', label: t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.MA'), render: row => row.Ma }
+  ];
 
-                    </Col>
-                </Row>
-            )}
-            <Row className="mt-4">
-                {photometryCData ? (
-                    <>
-                     {isChild !== false && (
-                        <p>ID seleccionado: {selectedId}</p>
-                     )}
-                     {isChild === false && (
-                        <h1>{t('REPORT.PHOTOMETRY.TITLE', {id: id})}</h1>
-                     )}
-                        <Col md={6}>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.DATE')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Fecha} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.HOUR')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Hora} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Estrellas_visibles} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Estrellas_usadas_para_regresion} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Coeficiente_externo_Recta_de_Bouger} readOnly />
-                            </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Punto_cero_Recta_de_Bouger} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Error_tipico_regresion} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Error_tipico_punto_cero} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Error_tipico_coeficiente_externo} readOnly />
-                            </Form.Group>
-                            <Form.Group className="mb-2">
-                                <Form.Label>{t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')}</Form.Label>
-                                <Form.Control type="text" value={photometryCData.Coeficientes_parabola_trayectoria} readOnly />
-                            </Form.Group>
-                        </Col>
+  return (
+    <Container fluid className="px-0">
+      <Row className="g-4">
+        {isChild !== false ? (
+          <Col xs={12}>
+            <ReportPanel title={t('REPORT.PHOTOMETRY.TITLE')} description="Selecciona un informe de fotometria asociado para cargar sus datos." accent="warm">
+              <ReportSelectField
+                label="Selecciona un ID"
+                value={selectedId}
+                onChange={event => setSelectedId(event.target.value)}
+              >
+                <option value="">Selecciona un ID</option>
+                {photometryData.map(item => (
+                  <option key={item.Identificador} value={item.Identificador}>
+                    {item.Identificador}
+                  </option>
+                ))}
+              </ReportSelectField>
+            </ReportPanel>
+          </Col>
+        ) : null}
 
-                        {regressionData && regressionData.length > 0 && (
-                            <Col xs={12} className="mt-4">
-                                <h2>{t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.TITLE')}</h2>
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>{t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.START_ID')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.AIR_MASS')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.CATALOG_MAGNITUDE')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.INSTRUMENTAL_MAGNITUDE')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {regressionData.map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{item.Id_estrella}</td>
-                                                <td>{item.Masa_de_aire}</td>
-                                                <td>{item.Magnitud_de_catalogo}</td>
-                                                <td>{item.Magnitud_instrumental}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </Col>
-                        )}
+        {!photometryCData ? (
+          <Col xs={12}>
+            <ReportEmptyState
+              message={selectedId
+                ? `ID seleccionado: ${selectedId}, no encontrado.`
+                : 'No hay datos de fotometria cargados para este informe.'}
+            />
+          </Col>
+        ) : (
+          <>
+            <Col xs={12}>
+              <ReportPanel
+                title={isChild !== false ? `Fotometria ${selectedId}` : t('REPORT.PHOTOMETRY.TITLE', { id })}
+                description="Resumen general del ajuste fotometrico y de sus tablas derivadas."
+                accent="warm"
+              >
+                <ReportMetricsGrid>
+                  {summaryMetrics.map(metric => (
+                    <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+                  ))}
+                </ReportMetricsGrid>
+              </ReportPanel>
+            </Col>
 
-                        {meteorData && (
-                            <Col xs={12} className="mt-4">
-                                <h2>{t('REPORT.PHOTOMETRY.METEOR_DATA.TITLE')}</h2>
-                                <Row>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.X_START')}</strong>: {meteorData.X_Inicio}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.Y_START')}</strong>: {meteorData.Y_Inicio}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_START')}</strong>: {meteorData.Maire_Inicio}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_START')}</strong>: {meteorData.distInicio}</Col>
-                                </Row>
-                                <Row className="mt-2">
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.X_END')}</strong>: {meteorData.X_Final}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.Y_END')}</strong>: {meteorData.Y_Final}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_END')}</strong>: {meteorData.Maire_Final}</Col>
-                                    <Col md={3}><strong>{t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_END')}</strong>: {meteorData.dist_Final}</Col>
-                                </Row>
-                            </Col>
-                        )}
+            <Col xs={12} lg={6}>
+              <ReportPanel title="Calibracion fotometrica" description="Parametros principales del ajuste de Bouguer y de la regresion.">
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.DATE')} value={photometryCData.Fecha} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.HOUR')} value={photometryCData.Hora} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS')} value={photometryCData.Estrellas_visibles} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION')} value={photometryCData.Estrellas_usadas_para_regresion} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')} value={photometryCData.Coeficiente_externo_Recta_de_Bouger} />
+              </ReportPanel>
+            </Col>
 
+            <Col xs={12} lg={6}>
+              <ReportPanel title="Errores y coeficientes" description="Medidas de error tipico y coeficientes asociados al modelo.">
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')} value={photometryCData.Punto_cero_Recta_de_Bouger} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')} value={photometryCData.Error_tipico_regresion} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')} value={photometryCData.Error_tipico_punto_cero} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={photometryCData.Error_tipico_coeficiente_externo} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={photometryCData.Coeficientes_parabola_trayectoria} />
+              </ReportPanel>
+            </Col>
 
-
-                        {adjustmenPoints && adjustmenPoints.length > 0 && (
-                            <Col xs={12} className="mt-4">
-                                <h2>{t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.TITLE')}</h2>
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>{t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.T')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.DISTANCE')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.MC')}</th>
-                                            <th>{t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.MA')}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {adjustmenPoints.map((item, index) => (
-                                            <tr key={index}>
-                                                <td>{item.t}</td>
-                                                <td>{item.Dist}</td>
-                                                <td>{item.Mc}</td>
-                                                <td>{item.Ma}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </Col>
-                        )}
-                    </>
+            <Col xs={12}>
+              <ReportPanel title={t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.TITLE')} description="Estrellas utilizadas en la regresion y sus magnitudes asociadas.">
+                {regressionData.length > 0 ? (
+                  <TableBlock columns={regressionColumns} rows={regressionData} />
                 ) : (
-                    selectedId && <p>ID seleccionado: {selectedId}, no encontrado.</p>
+                  <ReportEmptyState message="No hay datos de regresion fotometrica." />
                 )}
-            </Row>
-        </Container>
-    );
+              </ReportPanel>
+            </Col>
+
+            <Col xs={12}>
+              <ReportPanel title={t('REPORT.PHOTOMETRY.METEOR_DATA.TITLE')} description="Valores resumidos del meteoro al inicio y al final de la trayectoria fotometrica.">
+                {meteorData ? (
+                  <ReportMetricsGrid>
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.X_START')} value={meteorData.X_Inicio} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.Y_START')} value={meteorData.Y_Inicio} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_START')} value={meteorData.Maire_Inicio} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_START')} value={meteorData.distInicio} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.X_END')} value={meteorData.X_Final} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.Y_END')} value={meteorData.Y_Final} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_END')} value={meteorData.Maire_Final} />
+                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_END')} value={meteorData.dist_Final} />
+                  </ReportMetricsGrid>
+                ) : (
+                  <ReportEmptyState message="No hay datos del meteoro para este bloque fotometrico." />
+                )}
+              </ReportPanel>
+            </Col>
+
+            <Col xs={12}>
+              <ReportPanel title={t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.TITLE')} description="Puntos de ajuste fotometrico a lo largo del evento.">
+                {adjustmenPoints.length > 0 ? (
+                  <TableBlock columns={adjustmentColumns} rows={adjustmenPoints} />
+                ) : (
+                  <ReportEmptyState message="No hay puntos de ajuste fotometrico." />
+                )}
+              </ReportPanel>
+            </Col>
+          </>
+        )}
+      </Row>
+    </Container>
+  );
+};
+
+PhotometryReport.propTypes = {
+  photometryData: PropTypes.arrayOf(PropTypes.object),
+  isChild: PropTypes.bool
+};
+
+PhotometryReport.defaultProps = {
+  photometryData: [],
+  isChild: false
 };
 
 export default PhotometryReport;

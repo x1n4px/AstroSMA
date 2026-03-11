@@ -190,7 +190,13 @@ const Report = () => {
                         )}
                         <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>
 
-                            <PendingReport reportData={reportData} observatory={observatoryData} slopeMapData={slopeMapData} />
+                            <PendingReport
+                                reportData={reportData}
+                                observatory={observatoryData}
+                                slopeMapData={slopeMapData}
+                                trajectoryData={trajectoryData}
+                                regressionTrajectory={regressionTrajectory}
+                            />
                             <RotationReport data={reportData} />
                         </Tab>
 

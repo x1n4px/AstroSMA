@@ -1,173 +1,96 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import StationMapChart from '@/components/map/StationMapChart';
-import { getAsocciatedStations } from '@/services/stationService';
-import { Form, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import {
+    ReportPanel,
+    ReportMetricCard,
+    ReportMetricsGrid,
+    ReportEmptyState
+} from '@/pages/astronomy/report/components/ReportSurface.jsx';
 
 
 const AssociatedStation = ({ reportId, observatories }) => {
     const { t } = useTranslation(['text']);
 
-    const [station1Longitude, setStation1Longitude] = useState('');
-    const [station1Latitude, setStation1Latitude] = useState('');
-    const [station1Xi, setStation1Xi] = useState('');
-    const [station1Eta, setStation1Eta] = useState('');
-    const [station1Zeta, setStation1Zeta] = useState('');
-    const [station2Longitude, setStation2Longitude] = useState('');
-    const [station2Latitude, setStation2Latitude] = useState('');
-    const [station2Xi, setStation2Xi] = useState('');
-    const [station2Eta, setStation2Eta] = useState('');
-    const [station2Zeta, setStation2Zeta] = useState('');
-    const [cuadraturaError, setCuadraturaError] = useState(''); // Estado para el error de cuadratura
+    if (!Array.isArray(observatories) || observatories.length < 2) {
+        return <ReportEmptyState message="No hay estaciones asociadas suficientes para mostrar esta seccion." />;
+    }
 
+    const station1 = observatories[0] || {};
+    const station2 = observatories[1] || {};
+    const station1Id = station1.id ?? station1.Numero ?? station1.numero ?? 1;
+    const station2Id = station2.id ?? station2.Numero ?? station2.numero ?? 2;
 
+    const station1Metrics = [
+        { label: t('REPORT.ASSOCIATED_STATIONS.STATION_LONGITUDE'), value: station1.longitude ?? station1.Longitud ?? '-' },
+        { label: t('REPORT.ASSOCIATED_STATIONS.STATION_LATITUDE'), value: station1.latitude ?? station1.Latitud ?? '-' },
+        { label: 'Xi', value: 0 },
+        { label: 'Eta', value: 0 },
+        { label: 'Zeta', value: 0 }
+    ];
+
+    const station2Metrics = [
+        { label: t('REPORT.ASSOCIATED_STATIONS.STATION_LONGITUDE'), value: station2.longitude ?? station2.Longitud ?? '-' },
+        { label: t('REPORT.ASSOCIATED_STATIONS.STATION_LATITUDE'), value: station2.latitude ?? station2.Latitud ?? '-' },
+        { label: 'Xi', value: 0 },
+        { label: 'Eta', value: 0 },
+        { label: 'Zeta', value: 0 }
+    ];
 
     return (
-        <div>
+        <Container fluid className="px-0">
+            <Row className="g-4">
+                <Col xs={12} lg={6}>
+                    <ReportPanel title={t('REPORT.ASSOCIATED_STATIONS.STATION_TITLE', { id: station1Id })}>
+                        <ReportMetricsGrid>
+                            {station1Metrics.map(metric => (
+                                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+                            ))}
+                        </ReportMetricsGrid>
+                    </ReportPanel>
+                </Col>
 
-            <>
-                <Row className="mb-3">
-                    <Col xs={12}>
-                        <h4>{t('REPORT.ASSOCIATED_STATIONS.STATION_TITLE', { id: observatories[0].id })}</h4>
-                    </Col>
-                </Row>
-                <Row className="mb-3">
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">{t('REPORT.ASSOCIATED_STATIONS.STATION_LONGITUDE')}</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={observatories[0].longitude}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">{t('REPORT.ASSOCIATED_STATIONS.STATION_LATITUDE')}</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={observatories[0].latitude}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Xi</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                onChange={(e) => setStation1Xi(e.target.value)}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row className="mb-3">
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Eta</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Zeta</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}></Col>
-                </Row>
+                <Col xs={12} lg={6}>
+                    <ReportPanel title={t('REPORT.ASSOCIATED_STATIONS.STATION_TITLE', { id: station2Id })}>
+                        <ReportMetricsGrid>
+                            {station2Metrics.map(metric => (
+                                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+                            ))}
+                        </ReportMetricsGrid>
+                    </ReportPanel>
+                </Col>
 
-                <Row className="mb-3">
-                    <Col xs={12}>
-                        <h4>{t('REPORT.ASSOCIATED_STATIONS.STATION_TITLE', { id: observatories[1].id })}</h4>
-                    </Col>
-                </Row>
-                <Row className="mb-3">
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">{t('REPORT.ASSOCIATED_STATIONS.STATION_LONGITUDE')}</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={observatories[1].longitude}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">{t('REPORT.ASSOCIATED_STATIONS.STATION_LATITUDE')}</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={observatories[1].latitude}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Xi</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row className="mb-3">
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Eta</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Label className="me-2">Zeta</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col xs={12} md={4}></Col>
-                </Row>
+                <Col xs={12}>
+                    <ReportPanel title={t('REPORT.ASSOCIATED_STATIONS.CUADRATURA_ERROR')}>
+                        <ReportMetricsGrid>
+                            <ReportMetricCard label={t('REPORT.ASSOCIATED_STATIONS.CUADRATURA_ERROR')} value={0} />
+                            {reportId ? <ReportMetricCard label="Informe" value={reportId} /> : null}
+                        </ReportMetricsGrid>
+                    </ReportPanel>
+                </Col>
 
-                <Row className="mb-3">
-                    <Col xs={12}>
-                        <h4>{t('REPORT.ASSOCIATED_STATIONS.CUADRATURA_ERROR')}:</h4>
-                        <Form.Group className="d-flex align-items-center">
-                            <Form.Control
-                                type="text"
-                                value={0}
-                                className="flex-grow-1"
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-
-                <StationMapChart data={observatories} useStatinIcon={true} zoom={6} activePopUp={true} />
-
-            </>
-
-        </div>
+                <Col xs={12}>
+                    <ReportPanel title="Mapa de estaciones asociadas" description="Distribucion geoespacial de las estaciones usadas en el informe." accent="cool">
+                        <div style={{ width: '100%', minHeight: '36rem', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #e5ebf3' }}>
+                            <StationMapChart data={observatories} useStatinIcon={true} zoom={6} activePopUp={true} />
+                        </div>
+                    </ReportPanel>
+                </Col>
+            </Row>
+        </Container>
     );
+};
+
+AssociatedStation.propTypes = {
+    reportId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    observatories: PropTypes.arrayOf(PropTypes.object)
+};
+
+AssociatedStation.defaultProps = {
+    reportId: '',
+    observatories: []
 };
 
 export default AssociatedStation;

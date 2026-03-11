@@ -1,0 +1,158 @@
+.report-panel {
+  height: 100%;
+  padding: 1.25rem;
+  border-radius: 1.35rem;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.045);
+  background-color: #ffffff;
+  border: 1px solid #dde5f0;
+}
+
+.report-panel--neutral {
+  background-color: #ffffff;
+  border-color: #dde5f0;
+}
+
+.report-panel--warm {
+  background-color: #fffdfa;
+  border-color: #ecd9ce;
+}
+
+.report-panel--cool {
+  background-color: #fbfcff;
+  border-color: #dce6f5;
+}
+
+.report-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background-color: #fff1e8;
+  color: #9a3412;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.report-field .form-label,
+.report-select-field .form-label {
+  margin-bottom: 0.42rem;
+  color: #42526c;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.report-label {
+  margin-bottom: 0.42rem;
+  color: #42526c;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.report-input-group .form-control,
+.report-input-group .form-select,
+.report-select-field .form-select,
+.report-control,
+.report-select {
+  min-height: 2.9rem;
+  border-color: #d7e0ec;
+  border-radius: 0.95rem;
+  background-color: #f8fafc;
+  color: #162133;
+  box-shadow: none;
+  padding-inline: 0.9rem;
+}
+
+.report-input-group .form-control[readonly],
+.report-control[readonly] {
+  background-color: #f8fafc;
+  color: #162133;
+}
+
+.report-input-group .input-group-text,
+.report-suffix {
+  border-color: #d7e0ec;
+  background-color: #eef3f8;
+  color: #51607a;
+  border-radius: 0.95rem;
+  font-weight: 600;
+}
+
+.report-input-group > .form-control:not(:last-child),
+.report-input-group > .form-select:not(:last-child) {
+  border-top-right-radius: 0.95rem;
+  border-bottom-right-radius: 0.95rem;
+}
+
+.report-input-group > .input-group-text:not(:first-child) {
+  margin-left: 0.45rem;
+}
+
+.report-input-group .form-control:focus,
+.report-input-group .form-select:focus,
+.report-select-field .form-select:focus,
+.report-control:focus,
+.report-select:focus {
+  border-color: #b8c9de;
+  box-shadow: 0 0 0 0.18rem rgba(152, 1, 0, 0.08);
+  background-color: #ffffff;
+}
+
+.report-control.form-control-sm,
+.report-select.form-select-sm {
+  min-height: 2.45rem;
+  border-radius: 0.82rem;
+}
+
+.report-field textarea.report-control {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+.report-table-shell {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background-color: #ffffff;
+}
+
+.report-table-shell .table {
+  margin-bottom: 0;
+  --bs-table-bg: transparent;
+}
+
+.report-table-shell .table > :not(caption) > * > * {
+  padding: 0.88rem 0.95rem;
+  border-bottom-color: #eef2f7;
+  vertical-align: middle;
+}
+
+.report-table-shell .table thead th {
+  background-color: #f7f9fc;
+  color: #5f6c84;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.report-table-shell .table tbody td {
+  color: #182338;
+  background-color: transparent;
+}
+
+.report-table-shell .table tbody tr:hover td {
+  background-color: #f4f7fb;
+}
+
+.report-empty-state {
+  padding: 1rem 1.1rem;
+  border: 1px dashed #d7dee9;
+  border-radius: 1rem;
+  color: #64748b;
+  background-color: #f8fafc;
+}
