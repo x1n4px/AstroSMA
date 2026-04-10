@@ -1,12 +1,46 @@
-# React + Vite
+# Frontend AstroSMA
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación React + Vite para visualización de meteoros, informes y workflows.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 18+
+- Backend AstroSMA en ejecución
 
-## Expanding the ESLint configuration
+## Configuración
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Instala dependencias:
+
+```bash
+npm install
+```
+
+2. Crea el archivo de entorno:
+
+```bash
+cp .env.example .env
+```
+
+3. Configura `VITE_API_URL` en `.env`:
+
+```env
+VITE_API_URL=http://localhost:3005/api
+```
+
+## Desarrollo
+
+```bash
+npm run dev
+```
+
+## Build de producción
+
+```bash
+npm run build
+npm run preview
+```
+
+## Nota sobre YouTube Workflows
+
+Las claves de YouTube (`YOUTUBE_API_KEY`, `YOUTUBE_CLIENT_ID`) ya no se definen en el frontend.
+Ahora se configuran en el backend y el frontend las obtiene por API.

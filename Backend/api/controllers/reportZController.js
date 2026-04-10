@@ -185,6 +185,73 @@ const getReportzWithCustomSearch = async (req, res) => {
     }
 };
 
+const getRelatedReportsByMeteor = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [currentReportRows] = await pool.query(
+            'SELECT IdInforme, Meteoro_Identificador FROM Informe_Z WHERE IdInforme = ? LIMIT 1',
+            [id]
+        );
+
+        if (!currentReportRows.length) {
+            return res.status(404).json({ message: 'Informe no encontrado' });
+        }
+
+        const meteorId = currentReportRows[0].Meteoro_Identificador;
+
+        const [relatedRows] = await pool.query(
+            `
+            SELECT
+                related.reportType,
+                related.reportId,
+                related.date,
+                related.time,
+                related.primaryStation,
+                related.secondaryStation
+            FROM (
+                SELECT
+                    'REPORT_Z' AS reportType,
+                    iz.IdInforme AS reportId,
+                    iz.Fecha AS date,
+                    iz.Hora AS time,
+                    CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio) AS primaryStation,
+                    CONCAT(o2.Número, ' - ', o2.Nombre_Observatorio) AS secondaryStation
+                FROM Informe_Z iz
+                LEFT JOIN Observatorio o1 ON o1.Número = iz.Observatorio_Número
+                LEFT JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2
+                WHERE iz.Meteoro_Identificador = ?
+                  AND iz.IdInforme <> ?
+
+                UNION ALL
+
+                SELECT
+                    'RADIANT' AS reportType,
+                    ir.Identificador AS reportId,
+                    ir.Fecha AS date,
+                    ir.Hora AS time,
+                    CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio) AS primaryStation,
+                    NULL AS secondaryStation
+                FROM Informe_Radiante ir
+                LEFT JOIN Observatorio o1 ON o1.Número = ir.Observatorio_Número
+                WHERE ir.Meteoro_Identificador = ?
+            ) related
+            ORDER BY related.date DESC, related.time DESC, related.reportId DESC
+            `,
+            [meteorId, id, meteorId]
+        );
+
+        return res.json({
+            meteorId,
+            currentReportId: Number(id),
+            reports: relatedRows
+        });
+    } catch (error) {
+        console.error('Error al obtener informes relacionados por meteoro:', error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 
 
 const calculateBolidePosition = (azimut, distanciaCenital, obs1Lat, obs1Lon, obs2Lat, obs2Lon) => {
@@ -743,4 +810,5 @@ module.exports = {
     getReportZ,
     getReportzWithCustomSearch,
     getReportZListFromRain,
+    getRelatedReportsByMeteor,
 };

@@ -14,4 +14,15 @@ const getCountry = async (req, res) => {
     }
 }
 
-module.exports = { getCountry };
+const getClientRuntimeConfig = async (req, res) => {
+    try {
+        return res.json({
+            youtubeApiKey: process.env.YOUTUBE_API_KEY || '',
+            youtubeClientId: process.env.YOUTUBE_CLIENT_ID || ''
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+module.exports = { getCountry, getClientRuntimeConfig };

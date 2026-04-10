@@ -11,6 +11,7 @@ import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import RotationReport from './pages/rotationReport';
 import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
+import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
 import '@/assets/TabsStyles.css';
 
@@ -119,7 +120,8 @@ const Report = () => {
             'ZWO': 'ZWO',
             'PHOTOMETRY': 'PHOTOMETRY',
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
-            'ASSOCIATED_DOWNLOAD_LINK': 'ASSOCIATED_DOWNLOAD_LINK'
+            'ASSOCIATED_DOWNLOAD_LINK': 'ASSOCIATED_DOWNLOAD_LINK',
+            'RELATED_REPORTS_TAB': 'RELATED_REPORTS_TAB'
         };
         const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '1');
         return adviceForTab;
@@ -219,6 +221,10 @@ const Report = () => {
                                 <AssociatedDownloadReport report={reportData} />
                             </Tab>
                         )}
+
+                        <Tab eventKey="RELATED_REPORTS_TAB" title={t('REPORT.RELATED_REPORTS.TAB_TITLE')}>
+                            <RelatedReportsTab reportId={id} meteorId={reportData?.meteorId} currentReportType="REPORT_Z" />
+                        </Tab>
 
                          
                     </Tabs>

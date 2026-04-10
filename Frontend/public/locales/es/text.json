@@ -474,6 +474,24 @@
             "HI": "hi",
             "SHOWER": "lluvia",
             "METEOR": "meteoro"
+        },
+        "RELATED_REPORTS": {
+            "TAB_TITLE": "Informes relacionados",
+            "TITLE": "Resto de informes del meteoro",
+            "DESCRIPTION": "Accesos rápidos a los informes de una y dos estaciones del meteoro {{meteorId}}.",
+            "METEOR_PAGE": "Ir a la página del meteoro",
+            "LOADING": "Cargando informes relacionados...",
+            "ERROR": "No se pudieron cargar los informes relacionados.",
+            "EMPTY": "No hay otros informes relacionados para este meteoro.",
+            "OPEN": "Abrir",
+            "TABLE": {
+                "TYPE": "Tipo",
+                "ID": "ID informe",
+                "DATE": "Fecha",
+                "TIME": "Hora",
+                "STATION": "Observatorio/s",
+                "ACTION": "Acción"
+            }
         }
     },
     "CUSTOMIZE_SEARCH": {
@@ -486,10 +504,38 @@
         "RANGE_DATE": "Rango de Fechas",
         "SEARCH_BTN": "Buscar",
         "CLEAR_BTN": "Limpiar",
+        "SELECT_OPTIONAL": "Seleccionar (opcional)",
+        "RESULTS_TITLE": "Resultados",
+        "RESULTS_COUNT": "{{count}} resultados",
         "REPORT_Z": "Informe de dos estaciones (Informe Z)",
         "REPORT_RADIANT": "Informe de una estación (Informe radiante)",
         "REPORT_PHOTOMETRY": "Informe de fotometría",
         "SHOW_BUTTON": "Ver más",
+        "SORT": {
+            "TITLE": "Ordenación",
+            "ASC": "Fecha ascendente",
+            "DESC": "Fecha descendente"
+        },
+        "ADVANCED": {
+            "TITLE": "Filtros avanzados",
+            "METEOR_ID": "ID de meteoro",
+            "OBSERVATORY": "Observatorio",
+            "SHOWER": "Lluvia asociada",
+            "SHOWER_PLACEHOLDER": "Ejemplo: Perseidas",
+            "TIME_FROM": "Hora desde",
+            "TIME_TO": "Hora hasta",
+            "MIN_VELOCITY": "Velocidad media mínima",
+            "MAX_VELOCITY": "Velocidad media máxima",
+            "MIN_ANGULAR_VELOCITY": "Velocidad angular mínima",
+            "MAX_ANGULAR_VELOCITY": "Velocidad angular máxima",
+            "MIN_MAG_MAX": "MagMax mínima",
+            "MAX_MAG_MAX": "MagMax máxima",
+            "MIN_MASS": "Masa fotométrica mínima",
+            "MAX_MASS": "Masa fotométrica máxima",
+            "REQUIRE_Z": "Solo con Informe Z",
+            "REQUIRE_RADIANT": "Solo con Informe Radiante",
+            "REQUIRE_PHOTOMETRY": "Solo con Informe de Fotometría"
+        },
         "REPORT_TYPE": {
             "TITLE": "Tipo de informe",
             "SELECT": {

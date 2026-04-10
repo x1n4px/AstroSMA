@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {getCountry} = require('../controllers/auxiliaryController');
+const {getCountry, getClientRuntimeConfig} = require('../controllers/auxiliaryController');
 
 
 router.get('/auxiliary/country',
     getCountry
+)
+
+router.get('/auxiliary/client-config',
+    getClientRuntimeConfig
 )
 
 

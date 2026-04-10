@@ -24,6 +24,14 @@ export const getReportZListFromRain = async(selectedCode, dateIn, dateOut, membe
     }
 }
 
- 
+export const getRelatedReportsByReportZId = async(id) => {
+    try {
+        const response = await axios.get(`${apiUrl}/reportz/${id}/related`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
 
+ 
 

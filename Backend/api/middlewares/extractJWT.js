@@ -10,6 +10,33 @@ function normalizeToken(token) {
   return token.replace(/^Bearer\s+/i, '').trim() || null;
 }
 
+function resolveJwtUserId(decoded) {
+  if (!decoded || typeof decoded !== 'object') {
+    return null;
+  }
+
+  const candidate =
+    decoded.userId ??
+    decoded.uid ??
+    decoded.id ??
+    decoded.user_id ??
+    decoded?.user?.id ??
+    decoded?.data?.userId ??
+    decoded?.data?.uid ??
+    null;
+
+  if (candidate === null || candidate === undefined || candidate === '') {
+    return null;
+  }
+
+  const parsed = Number(candidate);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+
+  return parsed;
+}
+
 function extraerUserId(token) {
   try {
     const normalizedToken = normalizeToken(token);
@@ -18,7 +45,7 @@ function extraerUserId(token) {
     }
 
     const decoded = jwt.verify(normalizedToken, process.env.JWT_SECRET);
-    return decoded.userId ?? decoded.uid ?? null;
+    return resolveJwtUserId(decoded);
   } catch (error) {
     console.error('Error al verificar el token:', error);
     return null;
@@ -29,5 +56,6 @@ function extraerUserId(token) {
 
 module.exports = {
   normalizeToken,
+  resolveJwtUserId,
   extraerUserId,
 };

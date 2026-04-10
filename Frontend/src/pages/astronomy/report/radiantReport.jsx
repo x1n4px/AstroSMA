@@ -1,159 +1,207 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from "react-router-dom";
-import { Tabs, Tab, Alert, Container, Row, Col, Form, Modal, Button, Table } from 'react-bootstrap';
-import { getRadiantReport } from '@/services/radiantReportService';
-
-import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx'
-import { formatDate } from '@/pipe/formatDate.jsx';
-
-// Internationalization
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Table } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { getRadiantReport } from '@/services/radiantReportService';
+import ActiveRain from '@/pages/astronomy/report/pages/activeRain.jsx';
+import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
+import { formatDate } from '@/pipe/formatDate.jsx';
+import { AstronomyLoader } from '@/components/loader/AstronomyLoader.jsx';
+import {
+  ReportPanel,
+  ReportMetricsGrid,
+  ReportMetricCard,
+  ReportTableShell,
+  ReportEmptyState
+} from '@/pages/astronomy/report/components/ReportSurface.jsx';
 
-const RadiantReport = () => {
-    const params = useParams();
+function formatTime(value) {
+  if (!value) return '-';
+  return String(value).substring(0, 8);
+}
 
-    const { t } = useTranslation(['text']);
-    const id = params?.reportId || '-1'; // Asegura que id tenga un valor válidoI
-    const [reportData, setReportData] = useState(null);
-    const [observatoryData, setObservatoryData] = useState([]);
-    const [angularVelocity, setAngularVelocity] = useState([]);
-    const [activeShowerData, setActiveShowerData] = useState([]);
-    const [trajectoryData, setTrajectoryData] = useState([]);
-    const [adviceData, setAdviceData] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const rol = localStorage.getItem('rol');
+function RadiantReport() {
+  const { t } = useTranslation(['text']);
+  const params = useParams();
+  const id = params?.reportId || '-1';
 
-    const fetchReportData = async (id) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await getRadiantReport(id); // Ajusta la URL del endpoint
-            setReportData(response.report);
-            setObservatoryData(response.observatory);
-            setAngularVelocity(response.angularVelocity);
-            setActiveShowerData(response.activeShower);
-            setTrajectoryData(response.trajectory);
+  const [reportData, setReportData] = useState(null);
+  const [angularVelocity, setAngularVelocity] = useState([]);
+  const [activeShowerData, setActiveShowerData] = useState([]);
+  const [trajectoryData, setTrajectoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        } catch (err) {
-            setError(err);
-        } finally {
-            setLoading(false);
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchReportData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await getRadiantReport(id);
+        if (cancelled) return;
+
+        setReportData(response?.report || null);
+        setAngularVelocity(Array.isArray(response?.angularVelocity) ? response.angularVelocity : []);
+        setActiveShowerData(Array.isArray(response?.activeShower) ? response.activeShower : []);
+        setTrajectoryData(Array.isArray(response?.trajectory) ? response.trajectory : []);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err);
         }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     };
 
-    useEffect(() => {
-        if (id && id !== '-1') {
-            fetchReportData(id);
-            setLoading(false);
-        }
-    }, [id]);
+    if (id && id !== '-1') {
+      fetchReportData();
+    } else {
+      setLoading(false);
+    }
 
-    const handleShow = () => setShowModal(true);
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
+  const summaryMetrics = useMemo(() => {
+    if (!reportData) return [];
 
-    return (
-        <div className="p-4">
+    return [
+      { label: t('REPORT.RELATED_REPORTS.TABLE.ID'), value: reportData.id ?? '-' },
+      { label: t('REPORT.ESTIMATED_TRAJECTORY.VELOCITY'), value: reportData.associatedShowerVelocity ?? '-' },
+      { label: t('REPORT.ACTIVE_RAIN.TABLE.DATE'), value: formatDate(reportData.date) || '-' },
+      { label: t('REPORT.RELATED_REPORTS.TABLE.TIME'), value: formatTime(reportData.time) },
+      { label: t('REPORT.ANGULAR_VELOCITY.TITLE'), value: reportData.angularVelocityDegSec ?? '-' },
+      { label: t('REPORT.ACTIVE_RAIN.TABLE.MINIMUM_DISTANCE', { it: '' }), value: reportData.angularDistanceDegrees ?? '-' }
+    ];
+  }, [reportData, t]);
 
-            <Row className="justify-content-between align-items-center">
-                <Col xs="auto">
-                    <h1>{t('REPORT.TITLE_RADIAN', { id: '' })} {formatDate(reportData?.date)} {reportData?.time.substring(0, 8)}</h1>
+  if (loading) {
+    return <AstronomyLoader />;
+  }
 
-                </Col>
+  if (error) {
+    return <Container className="py-4"><ReportEmptyState message="No se pudo cargar el informe radiante." /></Container>;
+  }
 
-                
-            </Row>
-            <hr />
+  if (!reportData) {
+    return <Container className="py-4"><ReportEmptyState message="No hay datos del informe radiante." /></Container>;
+  }
 
-            <div>
+  return (
+    <Container fluid className="px-3 px-md-4 py-3">
+      <Row className="g-4">
+        <Col xs={12}>
+          <ReportPanel
+            title={`${t('REPORT.TITLE_RADIAN', { id: reportData.id || '' })} ${formatDate(reportData.date)} ${formatTime(reportData.time)}`}
+            accent="warm"
+          >
+            <ReportMetricsGrid>
+              {summaryMetrics.map((metric) => (
+                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+              ))}
+            </ReportMetricsGrid>
+          </ReportPanel>
+        </Col>
 
-                <h4>{t('REPORT.ACTIVE_RAIN.TITLE')}</h4>
-                <ActiveRain activeShowerData={activeShowerData} reportType={'2'} />
+        <Col xs={12}>
+          <ReportPanel title={t('REPORT.ACTIVE_RAIN.TITLE')} accent="cool">
+            <ActiveRain activeShowerData={activeShowerData} reportType="2" />
+          </ReportPanel>
+        </Col>
 
-                <h4>{t('REPORT.ESTIMATED_TRAJECTORY.TITLE')}</h4>
-                <Table striped bordered hover>
-                    <thead className="thead-dark">
-                        <tr>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.VELOCITY')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_LON')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_LAT')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_ALT')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_DIST')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_LON')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_LAT')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_ALT')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_DIST')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.RECOR')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.E')}</th>
-                            <th scope="col">{t('REPORT.ESTIMATED_TRAJECTORY.T')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {trajectoryData.length > 0 ? (
-                            trajectoryData.map((shower, index) => (
-                                <tr key={index}>
-                                    <td>{shower.Velocidad}</td>
-                                    <td>{shower.Lon_Inicio}</td>
-                                    <td>{shower.Lat_Inicio}</td>
-                                    <td>{shower.Alt_Inicio}</td>
-                                    <td>{shower.Dist_Inicio}</td>
-                                    <td>{shower.Lon_Final}</td>
-                                    <td>{shower.Lat_Final}</td>
-                                    <td>{shower.Alt_Final}</td>
-                                    <td>{shower.Dist_Final}</td>
-                                    <td>{shower.Recor}</td>
-                                    <td>{shower.e}</td>
-                                    <td>{shower.t}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="text-center">{t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')}</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
-
-
-                <h4>{t('REPORT.ANGULAR_VELOCITY.TITLE')}</h4>
-                <Table striped bordered hover>
-                    <thead className="thead-dark">
-                        <tr>
-                            <th scope="col">{t('REPORT.ANGULAR_VELOCITY.HI')}</th>
-                            <th scope="col">{t('REPORT.ANGULAR_VELOCITY.SHOWER')}</th>
-                            <th scope="col">{t('REPORT.ANGULAR_VELOCITY.METEOR')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {angularVelocity.length > 0 ? (
-                            angularVelocity.map((angV, index) => (
-                                <tr key={index}>
-                                    <td>{angV.hi}</td>
-                                    <td>{angV.Lluvia}</td>
-                                    <td>{angV.Meteoro}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="3" className="text-center">{t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')}</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </Table>
-
-
-            </div>
-
-            {/* <Tab eventKey="ACTIVE_RAIN_TAB" title={t('REPORT.ACTIVE_RAIN_TAB')}>
-                    {getTabAdvice('ACTIVE_RAIN_TAB').map(advice => (
-                        <Alert key={advice.Id} variant="warning">
-                            ID: {advice.Id} - {advice.Description}
-                        </Alert>
+        <Col xs={12} xl={8}>
+          <ReportPanel title={t('REPORT.ESTIMATED_TRAJECTORY.TITLE')}>
+            {trajectoryData.length === 0 ? (
+              <ReportEmptyState message={t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')} />
+            ) : (
+              <ReportTableShell>
+                <Table responsive className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.VELOCITY')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_LON')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_LAT')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_ALT')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.INITIAL_DIST')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_LON')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_LAT')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_ALT')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.FINAL_DIST')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.RECOR')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.E')}</th>
+                      <th>{t('REPORT.ESTIMATED_TRAJECTORY.T')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trajectoryData.map((row, index) => (
+                      <tr key={`trajectory-${index}`}>
+                        <td>{row.Velocidad}</td>
+                        <td>{row.Lon_Inicio}</td>
+                        <td>{row.Lat_Inicio}</td>
+                        <td>{row.Alt_Inicio}</td>
+                        <td>{row.Dist_Inicio}</td>
+                        <td>{row.Lon_Final}</td>
+                        <td>{row.Lat_Final}</td>
+                        <td>{row.Alt_Final}</td>
+                        <td>{row.Dist_Final}</td>
+                        <td>{row.Recor}</td>
+                        <td>{row.e}</td>
+                        <td>{row.t}</td>
+                      </tr>
                     ))}
-                    <ActiveRain activeShowerData={activeShowerData} reportType={'2'} />
-                </Tab> */}
-        </div>
-    );
-};
+                  </tbody>
+                </Table>
+              </ReportTableShell>
+            )}
+          </ReportPanel>
+        </Col>
+
+        <Col xs={12} xl={4}>
+          <ReportPanel title={t('REPORT.ANGULAR_VELOCITY.TITLE')} accent="neutral">
+            {angularVelocity.length === 0 ? (
+              <ReportEmptyState message={t('REPORT.ACTIVE_RAIN.NO_ACTIVE_RAIN')} />
+            ) : (
+              <ReportTableShell>
+                <Table responsive className="mb-0">
+                  <thead>
+                    <tr>
+                      <th>{t('REPORT.ANGULAR_VELOCITY.HI')}</th>
+                      <th>{t('REPORT.ANGULAR_VELOCITY.SHOWER')}</th>
+                      <th>{t('REPORT.ANGULAR_VELOCITY.METEOR')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {angularVelocity.map((row, index) => (
+                      <tr key={`angular-${index}`}>
+                        <td>{row.hi}</td>
+                        <td>{row.Lluvia}</td>
+                        <td>{row.Meteoro}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </ReportTableShell>
+            )}
+          </ReportPanel>
+        </Col>
+
+        <Col xs={12}>
+          <RelatedReportsTab
+            reportId={id}
+            meteorId={reportData?.meteorId}
+            currentReportType="RADIANT"
+          />
+        </Col>
+      </Row>
+    </Container>
+  );
+}
 
 export default RadiantReport;

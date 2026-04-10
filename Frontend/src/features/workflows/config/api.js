@@ -1,7 +1,7 @@
 const API_BASE_URL = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/$/, '');
 
-export const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
-export const YOUTUBE_CLIENT_ID = import.meta.env.VITE_YOUTUBE_CLIENT_ID;
+let cachedClientConfig = null;
+let configPromise = null;
 
 export const API_ENDPOINTS = {
     workflows: {
@@ -20,7 +20,36 @@ export const API_ENDPOINTS = {
         import: `${API_BASE_URL}/views/import`,
         sync: `${API_BASE_URL}/views/sync`,
         stats: `${API_BASE_URL}/views/stats`
+    },
+    auxiliary: {
+        clientConfig: `${API_BASE_URL}/auxiliary/client-config`
     }
+};
+
+export const getClientRuntimeConfig = async () => {
+    if (cachedClientConfig) {
+        return cachedClientConfig;
+    }
+
+    if (!configPromise) {
+        configPromise = fetchApi(API_ENDPOINTS.auxiliary.clientConfig, { method: 'GET' })
+            .then(async (response) => {
+                if (!response.ok) {
+                    throw new Error(`Unable to fetch runtime config: ${response.status}`);
+                }
+                const data = await response.json();
+                cachedClientConfig = {
+                    youtubeApiKey: data?.youtubeApiKey || '',
+                    youtubeClientId: data?.youtubeClientId || ''
+                };
+                return cachedClientConfig;
+            })
+            .finally(() => {
+                configPromise = null;
+            });
+    }
+
+    return configPromise;
 };
 
 export const buildQueryUrl = (endpoint, params = {}) => {
@@ -63,18 +92,6 @@ export const validateEnvironmentConfig = () => {
 
     if (missingVars.length > 0) {
         console.warn('Missing required workflow environment variables:', missingVars);
-    }
-
-    const optionalMissing = [];
-    if (!YOUTUBE_API_KEY) {
-        optionalMissing.push('VITE_YOUTUBE_API_KEY');
-    }
-    if (!YOUTUBE_CLIENT_ID) {
-        optionalMissing.push('VITE_YOUTUBE_CLIENT_ID');
-    }
-
-    if (optionalMissing.length > 0) {
-        console.info('Missing optional workflow environment variables:', optionalMissing);
     }
 
     return missingVars.length === 0;

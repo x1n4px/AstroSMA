@@ -49,25 +49,46 @@ export const getBolideById = async (id) => {
 
 
 export const getLastTenBolide = async () => {
-    try {
-        const response = await axios.get(`${API_URL}/bolide/comparation`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.get(`${API_URL}/bolide/comparation`);
+    return response.data;
 }
 
 export const getLastTWoBolide = async () => {
-    try {
-        const response = await axios.get(`${API_URL}/bolide/comparation/two`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.get(`${API_URL}/bolide/comparation/two`);
+    return response.data;
 }
 
 
-export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType }) => {
+export const getBolideWithCustomSearch = async ({
+    heightFilter,
+    latFilter,
+    lonFilter,
+    ratioFilter,
+    heightChecked,
+    latLonChecked,
+    dateRangeChecked,
+    startDate,
+    endDate,
+    actualPage,
+    reportType,
+    meteorIdFilter,
+    observatoryFilter,
+    showerFilter,
+    minVelocityFilter,
+    maxVelocityFilter,
+    minAngularVelocityFilter,
+    maxAngularVelocityFilter,
+    requireReportZ,
+    requireReportRadiant,
+    requireReportPhotometry,
+    sortOrder,
+    timeFrom,
+    timeTo,
+    minMagMaxFilter,
+    maxMagMaxFilter,
+    minMassFilter,
+    maxMassFilter
+}) => {
     try {
         const response = await axios.get(`${API_URL}/bolide/search`, {
             params: {
@@ -81,7 +102,24 @@ export const getBolideWithCustomSearch = async ({ heightFilter, latFilter, lonFi
                 startDate,
                 endDate,
                 actualPage,
-                reportType
+                reportType,
+                meteorIdFilter,
+                observatoryFilter,
+                showerFilter,
+                minVelocityFilter,
+                maxVelocityFilter,
+                minAngularVelocityFilter,
+                maxAngularVelocityFilter,
+                requireReportZ,
+                requireReportRadiant,
+                requireReportPhotometry,
+                sortOrder,
+                timeFrom,
+                timeTo,
+                minMagMaxFilter,
+                maxMagMaxFilter,
+                minMassFilter,
+                maxMassFilter
             }
         });
 

@@ -4,9 +4,28 @@ const jwt = require('jsonwebtoken');
 const { extraerUserId } = require('../middlewares/extractJWT')
 require('dotenv').config();
 
+const getAuthenticatedUserId = (req) => {
+    const reqUserId = req.uid ?? req.userId;
+    if (reqUserId !== undefined && reqUserId !== null) {
+        const parsedReqId = Number(reqUserId);
+        return Number.isNaN(parsedReqId) ? null : parsedReqId;
+    }
+
+    // Fallback de seguridad por compatibilidad con código legado.
+    const fallbackId = extraerUserId(req.header('Authorization'));
+    if (fallbackId === undefined || fallbackId === null) {
+        return null;
+    }
+    const parsedFallbackId = Number(fallbackId);
+    return Number.isNaN(parsedFallbackId) ? null : parsedFallbackId;
+};
+
 const getRequests = async (req, res) => {
     try {
-        const id = extraerUserId(req.header('x-token'));
+        const id = getAuthenticatedUserId(req);
+        if (id === undefined || id === null) {
+            return res.status(401).json({ error: 'Token no válido' });
+        }
         const isAdminView = req.query.isAdminView;
         let requests;
         if (isAdminView === 'true') {
@@ -63,7 +82,10 @@ const getRequestById = async (req, res) => {
 const createRequest = async (req, res) => {
     try {
         const { height, latitude, longitude, ratio, from_date, to_date, report_type, description } = req.body;
-        const id = extraerUserId(req.header('x-token'));
+        const id = getAuthenticatedUserId(req);
+        if (id === undefined || id === null) {
+            return res.status(401).json({ error: 'Token no válido' });
+        }
         const [result] = await pool.query('INSERT INTO requests (requester_user_id, report_type, height, latitude, longitude, ratio, from_date, to_date, description, status) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, "pending");', [id, report_type, height, latitude, longitude, ratio, from_date, to_date, description]);
         res.status(201).json({ message: 'Request created', id: result.insertId });
     } catch (error) {
@@ -75,7 +97,10 @@ const createRequest = async (req, res) => {
 const updateRequest = async (req, res) => {
     try {
         const { id } = req.params;
-        const adminId = extraerUserId(req.header('x-token'));
+        const adminId = getAuthenticatedUserId(req);
+        if (adminId === undefined || adminId === null) {
+            return res.status(401).json({ error: 'Token no válido' });
+        }
         const { status } = req.body;
         const [result] = await pool.query('UPDATE requests SET status = ?, reviewer_user_id = ? WHERE id = ?', [status, adminId, id]);
         if (result.affectedRows === 0) {
@@ -102,5 +127,3 @@ const deleteRequest = async (req, res) => {
 };
 
 module.exports = { getRequests, getRequestById, createRequest, updateRequest, deleteRequest };
-
-

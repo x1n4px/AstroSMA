@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from "react-router-dom";
-import { Card, Container, Row } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 import MapChart from '@/components/map/MapChart';
-import SonificationComponent from '@/components/sonification/sonification';
+import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
 
 
 function Bolide() {
@@ -19,7 +19,10 @@ function Bolide() {
         </div>
       </Row>
       <Row className='m-4'>
-        <SonificationComponent />
+        <RelatedReportsTab
+          meteorId={id}
+          currentReportType="METEOR"
+        />
       </Row>
     </Container>
   );

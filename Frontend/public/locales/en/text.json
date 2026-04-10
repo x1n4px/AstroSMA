@@ -474,6 +474,24 @@
             "HI": "hi",
             "SHOWER": "shower",
             "METEOR": "meteor"
+        },
+        "RELATED_REPORTS": {
+            "TAB_TITLE": "Related reports",
+            "TITLE": "Other meteor reports",
+            "DESCRIPTION": "Quick access to single and two-station reports for meteor {{meteorId}}.",
+            "METEOR_PAGE": "Go to meteor page",
+            "LOADING": "Loading related reports...",
+            "ERROR": "Related reports could not be loaded.",
+            "EMPTY": "There are no other related reports for this meteor.",
+            "OPEN": "Open",
+            "TABLE": {
+                "TYPE": "Type",
+                "ID": "Report ID",
+                "DATE": "Date",
+                "TIME": "Time",
+                "STATION": "Observatory/ies",
+                "ACTION": "Action"
+            }
         }
     },
     "DOWNLOAD_MODAL": {
@@ -494,10 +512,38 @@
         "RANGE_DATE": "Date Range",
         "SEARCH_BTN": "Search",
         "CLEAR_BTN": "Clear",
+        "SELECT_OPTIONAL": "Select (optional)",
+        "RESULTS_TITLE": "Results",
+        "RESULTS_COUNT": "{{count}} results",
         "REPORT_Z": "Two-station report (Report Z)",
         "REPORT_RADIANT": "Single-station report (Radiant report)",
         "REPORT_PHOTOMETRY": "Photometry report",
         "SHOW_BUTTON": "View more",
+        "SORT": {
+            "TITLE": "Sort",
+            "ASC": "Date ascending",
+            "DESC": "Date descending"
+        },
+        "ADVANCED": {
+            "TITLE": "Advanced filters",
+            "METEOR_ID": "Meteor ID",
+            "OBSERVATORY": "Observatory",
+            "SHOWER": "Associated shower",
+            "SHOWER_PLACEHOLDER": "Example: Perseids",
+            "TIME_FROM": "Time from",
+            "TIME_TO": "Time to",
+            "MIN_VELOCITY": "Min average velocity",
+            "MAX_VELOCITY": "Max average velocity",
+            "MIN_ANGULAR_VELOCITY": "Min angular velocity",
+            "MAX_ANGULAR_VELOCITY": "Max angular velocity",
+            "MIN_MAG_MAX": "Min MagMax",
+            "MAX_MAG_MAX": "Max MagMax",
+            "MIN_MASS": "Min photometric mass",
+            "MAX_MASS": "Max photometric mass",
+            "REQUIRE_Z": "Require Report Z",
+            "REQUIRE_RADIANT": "Require Radiant Report",
+            "REQUIRE_PHOTOMETRY": "Require Photometry Report"
+        },
         "REPORT_TYPE": {
             "TITLE": "Report type",
             "SELECT": {

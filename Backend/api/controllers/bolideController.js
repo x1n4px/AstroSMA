@@ -108,226 +108,369 @@ const getBolideCompareLastTwo = async (req, res) => {
   }
 };
 
+const parseBoolean = (value) => value === true || value === 'true' || value === 1 || value === '1' || value === 'on';
+
+const parseNumber = (value) => {
+  if (value === undefined || value === null || value === '') return null;
+  const normalized = String(value).trim().replace(',', '.');
+  if (normalized === '') return null;
+  const parsed = Number(normalized);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
+const parseText = (value) => {
+  if (value === undefined || value === null) return '';
+  return String(value).trim();
+};
+
+const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
+  SELECT
+    m.*,
+    MAX(CASE WHEN iz.IdInforme IS NOT NULL THEN 1 ELSE 0 END) AS hasReportZ,
+    MAX(CASE WHEN ir.Identificador IS NOT NULL THEN 1 ELSE 0 END) AS hasReportRadiant,
+    MAX(CASE WHEN if2.Identificador IS NOT NULL THEN 1 ELSE 0 END) AS hasReportPhotometry,
+    GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
+    GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
+    GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria,
+    MAX(iz.Inicio_de_la_trayectoria_Estacion_1) AS Inicio_de_la_trayectoria_Estacion_1,
+    MAX(iz.Velocidad_media) AS velocidadMedia,
+    MAX(ir.Velocidad_angular_grad_sec) AS velocidadAngular,
+    MAX(if2.MagMax) AS magMax,
+    MAX(if2.Masa_fotometrica) AS masaFotometrica,
+    MAX(if2.Estrellas_visibles) AS estrellasVisibles,
+    GROUP_CONCAT(DISTINCT ir.Lluvia_Asociada SEPARATOR "/") AS lluviasAsociadas,
+    GROUP_CONCAT(DISTINCT iz.\`Observatorio_Número\` SEPARATOR "/") AS observatoriosZ1,
+    GROUP_CONCAT(DISTINCT iz.\`Observatorio_Número2\` SEPARATOR "/") AS observatoriosZ2,
+    GROUP_CONCAT(DISTINCT ir.\`Observatorio_Número\` SEPARATOR "/") AS observatoriosRadiant,
+    CAST(
+      SUBSTRING_INDEX(
+        SUBSTRING_INDEX(MAX(iz.Inicio_de_la_trayectoria_Estacion_1), ' ', 4),
+        ' ',
+        -1
+      ) AS DECIMAL(10,3)
+    ) AS altitudeFromZ
+  FROM Meteoro m
+  LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+  LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
+  LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador
+  WHERE ${whereClauses.join(' AND ')}
+  GROUP BY m.Identificador
+  HAVING ${havingClauses.join(' AND ')}
+`;
+
 const getBolideWithCustomSearch = async (req, res) => {
   try {
-    const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType } = req.query;
-    const offs = actualPage * 50;
-    /*    REPORT_TYPE
-        1: "Todos los bólidos sin filtros"
-        2: "Bólidos con Informe_Z"
-        3: "Bólidos con Informe Radiante"
-        4: "Bólidos con Informe Fotometría"
-        5: "Bólidos con todos los informes"
-    */
+    const {
+      heightFilter,
+      latFilter,
+      lonFilter,
+      ratioFilter,
+      heightChecked,
+      latLonChecked,
+      dateRangeChecked,
+      startDate,
+      endDate,
+      actualPage,
+      reportType,
+      meteorIdFilter,
+      observatoryFilter,
+      showerFilter: rawShowerFilter,
+      minVelocityFilter,
+      maxVelocityFilter,
+      minAngularVelocityFilter,
+      maxAngularVelocityFilter,
+      requireReportZ,
+      requireReportRadiant,
+      requireReportPhotometry,
+      sortOrder,
+      timeFrom: rawTimeFrom,
+      timeTo: rawTimeTo,
+      minMagMaxFilter,
+      maxMagMaxFilter,
+      minMassFilter,
+      maxMassFilter
+    } = req.query;
 
-    let totalItems = 0;
-    let allBolides = []; // Usar let en lugar de const
-    let totalItemsResult = [];
-    let params = [];
-    let query = ``;
+    const page = Number(actualPage) || 0;
+    const itemsPerPage = 50;
+    const offs = page * itemsPerPage;
+    const radiusMeters = parseNumber(ratioFilter) ? parseNumber(ratioFilter) * 1000 : null;
+    const sortDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
+    const showerFilter = parseText(rawShowerFilter);
+    const timeFrom = parseText(rawTimeFrom);
+    const timeTo = parseText(rawTimeTo);
+
+    const whereClauses = ['1=1'];
+    const whereParams = [];
+
+    if (parseBoolean(dateRangeChecked) && startDate && endDate) {
+      whereClauses.push('m.Fecha >= ? AND m.Fecha <= ?');
+      whereParams.push(startDate, endDate);
+    }
+    if (timeFrom) {
+      whereClauses.push('LEFT(m.Hora, 8) >= ?');
+      whereParams.push(timeFrom.length === 5 ? `${timeFrom}:00` : timeFrom);
+    }
+    if (timeTo) {
+      whereClauses.push('LEFT(m.Hora, 8) <= ?');
+      whereParams.push(timeTo.length === 5 ? `${timeTo}:00` : timeTo);
+    }
+
+    const meteorId = parseNumber(meteorIdFilter);
+    if (meteorId !== null) {
+      whereClauses.push('m.Identificador = ?');
+      whereParams.push(meteorId);
+    }
+
+    const observatoryId = parseNumber(observatoryFilter);
+    if (observatoryId !== null) {
+      whereClauses.push(`(
+        EXISTS (
+          SELECT 1
+          FROM Informe_Z iz_obs
+          WHERE iz_obs.Meteoro_Identificador = m.Identificador
+            AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Informe_Radiante ir_obs
+          WHERE ir_obs.Meteoro_Identificador = m.Identificador
+            AND ir_obs.\`Observatorio_Número\` = ?
+        )
+      )`);
+      whereParams.push(observatoryId, observatoryId, observatoryId);
+    }
+
+    if (showerFilter) {
+      whereClauses.push(`EXISTS (
+        SELECT 1
+        FROM Informe_Radiante ir_sh
+        WHERE ir_sh.Meteoro_Identificador = m.Identificador
+          AND ir_sh.Lluvia_Asociada LIKE ?
+      )`);
+      whereParams.push(`%${showerFilter}%`);
+    }
+
+    const havingClauses = ['1=1'];
+    const havingParams = [];
+
     switch (reportType) {
-      case '1':
-        // Obtener todos los bólidos sin filtros
-        query = `
-            SELECT m.*, 
-              1 AS hasReportZ,
-              1 AS hasReportRadiant,
-              1 AS hasReportPhotometry,
-              GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
-              GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
-              GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-            FROM Meteoro m 
-            INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
-            INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
-            INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador
-          `;
-
-        // Filtro por rango de fechas, si está activado
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-
-        // Agrupación y paginación
-        query += ` GROUP BY m.Identificador LIMIT 50 OFFSET ?`;
-        params.push(offs);
-
-
-
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
-
-
-
-        totalItems = totalItemsResult[0]['count(*)'];
-        break;
       case '2':
-        // Obtener todos los bólidos con Informe_Z
-        query = `
-                  SELECT 
-                    m.*, 
-                    1 AS hasReportZ, 
-                    CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 
-                    CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry,
-                    GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
-                    GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-                    GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria,
-                    iz.Inicio_de_la_trayectoria_Estacion_1,
-                    CAST(
-                      SUBSTRING_INDEX(
-                        SUBSTRING_INDEX(iz.Inicio_de_la_trayectoria_Estacion_1, ' ', 4), 
-                        ' ', -1
-                      ) AS DECIMAL(10,6)
-                    ) AS altura
-                  FROM 
-                    Meteoro m 
-                    INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-                    LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-                    LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador 
-                `;
-
-        // Condiciones WHERE dinámicas
-        let conditions = [];
-
-        // Filtro por rango de fechas
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          conditions.push(`iz.Fecha >= ? AND iz.Fecha <= ?`);
-          params.push(startDate, endDate);
-        }
-
-        if (conditions.length > 0) {
-          query += ` WHERE ${conditions.join(' AND ')} `;
-        }
-
-        // Agrupamiento
-        query += ` GROUP BY m.Identificador `;
-
-        // Filtro por altura en HAVING
-        if (heightChecked === 'true' && heightFilter) {
-          query += ` HAVING altura < ? `;
-          params.push(heightFilter);
-        }
-
-        // Limit y offset
-        query += ` LIMIT 50 OFFSET ? `;
-        params.push(offs);
-
-
-        // Ejecutar la consulta
-        [allBolides] = await pool.query(query, params);
-
-
-        if ((latLonChecked === 'true' && latFilter && lonFilter && ratioFilter) ||
-          (heightChecked === 'true' && heightFilter)) {
-
-          allBolides = allBolides.filter(bolide => {
-            const [latDMS, lonDMS, distance, altitude] = bolide.Inicio_de_la_trayectoria_Estacion_1.split(" ");
-            const lonF = individuaConvertSexagesimalToDecimal(latDMS);
-            const latF = individuaConvertSexagesimalToDecimal(lonDMS);
-
-
-            const isInRadius = latLonChecked === 'true' && latFilter && lonFilter && ratioFilter
-              ? isPointInRadius(latFilter, lonFilter, ratioFilter * 1000, latF, lonF)
-              : true;
-
-
-            return isInRadius;
-          });
-        }
-
-
-
-
-
-        [totalItemsResult] = await pool.query(`SELECT 
-                                                COUNT(DISTINCT m.Identificador) AS total_meteoros
-                                                FROM Meteoro m 
-                                                INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-                                                LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-                                                LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador;
-                                                `);
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
         break;
       case '3':
-        // Obtener todos los bólidos con Informe Radiante
-        query = `SELECT m.*, 
-          CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 1 AS hasReportRadiant, 
-          CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, 
-          GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, 
-          GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-          GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-          ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
-          FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-          INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-          LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
-        params.push(offs);
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Radiante i ON m.Identificador = i.Identificador');
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
         break;
       case '4':
-        // Obtener todos los bólidos con Informe Fotometría
-        query = `SELECT m.*, 
-        CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 
-        CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 1 AS hasReportPhotometry,
-         GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-         GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-         ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
-         FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-         LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-         INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
-        params.push(offs);
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
         break;
-
+      case '5':
+        whereClauses.push(
+          'EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)',
+          'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
+          'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
+        );
+        break;
       default:
-        // Obtener todos los bólidos sin filtros
-        [allBolides] = await pool.query(`SELECT * FROM Meteoro LIMIT 50 OFFSET ?`, [offs]);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro ');
-        otalItems = totalItemsResult[0]['count(*)'];
         break;
     }
 
-    if (heightChecked === 'true' && heightFilter) {
-      allBolides = allBolides.filter(bolide => {
-        const valor = bolide?.Inicio_de_la_trayectoria_Estacion_1; // Usar optional chaining
+    if (parseBoolean(requireReportZ)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+    }
+    if (parseBoolean(requireReportRadiant)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
+    }
+    if (parseBoolean(requireReportPhotometry)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
+    }
 
-        if (valor && valor !== 'No medido') { // Comprobación más concisa
-          let partes = valor.split(' ');
-          return parseFloat(partes[2]) >= parseFloat(heightFilter);
-        } else {
+    const heightValue = parseNumber(heightFilter);
+    if (parseBoolean(heightChecked) && heightValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1
+        FROM Informe_Z iz_h
+        WHERE iz_h.Meteoro_Identificador = m.Identificador
+          AND CAST(
+            SUBSTRING_INDEX(
+              SUBSTRING_INDEX(iz_h.Inicio_de_la_trayectoria_Estacion_1, ' ', 4),
+              ' ',
+              -1
+            ) AS DECIMAL(10,3)
+          ) >= ?
+      )`);
+      whereParams.push(heightValue);
+    }
 
-          return false; // Excluir el bolide del array filtrado
+    let minVelocityValue = parseNumber(minVelocityFilter);
+    let maxVelocityValue = parseNumber(maxVelocityFilter);
+    if (minVelocityValue !== null && maxVelocityValue !== null && minVelocityValue > maxVelocityValue) {
+      const temp = minVelocityValue;
+      minVelocityValue = maxVelocityValue;
+      maxVelocityValue = temp;
+    }
+    if (minVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Z iz_v
+        WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND iz_v.Velocidad_media >= ?
+      )`);
+      whereParams.push(minVelocityValue);
+    }
+    if (maxVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Z iz_v
+        WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND iz_v.Velocidad_media <= ?
+      )`);
+      whereParams.push(maxVelocityValue);
+    }
+    let minAngularVelocityValue = parseNumber(minAngularVelocityFilter);
+    let maxAngularVelocityValue = parseNumber(maxAngularVelocityFilter);
+    if (minAngularVelocityValue !== null && maxAngularVelocityValue !== null && minAngularVelocityValue > maxAngularVelocityValue) {
+      const temp = minAngularVelocityValue;
+      minAngularVelocityValue = maxAngularVelocityValue;
+      maxAngularVelocityValue = temp;
+    }
+    if (minAngularVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Radiante ir_v
+        WHERE ir_v.Meteoro_Identificador = m.Identificador
+          AND ir_v.Velocidad_angular_grad_sec >= ?
+      )`);
+      whereParams.push(minAngularVelocityValue);
+    }
+    if (maxAngularVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Radiante ir_v
+        WHERE ir_v.Meteoro_Identificador = m.Identificador
+          AND ir_v.Velocidad_angular_grad_sec <= ?
+      )`);
+      whereParams.push(maxAngularVelocityValue);
+    }
+    let minMagMaxValue = parseNumber(minMagMaxFilter);
+    let maxMagMaxValue = parseNumber(maxMagMaxFilter);
+    if (minMagMaxValue !== null && maxMagMaxValue !== null && minMagMaxValue > maxMagMaxValue) {
+      const temp = minMagMaxValue;
+      minMagMaxValue = maxMagMaxValue;
+      maxMagMaxValue = temp;
+    }
+    if (minMagMaxValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_m
+        WHERE if_m.Meteoro_Identificador = m.Identificador
+          AND if_m.MagMax >= ?
+      )`);
+      whereParams.push(minMagMaxValue);
+    }
+    if (maxMagMaxValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_m
+        WHERE if_m.Meteoro_Identificador = m.Identificador
+          AND if_m.MagMax <= ?
+      )`);
+      whereParams.push(maxMagMaxValue);
+    }
+    let minMassValue = parseNumber(minMassFilter);
+    let maxMassValue = parseNumber(maxMassFilter);
+    if (minMassValue !== null && maxMassValue !== null && minMassValue > maxMassValue) {
+      const temp = minMassValue;
+      minMassValue = maxMassValue;
+      maxMassValue = temp;
+    }
+    if (minMassValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_mass
+        WHERE if_mass.Meteoro_Identificador = m.Identificador
+          AND if_mass.Masa_fotometrica >= ?
+      )`);
+      whereParams.push(minMassValue);
+    }
+    if (maxMassValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_mass
+        WHERE if_mass.Meteoro_Identificador = m.Identificador
+          AND if_mass.Masa_fotometrica <= ?
+      )`);
+      whereParams.push(maxMassValue);
+    }
+
+    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses });
+    const baseParams = [...whereParams, ...havingParams];
+
+    const applyRadiusFilter = (rows) => {
+      if (!parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
+        return rows;
+      }
+
+      return rows.filter((bolide) => {
+        const initialTrajectory = bolide?.Inicio_de_la_trayectoria_Estacion_1;
+        if (!initialTrajectory || initialTrajectory === 'No medido') {
+          return false;
         }
+
+        const [latDMS, lonDMS] = initialTrajectory.split(' ');
+        if (!latDMS || !lonDMS) return false;
+
+        const lonF = individuaConvertSexagesimalToDecimal(latDMS);
+        const latF = individuaConvertSexagesimalToDecimal(lonDMS);
+
+        return isPointInRadius(Number(latFilter), Number(lonFilter), radiusMeters, latF, lonF);
       });
+    };
+
+    let allBolides = [];
+    let totalItems = 0;
+
+    if (parseBoolean(latLonChecked) && latFilter && lonFilter && radiusMeters) {
+      const fullDataQuery = `${baseQuery} ORDER BY m.Fecha ${sortDirection}, m.Hora ${sortDirection}, m.Identificador ${sortDirection}`;
+      const [allRows] = await pool.query(fullDataQuery, baseParams);
+      const filteredRows = applyRadiusFilter(allRows);
+      totalItems = filteredRows.length;
+      allBolides = filteredRows.slice(offs, offs + itemsPerPage);
+    } else {
+      const countQuery = `SELECT COUNT(*) AS totalItems FROM (${baseQuery}) AS filtered_results`;
+      const [countRows] = await pool.query(countQuery, baseParams);
+      totalItems = countRows[0]?.totalItems || 0;
+
+      const dataQuery = `${baseQuery} ORDER BY m.Fecha ${sortDirection}, m.Hora ${sortDirection}, m.Identificador ${sortDirection} LIMIT ? OFFSET ?`;
+      const [rows] = await pool.query(dataQuery, [...baseParams, itemsPerPage, offs]);
+      allBolides = rows;
     }
-    if (dateRangeChecked === 'true') {
-      allBolides = allBolides.filter(bolide => {
-        const fechaBolide = new Date(bolide.Fecha); // Asegúrate de que 'Fecha' es el campo correcto
-        const fechaInicio = new Date(startDate);
-        const fechaFin = new Date(endDate);
 
-        return fechaBolide >= fechaInicio && fechaBolide <= fechaFin;
-
-      })
-    }
-
-
-
-
-    res.json({ data: allBolides, totalItems });
+    res.json({
+      data: allBolides,
+      totalItems,
+      appliedFilters: {
+        reportType,
+        meteorId,
+        observatoryId,
+        showerFilter: showerFilter || null,
+        dateRangeChecked: parseBoolean(dateRangeChecked),
+        startDate: startDate || null,
+        endDate: endDate || null,
+        timeFrom: timeFrom || null,
+        timeTo: timeTo || null,
+        heightChecked: parseBoolean(heightChecked),
+        heightValue,
+        latLonChecked: parseBoolean(latLonChecked),
+        latFilter: parseNumber(latFilter),
+        lonFilter: parseNumber(lonFilter),
+        ratioKm: parseNumber(ratioFilter),
+        minVelocityValue,
+        maxVelocityValue,
+        minAngularVelocityValue,
+        maxAngularVelocityValue,
+        minMagMaxValue,
+        maxMagMaxValue,
+        minMassValue,
+        maxMassValue,
+        requireReportZ: parseBoolean(requireReportZ),
+        requireReportRadiant: parseBoolean(requireReportRadiant),
+        requireReportPhotometry: parseBoolean(requireReportPhotometry),
+        sortDirection
+      }
+    });
 
   } catch (error) {
     console.error('Error al obtener los bolidos:', error);
@@ -337,388 +480,359 @@ const getBolideWithCustomSearch = async (req, res) => {
 
 
 
-const ExcelJS = require('exceljs');
-const { ReportZ, Meteoro, Observatorio, LluviaActiva, ElementosOrbitales, PuntosZWO, TrayectoriaMedida, TrayectoriaPorRegresion } = require("../models");
-
 const getBolideWithCustomSearchCSV = async (req, res) => {
   try {
-    const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType } = req.query;
-    console.log(heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType)
-    const offs = actualPage * 50;
-    /*    REPORT_TYPE
-        1: "Todos los bólidos sin filtros"
-        2: "Bólidos con Informe_Z"
-        3: "Bólidos con Informe Radiante"
-        4: "Bólidos con Informe Fotometría"
-        5: "Bólidos con todos los informes"
-    */
+    const {
+      heightFilter,
+      latFilter,
+      lonFilter,
+      ratioFilter,
+      heightChecked,
+      latLonChecked,
+      dateRangeChecked,
+      startDate,
+      endDate,
+      reportType,
+      meteorIdFilter,
+      observatoryFilter,
+      showerFilter: rawShowerFilter,
+      minVelocityFilter,
+      maxVelocityFilter,
+      minAngularVelocityFilter,
+      maxAngularVelocityFilter,
+      requireReportZ,
+      requireReportRadiant,
+      requireReportPhotometry,
+      sortOrder,
+      timeFrom: rawTimeFrom,
+      timeTo: rawTimeTo,
+      minMagMaxFilter,
+      maxMagMaxFilter,
+      minMassFilter,
+      maxMassFilter
+    } = req.query;
 
-    let totalItems = 0;
-    let allBolides = []; // Usar let en lugar de const
-    let totalItemsResult = [];
-    let params = [];
-    let query = ``;
+    const radiusMeters = parseNumber(ratioFilter) ? parseNumber(ratioFilter) * 1000 : null;
+    const sortDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
+    const showerFilter = parseText(rawShowerFilter);
+    const timeFrom = parseText(rawTimeFrom);
+    const timeTo = parseText(rawTimeTo);
+
+    const whereClauses = ['1=1'];
+    const whereParams = [];
+
+    if (parseBoolean(dateRangeChecked) && startDate && endDate) {
+      whereClauses.push('m.Fecha >= ? AND m.Fecha <= ?');
+      whereParams.push(startDate, endDate);
+    }
+    if (timeFrom) {
+      whereClauses.push('LEFT(m.Hora, 8) >= ?');
+      whereParams.push(timeFrom.length === 5 ? `${timeFrom}:00` : timeFrom);
+    }
+    if (timeTo) {
+      whereClauses.push('LEFT(m.Hora, 8) <= ?');
+      whereParams.push(timeTo.length === 5 ? `${timeTo}:00` : timeTo);
+    }
+
+    const meteorId = parseNumber(meteorIdFilter);
+    if (meteorId !== null) {
+      whereClauses.push('m.Identificador = ?');
+      whereParams.push(meteorId);
+    }
+
+    const observatoryId = parseNumber(observatoryFilter);
+    if (observatoryId !== null) {
+      whereClauses.push(`(
+        EXISTS (
+          SELECT 1
+          FROM Informe_Z iz_obs
+          WHERE iz_obs.Meteoro_Identificador = m.Identificador
+            AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Informe_Radiante ir_obs
+          WHERE ir_obs.Meteoro_Identificador = m.Identificador
+            AND ir_obs.\`Observatorio_Número\` = ?
+        )
+      )`);
+      whereParams.push(observatoryId, observatoryId, observatoryId);
+    }
+
+    if (showerFilter) {
+      whereClauses.push(`EXISTS (
+        SELECT 1
+        FROM Informe_Radiante ir_sh
+        WHERE ir_sh.Meteoro_Identificador = m.Identificador
+          AND ir_sh.Lluvia_Asociada LIKE ?
+      )`);
+      whereParams.push(`%${showerFilter}%`);
+    }
+
+    const havingClauses = ['1=1'];
+    const havingParams = [];
+
     switch (reportType) {
-      case '1':
-        // Obtener todos los bólidos sin filtros
-        query = `
-        SELECT m.*, 
-          CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ,
-          CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant,
-          1 AS hasReportPhotometry,
-          GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
-          GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante,
-          GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-        FROM Meteoro m 
-        LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
-        LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
-        INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador`;
-        // Agregar filtro por rango de fechas si está activado
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-        // Agregar LIMIT y OFFSET
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
-        params.push(offs);
-
-
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
-
-
-
-        totalItems = totalItemsResult[0]['count(*)'];
-        break;
       case '2':
-        // Obtener todos los bólidos con Informe_Z
-        query = `
-  SELECT 
-    m.*, 
-    1 AS hasReportZ, 
-    CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 
-    CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry,
-    GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z,
-    GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-    GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria,
-    iz.Inicio_de_la_trayectoria_Estacion_1,
-    CAST(
-      SUBSTRING_INDEX(
-        SUBSTRING_INDEX(iz.Inicio_de_la_trayectoria_Estacion_1, ' ', 4), 
-        ' ', -1
-      ) AS DECIMAL(10,6)
-    ) AS altura
-  FROM 
-    Meteoro m 
-    INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-    LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-    LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador 
-`;
-
-        // Condiciones WHERE dinámicas
-        let conditions = [];
-
-        // Filtro por rango de fechas
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          conditions.push(`iz.Fecha >= ? AND iz.Fecha <= ?`);
-          params.push(startDate, endDate);
-        }
-
-        if (conditions.length > 0) {
-          query += ` WHERE ${conditions.join(' AND ')} `;
-        }
-
-        // Agrupamiento
-        query += ` GROUP BY m.Identificador `;
-
-        // Filtro por altura en HAVING
-        if (heightChecked === 'true' && heightFilter) {
-          query += ` HAVING altura < ? `;
-          params.push(heightFilter);
-        }
-
-        // Limit y offset
-        query += ` LIMIT 50 OFFSET ? `;
-        params.push(offs);
-
-
-
-        // Ejecutar la consulta
-        [allBolides] = await pool.query(query, params);
-
-
-
-        if ((latLonChecked === 'true' && latFilter && lonFilter && ratioFilter) ||
-          (heightChecked === 'true' && heightFilter)) {
-
-          allBolides = allBolides.filter(bolide => {
-            const [latDMS, lonDMS, distance, altitude] = bolide.Inicio_de_la_trayectoria_Estacion_1.split(" ");
-            const lonF = individuaConvertSexagesimalToDecimal(latDMS);
-            const latF = individuaConvertSexagesimalToDecimal(lonDMS);
-
-            const isInRadius = latLonChecked === 'true' && latFilter && lonFilter && ratioFilter
-              ? isPointInRadius(latFilter, lonFilter, ratioFilter * 1000, latF, lonF)
-              : true;
-
-
-            return isInRadius;
-          });
-        }
-
-
-
-
-
-        [totalItemsResult] = await pool.query(`SELECT 
-                                                COUNT(DISTINCT m.Identificador) AS total_meteoros
-                                                FROM Meteoro m 
-                                                INNER JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-                                                LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-                                                LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador;
-                                                `);
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
         break;
       case '3':
-        // Obtener todos los bólidos con Informe Radiante
-        query = `SELECT m.*, 
-          CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 1 AS hasReportRadiant, 
-          CASE WHEN MAX(if2.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportPhotometry, 
-          GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, 
-          GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-          GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-          ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
-          FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-          INNER JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-          LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
-        params.push(offs);
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Radiante i ON m.Identificador = i.Identificador');
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
         break;
       case '4':
-        // Obtener todos los bólidos con Informe Fotometría
-        query = `SELECT m.*, 
-        CASE WHEN MAX(iz.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportZ, 
-        CASE WHEN MAX(ir.Meteoro_Identificador) IS NOT NULL THEN 1 ELSE 0 END AS hasReportRadiant, 1 AS hasReportPhotometry,
-         GROUP_CONCAT(DISTINCT iz.IdInforme SEPARATOR "/") AS IDs_Informe_Z, GROUP_CONCAT(DISTINCT ir.Identificador SEPARATOR "/") AS IDs_Informe_Radiante, 
-         GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria 
-         ${heightChecked ? ', iz.Inicio_de_la_trayectoria_Estacion_1' : ''} 
-         FROM Meteoro m LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador 
-         LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador 
-         INNER JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador `;
-        if (dateRangeChecked === 'true' && startDate && endDate) {
-          query += ` WHERE iz.Fecha >= ? AND iz.Fecha <= ? `;
-          params.push(startDate, endDate);
-        }
-        query += ` GROUP BY m.Identificador  LIMIT 50 OFFSET ?`;
-        params.push(offs);
-        [allBolides] = await pool.query(query, params);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro m JOIN Informe_Fotometria i ON m.Identificador = i.Identificador');
-        totalItems = totalItemsResult[0]['count(*)'];
+        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
         break;
-
+      case '5':
+        whereClauses.push(
+          'EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)',
+          'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
+          'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
+        );
+        break;
       default:
-        // Obtener todos los bólidos sin filtros
-        [allBolides] = await pool.query(`SELECT * FROM Meteoro LIMIT 50 OFFSET ?`, [offs]);
-        [totalItemsResult] = await pool.query('SELECT count(*) FROM Meteoro ');
-        otalItems = totalItemsResult[0]['count(*)'];
         break;
     }
 
+    if (parseBoolean(requireReportZ)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+    }
+    if (parseBoolean(requireReportRadiant)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
+    }
+    if (parseBoolean(requireReportPhotometry)) {
+      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
+    }
 
+    const heightValue = parseNumber(heightFilter);
+    if (parseBoolean(heightChecked) && heightValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1
+        FROM Informe_Z iz_h
+        WHERE iz_h.Meteoro_Identificador = m.Identificador
+          AND CAST(
+            SUBSTRING_INDEX(
+              SUBSTRING_INDEX(iz_h.Inicio_de_la_trayectoria_Estacion_1, ' ', 4),
+              ' ',
+              -1
+            ) AS DECIMAL(10,3)
+          ) >= ?
+      )`);
+      whereParams.push(heightValue);
+    }
 
+    let minVelocityValue = parseNumber(minVelocityFilter);
+    let maxVelocityValue = parseNumber(maxVelocityFilter);
+    if (minVelocityValue !== null && maxVelocityValue !== null && minVelocityValue > maxVelocityValue) {
+      const temp = minVelocityValue;
+      minVelocityValue = maxVelocityValue;
+      maxVelocityValue = temp;
+    }
+    if (minVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Z iz_v
+        WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND iz_v.Velocidad_media >= ?
+      )`);
+      whereParams.push(minVelocityValue);
+    }
+    if (maxVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Z iz_v
+        WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND iz_v.Velocidad_media <= ?
+      )`);
+      whereParams.push(maxVelocityValue);
+    }
 
+    let minAngularVelocityValue = parseNumber(minAngularVelocityFilter);
+    let maxAngularVelocityValue = parseNumber(maxAngularVelocityFilter);
+    if (minAngularVelocityValue !== null && maxAngularVelocityValue !== null && minAngularVelocityValue > maxAngularVelocityValue) {
+      const temp = minAngularVelocityValue;
+      minAngularVelocityValue = maxAngularVelocityValue;
+      maxAngularVelocityValue = temp;
+    }
+    if (minAngularVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Radiante ir_v
+        WHERE ir_v.Meteoro_Identificador = m.Identificador
+          AND ir_v.Velocidad_angular_grad_sec >= ?
+      )`);
+      whereParams.push(minAngularVelocityValue);
+    }
+    if (maxAngularVelocityValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Radiante ir_v
+        WHERE ir_v.Meteoro_Identificador = m.Identificador
+          AND ir_v.Velocidad_angular_grad_sec <= ?
+      )`);
+      whereParams.push(maxAngularVelocityValue);
+    }
 
+    let minMagMaxValue = parseNumber(minMagMaxFilter);
+    let maxMagMaxValue = parseNumber(maxMagMaxFilter);
+    if (minMagMaxValue !== null && maxMagMaxValue !== null && minMagMaxValue > maxMagMaxValue) {
+      const temp = minMagMaxValue;
+      minMagMaxValue = maxMagMaxValue;
+      maxMagMaxValue = temp;
+    }
+    if (minMagMaxValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_m
+        WHERE if_m.Meteoro_Identificador = m.Identificador
+          AND if_m.MagMax >= ?
+      )`);
+      whereParams.push(minMagMaxValue);
+    }
+    if (maxMagMaxValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_m
+        WHERE if_m.Meteoro_Identificador = m.Identificador
+          AND if_m.MagMax <= ?
+      )`);
+      whereParams.push(maxMagMaxValue);
+    }
 
+    let minMassValue = parseNumber(minMassFilter);
+    let maxMassValue = parseNumber(maxMassFilter);
+    if (minMassValue !== null && maxMassValue !== null && minMassValue > maxMassValue) {
+      const temp = minMassValue;
+      minMassValue = maxMassValue;
+      maxMassValue = temp;
+    }
+    if (minMassValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_mass
+        WHERE if_mass.Meteoro_Identificador = m.Identificador
+          AND if_mass.Masa_fotometrica >= ?
+      )`);
+      whereParams.push(minMassValue);
+    }
+    if (maxMassValue !== null) {
+      whereClauses.push(`EXISTS (
+        SELECT 1 FROM Informe_Fotometria if_mass
+        WHERE if_mass.Meteoro_Identificador = m.Identificador
+          AND if_mass.Masa_fotometrica <= ?
+      )`);
+      whereParams.push(maxMassValue);
+    }
 
-    // ... (el resto del código de consulta se mantiene igual hasta la obtención de allBolides)
+    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses });
+    const baseParams = [...whereParams, ...havingParams];
+    const fullDataQuery = `${baseQuery} ORDER BY m.Fecha ${sortDirection}, m.Hora ${sortDirection}, m.Identificador ${sortDirection}`;
+    const [allRows] = await pool.query(fullDataQuery, baseParams);
 
-    // Crear un nuevo libro de Excel
-    const workbook = new ExcelJS.Workbook();
+    const applyRadiusFilter = (rows) => {
+      if (!parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
+        return rows;
+      }
 
-    // Hoja 1: Datos de Meteoro
-    const meteoroSheet = workbook.addWorksheet('Meteoros');
-    meteoroSheet.addRow(['Identificador', 'Fecha', 'Hora']);
+      return rows.filter((bolide) => {
+        const initialTrajectory = bolide?.Inicio_de_la_trayectoria_Estacion_1;
+        if (!initialTrajectory || initialTrajectory === 'No medido') {
+          return false;
+        }
 
-    allBolides.forEach(meteor => {
-      meteoroSheet.addRow([
-        meteor.Identificador,
-        meteor.Fecha,
-        meteor.Hora
-      ]);
-    });
+        const [latDMS, lonDMS] = initialTrajectory.split(' ');
+        if (!latDMS || !lonDMS) return false;
 
-    // Hoja 2: Informe_Z
-    const informeZSheet = workbook.addWorksheet('Informe_Z');
-    informeZSheet.addRow([
-      'IdInforme', 'Observatorio_Número2', 'Observatorio_Número', 'Fecha', 'Hora',
-      'Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1',
-      'Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2', 'Fotogramas_usados',
-      'Ajuste_estación_2_Inicio', 'Ajuste_estación_2_Final', 'Ángulo_diedro_entre_planos_trayectoria',
-      'Peso_estadístico', 'Errores_AR_DE_radiante',
-      'Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha',
-      'Coordenadas_astronómicas_del_radiante_J200', 'Azimut', 'Dist_Cenital',
-      'Inicio_de_la_trayectoria_Estacion_1', 'Fin_de_la_trayectoria_Estacion_1',
-      'Inicio_de_la_trayectoria_Estacion_2', 'Fin_de_la_trayectoria_Estacion_2',
-      'Impacto_previsible', 'Distancia_recorrida_Estacion_1', 'Error_distancia_Estacion_1',
-      'Error_alturas_Estacion_1', 'Distancia_recorrida_Estacion_2', 'Error_distancia_Estacion_2',
-      'Error_alturas_Estacion_2', 'Tiempo_Estacion_1', 'Velocidad_media', 'Tiempo_trayectoria_en_estacion_2',
-      'Ecuacion_del_movimiento_en_Kms', 'Ecuacion_del_movimiento_en_gs', 'Error_Velocidad',
-      'Velocidad_Inicial_Estacion_2', 'Aceleración_en_Kms', 'Aceleración_en_gs', 'Método_utilizado',
-      'Ecuacion_parametrica_IdEc', 'Meteoro_Identificador', 'Lluvia_Activa', 'Elementos_Orbitales',
-      'Puntos_ZWO', 'Trayectoria_Medida', 'Trayectoria_Por_Regresion'
+        const lonF = individuaConvertSexagesimalToDecimal(latDMS);
+        const latF = individuaConvertSexagesimalToDecimal(lonDMS);
 
-
-    ]);
-
-    const meteorIds = allBolides.map(b => b.Identificador);
-    const informeZIDs = allBolides.map(b => b.IDs_Informe_Z !== null ? b.IDs_Informe_Z.split("/") : null).flat().filter(Boolean); let informeZData = [];
-    if (informeZIDs.length > 0) {
-      informeZData = await ReportZ.findAll({
-        where: {
-          IdInforme: informeZIDs
-        },
-        include: [
-          { model: Meteoro },
-          { model: Observatorio, as: "Observatorio1" },
-          { model: Observatorio, as: "Observatorio2" },
-          { model: LluviaActiva },
-          { model: ElementosOrbitales },
-          { model: PuntosZWO },
-          { model: TrayectoriaMedida },
-          { model: TrayectoriaPorRegresion },
-        ]
+        return isPointInRadius(Number(latFilter), Number(lonFilter), radiusMeters, latF, lonF);
       });
+    };
 
-    }
+    const allBolides = applyRadiusFilter(allRows);
 
+    const formatDate = (value) => {
+      if (value === null || value === undefined || value === '') return '';
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.toISOString().slice(0, 10);
+      }
+      return String(value).slice(0, 10);
+    };
 
+    const formatTime = (value) => {
+      if (value === null || value === undefined || value === '') return '';
+      const parsed = String(value).trim().match(/^(\d{2}:\d{2}:\d{2})/);
+      return parsed ? parsed[1] : String(value).trim();
+    };
 
-    informeZData.forEach(row => {
-      informeZSheet.addRow([
-        row.IdInforme,
-        row.Observatorio2,
-        row.Observatorio1,
-        row.Fecha,
-        row.Hora,
-        row.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1,
-        row.Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2,
-        row.Fotogramas_usados,
-        row.Ajuste_estación_2_Inicio,
-        row.Ajuste_estación_2_Final,
-        row.Ángulo_diedro_entre_planos_trayectoria,
-        row.Peso_estadístico,
-        row.Errores_AR_DE_radiante,
-        row.Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha,
-        row.Coordenadas_astronómicas_del_radiante_J200,
-        row.Azimut,
-        row.Dist_Cenital,
-        row.Inicio_de_la_trayectoria_Estacion_1,
-        row.Fin_de_la_trayectoria_Estacion_1,
-        row.Inicio_de_la_trayectoria_Estacion_2,
-        row.Fin_de_la_trayectoria_Estacion_2,
-        row.Impacto_previsible,
-        row.Distancia_recorrida_Estacion_1,
-        row.Error_distancia_Estacion_1,
-        row.Error_alturas_Estacion_1,
-        row.Distancia_recorrida_Estacion_2,
-        row.Error_distancia_Estacion_2,
-        row.Error_alturas_Estacion_2,
-        row.Tiempo_Estacion_1,
-        row.Velocidad_media,
-        row.Tiempo_trayectoria_en_estacion_2,
-        row.Ecuacion_del_movimiento_en_Kms,
-        row.Ecuacion_del_movimiento_en_gs,
-        row.Error_Velocidad,
-        row.Velocidad_Inicial_Estacion_2,
-        row.Aceleración_en_Kms,
-        row.Aceleración_en_gs,
-        row.Método_utilizado,
-        row.Ecuacion_parametrica_IdEc,
-        row.Meteoro,
-        row.LluviaActiva,
-        row.ElementosOrbitales,
-        row.PuntosZWO,
-        row.TrayectoriaMedida,
-        row.TrayectoriaPorRegresion
-      ]);
+    const normalizeValue = (value) => {
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'boolean') return value ? 'true' : 'false';
+      return String(value).trim();
+    };
+
+    const mergeObservatories = (row) => {
+      const unique = new Set();
+      [row.observatoriosZ1, row.observatoriosZ2]
+        .filter(Boolean)
+        .flatMap((value) => String(value).split('/').map((item) => item.trim()).filter(Boolean))
+        .forEach((value) => unique.add(value));
+      return Array.from(unique).join('/');
+    };
+
+    const csvEscape = (value) => {
+      const normalized = normalizeValue(value);
+      if (/[",\r\n]/.test(normalized)) {
+        return `"${normalized.replace(/"/g, '""')}"`;
+      }
+      return normalized;
+    };
+
+    const header = [
+      'meteor_id',
+      'date',
+      'time_utc',
+      'has_report_z',
+      'has_report_radiant',
+      'has_report_photometry',
+      'report_ids_z',
+      'report_ids_radiant',
+      'report_ids_photometry',
+      'associated_showers',
+      'observatories_z',
+      'observatories_radiant',
+      'avg_velocity_km_s',
+      'angular_velocity_deg_s',
+      'mag_max',
+      'photometric_mass',
+      'start_altitude_km',
+      'start_trajectory_station_1'
+    ];
+
+    const lines = [header.map(csvEscape).join(',')];
+    allBolides.forEach((row) => {
+      lines.push(
+        [
+          row.Identificador,
+          formatDate(row.Fecha),
+          formatTime(row.Hora),
+          row.hasReportZ ? 1 : 0,
+          row.hasReportRadiant ? 1 : 0,
+          row.hasReportPhotometry ? 1 : 0,
+          row.IDs_Informe_Z,
+          row.IDs_Informe_Radiante,
+          row.IDs_Informe_Fotometria,
+          row.lluviasAsociadas,
+          mergeObservatories(row),
+          row.observatoriosRadiant,
+          row.velocidadMedia,
+          row.velocidadAngular,
+          row.magMax,
+          row.masaFotometrica,
+          row.altitudeFromZ,
+          row.Inicio_de_la_trayectoria_Estacion_1
+        ].map(csvEscape).join(',')
+      );
     });
 
-    // Hoja 3: Informe_Radiante (si existe)
-    const informeRadianteSheet = workbook.addWorksheet('Informe_Radiante');
-    informeRadianteSheet.addRow(['Identificador', 'Fecha', 'Hora', 'Velocidad_Lluvia_Asociada', 'Trayectorias_estimadas_para', 'Distancia_angular_radianes', 'Distancia_angular_grados', 'Velocidad_angular_grad_sec', 'Meteoro_Identificador', 'Observatorio_Número', 'Lluvia_Asociada']);
+    const csvContent = `\uFEFFsep=,\r\n${lines.join('\r\n')}\r\n`;
 
-    const informeRadianteIDs = allBolides.map(b => b.IDs_Informe_Radiante !== null ? b.IDs_Informe_Radiante.split("/") : null).flat().filter(Boolean);
-    let informeRadianteData = [];
-    if (informeRadianteIDs.length > 0) {
-      const placeholders = informeRadianteIDs.map(() => '?').join(', ');
-      const query = `SELECT * FROM Informe_Radiante ir WHERE ir.Identificador IN (${placeholders})`;
-
-      [informeRadianteData] = await pool.query(query, [...informeRadianteIDs]);
-    }
-
-    informeRadianteData.forEach(row => {
-      informeRadianteSheet.addRow([
-        row.Identificador,
-        row.Fecha,
-        row.Hora,
-        row.Velocidad_Lluvia_Asociada,
-        row.Trayectorias_estimadas_para,
-        row.Distancia_angular_radianes,
-        row.Distancia_angular_grados,
-        row.Velocidad_angular_grad_sec,
-        row.Meteoro_Identificador,
-        row.Observatorio_Número,
-        row.Lluvia_Asociada
-      ]);
-    });
-
-    // Hoja 4: Informe_Fotometria (si existe)
-    const informeFotometriaSheet = workbook.addWorksheet('Informe_Fotometria');
-    informeFotometriaSheet.addRow(['Identificador', 'Fecha', 'Hora', 'Estrellas_visibles', 'Estrellas_usadas_para_regresion', 'Coeficiente_externo_Recta_de_Bouger', 'Punto_cero_Recta_de_Bouger', 'Error_tipico_regresion', 'Error_tipico_punto_cero', 'Error_tipico_coeficiente_externo', 'Coeficientes_parabola_trayectoria', 'MagMax', 'MagMin', 'Masa_fotometrica', 'Meteoro_Identificador']);
-
-    const informeFotometriaIDs = allBolides.map(b => b.IDs_Informe_Fotometria !== null ? b.IDs_Informe_Fotometria.split("/") : null).flat().filter(Boolean);
-    let informeFotometriaData = [];
-    if (informeFotometriaIDs.length > 0) {
-      const placeholders = informeFotometriaIDs.map(() => '?').join(', ');
-      const query = `SELECT * FROM Informe_Fotometria if2 WHERE if2.Identificador IN (${placeholders})`;
-
-      [informeFotometriaData] = await pool.query(query, [...informeFotometriaIDs]);
-    }
-
-
-    informeFotometriaData.forEach(row => {
-      informeFotometriaSheet.addRow([
-        row.Identificador,
-        row.Fecha,
-        row.Hora,
-        row.Estrellas_visibles,
-        row.Estrellas_usadas_para_regresion,
-        row.Coeficiente_externo_Recta_de_Bouger,
-        row.Punto_cero_Recta_de_Bouger,
-        row.Error_tipico_regresion,
-        row.Error_tipico_punto_cero,
-        row.Error_tipico_coeficiente_externo,
-        row.Coeficientes_parabola_trayectoria,
-        row.MagMax,
-        row.MagMin,
-        row.Masa_fotometrica,
-        row.Meteoro_Identificador
-      ]);
-    });
-
-    // Configurar los headers de la respuesta
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename=meteor_reports.xlsx');
-
-    // Escribir el libro de Excel en la respuesta
-    await workbook.xlsx.write(res);
-    res.end();
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="meteor_reports.csv"');
+    res.status(200).send(csvContent);
 
   } catch (error) {
     console.error('Error al obtener los bolidos:', error);

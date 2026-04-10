@@ -33,83 +33,120 @@ Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, 
 
 ## Instalación
 
-1.  Clona el repositorio:
+1. Clona el repositorio:
 
-    ```
-    git clone https://github.com/x1n4px/AstroUMA.git
-    cd AstroUMA
-    ```
-
-2. Gestión de la base de datos:
-   ```
-   CREATE USER 'astro_user'@'localhost' IDENTIFIED BY '0000';
-    CREATE DATABASE astro;
-    GRANT ALL PRIVILEGES ON astro.* TO 'astro_user'@'localhost';
-    FLUSH PRIVILEGES;
-
-   ```    
-
-3.  Instala las dependencias del backend:
-
-    ```bash
-    cd Backend
-    npm install
-    pwd -> /home/user/git/AstroUMA/Backend
-    nano .env
-    ```
-    El .env:
-    ```
-    DB_HOST=localhost
-    DB_USER=astro_user
-    DB_PASSWORD=0000
-    DB_NAME=astro
-    JWT_SECRET=testingjwtpassword
-    ```
-
-    
-   
-    
-4.  Inicia el servidor backend:
-    ```
-    npm run start
-    ```
-
-5.  Frontend:
-
-    ```bash
-    cd ../frontend
-    npm install
-    pwd -> /home/user/git/AstroUMA/Frontend
-    nano .env
-
-    ```
-    El .env:
-    ```
-    VITE_API_URL=http://localhost:3005/api
-    VITE_GEMINI_API_KEY=00
-    VITE_GEMINI_MODEL=gemini-2.0-flash
-
-    ```
-    Habríar que generar una API key en https://aistudio.google.com/app/apikey, pero por el momento no lo vamos a hacer.
-
-
-6.  Inicia la aplicación frontend:
-
-    ```bash
-    npm run start
-    ```
-
-7. Deja en ejecución en servidor:
-	Backend	
+```bash
+git clone https://github.com/x1n4px/AstroUMA.git
+cd AstroUMA
 ```
-	pm2 start npm --name backend -- run dev
-	
-	```
 
-	frontend:
-	```
-	pm2 serve dist 5173 --name frontend
-	```
+2. Prepara la base de datos MariaDB/MySQL:
+
+```sql
+CREATE USER 'astro_user'@'localhost' IDENTIFIED BY '0000';
+CREATE DATABASE astro;
+GRANT ALL PRIVILEGES ON astro.* TO 'astro_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+3. Backend:
+
+```bash
+cd Backend
+npm install
+cp .env.example .env
+```
+
+Configura al menos estas variables en `Backend/.env`:
+
+```env
+PORT=3005
+JWT_SECRET=change_this_jwt_secret
+DB_HOST=localhost
+DB_USER=astro_user
+DB_PASSWORD=0000
+DB_NAME=astro
+```
+
+Opcional (subida a YouTube desde Workflows):
+
+```env
+YOUTUBE_API_KEY=
+YOUTUBE_CLIENT_ID=
+```
+
+Opcional (MongoDB para vistas de workflows):
+
+```env
+MONGO_URL=
+MONGO_HOST=
+MONGO_PORT=27017
+MONGO_DB=sma_workflows
+MONGO_USERNAME=
+MONGO_PASSWORD=
+```
+
+Opcional (publicación en WordPress):
+
+```env
+WORDPRESS_ENABLED=false
+WORDPRESS_BASE_URL=https://meteoros.astromalaga.es
+WORDPRESS_USERNAME=
+WORDPRESS_PASSWORD=
+WORDPRESS_DEFAULT_AUTHOR=
+WORDPRESS_DEFAULT_STATUS=draft
+WORDPRESS_DEFAULT_CATEGORY=
+WORDPRESS_DEFAULT_TAGS=AstroSMA,Workflows,Meteoros
+WORDPRESS_TIMEOUT=30000
+```
+
+Nota: estas claves ahora se leen desde el backend y se exponen al cliente por `GET /api/auxiliary/client-config`. Ya no se configuran en el `.env` del frontend.
+
+4. Frontend:
+
+```bash
+cd ../Frontend
+npm install
+cp .env.example .env
+```
+
+Configura `Frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3005/api
+```
+
+5. Arranque en local:
+
+En una terminal (backend):
+
+```bash
+cd Backend
+npm run dev
+```
+
+En otra terminal (frontend):
+
+```bash
+cd Frontend
+npm run dev
+```
+
+6. Despliegue básico con PM2 (opcional):
+
+Backend:
+
+```bash
+pm2 start npm --name backend -- run dev
+```
+
+Frontend:
+
+```bash
+cd Frontend
+npm run build
+pm2 serve dist 5173 --name frontend
+```
 
 
 
@@ -118,4 +155,3 @@ Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, 
 1.  Abre la aplicación web en tu navegador.
 2.  Explora las visualizaciones de datos y utiliza las herramientas de análisis.
 3.  Familiarízate con los patrones y tendencias de las lluvias de meteoros.
-

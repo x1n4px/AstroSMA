@@ -117,11 +117,15 @@ export default function Request() {
             if (response.data instanceof Blob) {
                 const url = window.URL.createObjectURL(response.data);
                 const link = document.createElement('a');
+                const contentDisposition = response?.headers?.['content-disposition'] || '';
+                const filenameMatch = contentDisposition.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+                const serverFilename = filenameMatch ? decodeURIComponent(filenameMatch[1].replace(/"/g, '').trim()) : null;
                 link.href = url;
-                link.setAttribute('download', 'meteor_reports.xlsx'); // Usa el mismo nombre que en el servidor
+                link.setAttribute('download', serverFilename || 'meteor_reports.csv');
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
             } else {
                 console.error('La respuesta no contiene un archivo válido');
             }
@@ -416,9 +420,7 @@ export default function Request() {
                                                                                             Cargando...
                                                                                         </>
                                                                                     ) : (
-                                                                                        <>
-                                                                                             📥 {t('REQUEST.TABLE.REQUEST_DOWNLOAD')}
-                                                                                        </>
+                                                                                        <>{t('REQUEST.TABLE.REQUEST_DOWNLOAD')}</>
                                                                                     )}
                                                                                    
                                                                                 </Button>

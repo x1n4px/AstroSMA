@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
 import CompleteTrajectoryView3D from '@/components/three/CompleteTrajectoryView3D';
+import SpainBolidePlane3D from '@/components/three/SpainBolidePlane3D';
 import {
   ReportPanel,
   ReportMetricCard,
@@ -206,6 +207,20 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
               trajectoryData={trajectoryData}
               regressionTrajectory={regressionTrajectory}
               observatory={observatory}
+            />
+          </ReportPanel>
+        </Col>
+
+        <Col xs={12}>
+          <ReportPanel
+            title="Plano 2D de Espana con trayectoria 3D y sombra"
+            description="Representacion rotatoria del bolido: linea 3D en altura y su proyeccion sobre el plano 2D de Espana."
+            accent="cool"
+            eyebrow="Plano + Volumen"
+          >
+            <SpainBolidePlane3D
+              reportData={reportData}
+              trajectoryData={trajectoryData}
             />
           </ReportPanel>
         </Col>

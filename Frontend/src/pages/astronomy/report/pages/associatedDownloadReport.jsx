@@ -65,14 +65,16 @@ const AssociatedDownloadReport = ({ report }) => {
     try {
       const fileData = await getOrbitFile(
         apiButtonName,
-        report.Fecha,
-        report.Hora,
+        report?.Fecha ?? report?.date,
+        report?.Hora ?? report?.time,
         fileNameToDownload,
-        report.Observatorio_Número,
-        report.Observatorio_Número2
+        report?.Observatorio_Número ?? report?.stationNumber1,
+        report?.Observatorio_Número2 ?? report?.stationNumber2
       );
 
-      const blob = new Blob([fileData], { type: 'application/octet-stream' });
+      const blob = fileData instanceof Blob
+        ? fileData
+        : new Blob([fileData], { type: 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

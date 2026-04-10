@@ -1,44 +1,66 @@
 import { useState } from 'react';
-import { Container, Row, Col, Card, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
 import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
-import { formatDate } from '@/pipe/formatDate.jsx'
+import { formatDate } from '@/pipe/formatDate.jsx';
 import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
 import CheckIcon from '@/assets/icon/check';
 import CrossIcon from '@/assets/icon/cross';
-import { createRequest } from '@/services/requestService.jsx'
-import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx'
-// Internationalization
+import { createRequest } from '@/services/requestService.jsx';
+import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx';
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser } from '../../utils/roleMaskUtils';
 
-
+const getYearAgoDate = () => {
+    const today = new Date();
+    const yearAgo = new Date(today);
+    yearAgo.setFullYear(today.getFullYear() - 1);
+    return yearAgo.toISOString().split('T')[0];
+};
 
 const CustomizeSearch = () => {
     const { t } = useTranslation(['text']);
-    const [heightFilter, setAlturaFilter] = useState();
-    const [latFilter, setLatFilter] = useState();
-    const [lonFilter, setLonFilter] = useState();
+
+    const [heightFilter, setAlturaFilter] = useState('');
+    const [latFilter, setLatFilter] = useState('');
+    const [lonFilter, setLonFilter] = useState('');
     const [heightChecked, setAlturaChecked] = useState(false);
     const [latLonChecked, setLatLonChecked] = useState(false);
-    const [ratioFilter, setRadioBusqueda] = useState();
+    const [ratioFilter, setRadioBusqueda] = useState('');
     const [dateRangeChecked, setDateRangeChecked] = useState(false);
     const [startDate, setStartDate] = useState(getYearAgoDate());
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+
+    const [meteorIdFilter, setMeteorIdFilter] = useState('');
+    const [observatoryFilter, setObservatoryFilter] = useState('');
+    const [showerFilter, setShowerFilter] = useState('');
+    const [minVelocityFilter, setMinVelocityFilter] = useState('');
+    const [maxVelocityFilter, setMaxVelocityFilter] = useState('');
+    const [minAngularVelocityFilter, setMinAngularVelocityFilter] = useState('');
+    const [maxAngularVelocityFilter, setMaxAngularVelocityFilter] = useState('');
+    const [requireReportZ, setRequireReportZ] = useState(false);
+    const [requireReportRadiant, setRequireReportRadiant] = useState(false);
+    const [requireReportPhotometry, setRequireReportPhotometry] = useState(false);
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [timeFrom, setTimeFrom] = useState('');
+    const [timeTo, setTimeTo] = useState('');
+    const [minMagMaxFilter, setMinMagMaxFilter] = useState('');
+    const [maxMagMaxFilter, setMaxMagMaxFilter] = useState('');
+    const [minMassFilter, setMinMassFilter] = useState('');
+    const [maxMassFilter, setMaxMassFilter] = useState('');
+
     const [reportData, setReportData] = useState([]);
-    const [bolides, setBolides] = useState([]);
     const [searchButton, setSearchButton] = useState(false);
-    const [mapResetKey, setMapResetKey] = useState(0);
     const [actualPage, setActualPage] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
-    const [reportType, setReportType] = useState('1'); // Estado para el tipo de informe
+    const [reportType, setReportType] = useState('1');
     const itemsPerPage = 50;
-    const roleMask = (localStorage.getItem('rol'));
-    const [modalReport, setModalReport] = useState(null); // Estado para el informe del modal
-    const [showModal, setShowModal] = useState(false); // Estado para mostrar/ocultar el modal
-    const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false); // Nuevo estado para el modal de descarga
 
+    const roleMask = localStorage.getItem('rol');
+    const [modalReport, setModalReport] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+    const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false);
 
-    const handleApplyFilters = async () => {
+    const handleApplyFilters = async (page = 0) => {
         try {
             const response = await getBolideWithCustomSearch({
                 heightFilter,
@@ -50,14 +72,31 @@ const CustomizeSearch = () => {
                 dateRangeChecked,
                 startDate,
                 endDate,
-                actualPage,
-                reportType
+                actualPage: page,
+                reportType,
+                meteorIdFilter,
+                observatoryFilter,
+                showerFilter,
+                minVelocityFilter,
+                maxVelocityFilter,
+                minAngularVelocityFilter,
+                maxAngularVelocityFilter,
+                requireReportZ,
+                requireReportRadiant,
+                requireReportPhotometry,
+                sortOrder,
+                timeFrom,
+                timeTo,
+                minMagMaxFilter,
+                maxMagMaxFilter,
+                minMassFilter,
+                maxMassFilter
             });
-            console.log(response);
-            setReportData(response.data);
-            setTotalItems(response.totalItems);
+
+            setReportData(response.data || []);
+            setTotalItems(response.totalItems || 0);
+            setActualPage(page);
             setSearchButton(true);
-            setMapResetKey((prevKey) => prevKey + 1);
         } catch (error) {
             console.error('Error al aplicar los filtros:', error);
         }
@@ -65,92 +104,53 @@ const CustomizeSearch = () => {
 
     const handleApplyFiltersCSV = async (description) => {
         try {
+            const autoFiltersSummary = {
+                reportType,
+                heightFilter,
+                latFilter,
+                lonFilter,
+                ratioFilter,
+                dateRangeChecked,
+                startDate,
+                endDate,
+                meteorIdFilter,
+                observatoryFilter,
+                showerFilter,
+                minVelocityFilter,
+                maxVelocityFilter,
+                minAngularVelocityFilter,
+                maxAngularVelocityFilter,
+                requireReportZ,
+                requireReportRadiant,
+                requireReportPhotometry,
+                sortOrder,
+                timeFrom,
+                timeTo,
+                minMagMaxFilter,
+                maxMagMaxFilter,
+                minMassFilter,
+                maxMassFilter
+            };
+
             const requestBody = {
-                height: heightFilter ?? null,
-                latitude: latFilter ?? null,
-                longitude: lonFilter ?? null,
-                ratio: ratioFilter ?? null,
+                height: heightFilter || null,
+                latitude: latFilter || null,
+                longitude: lonFilter || null,
+                ratio: ratioFilter || null,
                 from_date: startDate,
                 to_date: endDate,
                 report_type: reportType,
-                description: description 
+                description: `${description || ''}\n\n[FILTROS_AVANZADOS]\n${JSON.stringify(autoFiltersSummary)}`
             };
 
-            const response = await createRequest(requestBody);
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-
-            // Call the audit function
-            const data = {
-                isGuest: false,
-                isMobile: isMobile,
-                button_name: 'CSV',
-                event_type: 'DOWNLOAD',
-                event_target: `Solicitud de descarga de datos asociados a CSV en búsqueda personalizada`,
-                report_id: 0
-            };
-            await audit(data);
-
+            await createRequest(requestBody);
         } catch (error) {
             console.error('Error al descargar el archivo:', error);
         }
     };
 
-
-    function audit() {
-
-    }
-
-
     const handleCSV = () => {
         setShowDownloadConfirmModal(true);
-    }
-
-
-    const getZoomLevel = () => {
-        if (ratioFilter) {
-            const parsedRatio = parseInt(ratioFilter);
-            if (!isNaN(parsedRatio)) {
-                if (parsedRatio > 0 && parsedRatio < 50) {
-                    return 10;
-                } else if (parsedRatio >= 50 && parsedRatio <= 100) {
-                    return 8;
-                } else if (parsedRatio > 100 && parsedRatio <= 250) {
-                    return 7;
-                } else if (parsedRatio > 250 && parsedRatio <= 500) {
-                    return 6;
-                } else {
-                    return 5;
-                }
-            } else {
-                return 5;
-            }
-        } else {
-            return 5;
-        }
-    };
-
-    function getYearAgoDate() {
-        const today = new Date();
-        const yearAgo = new Date(today);
-        yearAgo.setFullYear(today.getFullYear() - 1);
-        return yearAgo.toISOString().split('T')[0];
-    }
-
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i);
-
-
-    const handlePageChange = (page) => {
-        setActualPage(page);
-        handleApplyFilters();
-    };
-
-    const handlePrevPage = () => {
-        if (actualPage > 0) {
-            setActualPage(actualPage - 1);
-            handleApplyFilters();
-        }
     };
 
     const handleConfirmDownload = (description) => {
@@ -158,11 +158,21 @@ const CustomizeSearch = () => {
         handleApplyFiltersCSV(description);
     };
 
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        handleApplyFilters(page);
+    };
+
+    const handlePrevPage = () => {
+        if (actualPage > 0) {
+            handleApplyFilters(actualPage - 1);
+        }
+    };
 
     const handleNextPage = () => {
         if (actualPage < totalPages - 1) {
-            setActualPage(actualPage + 1);
-            handleApplyFilters();
+            handleApplyFilters(actualPage + 1);
         }
     };
 
@@ -175,26 +185,71 @@ const CustomizeSearch = () => {
         setShowModal(false);
     };
 
+    const handleClear = () => {
+        setAlturaChecked(false);
+        setLatLonChecked(false);
+        setDateRangeChecked(false);
+        setAlturaFilter('');
+        setLatFilter('');
+        setLonFilter('');
+        setRadioBusqueda('');
+        setStartDate(getYearAgoDate());
+        setEndDate(new Date().toISOString().split('T')[0]);
+
+        setMeteorIdFilter('');
+        setObservatoryFilter('');
+        setShowerFilter('');
+        setMinVelocityFilter('');
+        setMaxVelocityFilter('');
+        setMinAngularVelocityFilter('');
+        setMaxAngularVelocityFilter('');
+        setRequireReportZ(false);
+        setRequireReportRadiant(false);
+        setRequireReportPhotometry(false);
+        setSortOrder('desc');
+        setTimeFrom('');
+        setTimeTo('');
+        setMinMagMaxFilter('');
+        setMaxMagMaxFilter('');
+        setMinMassFilter('');
+        setMaxMassFilter('');
+
+        setReportType('1');
+        setSearchButton(false);
+        setActualPage(0);
+        setTotalItems(0);
+        setReportData([]);
+    };
+
     return (
         <Container className="my-4">
-
             <Card className="p-4 mb-4 shadow border-0">
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
                     </Col>
                     <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Select
-                            value={ratioFilter}
-                            onChange={(e) => setReportType(e.target.value)}
-                        >
-                            <option value="1" >{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
+                        <Form.Select value={reportType} onChange={(e) => setReportType(e.target.value)}>
+                            <option value="1">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
                             <option value="2">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_Z')}</option>
                             <option value="3">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_RADIANT')}</option>
                             <option value="4">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_PHOTOMETRY')}</option>
                         </Form.Select>
                     </Col>
                 </Row>
+
+                <Row className="mb-3">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
+                        <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SORT.TITLE')}</Form.Label>
+                    </Col>
+                    <Col xs={12} md={9}>
+                        <Form.Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+                            <option value="desc">{t('CUSTOMIZE_SEARCH.SORT.DESC')}</option>
+                            <option value="asc">{t('CUSTOMIZE_SEARCH.SORT.ASC')}</option>
+                        </Form.Select>
+                    </Col>
+                </Row>
+
                 {reportType === '2' && (
                     <Row className="mb-3">
                         <Col xs={12} md={3} className="d-flex align-items-center">
@@ -204,14 +259,16 @@ const CustomizeSearch = () => {
                                 checked={heightChecked}
                                 onChange={(e) => {
                                     setAlturaChecked(e.target.checked);
-                                    setAlturaFilter('');
+                                    if (!e.target.checked) {
+                                        setAlturaFilter('');
+                                    }
                                 }}
                                 className="me-2"
                             />
                         </Col>
                         <Col xs={12} md={9} className="d-flex align-items-center">
                             <Form.Control
-                                type="text"
+                                type="number"
                                 placeholder={t('CUSTOMIZE_SEARCH.HEIGHT')}
                                 value={heightFilter}
                                 onChange={(e) => setAlturaFilter(e.target.value)}
@@ -220,6 +277,7 @@ const CustomizeSearch = () => {
                         </Col>
                     </Row>
                 )}
+
                 {reportType === '2' && (
                     <Row className="mb-3">
                         <Col xs={12} md={3} className="d-flex align-items-center">
@@ -231,17 +289,18 @@ const CustomizeSearch = () => {
                                 className="me-2"
                             />
                         </Col>
-                        <Col xs={12} md={9} className="d-flex align-items-center">
+                        <Col xs={12} md={9} className="d-flex align-items-center gap-2">
                             <Form.Control
-                                type="text"
+                                type="number"
+                                step="any"
                                 placeholder={t('CUSTOMIZE_SEARCH.LATITUDE')}
                                 value={latFilter}
                                 onChange={(e) => setLatFilter(e.target.value)}
                                 disabled={!latLonChecked}
-                                className="me-2"
                             />
                             <Form.Control
-                                type="text"
+                                type="number"
+                                step="any"
                                 placeholder={t('CUSTOMIZE_SEARCH.LONGITUDE')}
                                 value={lonFilter}
                                 onChange={(e) => setLonFilter(e.target.value)}
@@ -250,6 +309,7 @@ const CustomizeSearch = () => {
                         </Col>
                     </Row>
                 )}
+
                 {reportType === '2' && (
                     <Row className="mb-3">
                         <Col xs={12} md={3} className="d-flex align-items-center">
@@ -261,6 +321,7 @@ const CustomizeSearch = () => {
                                 disabled={!latLonChecked}
                                 onChange={(e) => setRadioBusqueda(e.target.value)}
                             >
+                                <option value="">{t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
                                 <option value="10">10 km</option>
                                 <option value="20">20 km</option>
                                 <option value="30">30 km</option>
@@ -273,25 +334,23 @@ const CustomizeSearch = () => {
                         </Col>
                     </Row>
                 )}
+
                 <Row className="mb-3">
-                    <Col xs={12} md={3} className="d-flex align-items-center"> {/* Aumenta el ancho de la columna */}
+                    <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Check
                             type="checkbox"
                             label={t('CUSTOMIZE_SEARCH.RANGE_DATE')}
                             checked={dateRangeChecked}
-                            onChange={(e) => {
-                                setDateRangeChecked(e.target.checked)
-                            }}
+                            onChange={(e) => setDateRangeChecked(e.target.checked)}
                             className="me-2"
                         />
                     </Col>
-                    <Col xs={12} md={9} className="d-flex align-items-center"> {/* Columna para los inputs */}
+                    <Col xs={12} md={9} className="d-flex align-items-center gap-2">
                         <Form.Control
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
                             disabled={!dateRangeChecked}
-                            className="me-2"
                         />
                         <Form.Control
                             type="date"
@@ -302,34 +361,178 @@ const CustomizeSearch = () => {
                     </Col>
                 </Row>
 
+                <hr />
+
+                <Row className="mb-3">
+                    <Col xs={12}>
+                        <h6 className="mb-2">{t('CUSTOMIZE_SEARCH.ADVANCED.TITLE')}</h6>
+                    </Col>
+                    <Col xs={12} md={4} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.METEOR_ID')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            value={meteorIdFilter}
+                            onChange={(e) => setMeteorIdFilter(e.target.value)}
+                            placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.METEOR_ID')}
+                        />
+                    </Col>
+                    <Col xs={12} md={4} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.OBSERVATORY')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            value={observatoryFilter}
+                            onChange={(e) => setObservatoryFilter(e.target.value)}
+                            placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.OBSERVATORY')}
+                        />
+                    </Col>
+                    <Col xs={12} md={4} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}</Form.Label>
+                        <Form.Control
+                            type="text"
+                            value={showerFilter}
+                            onChange={(e) => setShowerFilter(e.target.value)}
+                            placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER_PLACEHOLDER')}
+                        />
+                    </Col>
+                </Row>
+
+                <Row className="mb-3">
+                    <Col xs={12} md={6} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_FROM')}</Form.Label>
+                        <Form.Control
+                            type="time"
+                            value={timeFrom}
+                            onChange={(e) => setTimeFrom(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={6} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_TO')}</Form.Label>
+                        <Form.Control
+                            type="time"
+                            value={timeTo}
+                            onChange={(e) => setTimeTo(e.target.value)}
+                        />
+                    </Col>
+                </Row>
+
+                <Row className="mb-3">
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={minVelocityFilter}
+                            onChange={(e) => setMinVelocityFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_VELOCITY')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={maxVelocityFilter}
+                            onChange={(e) => setMaxVelocityFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_ANGULAR_VELOCITY')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={minAngularVelocityFilter}
+                            onChange={(e) => setMinAngularVelocityFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_ANGULAR_VELOCITY')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={maxAngularVelocityFilter}
+                            onChange={(e) => setMaxAngularVelocityFilter(e.target.value)}
+                        />
+                    </Col>
+                </Row>
+
+                <Row className="mb-3">
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_MAG_MAX')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={minMagMaxFilter}
+                            onChange={(e) => setMinMagMaxFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_MAG_MAX')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={maxMagMaxFilter}
+                            onChange={(e) => setMaxMagMaxFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_MASS')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={minMassFilter}
+                            onChange={(e) => setMinMassFilter(e.target.value)}
+                        />
+                    </Col>
+                    <Col xs={12} md={3} className="mb-2">
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_MASS')}</Form.Label>
+                        <Form.Control
+                            type="number"
+                            step="any"
+                            value={maxMassFilter}
+                            onChange={(e) => setMaxMassFilter(e.target.value)}
+                        />
+                    </Col>
+                </Row>
+
+                <Row className="mb-3">
+                    <Col xs={12} className="d-flex flex-wrap gap-3">
+                        <Form.Check
+                            type="checkbox"
+                            label={t('CUSTOMIZE_SEARCH.ADVANCED.REQUIRE_Z')}
+                            checked={requireReportZ}
+                            onChange={(e) => setRequireReportZ(e.target.checked)}
+                        />
+                        <Form.Check
+                            type="checkbox"
+                            label={t('CUSTOMIZE_SEARCH.ADVANCED.REQUIRE_RADIANT')}
+                            checked={requireReportRadiant}
+                            onChange={(e) => setRequireReportRadiant(e.target.checked)}
+                        />
+                        <Form.Check
+                            type="checkbox"
+                            label={t('CUSTOMIZE_SEARCH.ADVANCED.REQUIRE_PHOTOMETRY')}
+                            checked={requireReportPhotometry}
+                            onChange={(e) => setRequireReportPhotometry(e.target.checked)}
+                        />
+                    </Col>
+                </Row>
+
                 <Row>
-                    <Col xs={12} md={6}>
-                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100' }} onClick={handleApplyFilters}>
+                    <Col xs={12} md={9}>
+                        <Button
+                            style={{ backgroundColor: '#980100', borderColor: '#980100' }}
+                            onClick={() => handleApplyFilters(0)}
+                        >
                             {t('CUSTOMIZE_SEARCH.SEARCH_BTN')}
                         </Button>
 
-                        <Button variant="secondary" className="ms-2" onClick={() => {
-                            setAlturaChecked(false);
-                            setLatLonChecked(false);
-                            setDateRangeChecked(false);
-                            setAlturaFilter('');
-                            setLatFilter('');
-                            setLonFilter('');
-                            setRadioBusqueda('');
-                            setStartDate(getYearAgoDate());
-                            setEndDate(new Date().toISOString().split('T')[0]);
-                            setSearchButton(false);
-                            setActualPage(0);
-                        }
-                        }>
+                        <Button variant="secondary" className="ms-2" onClick={handleClear}>
                             {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
                         </Button>
-                        { (isNotQRUser(roleMask)) && reportData.length > 0 && (
-                            <Button 
+
+                        {isNotQRUser(roleMask) && reportData.length > 0 && (
+                            <Button
                                 style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
-                                onClick={() => {
-                                    handleCSV()
-                                }}
+                                onClick={handleCSV}
                             >
                                 {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
                             </Button>
@@ -337,22 +540,46 @@ const CustomizeSearch = () => {
                     </Col>
                 </Row>
             </Card>
+
             {searchButton && (
                 <div className="mt-4 shadow rounded">
                     <div className="p-3 rounded shadow-sm mt-4">
+                        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h6 className="mb-0">{t('CUSTOMIZE_SEARCH.RESULTS_TITLE')}</h6>
+                            <Badge bg="secondary">
+                                {t('CUSTOMIZE_SEARCH.RESULTS_COUNT', { count: totalItems })}
+                            </Badge>
+                        </div>
+
                         <ul className="list-group">
                             {reportData.map((report, index) => (
-                                <li className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" key={report.IdInforme || index}>
+                                <li
+                                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                    key={report.IdInforme || report.Identificador || index}
+                                >
                                     <div>
-                                        <strong>{formatDate(report.Fecha)} {report.Hora.substring(0, 8)}</strong>
+                                        <strong>
+                                            #{report.Identificador} · {formatDate(report.Fecha)} {report.Hora?.substring(0, 8)}
+                                        </strong>
+                                        <div className="small text-muted">
+                                            {report.velocidadMedia != null && `${t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}: ${report.velocidadMedia} km/s`}
+                                            {report.velocidadMedia != null && report.velocidadAngular != null && ' · '}
+                                            {report.velocidadAngular != null && `${t('CUSTOMIZE_SEARCH.ADVANCED.MIN_ANGULAR_VELOCITY')}: ${report.velocidadAngular} °/s`}
+                                            {report.magMax != null ? ` · MagMax: ${report.magMax}` : ''}
+                                            {report.masaFotometrica != null ? ` · Masa: ${report.masaFotometrica}` : ''}
+                                            {report.lluviasAsociadas ? ` · ${t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}: ${report.lluviasAsociadas}` : ''}
+                                        </div>
                                     </div>
                                     <div className="d-inline-flex gap-3">
                                         <div>{t('CUSTOMIZE_SEARCH.REPORT_Z')}: {report.hasReportZ ? <CheckIcon /> : <CrossIcon />}</div>
-                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_RADIANT')}: {report.hasReportRadiant ? <CheckIcon /> : <CrossIcon />} </div>
+                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_RADIANT')}: {report.hasReportRadiant ? <CheckIcon /> : <CrossIcon />}</div>
                                         <div>{t('CUSTOMIZE_SEARCH.REPORT_PHOTOMETRY')}: {report.hasReportPhotometry ? <CheckIcon /> : <CrossIcon />}</div>
                                     </div>
                                     <div>
-                                        <Button style={{ backgroundColor: '#980100', borderColor: '#980100', marginTop: '5px' }} onClick={() => handleShowModal(report)}>
+                                        <Button
+                                            style={{ backgroundColor: '#980100', borderColor: '#980100', marginTop: '5px' }}
+                                            onClick={() => handleShowModal(report)}
+                                        >
                                             {t('CUSTOMIZE_SEARCH.SHOW_BUTTON')}
                                         </Button>
                                     </div>
@@ -371,37 +598,29 @@ const CustomizeSearch = () => {
 
                     <nav aria-label="Page navigation example">
                         <ul className="pagination justify-content-center py-4">
-                            {/* Botón "Previous" */}
                             <li className={`page-item ${actualPage === 0 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={handlePrevPage}>
                                     Previous
                                 </button>
                             </li>
 
-                            {/* Mostrar solo 10 páginas a la vez */}
                             {(() => {
-                                const visiblePages = 10; // Número máximo de páginas visibles
-                                const halfVisible = Math.floor(visiblePages / 2); // Mitad de las páginas visibles
+                                const visiblePages = 10;
+                                const halfVisible = Math.floor(visiblePages / 2);
 
-                                // Calcular el rango de páginas a mostrar
                                 let startPage = Math.max(0, actualPage - halfVisible);
                                 let endPage = Math.min(totalPages - 1, actualPage + halfVisible);
 
-                                // Ajustar el rango si estamos cerca de los extremos
                                 if (actualPage < halfVisible) {
                                     endPage = Math.min(visiblePages - 1, totalPages - 1);
                                 } else if (actualPage > totalPages - halfVisible - 1) {
                                     startPage = Math.max(totalPages - visiblePages, 0);
                                 }
 
-                                // Generar los números de página visibles
                                 const pages = [];
                                 for (let i = startPage; i <= endPage; i++) {
                                     pages.push(
-                                        <li
-                                            className={`page-item ${actualPage === i ? 'active' : ''}`}
-                                            key={i}
-                                        >
+                                        <li className={`page-item ${actualPage === i ? 'active' : ''}`} key={i}>
                                             <button className="page-link" onClick={() => handlePageChange(i)}>
                                                 {i + 1}
                                             </button>
@@ -412,8 +631,7 @@ const CustomizeSearch = () => {
                                 return pages;
                             })()}
 
-                            {/* Botón "Next" */}
-                            <li className={`page-item ${actualPage === totalPages - 1 ? 'disabled' : ''}`}>
+                            <li className={`page-item ${actualPage === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={handleNextPage}>
                                     Next
                                 </button>
