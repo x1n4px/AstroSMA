@@ -1,6 +1,8 @@
 # AstroUMA
 # Visualización e Inferencia de Datos de Lluvias de Meteoros
 
+> **Aviso de compatibilidad del servidor:** la version de Node.js del servidor es `17.9.1`, la misma que aparece en el error original (`Node.js v17.9.1`). El servidor no se puede actualizar, asi que los desarrollos futuros deben mantener compatibilidad con Node `17.9.1` y evitar actualizar dependencias que requieran Node 18, 20 o 22.
+
 Este proyecto tiene como objetivo desarrollar una plataforma web interactiva para visualizar y analizar los datos de lluvias de meteoros recopilados por la Universidad de Málaga (UMA) y la Sociedad Malagueña de Astronomía (SMA), en colaboración con el profesor Alberto Castellón Serrano.
 
 ## Contexto
@@ -33,6 +35,13 @@ Este TFG se basa en trabajos previos sobre recolección de datos astronómicos, 
 
 ## Instalación
 
+Requisito previo: Node.js 17.9.1. En el servidor Manjaro, si usas `nvm`, ejecuta:
+
+```bash
+nvm install
+nvm use
+```
+
 1. Clona el repositorio:
 
 ```bash
@@ -53,7 +62,7 @@ FLUSH PRIVILEGES;
 
 ```bash
 cd Backend
-npm install
+npm ci
 cp .env.example .env
 ```
 
@@ -106,7 +115,7 @@ Nota: estas claves ahora se leen desde el backend y se exponen al cliente por `G
 
 ```bash
 cd ../Frontend
-npm install
+npm ci
 cp .env.example .env
 ```
 

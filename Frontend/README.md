@@ -4,7 +4,7 @@ Aplicación React + Vite para visualización de meteoros, informes y workflows.
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 17.9.1
 - Backend AstroSMA en ejecución
 
 ## Configuración
@@ -12,7 +12,7 @@ Aplicación React + Vite para visualización de meteoros, informes y workflows.
 1. Instala dependencias:
 
 ```bash
-npm install
+npm ci
 ```
 
 2. Crea el archivo de entorno:
