@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Container, Row, Col, Form, Button, InputGroup, Dropdown, Card, ListGroup, Placeholder, Badge } from 'react-bootstrap';
-import { Search, PersonCircle, Gear, EvStation } from 'react-bootstrap-icons';
+import { Search, PersonCircle, Gear, GlobeEuropeAfrica } from 'react-bootstrap-icons';
 import { getGeneral } from '@/services/dashboardService.jsx';
 import { useTranslation } from 'react-i18next';
 import BarChart from '@/components/chart/BarChart';
@@ -105,7 +105,7 @@ const Dashboard = () => {
                 {/* Header Section */}
                 <header className="dashboard-header p-3">
                     <Row className="align-items-center">
-                        <Col md={6} className="d-flex align-items-center">
+                        <Col md={6} className="d-flex align-items-center gap-2 flex-wrap">
                             <Button
                                 as={Link}
                                 to="/customize-search"
@@ -113,6 +113,14 @@ const Dashboard = () => {
                                 style={{ backgroundColor: '#980100', borderColor: '#980100' }}
                             >
                                 <Search /> {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
+                            </Button>
+                            <Button
+                                as={Link}
+                                to="/bolide-globe"
+                                variant="outline-dark"
+                                className="py-2"
+                            >
+                                <GlobeEuropeAfrica className="me-1" /> Visor 3D
                             </Button>
                         </Col>
 

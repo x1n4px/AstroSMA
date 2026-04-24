@@ -58,6 +58,22 @@ export const getLastTWoBolide = async () => {
     return response.data;
 }
 
+export const getBolideTrajectoriesForEarthGlobe = async ({ startDate, endDate } = {}) => {
+    try {
+        const response = await axios.get(`${API_URL}/bolide/earth/trajectories`, {
+            params: {
+                startDate,
+                endDate
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching 3D earth bolide trajectories:', error);
+        throw error;
+    }
+}
+
 
 export const getBolideWithCustomSearch = async ({
     heightFilter,

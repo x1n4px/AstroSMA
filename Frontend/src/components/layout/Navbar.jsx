@@ -42,6 +42,7 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/dashboard" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_HOME')}</Nav.Link>
             <Nav.Link as={Link} to="/active-rain" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_ACTIVE_RAIN')}</Nav.Link>
             <Nav.Link as={Link} to="/station" onClick={() => setExpanded(false)} style={{ color: 'white' }}>{t('NAVBAR.BTN_STATIONS')}</Nav.Link>
+            <Nav.Link as={Link} to="/bolide-globe" onClick={() => setExpanded(false)} style={{ color: 'white' }}>Visor 3D</Nav.Link>
             {(isNotQRUser(roleMask)) ? (
               <Dropdown align="end" style={{ marginRight: '1rem' }}> {/* Added align="end" to keep dropdown on the right */}
                 <Dropdown.Toggle variant="outline-light" id="dropdown-basic">

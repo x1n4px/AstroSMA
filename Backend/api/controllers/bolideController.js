@@ -2,6 +2,7 @@ const pool = require('../database/connection');
 
 const { isPointInRadius } = require('../middlewares/isPointInRadius')
 const { individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal.js')
+const { convertCoordinates } = require('../middlewares/convertCoordinates');
 
 const testing = async (req, res) => {
   try {
@@ -918,6 +919,475 @@ const getReportData = async (req, res) => {
   }
 };
 
+const formatSqlDate = (value) => {
+  if (!value) return null;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10);
+  }
+
+  return String(value).slice(0, 10);
+};
+
+const formatSqlTime = (value) => {
+  if (!value) return null;
+  const match = String(value).trim().match(/^(\d{2}:\d{2}:\d{2})/);
+  return match ? match[1] : String(value).trim();
+};
+
+const normalizeNumericValue = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const parsed = Number.parseFloat(String(value).trim().replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const safeConvertCoordinates = (value) => {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+
+  try {
+    const converted = convertCoordinates(value);
+
+    return {
+      latitude: normalizeNumericValue(converted.latitude),
+      longitude: normalizeNumericValue(converted.longitude),
+      altitudeKm: normalizeNumericValue(converted.height),
+      distanceKm: normalizeNumericValue(converted.distance)
+    };
+  } catch (error) {
+    return null;
+  }
+};
+
+const averageFiniteValues = (values) => {
+  const validValues = values.filter(value => Number.isFinite(value));
+  if (!validValues.length) {
+    return null;
+  }
+
+  return validValues.reduce((sum, value) => sum + value, 0) / validValues.length;
+};
+
+const averageGeoPoints = (points) => {
+  const validPoints = points.filter(point => point && Number.isFinite(point.latitude) && Number.isFinite(point.longitude));
+  if (!validPoints.length) {
+    return null;
+  }
+
+  return {
+    latitude: averageFiniteValues(validPoints.map(point => point.latitude)),
+    longitude: averageFiniteValues(validPoints.map(point => point.longitude)),
+    altitudeKm: averageFiniteValues(validPoints.map(point => point.altitudeKm)),
+    distanceKm: averageFiniteValues(validPoints.map(point => point.distanceKm))
+  };
+};
+
+const splitDistinctText = (value) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      String(value)
+        .split('/')
+        .map(item => item.trim())
+        .filter(Boolean)
+    )
+  );
+};
+
+const normalizeCoordinateRange = (value) => {
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+
+  if (Math.abs(value) > 180) {
+    return value + (value > 0 ? -360 : 360);
+  }
+
+  return value;
+};
+
+const subtractDays = (dateString, days) => {
+  const baseDate = new Date(`${dateString}T00:00:00Z`);
+  if (Number.isNaN(baseDate.getTime())) {
+    return dateString;
+  }
+
+  baseDate.setUTCDate(baseDate.getUTCDate() - days);
+  return baseDate.toISOString().slice(0, 10);
+};
+
+const buildObservatorySummary = (row) => {
+  const observatories = [];
+
+  if (row.observatory1Number) {
+    observatories.push({
+      id: Number(row.observatory1Number),
+      name: row.observatory1Name || `Observatorio ${row.observatory1Number}`
+    });
+  }
+
+  if (row.observatory2Number) {
+    observatories.push({
+      id: Number(row.observatory2Number),
+      name: row.observatory2Name || `Observatorio ${row.observatory2Number}`
+    });
+  }
+
+  return Array.from(
+    new Map(observatories.map(item => [item.id, item])).values()
+  );
+};
+
+const buildMeasuredTrajectoryPoints = (rows) => {
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return rows
+    .map((row) => ({
+      latitude: normalizeCoordinateRange(individuaConvertSexagesimalToDecimal(row.phi)),
+      longitude: normalizeCoordinateRange(individuaConvertSexagesimalToDecimal(row.lambda)),
+      distanceKm: normalizeNumericValue(row.s),
+      timeSeconds: normalizeNumericValue(row.t),
+      velocityKmS: normalizeNumericValue(row.v)
+    }))
+    .filter(point => Number.isFinite(point.latitude) && Number.isFinite(point.longitude))
+    .sort((left, right) => {
+      const leftOrder = Number.isFinite(left.distanceKm) ? left.distanceKm : left.timeSeconds;
+      const rightOrder = Number.isFinite(right.distanceKm) ? right.distanceKm : right.timeSeconds;
+
+      if (Number.isFinite(leftOrder) && Number.isFinite(rightOrder)) {
+        return leftOrder - rightOrder;
+      }
+
+      if (Number.isFinite(leftOrder)) return -1;
+      if (Number.isFinite(rightOrder)) return 1;
+      return 0;
+    });
+};
+
+const getReportQualityScore = (report) => {
+  const measuredPoints = report.measuredPointCount || 0;
+  const hasRepresentativePath = report.startPoint && report.endPoint ? 1 : 0;
+  const trajectoryLength = Number.isFinite(report.trajectoryLengthKm) ? report.trajectoryLengthKm : 0;
+  const regressionPoints = report.regressionPointCount || 0;
+  const errorVelocityPenalty = Number.isFinite(report.errorVelocityKmS) ? Math.min(report.errorVelocityKmS, 999) : 999;
+
+  return (
+    measuredPoints * 1000000 +
+    hasRepresentativePath * 100000 +
+    trajectoryLength * 100 +
+    regressionPoints -
+    errorVelocityPenalty
+  );
+};
+
+const getBolideTrajectoriesForEarthGlobe = async (req, res) => {
+  try {
+    const [rangeRows] = await pool.query(`
+      SELECT
+        MIN(m.Fecha) AS minDate,
+        MAX(m.Fecha) AS maxDate
+      FROM Meteoro m
+      WHERE EXISTS (
+        SELECT 1
+        FROM Informe_Z iz
+        WHERE iz.Meteoro_Identificador = m.Identificador
+      )
+    `);
+
+    const availableRange = {
+      minDate: formatSqlDate(rangeRows[0]?.minDate),
+      maxDate: formatSqlDate(rangeRows[0]?.maxDate)
+    };
+
+    if (!availableRange.minDate || !availableRange.maxDate) {
+      return res.json({
+        availableRange,
+        queryRange: {
+          startDate: null,
+          endDate: null
+        },
+        meta: {
+          totalBolides: 0,
+          totalReports: 0,
+          totalMeasuredPoints: 0
+        },
+        data: []
+      });
+    }
+
+    const requestedStart = parseText(req.query.startDate);
+    const requestedEnd = parseText(req.query.endDate);
+    let startDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedStart)
+      ? requestedStart
+      : subtractDays(availableRange.maxDate, 30);
+    let endDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedEnd)
+      ? requestedEnd
+      : availableRange.maxDate;
+
+    if (startDate > endDate) {
+      [startDate, endDate] = [endDate, startDate];
+    }
+
+    const [reportRows] = await pool.query(`
+      SELECT
+        iz.IdInforme AS reportId,
+        iz.Meteoro_Identificador AS meteorId,
+        m.Fecha AS meteorDate,
+        m.Hora AS meteorTime,
+        iz.Fecha AS reportDate,
+        iz.Hora AS reportTime,
+        iz.\`Observatorio_Número\` AS observatory1Number,
+        iz.\`Observatorio_Número2\` AS observatory2Number,
+        o1.Nombre_Observatorio AS observatory1Name,
+        o2.Nombre_Observatorio AS observatory2Name,
+        iz.Inicio_de_la_trayectoria_Estacion_1,
+        iz.Fin_de_la_trayectoria_Estacion_1,
+        iz.Inicio_de_la_trayectoria_Estacion_2,
+        iz.Fin_de_la_trayectoria_Estacion_2,
+        iz.Impacto_previsible,
+        iz.Distancia_recorrida_Estacion_1,
+        iz.Distancia_recorrida_Estacion_2,
+        iz.Tiempo_Estacion_1,
+        iz.Tiempo_trayectoria_en_estacion_2,
+        iz.Velocidad_media,
+        iz.Error_Velocidad,
+        iz.Aceleración_en_Kms,
+        COALESCE(tmStats.pointCount, 0) AS measuredPointCount,
+        COALESCE(trStats.pointCount, 0) AS regressionPointCount,
+        radiantStats.associatedShowers,
+        radiantStats.angularVelocityDegS,
+        photometryStats.magMax,
+        photometryStats.photometricMass
+      FROM Informe_Z iz
+      JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador
+      LEFT JOIN Observatorio o1 ON o1.\`Número\` = iz.\`Observatorio_Número\`
+      LEFT JOIN Observatorio o2 ON o2.\`Número\` = iz.\`Observatorio_Número2\`
+      LEFT JOIN (
+        SELECT
+          Informe_Z_IdInforme,
+          COUNT(*) AS pointCount
+        FROM Trayectoria_medida
+        GROUP BY Informe_Z_IdInforme
+      ) tmStats ON tmStats.Informe_Z_IdInforme = iz.IdInforme
+      LEFT JOIN (
+        SELECT
+          Informe_Z_IdInforme,
+          COUNT(*) AS pointCount
+        FROM Trayectoria_por_regresion
+        GROUP BY Informe_Z_IdInforme
+      ) trStats ON trStats.Informe_Z_IdInforme = iz.IdInforme
+      LEFT JOIN (
+        SELECT
+          Meteoro_Identificador,
+          GROUP_CONCAT(DISTINCT Lluvia_Asociada ORDER BY Lluvia_Asociada SEPARATOR ' / ') AS associatedShowers,
+          MAX(Velocidad_angular_grad_sec) AS angularVelocityDegS
+        FROM Informe_Radiante
+        GROUP BY Meteoro_Identificador
+      ) radiantStats ON radiantStats.Meteoro_Identificador = iz.Meteoro_Identificador
+      LEFT JOIN (
+        SELECT
+          Meteoro_Identificador,
+          MAX(MagMax) AS magMax,
+          MAX(Masa_fotometrica) AS photometricMass
+        FROM Informe_Fotometria
+        GROUP BY Meteoro_Identificador
+      ) photometryStats ON photometryStats.Meteoro_Identificador = iz.Meteoro_Identificador
+      WHERE m.Fecha BETWEEN ? AND ?
+      ORDER BY m.Fecha DESC, m.Hora DESC, iz.IdInforme DESC
+    `, [startDate, endDate]);
+
+    if (!reportRows.length) {
+      return res.json({
+        availableRange,
+        queryRange: {
+          startDate,
+          endDate
+        },
+        meta: {
+          totalBolides: 0,
+          totalReports: 0,
+          totalMeasuredPoints: 0
+        },
+        data: []
+      });
+    }
+
+    const reportIds = reportRows.map(row => Number(row.reportId)).filter(Number.isFinite);
+    const [trajectoryRows] = await pool.query(`
+      SELECT
+        Informe_Z_IdInforme,
+        Hora,
+        s,
+        t,
+        v,
+        lambda,
+        phi
+      FROM Trayectoria_medida
+      WHERE Informe_Z_IdInforme IN (?)
+      ORDER BY
+        Informe_Z_IdInforme ASC,
+        COALESCE(s, 999999999) ASC,
+        COALESCE(t, 999999999) ASC,
+        Hora ASC
+    `, [reportIds]);
+
+    const trajectoryByReport = new Map();
+    trajectoryRows.forEach((row) => {
+      const reportId = Number(row.Informe_Z_IdInforme);
+      if (!trajectoryByReport.has(reportId)) {
+        trajectoryByReport.set(reportId, []);
+      }
+
+      trajectoryByReport.get(reportId).push(row);
+    });
+
+    const meteorMap = new Map();
+
+    reportRows.forEach((row) => {
+      const reportId = Number(row.reportId);
+      const trajectoryPoints = buildMeasuredTrajectoryPoints(trajectoryByReport.get(reportId));
+      const startStation1 = safeConvertCoordinates(row.Inicio_de_la_trayectoria_Estacion_1);
+      const endStation1 = safeConvertCoordinates(row.Fin_de_la_trayectoria_Estacion_1);
+      const startStation2 = safeConvertCoordinates(row.Inicio_de_la_trayectoria_Estacion_2);
+      const endStation2 = safeConvertCoordinates(row.Fin_de_la_trayectoria_Estacion_2);
+      const impactPoint = safeConvertCoordinates(`${row.Impacto_previsible || ''} 0.0 0.0`);
+      const report = {
+        reportId,
+        observatories: buildObservatorySummary(row),
+        measuredPointCount: Number(row.measuredPointCount) || trajectoryPoints.length,
+        regressionPointCount: Number(row.regressionPointCount) || 0,
+        velocityKmS: normalizeNumericValue(row.Velocidad_media),
+        errorVelocityKmS: normalizeNumericValue(row.Error_Velocidad),
+        accelerationKmS2: normalizeNumericValue(row.Aceleración_en_Kms),
+        angularVelocityDegS: normalizeNumericValue(row.angularVelocityDegS),
+        trajectoryLengthKm: averageFiniteValues([
+          normalizeNumericValue(row.Distancia_recorrida_Estacion_1),
+          normalizeNumericValue(row.Distancia_recorrida_Estacion_2)
+        ]),
+        durationSeconds: averageFiniteValues([
+          normalizeNumericValue(row.Tiempo_Estacion_1),
+          normalizeNumericValue(row.Tiempo_trayectoria_en_estacion_2)
+        ]),
+        startPoint: averageGeoPoints([startStation1, startStation2]),
+        endPoint: averageGeoPoints([endStation1, endStation2]),
+        impactPoint,
+        trajectoryPoints
+      };
+
+      const meteorId = Number(row.meteorId);
+      if (!meteorMap.has(meteorId)) {
+        meteorMap.set(meteorId, {
+          meteorId,
+          date: formatSqlDate(row.meteorDate || row.reportDate),
+          time: formatSqlTime(row.meteorTime || row.reportTime),
+          associatedShowers: new Set(splitDistinctText(row.associatedShowers)),
+          observatoryMap: new Map(),
+          reportIds: [],
+          reports: [],
+          angularVelocityDegS: normalizeNumericValue(row.angularVelocityDegS),
+          magnitude: normalizeNumericValue(row.magMax),
+          photometricMass: normalizeNumericValue(row.photometricMass)
+        });
+      }
+
+      const meteorEntry = meteorMap.get(meteorId);
+      meteorEntry.reports.push(report);
+      meteorEntry.reportIds.push(reportId);
+      report.observatories.forEach((observatory) => {
+        meteorEntry.observatoryMap.set(observatory.id, observatory);
+      });
+
+      splitDistinctText(row.associatedShowers).forEach(item => meteorEntry.associatedShowers.add(item));
+      meteorEntry.angularVelocityDegS = meteorEntry.angularVelocityDegS ?? normalizeNumericValue(row.angularVelocityDegS);
+      meteorEntry.magnitude = meteorEntry.magnitude ?? normalizeNumericValue(row.magMax);
+      meteorEntry.photometricMass = meteorEntry.photometricMass ?? normalizeNumericValue(row.photometricMass);
+    });
+
+    const data = Array.from(meteorMap.values())
+      .map((entry) => {
+        const selectedReport = entry.reports.reduce((bestReport, currentReport) => {
+          if (!bestReport) {
+            return currentReport;
+          }
+
+          return getReportQualityScore(currentReport) > getReportQualityScore(bestReport)
+            ? currentReport
+            : bestReport;
+        }, null);
+
+        if (!selectedReport?.startPoint || !selectedReport?.endPoint) {
+          return null;
+        }
+
+        return {
+          meteorId: entry.meteorId,
+          date: entry.date,
+          time: entry.time,
+          reportCount: entry.reports.length,
+          reportIds: entry.reportIds.sort((left, right) => right - left),
+          selectedReportId: selectedReport.reportId,
+          observatories: Array.from(entry.observatoryMap.values()),
+          associatedShowers: Array.from(entry.associatedShowers.values()),
+          velocityKmS: selectedReport.velocityKmS,
+          angularVelocityDegS: entry.angularVelocityDegS,
+          magnitude: entry.magnitude,
+          photometricMass: entry.photometricMass,
+          accelerationKmS2: selectedReport.accelerationKmS2,
+          measuredPointCount: selectedReport.measuredPointCount,
+          regressionPointCount: selectedReport.regressionPointCount,
+          trajectoryLengthKm: selectedReport.trajectoryLengthKm,
+          durationSeconds: selectedReport.durationSeconds,
+          startPoint: selectedReport.startPoint,
+          endPoint: selectedReport.endPoint,
+          impactPoint: selectedReport.impactPoint,
+          path: selectedReport.trajectoryPoints,
+          reportSummaries: entry.reports
+            .map(report => ({
+              reportId: report.reportId,
+              measuredPointCount: report.measuredPointCount,
+              regressionPointCount: report.regressionPointCount,
+              velocityKmS: report.velocityKmS,
+              trajectoryLengthKm: report.trajectoryLengthKm,
+              durationSeconds: report.durationSeconds,
+              observatories: report.observatories
+            }))
+            .sort((left, right) => right.measuredPointCount - left.measuredPointCount || right.reportId - left.reportId)
+        };
+      })
+      .filter(Boolean)
+      .sort((left, right) => {
+        const leftKey = `${left.date || ''} ${left.time || ''}`;
+        const rightKey = `${right.date || ''} ${right.time || ''}`;
+        return rightKey.localeCompare(leftKey) || right.meteorId - left.meteorId;
+      });
+
+    res.json({
+      availableRange,
+      queryRange: {
+        startDate,
+        endDate
+      },
+      meta: {
+        totalBolides: data.length,
+        totalReports: reportRows.length,
+        totalMeasuredPoints: data.reduce((sum, item) => sum + (item.measuredPointCount || 0), 0)
+      },
+      data
+    });
+  } catch (error) {
+    console.error('Error al obtener trayectorias 3D de bólidos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 
 
 
@@ -962,6 +1432,7 @@ module.exports = {
   getBolideCompareLastTen,
   getBolideCompareLastTwo,
   getBolideWithCustomSearch,
+  getBolideTrajectoriesForEarthGlobe,
   testing,
   getReportData,
   getBolideWithCustomSearchCSV
