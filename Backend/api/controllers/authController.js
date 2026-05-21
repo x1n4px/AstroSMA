@@ -67,7 +67,6 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password, isMobile, ipLocationData } = req.body;
-        console.log(req.body)
         // Validación básica
         const [rows] = await pool.query('SELECT * FROM user WHERE email = ?', [email]);
         if (rows.length === 0) {

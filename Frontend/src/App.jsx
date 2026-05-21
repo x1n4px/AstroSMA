@@ -8,6 +8,7 @@ const Login = lazy(() => import('@/pages/Auth/Login'));
 const Register = lazy(() => import('@/pages/Auth/Register'));
 const Station = lazy(() => import('@/pages/astronomy/Station'));
 const Bolide = lazy(() => import('@/pages/astronomy/bolide'));
+const BolideGlobe = lazy(() => import('@/pages/astronomy/bolideGlobe'));
 const Profile = lazy(() => import('@/pages/basic/Profile'));
 const Report = lazy(() => import('@/pages/astronomy/report/report'));
 const NotFound = lazy(() => import('@/pages/basic/NotFound'));
@@ -187,6 +188,7 @@ function App() {
                   </ProtectedRoute>}
               />
               <Route path="station" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Station /></ProtectedRoute>} />
+              <Route path="bolide-globe" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <BolideGlobe /></ProtectedRoute>} />
               <Route path="bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
               <Route path="/report/:reportId/bolide/:bolideId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <Bolide /></ProtectedRoute>} />
               <Route path="profile" element={<ProtectedRoute requiredRoleMask="NOT_QR"><Profile /></ProtectedRoute>} />
