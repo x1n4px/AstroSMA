@@ -33,15 +33,15 @@ const Home = () => {
     const { t } = useTranslation(['text']);
 
     const [firstMapLoaded, setFirstMapLoaded] = useState(false);
-    const [predictableImpact, setPredictableImpact] = useState([]);
-    const [observatoryData, setObservatoryData] = useState([]);
-    const [lastReport, setLastReport] = useState([]);
-    const [lastReportMap, setLastReportMap] = useState([]);
+    const [predictableImpact, setPredictableImpact] = useState([])
+    const [observatoryData, setObservatoryData] = useState([])
+    const [lastReport, setLastReport] = useState([])
+    const [lastReportMap, setLastReportMap] = useState([])
     const [searchRange, setsearchRange] = useState(1);
     const [counterReport, setCounterReport] = useState([]);
     const [meteorLastYear, setMeteorLastYear] = useState([]);
     const [observatory, setObservatory] = useState([]);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const token = localStorage.getItem('authToken');
@@ -91,6 +91,12 @@ const Home = () => {
 
     }
 
+useEffect(() => {
+    console.log('TYPE lastReport:', typeof lastReport);
+    console.log('IS ARRAY:', Array.isArray(lastReport));
+    console.log('VALUE:', lastReport);
+}, [lastReport]);
+
     useEffect(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
@@ -113,6 +119,7 @@ const Home = () => {
     function tiempoDesde(fecha) {
         const ahora = new Date();
         const fechaDada = new Date(fecha);
+        console.log('fechaDada:', fechaDada);
         const diferenciaMs = ahora - fechaDada;
         const horas = Math.floor(diferenciaMs / (1000 * 60 * 60));
         const dias = Math.floor(horas / 24);
@@ -157,7 +164,9 @@ const Home = () => {
 
                 <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
                     <h1 style={{ color: '#f8f9fa' }}>{t('HOME.TITLE')}</h1>
-                    <p style={{ color: '#f8f9fe' }}>{t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport[0]?.Fecha)}</p>
+                    {!loading && lastReport?.Fecha && (
+                        <p style={{ color: '#f8f9fe' }}> {t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport?.Fecha)}</p> 
+                    )}
                     {/* <div className="d-flex">
                         <div
                             className="flex-grow-1 position-relative"
@@ -204,34 +213,34 @@ const Home = () => {
                                 {t('HOME.LAST_BOLIDE_DATA.DETAILS')}
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.DATE')}:</strong> {lastReport[0]?.Fecha ? formatDate(lastReport[0].Fecha) : '-'}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.DATE')}:</strong> {lastReport?.Fecha ? formatDate(lastReport.Fecha) : '-'}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.HOUR')}:</strong> {lastReport[0]?.Hora ? lastReport[0].Hora.substring(0, 8) : '-'}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.HOUR')}:</strong> {lastReport?.Hora ? lastReport.Hora.substring(0, 8) : '-'}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
                                 {t('HOME.LAST_BOLIDE_DATA.STATION')} 1
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_1.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport?.Inicio_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport?.Inicio_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_1.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport?.Fin_de_la_trayectoria_Estacion_1.latitude}, Lon: {lastReport?.Fin_de_la_trayectoria_Estacion_1.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <h6 className="text-muted mb-2" style={{ color: '#777', fontWeight: 'bold' }}>
                                 {t('HOME.LAST_BOLIDE_DATA.STATION')} 2
                                 </h6>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Inicio_de_la_trayectoria_Estacion_2.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.START_COORDINATES')}:</strong> Lat: {lastReport?.Inicio_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport?.Inicio_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <p className="mb-1" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport[0]?.Fin_de_la_trayectoria_Estacion_2.longitude}
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.END_COORDINATES')}:</strong> Lat: {lastReport?.Fin_de_la_trayectoria_Estacion_2.latitude}, Lon: {lastReport?.Fin_de_la_trayectoria_Estacion_2.longitude}
                                 </p>
                                 <hr className="my-2" style={{ borderColor: '#eee' }} />
                                 <p className="mb-2" style={{ fontSize: '0.9rem', color: '#555' }}>
-                                    <strong>{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}:</strong> {truncateDecimal(lastReport[0]?.Velocidad_media)} km/s
+                                    <strong>{t('HOME.LAST_BOLIDE_DATA.VELOCITY')}:</strong> {truncateDecimal(lastReport?.Velocidad_media)} km/s
                                 </p>
                             </div>
                             <div className="mt-3">
@@ -256,11 +265,8 @@ const Home = () => {
                         {loading ? (
                             <MapSkeleton height="400px" />
                         ) : (
-
                             <DasboardMap observatoryData={observatory} lastReportMap={lastReportMap} lastReportData={lastReport} />
                         )}
-
-
                     </div>
 
                     <div className="d-flex">
