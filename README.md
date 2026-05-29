@@ -75,6 +75,7 @@ DB_HOST=localhost
 DB_USER=astro_user
 DB_PASSWORD=0000
 DB_NAME=astro
+MAX_DISTANCE_OBSERVATORIO=15
 ```
 
 Opcional (subida a YouTube desde Workflows):
