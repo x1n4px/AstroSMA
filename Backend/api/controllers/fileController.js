@@ -79,10 +79,6 @@ const getOrbitFile = (req, res) => {
   const normalizedFullPath = path.resolve(fullPath);
   const deteccionesSuffix = path.join('home', 'sma', 'Meteoros', 'Detecciones');
   const hasDeteccionesSuffix = normalizedFullPath.endsWith(deteccionesSuffix);
-  // conejo: Cambio esto porque los directorios no salen bien
-  // const deteccionesRoot = hasDeteccionesSuffix
-  //   ? normalizedFullPath
-  //   : path.resolve(normalizedFullPath, deteccionesSuffix);
   const deteccionesRoot = normalizedFullPath;
   const baseFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);
   const filePath = path.resolve(baseFolder, safeFileName);

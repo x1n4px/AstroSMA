@@ -91,12 +91,6 @@ const Home = () => {
 
     }
 
-useEffect(() => {
-    console.log('TYPE lastReport:', typeof lastReport);
-    console.log('IS ARRAY:', Array.isArray(lastReport));
-    console.log('VALUE:', lastReport);
-}, [lastReport]);
-
     useEffect(() => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
@@ -119,7 +113,6 @@ useEffect(() => {
     function tiempoDesde(fecha) {
         const ahora = new Date();
         const fechaDada = new Date(fecha);
-        console.log('fechaDada:', fechaDada);
         const diferenciaMs = ahora - fechaDada;
         const horas = Math.floor(diferenciaMs / (1000 * 60 * 60));
         const dias = Math.floor(horas / 24);
@@ -165,7 +158,7 @@ useEffect(() => {
                 <div className="container mt-4" style={{ backgroundColor: '#980100' }}>
                     <h1 style={{ color: '#f8f9fa' }}>{t('HOME.TITLE')}</h1>
                     {!loading && lastReport?.Fecha && (
-                        <p style={{ color: '#f8f9fe' }}> {t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport?.Fecha)}</p> 
+                        <p style={{ color: '#f8f9fe' }}> {t('HOME.LAST_BOLIDE')} {tiempoDesde(lastReport?.Fecha)}</p>
                     )}
                     {/* <div className="d-flex">
                         <div
