@@ -11,8 +11,8 @@ const ActiveShower = () => {
     const [showerDetails, setShowerDetails] = useState();
     const [IAUShowerDetails, setIAUShowerDetails] = useState([]);
     const [selectedShower, setSelectedShower] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [, setLoading] = useState(true);
+    const [, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('tabA'); // Estado para controlar la pestaña activa
     const iframeRef = useRef(null);
 
@@ -167,7 +167,7 @@ const ActiveShower = () => {
                                         <tr key={index}>
                                             <td>{shower.Code}</td>
                                             <td>{shower.ShowerNameDesignation}</td>
-                                            <td>{(shower.SubDate)}</td>
+                                            <td>{formatDate(shower.SubDate)}</td>
                                             <td>{shower.Activity}</td>
                                             <td>
                                                 {showerCode[shower.Code] ? (

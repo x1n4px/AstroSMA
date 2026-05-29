@@ -63,7 +63,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
   const summaryMetrics = [
     { label: 'Lluvias IMO', value: activeShowerData.length },
     { label: 'Lluvias IAU', value: AIUShowerData.length },
-    { label: 'Tipo de informe', value: reportType === '1' ? 'Informe Z' : 'Informe radiante' },
+    { label: 'Tipo de informe', value: reportType === '1' ? 'Informe de dos estaciones' : 'Informe de una sola estación' },
     { label: 'Representacion activa', value: selectedShower ? (selectedShower.Nombre || selectedShower.ShowerNameDesignation || selectedShower.Identificador || selectedShower.Code) : 'Ninguna' }
   ];
 

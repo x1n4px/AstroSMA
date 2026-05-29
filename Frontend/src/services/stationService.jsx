@@ -33,8 +33,34 @@ export const getAsocciatedStations = async (id) => {
 
 export const updateStationStatus = async (id) => {
     try {
-        console.log(id)
-        const response = await axios.put(`${apiUrl}/stations/${id}`);
+        const response = await axios.patch(`${apiUrl}/stations/${id}/status`);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const createStation = async (station) => {
+    try {
+        const response = await axios.post(`${apiUrl}/stations`, station);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const updateStation = async (id, station) => {
+    try {
+        const response = await axios.put(`${apiUrl}/stations/${id}/details`, station);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const deleteStation = async (id) => {
+    try {
+        const response = await axios.delete(`${apiUrl}/stations/${id}`);
         return response.data;
     } catch (error) {
         throw error;

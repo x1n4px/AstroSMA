@@ -51,14 +51,14 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
   const { t } = useTranslation(['text']);
 
   const summaryMetrics = [
-    { label: 'Puntos ZWO', value: zwoAdjustmentPoints.length },
+    { label: 'Puntos de ajuste', value: zwoAdjustmentPoints.length },
     { label: 'Puntos de regresion', value: regressionTrajectory.length },
     { label: 'Puntos de trayectoria', value: trajectoryData.length }
   ];
 
   const zwoColumns = [
     { key: 'date', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.DATE'), render: row => formatDate(row.Fecha) },
-    { key: 'hour', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.HOUR'), render: row => new Date(`1970-01-01T${row.Hora}Z`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) },
+    { key: 'hour', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.HOUR'), render: row => row.Hora },
     { key: 'ar', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Grados'), render: row => truncateDecimal(row.Ar_Grados) },
     { key: 'de', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Grados'), render: row => truncateDecimal(row.De_Grados) }
   ];
@@ -103,7 +103,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
         </Col>
 
         <Col xs={12}>
-          <ReportPanel title={t('REPORT.POINT_ADJUST.ZWO.TITLE')} description="Puntos de ajuste ZWO utilizados para calibracion angular.">
+          <ReportPanel title={t('REPORT.POINT_ADJUST.ZWO.TITLE')} description="Puntos utilizados para calibracion angular.">
             {zwoAdjustmentPoints.length > 0 ? (
               <DataTable
                 columns={zwoColumns}
@@ -111,21 +111,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
                 rowKey={(row, index) => `${row.Fecha}-${row.X}-${index}`}
               />
             ) : (
-              <ReportEmptyState message="No hay puntos ZWO disponibles." />
-            )}
-          </ReportPanel>
-        </Col>
-
-        <Col xs={12}>
-          <ReportPanel title={t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')} description="Serie temporal derivada por regresion para la trayectoria.">
-            {regressionTrajectory.length > 0 ? (
-              <DataTable
-                columns={regressionColumns}
-                rows={regressionTrajectory}
-                rowKey={(row, index) => `${row.Fecha}-${row.t}-${index}`}
-              />
-            ) : (
-              <ReportEmptyState message="No hay puntos de regresion disponibles." />
+              <ReportEmptyState message="No hay puntos de ajuste disponibles." />
             )}
           </ReportPanel>
         </Col>
@@ -140,6 +126,20 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
               />
             ) : (
               <ReportEmptyState message="No hay puntos de trayectoria disponibles." />
+            )}
+          </ReportPanel>
+        </Col>
+
+        <Col xs={12}>
+          <ReportPanel title={t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')} description="Serie temporal derivada por regresion para la trayectoria.">
+            {regressionTrajectory.length > 0 ? (
+              <DataTable
+                columns={regressionColumns}
+                rows={regressionTrajectory}
+                rowKey={(row, index) => `${row.Fecha}-${row.t}-${index}`}
+              />
+            ) : (
+              <ReportEmptyState message="No hay puntos de regresion disponibles." />
             )}
           </ReportPanel>
         </Col>

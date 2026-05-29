@@ -4,10 +4,13 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 
 export const getPhotometryFromId = async (selectedId) => {
-    try {
-        const response = await axios.get(`${apiUrl}/photometry/${selectedId}`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.get(`${apiUrl}/photometry/${selectedId}`);
+    return response.data;
+};
+
+export const getPhotometryGraph = async (selectedId) => {
+    const response = await axios.get(`${apiUrl}/photometry/${selectedId}/graph`, {
+        responseType: 'blob'
+    });
+    return response.data;
 };

@@ -34,7 +34,7 @@ const Navbar = () => {
       {/* Add the custom class 'navbar-70-width-container' to the Container */}
       <Container className="navbar-70-width-container">
         <BootstrapNavbar.Brand as={Link} to="https://www.astromalaga.es/" className="d-flex align-items-center">
-          <img src="/Logo-50-SMA.webp" alt="AstroUMA" style={{ width: '100px', height: 'auto', marginRight: '0.5rem' }} />
+          <img src="/logoSMA.webp" alt="AstroUMA" style={{ width: '100px', height: 'auto', marginRight: '0.5rem' }} />
         </BootstrapNavbar.Brand>
         <BootstrapNavbar.Toggle aria-controls="responsive-navbar-nav" /> {/* onToggle on Navbar handles expanded state */}
         <BootstrapNavbar.Collapse id="responsive-navbar-nav">

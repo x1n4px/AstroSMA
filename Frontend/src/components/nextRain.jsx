@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { getNextShower } from '../services/activeShower'
+import { formatDate } from '@/pipe/formatDate.jsx';
 
 // Internationalization
 import { useTranslation } from 'react-i18next';
@@ -16,8 +17,7 @@ const NextRain = () => {
             const responseD = await getNextShower();
             setNextRain(responseD);
         } catch (error) {
-            setError(error);
-            setLoading(false);
+            console.error('Error fetching next meteor showers:', error);
         }
     }
 
@@ -30,15 +30,15 @@ const NextRain = () => {
     useEffect(() => {
         if (nextRain && nextRain.length > 0) {
             const textParts = nextRain.map(shower => {
-                const startDate = new Date(shower.Fecha_Inicio).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' }).replace(shower.Año, currentYear);
-                const endDate = new Date(shower.Fecha_Fin).toLocaleDateString('es-ES', { year: 'numeric', month: 'numeric', day: 'numeric' }).replace(shower.Año, currentYear);
+                const startDate = formatDate(shower.Fecha_Inicio).replace(/^\d{4}/, currentYear);
+                const endDate = formatDate(shower.Fecha_Fin).replace(/^\d{4}/, currentYear);
                 return `${shower.Nombre} (${shower.Identificador}): ${t('BANNER.PREPOSITION.DEL')} ${startDate} ${t('BANNER.PREPOSITION.AL')} ${endDate}`;
             });
             setBannerText(`${t('BANNER.ACTIVE_RAIN')} ${textParts.join(' - ')}`);
         } else {
             setBannerText(`${t('BANNER.NO_ACTIVE_RAIN')}`);
         }
-    }, [nextRain]);
+    }, [currentYear, nextRain, t]);
 
 
     return (

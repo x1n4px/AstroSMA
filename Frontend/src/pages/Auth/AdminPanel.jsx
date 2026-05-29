@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from 'react-router-dom'; // useNavigate was not used
 import { useTranslation } from 'react-i18next';
 // Import icons (example: Font Awesome icons)
-import { FaCalendarAlt, FaClipboardList, FaCogs, FaUsers, FaChargingStation,FaCloudRain } from 'react-icons/fa';
+import { FaCalendarAlt, FaClipboardList, FaCogs, FaUsers, FaChargingStation,FaCloudRain, FaMeteor } from 'react-icons/fa';
 
 const AdminPanel = () => {
     const { t } = useTranslation(['text']); // i18n was not used
@@ -40,6 +40,14 @@ const AdminPanel = () => {
             link: "/admin-panel/active-rain-panel"
         },
         {
+            key: 'BOLIDE_REPORT',
+            icon: <FaMeteor className="me-2" />,
+            link: "/admin-panel/bolide-report-panel",
+            titleFallback: 'Informes y bólidos',
+            subtitleFallback: 'CRUD y búsqueda por bólido, fecha o estación.',
+            buttonFallback: 'Gestionar datos'
+        },
+        {
             key: 'WORKFLOWS',
             icon: <FaCogs className="me-2" />,
             link: "/admin-panel/workflows",
@@ -54,7 +62,7 @@ const AdminPanel = () => {
         <div className="container mt-5 mb-5">
             <h2 className="mb-4 text-center">{t('ADMIN.PANEL_TITLE', 'Admin Panel')}</h2> {/* Added a general title for the panel */}
             <div className="row">
-                {cardSections.map((section, index) => (
+                {cardSections.map((section) => (
                     <div className="col-md-6 col-lg-4 mb-4" key={section.key}> {/* Adjusted column for better responsiveness (lg-4 for 3 cards per row on large screens) */}
                         <div className="card h-100 shadow-sm"> {/* Added h-100 for equal height cards and a subtle shadow */}
                             <div className="card-header d-flex align-items-center"> {/* Used flex to align icon and title */}

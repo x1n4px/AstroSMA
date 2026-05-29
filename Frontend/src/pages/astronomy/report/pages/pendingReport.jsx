@@ -116,6 +116,10 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
       value: formatMetric(reportData.averageVelocity, 'Km/s')
     },
     {
+      label: t('REPORT.PENDING.INITIAL_VELOCITY', { id: '2' }),
+      value: formatMetric(reportData.initialVelocityStation2, 'Km/s')
+    },
+    {
       label: t('REPORT.PENDING.ACCELERATION'),
       value: formatMetric(reportData.accelerationKms, 'Km/s²')
     },

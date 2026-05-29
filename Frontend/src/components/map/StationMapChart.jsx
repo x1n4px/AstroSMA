@@ -11,6 +11,17 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
   const mapInstance = useRef(null);
   const markersRef = useRef([]);
 
+  const hasCoordinate = (coordinate) => coordinate !== null
+    && coordinate !== undefined
+    && coordinate !== ''
+    && Number.isFinite(Number(coordinate));
+
+  const hasValidCoordinates = (station) => (
+    hasCoordinate(station?.latitude) && hasCoordinate(station?.longitude)
+  );
+
+  const formatCoordinate = (coordinate) => Number(coordinate).toString().substring(0, 8);
+
   const getMarkerColor = (state) => {
     switch (state) {
       case 0:
@@ -36,7 +47,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
 
-      data?.forEach((punto) => {
+      data?.filter(hasValidCoordinates).forEach((punto) => {
         const marker = L.marker([punto.latitude, punto.longitude], {
           icon: new L.Icon({
             iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(punto.state)),
@@ -49,7 +60,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
             <div>
               <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
               <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
-              <p>${t('STATION.STATION.COORDINATES')}: ${punto.latitude.toString().substring(0, 8)}, ${punto.longitude.toString().substring(0, 8)}</p>
+              <p>${t('STATION.STATION.COORDINATES')}: ${formatCoordinate(punto.latitude)}, ${formatCoordinate(punto.longitude)}</p>
               <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
               <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
               <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>
@@ -69,7 +80,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
         }
       });
 
-      data.forEach((punto) => {
+      data?.filter(hasValidCoordinates).forEach((punto) => {
         const marker = L.marker([punto.latitude, punto.longitude], {
           icon: new L.Icon({
             iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(punto.state)),
@@ -82,7 +93,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
             <div>
               <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
               <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
-              <p>${t('STATION.STATION.COORDINATES')}: ${punto.latitude.toString().substring(0, 8)}, ${punto.longitude.toString().substring(0, 8)}</p>
+              <p>${t('STATION.STATION.COORDINATES')}: ${formatCoordinate(punto.latitude)}, ${formatCoordinate(punto.longitude)}</p>
               <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
               <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
               <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>

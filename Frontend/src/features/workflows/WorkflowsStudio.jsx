@@ -5,6 +5,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 // Local imports
 import { API_ENDPOINTS, fetchApi } from "./config/api";
+import { formatDate } from "@/pipe/formatDate.jsx";
 import { ViewsService } from "./services/ViewsService";
 import DataChart from "./components/DataChart";
 import ShowMeteors from "./components/ShowMeteors";
@@ -990,7 +991,7 @@ const App = () => {
                                 <i className="fa fa-crosshairs"></i>
                                 <span>
                                     Contexto activo: <strong>{selectedMeteorSummary}</strong>
-                                    {selectedMeteorData?.date || selectedMeteorData?.Fecha ? ` · ${selectedMeteorData?.date || selectedMeteorData?.Fecha}` : ""}
+                                    {selectedMeteorData?.date || selectedMeteorData?.Fecha ? ` · ${formatDate(selectedMeteorData?.date || selectedMeteorData?.Fecha)}` : ""}
                                     {selectedMeteorData?.time || selectedMeteorData?.Hora ? ` · ${selectedMeteorData?.time || selectedMeteorData?.Hora}` : ""}
                                 </span>
                             </div>

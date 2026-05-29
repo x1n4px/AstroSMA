@@ -3,6 +3,7 @@ import { Alert } from "react-bootstrap";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { formatDate } from "@/pipe/formatDate.jsx";
 import { API_ENDPOINTS, buildQueryUrl, fetchApi } from "../config/api";
 
 import "./InteractiveMap.css";
@@ -302,7 +303,7 @@ export default function InteractiveMap({ selectedMeteorData }) {
 
             {selectedMeteorData ? (
                 <Alert variant="info" className="mb-3 interactive-map-alert">
-                    <strong>Meteoro activo:</strong> ID {meteorId} ({selectedMeteorData.date || selectedMeteorData.Fecha} {selectedMeteorData.time || selectedMeteorData.Hora})
+                    <strong>Meteoro activo:</strong> ID {meteorId} ({formatDate(selectedMeteorData.date || selectedMeteorData.Fecha)} {selectedMeteorData.time || selectedMeteorData.Hora})
                     <br />
                     <small>
                         {loading

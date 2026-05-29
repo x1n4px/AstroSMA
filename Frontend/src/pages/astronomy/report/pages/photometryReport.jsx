@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { Container, Row, Col, Table } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getPhotometryFromId } from '@/services/photometryService.jsx';
+import { getPhotometryFromId, getPhotometryGraph } from '@/services/photometryService.jsx';
+import { formatDate } from '@/pipe/formatDate.jsx';
+import truncateDecimal from '@/pipe/truncateDecimal';
 import {
   ReportPanel,
   ReportField,
@@ -39,6 +41,22 @@ function TableBlock({ columns, rows }) {
   );
 }
 
+function round(value, decimalPlaces) {
+  return truncateDecimal(value, decimalPlaces);
+}
+
+function formatMovementCoefficients(value) {
+  if (!value) {
+    return '-';
+  }
+
+  return String(value)
+    .trim()
+    .split(/\s+/)
+    .map(coefficient => round(coefficient, 4))
+    .join(' / ');
+}
+
 TableBlock.propTypes = {
   columns: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string.isRequired,
@@ -55,6 +73,7 @@ const PhotometryReport = ({ photometryData, isChild }) => {
   const [regressionData, setRegressionData] = useState([]);
   const [meteorData, setMeteorData] = useState(null);
   const [adjustmenPoints, setAdjustmenPoints] = useState([]);
+  const [graphUrl, setGraphUrl] = useState('');
 
   const params = useParams();
   const id = params?.reportId || '-1';
@@ -67,12 +86,30 @@ const PhotometryReport = ({ photometryData, isChild }) => {
         setRegressionData(response.regressionStart || []);
         setMeteorData(response.meteor || null);
         setAdjustmenPoints(response.adjustPoint || []);
+
+        try {
+          const graphBlob = await getPhotometryGraph(currentId);
+          setGraphUrl(currentUrl => {
+            if (currentUrl) {
+              URL.revokeObjectURL(currentUrl);
+            }
+            return URL.createObjectURL(graphBlob);
+          });
+        } catch {
+          setGraphUrl(currentUrl => {
+            if (currentUrl) {
+              URL.revokeObjectURL(currentUrl);
+            }
+            return '';
+          });
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
         setPhotometryCData(null);
         setRegressionData([]);
         setMeteorData(null);
         setAdjustmenPoints([]);
+        setGraphUrl('');
       }
     };
 
@@ -83,13 +120,24 @@ const PhotometryReport = ({ photometryData, isChild }) => {
     }
   }, [selectedId, isChild, id]);
 
+  useEffect(() => () => {
+    if (graphUrl) {
+      URL.revokeObjectURL(graphUrl);
+    }
+  }, [graphUrl]);
+
+  const selectedPhotometry = photometryData.find(item => String(item.Identificador) === String(selectedId));
+  const selectedStations = [selectedPhotometry?.station1, selectedPhotometry?.station2]
+    .filter(Boolean)
+    .join(' - ');
+
   const summaryMetrics = useMemo(() => {
     if (!photometryCData) {
       return [];
     }
 
     return [
-      { label: t('REPORT.PHOTOMETRY.INPUT.DATE'), value: photometryCData.Fecha },
+      { label: t('REPORT.PHOTOMETRY.INPUT.DATE'), value: formatDate(photometryCData.Fecha, 'yyyy-mm-dd') },
       { label: t('REPORT.PHOTOMETRY.INPUT.HOUR'), value: photometryCData.Hora },
       { label: t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS'), value: photometryCData.Estrellas_visibles },
       { label: t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION'), value: photometryCData.Estrellas_usadas_para_regresion },
@@ -126,10 +174,11 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                 <option value="">Selecciona un ID</option>
                 {photometryData.map(item => (
                   <option key={item.Identificador} value={item.Identificador}>
-                    {item.Identificador}
+                    {item.Identificador}{item.station1 ? ` - ${item.station1}` : ''}
                   </option>
                 ))}
               </ReportSelectField>
+              {selectedStations ? <p className="mb-0 mt-3 text-muted">Estaciones: {selectedStations}</p> : null}
             </ReportPanel>
           </Col>
         ) : null}
@@ -154,27 +203,30 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                   {summaryMetrics.map(metric => (
                     <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
                   ))}
+                  <ReportMetricCard label="Magnitud máxima" value={round(photometryCData.MagMax, 2)} />
+                  <ReportMetricCard label="Magnitud mínima" value={round(photometryCData.MagMin, 2)} />
+                  <ReportMetricCard label="Masa fotométrica (gramos)" value={round(photometryCData.Masa_fotometrica, 2)} />
                 </ReportMetricsGrid>
               </ReportPanel>
             </Col>
 
             <Col xs={12} lg={6}>
               <ReportPanel title="Calibracion fotometrica" description="Parametros principales del ajuste de Bouguer y de la regresion.">
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.DATE')} value={photometryCData.Fecha} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.DATE')} value={formatDate(photometryCData.Fecha, 'yyyy-mm-dd')} />
                 <ReportField label={t('REPORT.PHOTOMETRY.INPUT.HOUR')} value={photometryCData.Hora} />
                 <ReportField label={t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS')} value={photometryCData.Estrellas_visibles} />
                 <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION')} value={photometryCData.Estrellas_usadas_para_regresion} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')} value={photometryCData.Coeficiente_externo_Recta_de_Bouger} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')} value={round(photometryCData.Coeficiente_externo_Recta_de_Bouger, 4)} />
               </ReportPanel>
             </Col>
 
             <Col xs={12} lg={6}>
               <ReportPanel title="Errores y coeficientes" description="Medidas de error tipico y coeficientes asociados al modelo.">
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')} value={photometryCData.Punto_cero_Recta_de_Bouger} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')} value={photometryCData.Error_tipico_regresion} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')} value={photometryCData.Error_tipico_punto_cero} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={photometryCData.Error_tipico_coeficiente_externo} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={photometryCData.Coeficientes_parabola_trayectoria} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')} value={round(photometryCData.Punto_cero_Recta_de_Bouger, 4)} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')} value={round(photometryCData.Error_tipico_regresion, 4)} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')} value={round(photometryCData.Error_tipico_punto_cero, 4)} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={round(photometryCData.Error_tipico_coeficiente_externo, 4)} />
+                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={formatMovementCoefficients(photometryCData.Coeficientes_parabola_trayectoria)} />
               </ReportPanel>
             </Col>
 
@@ -192,12 +244,8 @@ const PhotometryReport = ({ photometryData, isChild }) => {
               <ReportPanel title={t('REPORT.PHOTOMETRY.METEOR_DATA.TITLE')} description="Valores resumidos del meteoro al inicio y al final de la trayectoria fotometrica.">
                 {meteorData ? (
                   <ReportMetricsGrid>
-                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.X_START')} value={meteorData.X_Inicio} />
-                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.Y_START')} value={meteorData.Y_Inicio} />
                     <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_START')} value={meteorData.Maire_Inicio} />
                     <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_START')} value={meteorData.distInicio} />
-                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.X_END')} value={meteorData.X_Final} />
-                    <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.Y_END')} value={meteorData.Y_Final} />
                     <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.AIR_MASS_END')} value={meteorData.Maire_Final} />
                     <ReportMetricCard label={t('REPORT.PHOTOMETRY.METEOR_DATA.DISTANCE_END')} value={meteorData.dist_Final} />
                   </ReportMetricsGrid>
@@ -206,6 +254,19 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                 )}
               </ReportPanel>
             </Col>
+
+            {graphUrl ? (
+              <Col xs={12}>
+                <ReportPanel title="Gráfico de fotometría" description="Gráfico JPG asociado al informe fotométrico seleccionado.">
+                  <img
+                    src={graphUrl}
+                    alt={`Gráfico de fotometría ${selectedId || id}`}
+                    className="img-fluid d-block"
+                    style={{ maxHeight: '48rem', margin: '0 auto' }}
+                  />
+                </ReportPanel>
+              </Col>
+            ) : null}
 
             <Col xs={12}>
               <ReportPanel title={t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.TITLE')} description="Puntos de ajuste fotometrico a lo largo del evento.">

@@ -3,6 +3,7 @@ import { Alert, Badge, Button, Card, Container, Form, Spinner } from 'react-boot
 import { Link } from 'react-router-dom';
 import BolideEarthRangeViewer from '@/components/three/BolideEarthRangeViewer.jsx';
 import { getBolideTrajectoriesForEarthGlobe } from '@/services/bolideService.jsx';
+import { formatDate } from '@/pipe/formatDate.jsx';
 import './bolideGlobe.css';
 
 const QUICK_RANGES = [7, 30, 90, 180];
@@ -255,7 +256,7 @@ export default function BolideGlobe() {
                             <h2 className="mb-3">Filtro temporal</h2>
                             {hasLoadedData ? (
                                 <div className="bolide-globe-page__panel-summary">
-                                    {filters.startDate && filters.endDate ? `${filters.startDate} a ${filters.endDate}` : 'Pasa el cursor para editar el rango'}
+                                    {filters.startDate && filters.endDate ? `${formatDate(filters.startDate)} a ${formatDate(filters.endDate)}` : 'Pasa el cursor para editar el rango'}
                                 </div>
                             ) : null}
                             <div className="bolide-globe-page__panel-popover">
@@ -301,19 +302,19 @@ export default function BolideGlobe() {
 
                                     <div className="bolide-globe-page__stats">
                                         <Stat label="Bólidos" value={payload?.meta?.totalBolides ?? 0} />
-                                        <Stat label="Informes Z" value={payload?.meta?.totalReports ?? 0} />
+                                        <Stat label="Informes de dos estaciones" value={payload?.meta?.totalReports ?? 0} />
                                         <Stat label="Promedio de puntos" value={averageMeasuredPoints} />
                                         <Stat
                                             label="Rango cargado"
                                             value={payload?.queryRange?.startDate && payload?.queryRange?.endDate
-                                                ? `${payload.queryRange.startDate} a ${payload.queryRange.endDate}`
+                                                ? `${formatDate(payload.queryRange.startDate)} a ${formatDate(payload.queryRange.endDate)}`
                                                 : 'N/D'}
                                         />
                                     </div>
 
                                     <div className="bolide-globe-page__text-block mb-0">
-                                        Rango disponible en la base: <strong>{payload?.availableRange?.minDate || 'N/D'}</strong> a{' '}
-                                        <strong>{payload?.availableRange?.maxDate || 'N/D'}</strong>.
+                                        Rango disponible en la base: <strong>{formatDate(payload?.availableRange?.minDate) || 'N/D'}</strong> a{' '}
+                                        <strong>{formatDate(payload?.availableRange?.maxDate) || 'N/D'}</strong>.
                                     </div>
                                 </Form>
                             </div>
@@ -337,8 +338,8 @@ export default function BolideGlobe() {
                         <Card.Body>
                             <h2 className="mb-3">Sin trayectorias para ese rango</h2>
                             <p className="mb-0">
-                                No hay informes Z con geometría suficiente entre <strong>{filters.startDate || 'N/D'}</strong> y{' '}
-                                <strong>{filters.endDate || 'N/D'}</strong>. Prueba con un intervalo más amplio.
+                                No hay informes de dos estaciones con geometría suficiente entre <strong>{formatDate(filters.startDate) || 'N/D'}</strong> y{' '}
+                                <strong>{formatDate(filters.endDate) || 'N/D'}</strong>. Prueba con un intervalo más amplio.
                             </p>
                         </Card.Body>
                     </Card>
@@ -356,10 +357,10 @@ export default function BolideGlobe() {
                                                 <div>
                                                     <p className="bolide-globe-page__selected-title">{`MET-${selectedBolide.meteorId}`}</p>
                                                     <p className="bolide-globe-page__selected-subtitle">
-                                                        {selectedBolide.date} a las {selectedBolide.time || 'N/D'} UTC
+                                                        {formatDate(selectedBolide.date)} a las {selectedBolide.time || 'N/D'} UTC
                                                     </p>
                                                 </div>
-                                                <Badge bg="dark">{`Informe principal Z-${selectedBolide.selectedReportId}`}</Badge>
+                                                <Badge bg="dark">{`Informe principal de dos estaciones ${selectedBolide.selectedReportId}`}</Badge>
                                             </div>
 
                                             <div className="bolide-globe-page__metrics">
@@ -415,7 +416,7 @@ export default function BolideGlobe() {
                                                     to={`/report/${selectedBolide.selectedReportId}/INFERRED_DATA_TAB`}
                                                     variant="outline-dark"
                                                 >
-                                                    Abrir informe Z
+                                                    Abrir informe de dos estaciones
                                                 </Button>
                                             </div>
                                         </>
@@ -464,7 +465,7 @@ export default function BolideGlobe() {
                                                         <div>
                                                             <p className="bolide-globe-page__list-title">{`MET-${item.meteorId}`}</p>
                                                             <p className="bolide-globe-page__list-meta">
-                                                                {item.date} · {item.time || 'N/D'} UTC
+                                                                {formatDate(item.date)} · {item.time || 'N/D'} UTC
                                                             </p>
                                                         </div>
                                                         <div className="bolide-globe-page__item-badges">
@@ -477,7 +478,7 @@ export default function BolideGlobe() {
                                                         </div>
                                                     </div>
                                                     <p className="bolide-globe-page__list-meta mb-0">
-                                                        {`Informe Z-${item.selectedReportId} · ${formatMetric(item.velocityKmS, ' km/s', 3)} · ${item.reportCount} soluciones`}
+                                                        {`Informe de dos estaciones ${item.selectedReportId} · ${formatMetric(item.velocityKmS, ' km/s', 3)} · ${item.reportCount} soluciones`}
                                                     </p>
                                                 </button>
                                             );

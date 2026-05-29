@@ -42,16 +42,16 @@ const Report = () => {
     const [trajectoryData, setTrajectoryData] = useState(null);
     const [activeShowerData, setActiveShowerData] = useState([]);
     const [AIUShowerData, setAIUShowerData] = useState([]);
-    const [adviceData, setAdviceData] = useState([]);
+    const [adviceData] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
     const [slopeMapData, setSlopeMapData] = useState(null);
     const rol = localStorage.getItem('rol');
 
     const [resetCount, setResetCount] = useState(0);
     const [cachedReport, setCachedReport] = useState(null);
-    const [generatingGemini, setGeneratingGemini] = useState(false);
+    const [generatingGemini] = useState(false);
 
 
 
@@ -147,7 +147,12 @@ const Report = () => {
                     <Row className="justify-content-between align-items-center">
                         <Col xs="auto">
                             {reportData && (
-                                <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.date), hour: reportData?.time.substring(0, 8) })}</h1>
+                                <>
+                                    <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.date), hour: reportData?.time.substring(0, 8) })}</h1>
+                                    <h2 className="report-stations-subtitle">
+                                        {[reportData.ob1, reportData.ob2].filter(Boolean).join(' - ')}
+                                    </h2>
+                                </>
                             )}
                         </Col>
 

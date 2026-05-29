@@ -2,6 +2,7 @@ const pool = require('../database/connection');
 require('dotenv').config();
 const { transform, convertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal');
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
+const { buildReportZVisibilityCondition } = require('../utils/reportZVisibility');
 
 const getGeneral = async (req, res) => {
   try {
@@ -24,13 +25,13 @@ const getGeneral = async (req, res) => {
 
     // Consultas comunes que no dependen del límite/fecha
     const commonQueries = {
-      monthObservationsFrequency: `SELECT DATE_FORMAT(Fecha, '%Y-%m') AS mes_anio, COUNT(*) AS total_observaciones FROM Informe_Z GROUP BY mes_anio ORDER BY mes_anio DESC LIMIT 12`,
-      hourWithMoreDetection: `SELECT CAST(Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, (CAST(Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z GROUP BY hora_numerica ORDER BY hora_numerica`,
+      monthObservationsFrequency: `SELECT DATE_FORMAT(iz.Fecha, '%Y-%m') AS mes_anio, COUNT(*) AS total_observaciones FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} GROUP BY mes_anio ORDER BY mes_anio DESC LIMIT 12`,
+      hourWithMoreDetection: `SELECT CAST(iz.Hora AS UNSIGNED) AS hora_numerica, COUNT(*) AS total_meteoros, (CAST(iz.Hora AS UNSIGNED) / 24) * 360 AS angulo FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} GROUP BY hora_numerica ORDER BY hora_numerica`,
       observatory: 'SELECT * FROM Observatorio',
-      showerPerYear: `SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador`,
-      lastReportMap: `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz ORDER BY iz.IdInforme DESC LIMIT 1`,
-      lastReport: `SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT 1`,
-      counterReport: `SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z
+      showerPerYear: `SELECT la.Lluvia_Año, la.Lluvia_Identificador, COUNT(*) AS Cantidad_Lluvias, MONTH(iz.Fecha) as Mes FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE ${buildReportZVisibilityCondition('iz')} GROUP BY la.Lluvia_Año, la.Lluvia_Identificador ORDER BY la.Lluvia_Año, la.Lluvia_Identificador`,
+      lastReportMap: `SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} ORDER BY iz.IdInforme DESC LIMIT 1`,
+      lastReport: `SELECT iz.* FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} ORDER BY iz.Fecha DESC, iz.Hora DESC LIMIT 1`,
+      counterReport: `SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')}
                       UNION ALL
                       SELECT 'Informe_Radiante', COUNT(*) FROM Informe_Radiante
                       UNION ALL
@@ -56,8 +57,8 @@ const getGeneral = async (req, res) => {
                                     OR (curr.anio = prev.anio + 1 AND curr.mes = 1 AND prev.mes = 12);`,
       curvePercentageGroupLastYearBolido: `SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections,
                                            ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2 ) AS percentage_change
-                                           FROM ( SELECT YEAR(Fecha) AS year,MONTH(Fecha) AS month,COUNT(*) AS num_detections FROM Informe_Z GROUP BY YEAR(Fecha), MONTH(Fecha) ) AS curr
-                                           LEFT JOIN ( SELECT YEAR(Fecha) AS year, MONTH(Fecha) AS month, COUNT(*) AS num_detections FROM Informe_Z GROUP BY YEAR(Fecha), MONTH(Fecha)) AS prev
+                                           FROM ( SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month,COUNT(*) AS num_detections FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha) ) AS curr
+                                           LEFT JOIN ( SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(*) AS num_detections FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS prev
                                           ON (curr.year = prev.year AND curr.month = prev.month + 1) OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12)
                                           ORDER BY curr.year DESC, curr.month DESC;`
     };
@@ -73,7 +74,7 @@ const getGeneral = async (req, res) => {
               WHEN Velocidad_media BETWEEN 71 AND 90 THEN "71-90 km/s" 
               WHEN Velocidad_media BETWEEN 91 AND 110 THEN "91-110 km/s" 
               ELSE "Otros" END AS RangoVelocidad
-            FROM Informe_Z LIMIT ?) AS subquery GROUP BY RangoVelocidad`
+            FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} LIMIT ?) AS subquery GROUP BY RangoVelocidad`
         : `SELECT CASE 
               WHEN Velocidad_media BETWEEN 10 AND 30 THEN "10 - 30 km / s" 
               WHEN Velocidad_media BETWEEN 31 AND 50 THEN "31 - 50 km / s" 
@@ -81,7 +82,7 @@ const getGeneral = async (req, res) => {
               WHEN Velocidad_media BETWEEN 71 AND 90 THEN "71-90 km/s" 
               WHEN Velocidad_media BETWEEN 91 AND 110 THEN "91-110 km/s" 
               ELSE "Otros" END AS RangoVelocidad, COUNT(*) AS Total 
-            FROM Informe_Z iz ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""} 
+            FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} ${option >= 4 ? "AND iz.Fecha >= ?" : ""}
             GROUP BY RangoVelocidad`,
 
       pieChart: `SELECT COUNT(*) as cantidad_meteoros, ocurrencias
@@ -89,7 +90,7 @@ const getGeneral = async (req, res) => {
                     SELECT m.Identificador, COUNT(*) as ocurrencias
                     FROM Meteoro m
                     JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
-                  ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
+                  WHERE ${buildReportZVisibilityCondition('iz')} ${option >= 4 ? "AND iz.Fecha >= ?" : ""}
                   GROUP BY m.Identificador
                     HAVING COUNT(*) >= 1
                   ${option < 4 ? "LIMIT ?" : ""}
@@ -100,15 +101,17 @@ const getGeneral = async (req, res) => {
 
       predictableImpact: `SELECT IdInforme , Inicio_de_la_trayectoria_Estacion_1 , Fin_de_la_trayectoria_Estacion_1 , Inicio_de_la_trayectoria_Estacion_2 , Fin_de_la_trayectoria_Estacion_2, Fecha, Hora  , Meteoro_Identificador 
                           FROM Informe_Z iz
+                          WHERE ${buildReportZVisibilityCondition('iz')}
                           GROUP BY Meteoro_Identificador 
-                            ${option >= 4 ? "WHERE iz.Fecha >= ?" : ""}
+                            ${option >= 4 ? "HAVING MAX(iz.Fecha) >= ?" : ""}
                           ORDER BY Fecha DESC
                           ${option < 4 ? "LIMIT ?" : ""};
                           `,
 
       lastNMeteors: `SELECT  iz.Fecha, iz.Hora, FALSE AS isRadiant, iz.Meteoro_Identificador, iz.IdInforme
                       FROM Informe_Z iz
-                      WHERE iz.Meteoro_Identificador IN (SELECT Identificador FROM ( SELECT Identificador FROM Meteoro ${option >= 4 ? "WHERE Fecha >= ?" : ""} ORDER BY Fecha DESC ${option < 4 ? "LIMIT ?" : ""}) AS ultimos)
+                      WHERE ${buildReportZVisibilityCondition('iz')}
+                        AND iz.Meteoro_Identificador IN (SELECT Identificador FROM ( SELECT Identificador FROM Meteoro ${option >= 4 ? "WHERE Fecha >= ?" : ""} ORDER BY Fecha DESC ${option < 4 ? "LIMIT ?" : ""}) AS ultimos)
                       UNION ALL
                       SELECT ir.Fecha, ir.Hora, TRUE AS isRadiant, ir.Meteoro_Identificador, ir.Identificador
                       FROM Informe_Radiante ir WHERE ir.Meteoro_Identificador IN ( SELECT Identificador FROM ( SELECT Identificador FROM Meteoro ${option >= 4 ? "WHERE Fecha >= ?" : ""} ORDER BY Fecha DESC ${option < 4 ? "LIMIT ?" : ""} ) AS ultimos )
@@ -171,9 +174,9 @@ const getGeneralHome = async (req, res) => {
     oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
     const dateFilterValue = oneMonthAgo.toISOString().split('T')[0];
 
-     const [lastReportMap] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha FROM Informe_Z iz ORDER BY iz.IdInforme  DESC LIMIT 1;`);
-    const [lastReport] = await pool.query(`SELECT iz.* FROM Informe_Z iz ORDER BY iz.Fecha DESC LIMIT 1;`);
-    const [counterReport] = await pool.query(`SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z
+     const [lastReportMap] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} ORDER BY iz.IdInforme  DESC LIMIT 1;`);
+    const [lastReport] = await pool.query(`SELECT iz.* FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')} ORDER BY iz.Fecha DESC LIMIT 1;`);
+    const [counterReport] = await pool.query(`SELECT 'Informe_Z' AS Tabla, COUNT(*) AS Total FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')}
                                               UNION ALL
                                               SELECT 'Informe_Radiante', COUNT(*) FROM Informe_Radiante
                                               UNION ALL

@@ -27,11 +27,16 @@ function transformStation(station) {
         id: station.Número,
         name: station.Nombre_Camara,
         description: station.Descripción,
+        // The legacy columns are named opposite to the coordinate values they store.
+        longitudeSexagesimal: station.Latitud_Sexagesimal,
+        latitudeSexagesimal: station.Longitud_Sexagesimal,
         longitude: convertSexagesimalToDecimal(station.Latitud_Sexagesimal), // Convertir y renombrar
         latitude: convertSexagesimalToDecimal(station.Longitud_Sexagesimal), // Convertir y renombrar
-        longitude_Radianes: station.Longitud_Radianes,
-        latitude_Radianes: station.Latitud_Radianes,
+        longitude_Radianes: station.Latitud_Radianes,
+        latitude_Radianes: station.Longitud_Radianes,
         height: station.Altitud,
+        localDirectory: station.Directorio_Local,
+        cloudDirectory: station.Directorio_Nube,
         chipSize: station.Tamaño_Chip,
         chipOrientation: station.Orientación_Chip,
         filter: station.Máscara,

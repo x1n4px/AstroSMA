@@ -3,6 +3,7 @@ const pool = require('../database/connection');
 const { isPointInRadius } = require('../middlewares/isPointInRadius')
 const { individuaConvertSexagesimalToDecimal } = require('../middlewares/convertSexagesimalToDecimal.js')
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
+const { buildReportZVisibilityCondition } = require('../utils/reportZVisibility');
 
 const testing = async (req, res) => {
   try {
@@ -18,7 +19,7 @@ const testing = async (req, res) => {
 // Función para obtener un empleado por su ID
 const getAllBolide = async (req, res) => {
   try {
-    const [reports] = await pool.query('SELECT * FROM Informe_Z');
+    const [reports] = await pool.query(`SELECT iz.* FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')}`);
     res.json(reports);
   } catch (error) {
     console.error('Error al obtener las estaciones:', error);
@@ -124,6 +125,180 @@ const parseText = (value) => {
   return String(value).trim();
 };
 
+const toNullableValue = (value) => {
+  if (value === undefined || value === null || value === '') return null;
+  return value;
+};
+
+const toNullableInteger = (value) => {
+  const normalizedValue = toNullableValue(value);
+  if (normalizedValue === null) return null;
+
+  const parsedValue = Number(normalizedValue);
+  return Number.isInteger(parsedValue) ? parsedValue : null;
+};
+
+const normalizeBolidePayload = (payload = {}) => ({
+  id: toNullableInteger(payload.Identificador ?? payload.id),
+  date: toNullableValue(payload.Fecha ?? payload.date),
+  time: toNullableValue(payload.Hora ?? payload.time)
+});
+
+const validateBolidePayload = (bolide, includeId = false) => {
+  if (includeId && (!Number.isInteger(bolide.id) || bolide.id < 1)) {
+    return 'El identificador del bólido debe ser un entero positivo';
+  }
+
+  if (!bolide.date) {
+    return 'La fecha del bólido es obligatoria';
+  }
+
+  return null;
+};
+
+const getAdminBolideById = async (id) => {
+  const [bolides] = await pool.query(
+    'SELECT Identificador, Fecha, Hora FROM Meteoro WHERE Identificador = ?',
+    [id]
+  );
+
+  return bolides[0] || null;
+};
+
+const getAdminBolides = async (req, res) => {
+  try {
+    const meteorId = toNullableInteger(req.query.meteorId);
+    const stationId = toNullableInteger(req.query.stationId);
+    const { startDate, endDate } = req.query;
+    const whereClauses = ['1=1'];
+    const params = [];
+
+    if (meteorId !== null) {
+      whereClauses.push('m.Identificador = ?');
+      params.push(meteorId);
+    }
+    if (startDate) {
+      whereClauses.push('m.Fecha >= ?');
+      params.push(startDate);
+    }
+    if (endDate) {
+      whereClauses.push('m.Fecha <= ?');
+      params.push(endDate);
+    }
+    if (stationId !== null) {
+      whereClauses.push(`(
+        EXISTS (
+          SELECT 1
+          FROM Informe_Z iz
+          WHERE iz.Meteoro_Identificador = m.Identificador
+            AND (iz.\`Observatorio_Número\` = ? OR iz.\`Observatorio_Número2\` = ?)
+            AND ${buildReportZVisibilityCondition('iz')}
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Informe_Radiante ir
+          WHERE ir.Meteoro_Identificador = m.Identificador
+            AND ir.\`Observatorio_Número\` = ?
+        )
+      )`);
+      params.push(stationId, stationId, stationId);
+    }
+
+    const [bolides] = await pool.query(
+      `
+      SELECT m.Identificador, m.Fecha, m.Hora
+      FROM Meteoro m
+      WHERE ${whereClauses.join(' AND ')}
+      ORDER BY m.Fecha DESC, m.Hora DESC, m.Identificador DESC
+      LIMIT 250
+      `,
+      params
+    );
+
+    return res.json(bolides);
+  } catch (error) {
+    console.error('Error al obtener bólidos para administración:', error);
+    return res.status(500).json({ message: 'No se pudieron cargar los bólidos' });
+  }
+};
+
+const createAdminBolide = async (req, res) => {
+  const bolide = normalizeBolidePayload(req.body);
+  const validationError = validateBolidePayload(bolide, true);
+
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+
+  try {
+    await pool.query(
+      'INSERT INTO Meteoro (Identificador, Fecha, Hora) VALUES (?, ?, ?)',
+      [bolide.id, bolide.date, bolide.time]
+    );
+
+    return res.status(201).json(await getAdminBolideById(bolide.id));
+  } catch (error) {
+    console.error('Error al crear bólido:', error);
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Ya existe un bólido con ese identificador' });
+    }
+    return res.status(500).json({ message: 'No se pudo crear el bólido' });
+  }
+};
+
+const updateAdminBolide = async (req, res) => {
+  const id = toNullableInteger(req.params.id);
+  const bolide = normalizeBolidePayload(req.body);
+  const validationError = validateBolidePayload(bolide);
+
+  if (id === null) {
+    return res.status(400).json({ message: 'Identificador de bólido inválido' });
+  }
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'UPDATE Meteoro SET Fecha = ?, Hora = ? WHERE Identificador = ?',
+      [bolide.date, bolide.time, id]
+    );
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ message: 'Bólido no encontrado' });
+    }
+
+    return res.json(await getAdminBolideById(id));
+  } catch (error) {
+    console.error('Error al actualizar bólido:', error);
+    return res.status(500).json({ message: 'No se pudo actualizar el bólido' });
+  }
+};
+
+const deleteAdminBolide = async (req, res) => {
+  const id = toNullableInteger(req.params.id);
+
+  if (id === null) {
+    return res.status(400).json({ message: 'Identificador de bólido inválido' });
+  }
+
+  try {
+    const [result] = await pool.query('DELETE FROM Meteoro WHERE Identificador = ?', [id]);
+
+    if (!result.affectedRows) {
+      return res.status(404).json({ message: 'Bólido no encontrado' });
+    }
+
+    return res.json({ message: 'Bólido eliminado' });
+  } catch (error) {
+    console.error('Error al eliminar bólido:', error);
+    if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+      return res.status(409).json({ message: 'El bólido tiene informes asociados y no se puede eliminar' });
+    }
+    return res.status(500).json({ message: 'No se pudo eliminar el bólido' });
+  }
+};
+
 const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
   SELECT
     m.*,
@@ -152,6 +327,7 @@ const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
     ) AS altitudeFromZ
   FROM Meteoro m
   LEFT JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+    AND ${buildReportZVisibilityCondition('iz')}
   LEFT JOIN Informe_Radiante ir ON ir.Meteoro_Identificador = m.Identificador
   LEFT JOIN Informe_Fotometria if2 ON if2.Meteoro_Identificador = m.Identificador
   WHERE ${whereClauses.join(' AND ')}
@@ -231,6 +407,7 @@ const getBolideWithCustomSearch = async (req, res) => {
           FROM Informe_Z iz_obs
           WHERE iz_obs.Meteoro_Identificador = m.Identificador
             AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
+            AND ${buildReportZVisibilityCondition('iz_obs')}
         )
         OR EXISTS (
           SELECT 1
@@ -257,7 +434,7 @@ const getBolideWithCustomSearch = async (req, res) => {
 
     switch (reportType) {
       case '2':
-        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+        whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
         break;
       case '3':
         whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
@@ -267,7 +444,7 @@ const getBolideWithCustomSearch = async (req, res) => {
         break;
       case '5':
         whereClauses.push(
-          'EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)',
+          `EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`,
           'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
           'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
         );
@@ -277,7 +454,7 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
 
     if (parseBoolean(requireReportZ)) {
-      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+      whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
     }
     if (parseBoolean(requireReportRadiant)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
@@ -292,6 +469,7 @@ const getBolideWithCustomSearch = async (req, res) => {
         SELECT 1
         FROM Informe_Z iz_h
         WHERE iz_h.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_h')}
           AND CAST(
             SUBSTRING_INDEX(
               SUBSTRING_INDEX(iz_h.Inicio_de_la_trayectoria_Estacion_1, ' ', 4),
@@ -314,6 +492,7 @@ const getBolideWithCustomSearch = async (req, res) => {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
         WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_v')}
           AND iz_v.Velocidad_media >= ?
       )`);
       whereParams.push(minVelocityValue);
@@ -322,6 +501,7 @@ const getBolideWithCustomSearch = async (req, res) => {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
         WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_v')}
           AND iz_v.Velocidad_media <= ?
       )`);
       whereParams.push(maxVelocityValue);
@@ -549,6 +729,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
           FROM Informe_Z iz_obs
           WHERE iz_obs.Meteoro_Identificador = m.Identificador
             AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
+            AND ${buildReportZVisibilityCondition('iz_obs')}
         )
         OR EXISTS (
           SELECT 1
@@ -575,7 +756,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
 
     switch (reportType) {
       case '2':
-        whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+        whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
         break;
       case '3':
         whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
@@ -585,7 +766,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
         break;
       case '5':
         whereClauses.push(
-          'EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)',
+          `EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`,
           'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
           'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
         );
@@ -595,7 +776,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
     }
 
     if (parseBoolean(requireReportZ)) {
-      whereClauses.push('EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador)');
+      whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
     }
     if (parseBoolean(requireReportRadiant)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
@@ -610,6 +791,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
         SELECT 1
         FROM Informe_Z iz_h
         WHERE iz_h.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_h')}
           AND CAST(
             SUBSTRING_INDEX(
               SUBSTRING_INDEX(iz_h.Inicio_de_la_trayectoria_Estacion_1, ' ', 4),
@@ -632,6 +814,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
         WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_v')}
           AND iz_v.Velocidad_media >= ?
       )`);
       whereParams.push(minVelocityValue);
@@ -640,6 +823,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
         WHERE iz_v.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz_v')}
           AND iz_v.Velocidad_media <= ?
       )`);
       whereParams.push(maxVelocityValue);
@@ -881,7 +1065,8 @@ const getReportData = async (req, res) => {
          FROM Informe_Z iz 
          LEFT JOIN Observatorio o1 ON iz.Observatorio_Número = o1.Número 
          LEFT JOIN Observatorio o2 ON iz.Observatorio_Número2 = o2.Número 
-         WHERE iz.IdInforme IN (?)`,
+         WHERE iz.IdInforme IN (?)
+           AND ${buildReportZVisibilityCondition('iz')}`,
         [idsInformeZ]
       );
       results.reportData = data;
@@ -1099,6 +1284,7 @@ const getBolideTrajectoriesForEarthGlobe = async (req, res) => {
         SELECT 1
         FROM Informe_Z iz
         WHERE iz.Meteoro_Identificador = m.Identificador
+          AND ${buildReportZVisibilityCondition('iz')}
       )
     `);
 
@@ -1201,6 +1387,7 @@ const getBolideTrajectoriesForEarthGlobe = async (req, res) => {
         GROUP BY Meteoro_Identificador
       ) photometryStats ON photometryStats.Meteoro_Identificador = iz.Meteoro_Identificador
       WHERE m.Fecha BETWEEN ? AND ?
+        AND ${buildReportZVisibilityCondition('iz')}
       ORDER BY m.Fecha DESC, m.Hora DESC, iz.IdInforme DESC
     `, [startDate, endDate]);
 
@@ -1435,5 +1622,9 @@ module.exports = {
   getBolideTrajectoriesForEarthGlobe,
   testing,
   getReportData,
-  getBolideWithCustomSearchCSV
+  getBolideWithCustomSearchCSV,
+  getAdminBolides,
+  createAdminBolide,
+  updateAdminBolide,
+  deleteAdminBolide
 };

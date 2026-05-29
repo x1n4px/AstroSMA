@@ -46,9 +46,6 @@ function InferredDataReport({ data }) {
     return <ReportEmptyState message="No hay datos del informe." />;
   }
 
-  const userRol = localStorage.getItem('rol');
-  const isAdmin = userRol === '10000000';
-
   const summaryMetrics = [
     { label: t('INFERRED_DATA.DATE.label'), value: FormatDate(data.date) },
     { label: t('INFERRED_DATA.HOUR.label'), value: data.time?.substring(0, 8) || '-' },
@@ -89,28 +86,11 @@ function InferredDataReport({ data }) {
             <ReportField label={t('INFERRED_DATA.HOUR.label')} value={data.time?.substring(0, 8) || '-'} />
             <ReportField label={t('INFERRED_DATA.ZENITHAL_DISTANCE.label')} value={truncateDecimal(data.zenithDistance)} suffix="°" />
             <ReportField label={t('INFERRED_DATA.STATISTICAL_WEIGHTS.label')} value={truncateDecimal(data.statisticalWeight)} />
-            {isAdmin ? (
-              <>
-                <ReportField label={t('INFERRED_DATA.Errores_AR_RADIANT.label')} value={data.radiantRaDeErrors?.split(' ')[0]} suffix="arcsec" />
-                <ReportField label={t('INFERRED_DATA.Errores_DE_RADIANT.label')} value={data.radiantRaDeErrors?.split(' ')[1]} suffix="arcsec" />
-                <ReportField label={t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_1.label')} value={data.celestialSphereOrthogonalityError1} suffix="km²" />
-                <ReportField label={t('INFERRED_DATA.ORTHOGONALITY_QUADRATIC_ERROR_IN_THE_WEST_SPHERE_2.label')} value={data.celestialSphereOrthogonalityError2} suffix="km²" />
-              </>
-            ) : null}
+            <ReportField label={t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200.label')} value={getDecimalCoordinates(data.radiantJ2000Coordinates)} suffix="°" />
           </ReportPanel>
         </Col>
 
-        {isAdmin ? (
-          <Col xs={12} lg={6}>
-            <ReportPanel title="Diagnostico tecnico" description="Campos avanzados visibles solo para administracion.">
-              <ReportField label={t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200.label')} value={data.radiantJ2000Coordinates} suffix="°" />
-              <ReportField label={t('INFERRED_DATA.EQUATION_OF_MOVEMENT_IN_GS.label')} value={data.accelerationGs} suffix="m/s²" />
-              <ReportField label={t('INFERRED_DATA.REPORT_ROUTE.label')} value={data.reportPath} />
-            </ReportPanel>
-          </Col>
-        ) : null}
-
-        <Col xs={12} lg={isAdmin ? 6 : 12}>
+        <Col xs={12}>
           <ReportPanel title="Ecuacion del movimiento" description="Coeficientes del ajuste cinematico en el sistema de unidades del informe.">
             <ReportField
               label={`${t('INFERRED_DATA.EQUATION_OF_MOTION_IN_KMS.label')} (e = at^2 + bt + c)`}

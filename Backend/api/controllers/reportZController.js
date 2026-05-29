@@ -8,11 +8,258 @@ const { getMoonPosition, getTimes, getPosition, getMoonIllumination } = require(
 
 const { translateObjectKeys } = require('../utils/objectTranslator')
 const { reportZMapper } = require('../mappers/reportZMapper')
+const { buildReportZVisibilityCondition } = require('../utils/reportZVisibility')
+
+const REPORT_Z_COLUMNS = [
+    'IdInforme',
+    'Observatorio_Número2',
+    'Observatorio_Número',
+    'Fecha',
+    'Hora',
+    'Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_1',
+    'Error_cuadrático_de_ortogonalidad_en_la_esfera_celeste_2',
+    'Fotogramas_usados',
+    'Ajuste_estación_2_Inicio',
+    'Ajuste_estación_2_Final',
+    'Ángulo_diedro_entre_planos_trayectoria',
+    'Peso_estadístico',
+    'Errores_AR_DE_radiante',
+    'Coordenadas_astronómicas_del_radiante_Eclíptica_de_la_fecha',
+    'Coordenadas_astronómicas_del_radiante_J200',
+    'Azimut',
+    'Dist_Cenital',
+    'Inicio_de_la_trayectoria_Estacion_1',
+    'Fin_de_la_trayectoria_Estacion_1',
+    'Inicio_de_la_trayectoria_Estacion_2',
+    'Fin_de_la_trayectoria_Estacion_2',
+    'Impacto_previsible',
+    'Distancia_recorrida_Estacion_1',
+    'Error_distancia_Estacion_1',
+    'Error_alturas_Estacion_1',
+    'Distancia_recorrida_Estacion_2',
+    'Error_distancia_Estacion_2',
+    'Error_alturas_Estacion_2',
+    'Tiempo_Estacion_1',
+    'Velocidad_media',
+    'Tiempo_trayectoria_en_estacion_2',
+    'Ecuacion_del_movimiento_en_Kms',
+    'Ecuacion_del_movimiento_en_gs',
+    'Error_Velocidad',
+    'Velocidad_Inicial_Estacion_2',
+    'Aceleración_en_Kms',
+    'Aceleración_en_gs',
+    'Método_utilizado',
+    'Ruta_del_informe',
+    'Ecuacion_parametrica_IdEc',
+    'Meteoro_Identificador'
+];
+const REPORT_Z_INTEGER_COLUMNS = new Set([
+    'IdInforme',
+    'Observatorio_Número2',
+    'Observatorio_Número',
+    'Fotogramas_usados',
+    'Método_utilizado',
+    'Ecuacion_parametrica_IdEc',
+    'Meteoro_Identificador'
+]);
+const REPORT_Z_NUMBER_COLUMNS = new Set([
+    ...REPORT_Z_INTEGER_COLUMNS,
+    'Ángulo_diedro_entre_planos_trayectoria',
+    'Peso_estadístico',
+    'Azimut',
+    'Dist_Cenital',
+    'Distancia_recorrida_Estacion_1',
+    'Error_distancia_Estacion_1',
+    'Error_alturas_Estacion_1',
+    'Distancia_recorrida_Estacion_2',
+    'Error_distancia_Estacion_2',
+    'Error_alturas_Estacion_2',
+    'Tiempo_Estacion_1',
+    'Velocidad_media',
+    'Tiempo_trayectoria_en_estacion_2',
+    'Error_Velocidad',
+    'Velocidad_Inicial_Estacion_2',
+    'Aceleración_en_Kms',
+    'Aceleración_en_gs'
+]);
+const REPORT_Z_SELECT_COLUMNS = REPORT_Z_COLUMNS.map(column => `\`${column}\``).join(', ');
+
+function toNullableAdminValue(value) {
+    if (value === undefined || value === null || value === '') {
+        return null;
+    }
+
+    return value;
+}
+
+function normalizeReportZPayload(payload = {}) {
+    return REPORT_Z_COLUMNS.reduce((normalized, column) => {
+        const rawValue = toNullableAdminValue(payload[column]);
+
+        if (rawValue === null || !REPORT_Z_NUMBER_COLUMNS.has(column)) {
+            normalized[column] = rawValue;
+            return normalized;
+        }
+
+        const parsedValue = Number(rawValue);
+        normalized[column] = Number.isNaN(parsedValue) ? null : parsedValue;
+        return normalized;
+    }, {});
+}
+
+function validateReportZPayload(report, includeId = false) {
+    if (includeId && (!Number.isInteger(report.IdInforme) || report.IdInforme < 1)) {
+        return 'El ID del informe debe ser un entero positivo';
+    }
+
+    for (const column of REPORT_Z_INTEGER_COLUMNS) {
+        if (report[column] !== null && !Number.isInteger(report[column])) {
+            return `${column} debe ser un entero`;
+        }
+    }
+
+    return null;
+}
+
+async function getAdminReportZById(id) {
+    const [reports] = await pool.query(
+        `SELECT ${REPORT_Z_SELECT_COLUMNS} FROM Informe_Z WHERE IdInforme = ?`,
+        [id]
+    );
+
+    return reports[0] || null;
+}
+
+async function getAdminReportZ(req, res) {
+    try {
+        const params = [];
+        const whereClauses = ['1=1'];
+        const meteorId = Number(req.query.meteorId);
+        const stationId = Number(req.query.stationId);
+
+        if (Number.isInteger(meteorId) && meteorId > 0) {
+            whereClauses.push('Meteoro_Identificador = ?');
+            params.push(meteorId);
+        }
+        if (Number.isInteger(stationId) && stationId > 0) {
+            whereClauses.push('(`Observatorio_Número` = ? OR `Observatorio_Número2` = ?)');
+            params.push(stationId, stationId);
+        }
+        if (req.query.startDate) {
+            whereClauses.push('Fecha >= ?');
+            params.push(req.query.startDate);
+        }
+        if (req.query.endDate) {
+            whereClauses.push('Fecha <= ?');
+            params.push(req.query.endDate);
+        }
+
+        const [reports] = await pool.query(
+            `
+            SELECT ${REPORT_Z_SELECT_COLUMNS}
+            FROM Informe_Z
+            WHERE ${whereClauses.join(' AND ')}
+            ORDER BY Fecha DESC, Hora DESC, IdInforme DESC
+            LIMIT 250
+            `,
+            params
+        );
+
+        return res.json({ columns: REPORT_Z_COLUMNS, reports });
+    } catch (error) {
+        console.error('Error al obtener informes para administración:', error);
+        return res.status(500).json({ message: 'No se pudieron cargar los informes' });
+    }
+}
+
+async function createAdminReportZ(req, res) {
+    const report = normalizeReportZPayload(req.body);
+    const validationError = validateReportZPayload(report, true);
+
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
+    }
+
+    try {
+        await pool.query(
+            `INSERT INTO Informe_Z (${REPORT_Z_SELECT_COLUMNS}) VALUES (${REPORT_Z_COLUMNS.map(() => '?').join(', ')})`,
+            REPORT_Z_COLUMNS.map(column => report[column])
+        );
+
+        return res.status(201).json(await getAdminReportZById(report.IdInforme));
+    } catch (error) {
+        console.error('Error al crear informe:', error);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ message: 'Ya existe un informe con ese ID' });
+        }
+        if (error.code === 'ER_NO_REFERENCED_ROW_2' || error.code === 'ER_NO_REFERENCED_ROW') {
+            return res.status(409).json({ message: 'El bólido, estación o ecuación asociada no existe' });
+        }
+        return res.status(500).json({ message: 'No se pudo crear el informe' });
+    }
+}
+
+async function updateAdminReportZ(req, res) {
+    const id = Number(req.params.id);
+    const report = normalizeReportZPayload(req.body);
+    const validationError = validateReportZPayload(report);
+
+    if (!Number.isInteger(id) || id < 1) {
+        return res.status(400).json({ message: 'ID de informe inválido' });
+    }
+    if (validationError) {
+        return res.status(400).json({ message: validationError });
+    }
+
+    try {
+        const editableColumns = REPORT_Z_COLUMNS.filter(column => column !== 'IdInforme');
+        const [result] = await pool.query(
+            `UPDATE Informe_Z SET ${editableColumns.map(column => `\`${column}\` = ?`).join(', ')} WHERE IdInforme = ?`,
+            [...editableColumns.map(column => report[column]), id]
+        );
+
+        if (!result.affectedRows) {
+            return res.status(404).json({ message: 'Informe no encontrado' });
+        }
+
+        return res.json(await getAdminReportZById(id));
+    } catch (error) {
+        console.error('Error al actualizar informe:', error);
+        if (error.code === 'ER_NO_REFERENCED_ROW_2' || error.code === 'ER_NO_REFERENCED_ROW') {
+            return res.status(409).json({ message: 'El bólido, estación o ecuación asociada no existe' });
+        }
+        return res.status(500).json({ message: 'No se pudo actualizar el informe' });
+    }
+}
+
+async function deleteAdminReportZ(req, res) {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id < 1) {
+        return res.status(400).json({ message: 'ID de informe inválido' });
+    }
+
+    try {
+        const [result] = await pool.query('DELETE FROM Informe_Z WHERE IdInforme = ?', [id]);
+
+        if (!result.affectedRows) {
+            return res.status(404).json({ message: 'Informe no encontrado' });
+        }
+
+        return res.json({ message: 'Informe eliminado' });
+    } catch (error) {
+        console.error('Error al eliminar informe:', error);
+        if (error.code === 'ER_ROW_IS_REFERENCED_2' || error.code === 'ER_ROW_IS_REFERENCED') {
+            return res.status(409).json({ message: 'El informe tiene datos asociados y no se puede eliminar' });
+        }
+        return res.status(500).json({ message: 'No se pudo eliminar el informe' });
+    }
+}
 
 // Función para obtener un empleado por su ID
 const getAllReportZ = async (req, res) => {
     try {
-        const [reports] = await pool.query('SELECT * FROM Informe_Z');
+        const [reports] = await pool.query(`SELECT iz.* FROM Informe_Z iz WHERE ${buildReportZVisibilityCondition('iz')}`);
         res.json(reports);
     } catch (error) {
         console.error('Error al obtener las estaciones:', error);
@@ -50,7 +297,8 @@ const getReportZ = async (req, res) => {
             FROM Informe_Z iz
             LEFT JOIN Observatorio o1 ON iz.Observatorio_Número = o1.Número 
             LEFT JOIN Observatorio o2 ON iz.Observatorio_Número2 = o2.Número 
-            WHERE iz.IdInforme = ?;
+            WHERE iz.IdInforme = ?
+              AND ${buildReportZVisibilityCondition('iz')};
             `, [id]);
 
 
@@ -100,7 +348,18 @@ const getReportZ = async (req, res) => {
                 ob.Informe_Z_IdInforme = ?;`, [id]);
         const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
-        const [photometryReport] = await pool.query('SELECT if2.Identificador FROM Informe_Fotometria if2 JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador WHERE iz.IdInforme = ?', [id]);
+        const [photometryReport] = await pool.query(`
+            SELECT
+                if2.Identificador,
+                CONCAT(o1.Nombre_Observatorio, ' (', o1.Número, ')') AS station1,
+                CONCAT(o2.Nombre_Observatorio, ' (', o2.Número, ')') AS station2
+            FROM Informe_Fotometria if2
+            JOIN Meteoro m ON if2.Meteoro_Identificador = m.Identificador
+            JOIN Informe_Z iz ON iz.Meteoro_Identificador = m.Identificador
+            LEFT JOIN Observatorio o1 ON iz.Observatorio_Número = o1.Número
+            LEFT JOIN Observatorio o2 ON iz.Observatorio_Número2 = o2.Número
+            WHERE iz.IdInforme = ?
+        `, [id]);
         const [mapReportGross] = await pool.query('SELECT iz.Azimut, iz.Dist_Cenital, o.Latitud_Sexagesimal as obs1Lon, o.Longitud_Sexagesimal as obs1Lat, o2.Latitud_Sexagesimal as obs2Lon, o2.Longitud_Sexagesimal as obs2Lat from Informe_Z iz JOIN Observatorio o ON o.Número = iz.Observatorio_Número JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2 where iz.IdInforme = ?;', [id]);
         const [observatory_name] = await pool.query('SELECT Nombre_Observatorio FROM Observatorio WHERE Número = ?', [report[0].Observatorio_Número]);
         const [slopeMapUNF] = await pool.query(`SELECT iz.IdInforme, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Inicio_de_la_trayectoria_Estacion_2, iz.Fin_de_la_trayectoria_Estacion_1, iz.Fin_de_la_trayectoria_Estacion_2, iz.Fecha, iz.Hora FROM Informe_Z iz WHERE iz.IdInforme = ?;`, [id]);
@@ -173,8 +432,8 @@ const getReportzWithCustomSearch = async (req, res) => {
         const { heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage } = req.query;
 
         const offs = actualPage * 50;
-        const [count] = await pool.query('SELECT count(Informe_Z.IdInforme) as c  FROM Informe_Z WHERE Fecha BETWEEN ? AND ?', [startDate, endDate])
-        const [reports] = await pool.query('SELECT Informe_Z.IdInforme , Informe_Z.Fecha  FROM Informe_Z WHERE Fecha BETWEEN ? AND ? LIMIT 50 OFFSET ?;', [startDate, endDate, offs])
+        const [count] = await pool.query(`SELECT count(iz.IdInforme) as c FROM Informe_Z iz WHERE iz.Fecha BETWEEN ? AND ? AND ${buildReportZVisibilityCondition('iz')}`, [startDate, endDate])
+        const [reports] = await pool.query(`SELECT iz.IdInforme, iz.Fecha FROM Informe_Z iz WHERE iz.Fecha BETWEEN ? AND ? AND ${buildReportZVisibilityCondition('iz')} LIMIT 50 OFFSET ?;`, [startDate, endDate, offs])
 
 
         res.json({ count, reports });
@@ -190,7 +449,11 @@ const getRelatedReportsByMeteor = async (req, res) => {
         const { id } = req.params;
 
         const [currentReportRows] = await pool.query(
-            'SELECT IdInforme, Meteoro_Identificador FROM Informe_Z WHERE IdInforme = ? LIMIT 1',
+            `SELECT iz.IdInforme, iz.Meteoro_Identificador
+             FROM Informe_Z iz
+             WHERE iz.IdInforme = ?
+               AND ${buildReportZVisibilityCondition('iz')}
+             LIMIT 1`,
             [id]
         );
 
@@ -222,6 +485,7 @@ const getRelatedReportsByMeteor = async (req, res) => {
                 LEFT JOIN Observatorio o2 ON o2.Número = iz.Observatorio_Número2
                 WHERE iz.Meteoro_Identificador = ?
                   AND iz.IdInforme <> ?
+                  AND ${buildReportZVisibilityCondition('iz')}
 
                 UNION ALL
 
@@ -333,7 +597,7 @@ const getReportZListFromRain = async (req, res) => {
         const { membershipThreshold = 1, distanceThreshold = 80 } = req.body;
         const showerCode = selectedCode.replace(/[0-9]/g, '');
 
-        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Azimut, iz.Dist_Cenital FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
+        let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Azimut, iz.Dist_Cenital FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')}`;
         const params = [selectedCode];
 
         if (dateIn !== 'null' && dateOut !== 'null') {
@@ -351,9 +615,9 @@ const getReportZListFromRain = async (req, res) => {
         const [showerGraph] = await pool.query(`
             SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections, ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2) AS percentage_change
             FROM ( 
-                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
+                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
             LEFT JOIN (
-                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
+                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
             ) AS prev ON (curr.year = prev.year AND curr.month = prev.month + 1) OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12) ORDER BY curr.year ASC, curr.month ASC;
             `, [showerCode, showerCode]);
 
@@ -811,4 +1075,8 @@ module.exports = {
     getReportzWithCustomSearch,
     getReportZListFromRain,
     getRelatedReportsByMeteor,
+    getAdminReportZ,
+    createAdminReportZ,
+    updateAdminReportZ,
+    deleteAdminReportZ,
 };

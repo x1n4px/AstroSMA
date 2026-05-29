@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Form, Row, Col, Alert } from "react-bootstrap";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter, BarChart, Bar, AreaChart, Area } from "recharts";
 import { API_ENDPOINTS, buildQueryUrl, fetchApi } from "../config/api";
+import { formatDate } from "@/pipe/formatDate.jsx";
 import { logger } from "../utils/logger";
 import { analysisTypes } from "../utils/analysisTypes";
 
@@ -345,7 +346,7 @@ const DataChart = ({ selectedMeteorData }) => {
                     <Alert variant="info">
                         <strong>Configurado automáticamente para el meteoro {selectedMeteorData.identifier || selectedMeteorData.Identificador}</strong>
                         <br />
-                        Fecha: {selectedMeteorData.date || selectedMeteorData.Fecha} | Hora: {selectedMeteorData.time || selectedMeteorData.Hora}
+                        Fecha: {formatDate(selectedMeteorData.date || selectedMeteorData.Fecha)} | Hora: {selectedMeteorData.time || selectedMeteorData.Hora}
                     </Alert>
                 )}
             </div>

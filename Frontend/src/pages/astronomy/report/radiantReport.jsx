@@ -87,11 +87,11 @@ function RadiantReport() {
   }
 
   if (error) {
-    return <Container className="py-4"><ReportEmptyState message="No se pudo cargar el informe radiante." /></Container>;
+    return <Container className="py-4"><ReportEmptyState message="No se pudo cargar el informe de una sola estación." /></Container>;
   }
 
   if (!reportData) {
-    return <Container className="py-4"><ReportEmptyState message="No hay datos del informe radiante." /></Container>;
+    return <Container className="py-4"><ReportEmptyState message="No hay datos del informe de una sola estación." /></Container>;
   }
 
   return (

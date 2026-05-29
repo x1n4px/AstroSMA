@@ -1,6 +1,88 @@
 const pool = require('../database/connection');
 const { transform } = require('../middlewares/convertSexagesimalToDecimal');
-const { extraerUserId } = require('../middlewares/extractJWT')
+
+const STATION_COLUMNS = `
+    \`Número\`,
+    Nombre_Camara,
+    \`Descripción\`,
+    Longitud_Sexagesimal,
+    Latitud_Sexagesimal,
+    Longitud_Radianes,
+    Latitud_Radianes,
+    Altitud,
+    Directorio_Local,
+    Directorio_Nube,
+    \`Tamaño_Chip\`,
+    \`Orientación_Chip\`,
+    \`Máscara\`,
+    \`Créditos\`,
+    Nombre_Observatorio,
+    Activo
+`;
+
+function toNullableValue(value) {
+    if (value === undefined || value === null || value === '') {
+        return null;
+    }
+
+    return value;
+}
+
+function toNullableNumber(value) {
+    const normalizedValue = toNullableValue(value);
+    if (normalizedValue === null) {
+        return null;
+    }
+
+    const parsedValue = Number(normalizedValue);
+    return Number.isNaN(parsedValue) ? null : parsedValue;
+}
+
+function normalizeStationPayload(payload = {}) {
+    return {
+        id: toNullableNumber(payload.id),
+        name: toNullableValue(payload.name),
+        description: toNullableValue(payload.description),
+        longitudeSexagesimal: toNullableValue(payload.longitudeSexagesimal),
+        latitudeSexagesimal: toNullableValue(payload.latitudeSexagesimal),
+        longitudeRadians: toNullableNumber(payload.longitude_Radianes),
+        latitudeRadians: toNullableNumber(payload.latitude_Radianes),
+        height: toNullableNumber(payload.height),
+        localDirectory: toNullableValue(payload.localDirectory),
+        cloudDirectory: toNullableValue(payload.cloudDirectory),
+        chipSize: toNullableValue(payload.chipSize),
+        chipOrientation: toNullableValue(payload.chipOrientation),
+        filter: toNullableValue(payload.filter),
+        credit: toNullableValue(payload.credit),
+        stationName: toNullableValue(payload.stationName),
+        state: toNullableNumber(payload.state) ?? 1
+    };
+}
+
+function validateStationPayload(station, includeId = false) {
+    if (includeId && (!Number.isInteger(station.id) || station.id < 1)) {
+        return 'Station number must be a positive integer';
+    }
+
+    if (!station.stationName) {
+        return 'Observatory name is required';
+    }
+
+    if (!Number.isInteger(station.state) || station.state < 0 || station.state > 2) {
+        return 'Station state must be 0, 1 or 2';
+    }
+
+    return null;
+}
+
+async function getStationById(id) {
+    const [stations] = await pool.query(
+        `SELECT ${STATION_COLUMNS} FROM Observatorio WHERE \`Número\` = ?`,
+        [id]
+    );
+
+    return stations[0] ? transform(stations[0]) : null;
+}
 
 /*
 const stations = [
@@ -110,11 +192,8 @@ const stations = [
 // Función para obtener un empleado por su ID
 const getAllStations = async (req, res) => {
     try {
-        const token = req.header('x-token');
-        const userId = extraerUserId(token);
-        if (!userId) {
-            return res.status(401).json({ message: 'Unauthorized: Invalid token' });
-        }
+        const userId = req.userId;
+
         // Verificar si el usuario tiene el rol adecuado
         const [userRows] = await pool.query(
             'SELECT rol FROM user WHERE id = ?',
@@ -145,6 +224,138 @@ const getNearbyStations = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener la estación:', error);
         throw error;
+    }
+};
+
+const createStation = async (req, res) => {
+    try {
+        const station = normalizeStationPayload(req.body);
+        const validationError = validateStationPayload(station, true);
+
+        if (validationError) {
+            return res.status(400).json({ message: validationError });
+        }
+
+        const [existingStation] = await pool.query(
+            'SELECT `Número` FROM Observatorio WHERE `Número` = ?',
+            [station.id]
+        );
+
+        if (existingStation.length > 0) {
+            return res.status(409).json({ message: 'Station number already exists' });
+        }
+
+        await pool.query(
+            `INSERT INTO Observatorio (
+                ${STATION_COLUMNS}
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                station.id,
+                station.name,
+                station.description,
+                station.latitudeSexagesimal,
+                station.longitudeSexagesimal,
+                station.latitudeRadians,
+                station.longitudeRadians,
+                station.height,
+                station.localDirectory,
+                station.cloudDirectory,
+                station.chipSize,
+                station.chipOrientation,
+                station.filter,
+                station.credit,
+                station.stationName,
+                station.state
+            ]
+        );
+
+        return res.status(201).json(await getStationById(station.id));
+    } catch (error) {
+        console.error('Error creating station:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const updateStation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const station = normalizeStationPayload(req.body);
+        const validationError = validateStationPayload(station);
+
+        if (validationError) {
+            return res.status(400).json({ message: validationError });
+        }
+
+        const [result] = await pool.query(
+            `UPDATE Observatorio SET
+                Nombre_Camara = ?,
+                \`Descripción\` = ?,
+                Longitud_Sexagesimal = ?,
+                Latitud_Sexagesimal = ?,
+                Longitud_Radianes = ?,
+                Latitud_Radianes = ?,
+                Altitud = ?,
+                Directorio_Local = ?,
+                Directorio_Nube = ?,
+                \`Tamaño_Chip\` = ?,
+                \`Orientación_Chip\` = ?,
+                \`Máscara\` = ?,
+                \`Créditos\` = ?,
+                Nombre_Observatorio = ?,
+                Activo = ?
+            WHERE \`Número\` = ?`,
+            [
+                station.name,
+                station.description,
+                station.latitudeSexagesimal,
+                station.longitudeSexagesimal,
+                station.latitudeRadians,
+                station.longitudeRadians,
+                station.height,
+                station.localDirectory,
+                station.cloudDirectory,
+                station.chipSize,
+                station.chipOrientation,
+                station.filter,
+                station.credit,
+                station.stationName,
+                station.state,
+                id
+            ]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Station not found' });
+        }
+
+        return res.json(await getStationById(id));
+    } catch (error) {
+        console.error('Error updating station:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+const deleteStation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [result] = await pool.query(
+            'DELETE FROM Observatorio WHERE `Número` = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Station not found' });
+        }
+
+        return res.json({ message: 'Station deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting station:', error);
+
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+            return res.status(409).json({ message: 'Station has associated reports and cannot be deleted' });
+        }
+
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -214,5 +425,8 @@ module.exports = {
     getAllStations,
     getNearbyStations,
     getAsocciatedStations,
-    updateStationStatus
+    createStation,
+    updateStation,
+    updateStationStatus,
+    deleteStation
 };

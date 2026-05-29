@@ -16,6 +16,7 @@ const EventRoute = require('./routes/eventRoute')
 const FileRoute = require ('./routes/fileRoute')
 const RequestRoute = require('./routes/requestRoute') 
 const WorkflowsRoute = require('./routes/workflowsRoute')
+const AdminScientificTableRoute = require('./routes/adminScientificTableRoute')
 
 app.use(cors());
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use('/api', EventRoute);
 app.use('/api', FileRoute);
 app.use('/api', RequestRoute);
 app.use('/api', WorkflowsRoute);
+app.use('/api', AdminScientificTableRoute);
 
 
 

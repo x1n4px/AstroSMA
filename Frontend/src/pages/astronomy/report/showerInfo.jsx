@@ -90,8 +90,7 @@ const MoonReport = () => {
     const [dateOut, setDateOut] = useState('');
     const [report, setReport] = useState([]);
     const [radiantReport, setRadiantReport] = useState([]);
-    const [rain, setRain] = useState(null);
-    const [phaseName, setPaseName] = useState('new moon');
+    const [, setRain] = useState(null);
     const { getDistanceLabel } = useLogicDistance();
     const [lluvias, setLluvias] = useState([]);
     const [selectedLluvia, setSelectedLluvia] = useState(null);
@@ -490,7 +489,7 @@ const MoonReport = () => {
                                             </li>
                                             <li className="mb-2">
                                                 <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.DATE')}:</strong>
-                                                <span className="ms-2">{selectedLluvia.SubDate}</span>
+                                                <span className="ms-2">{formatDate(selectedLluvia.SubDate)}</span>
                                             </li>
                                             <li className="mb-2">
                                                 <strong style={{ color: '#980100' }}>AR:</strong>

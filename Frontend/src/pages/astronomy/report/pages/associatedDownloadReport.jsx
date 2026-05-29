@@ -32,8 +32,8 @@ const downloadItems = [
     apiButtonName: 'GRITSEVICH',
     fileName: 'Gritsevich.zip',
     translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-    translationValues: { name: 'Gritsevich' },
-    description: 'Datos preparados para analisis por el metodo de Gritsevich.'
+    translationValues: { name: 'Meteor ToolKit' },
+    description: 'Datos preparados para Meteor ToolKit.'
   },
   {
     id: 'meteorglow',

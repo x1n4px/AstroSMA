@@ -27,6 +27,11 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : NaN;
 }
 
+function twoDecimals(value) {
+  const parsed = toNumber(value);
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : firstToken(value);
+}
+
 const OrbitReport = ({ orbit, reportDate }) => {
   const { t } = useTranslation(['text']);
   const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0);
@@ -112,9 +117,9 @@ const OrbitReport = ({ orbit, reportDate }) => {
             <Col xs={12} lg={6}>
               <ReportPanel title="Dinamica heliocentrica" description="Velocidades y parametros fisicos principales.">
                 <ReportField label={t('ORBIT_REPORT.DATE.label')} value={formatDate(selectedOrbit.date)} />
+                <ReportField label={t('ORBIT_REPORT.AR.label')} value={firstToken(selectedOrbit.Ar)} />
                 <ReportField label={t('ORBIT_REPORT.VELOCITY_INF.label')} value={firstToken(selectedOrbit.Vel__Inf)} controlClassName={toNumber(selectedOrbit.Vel__Inf) < 0 ? 'border-danger text-danger' : ''} />
                 <ReportField label={t('ORBIT_REPORT.VELOCITY_GEOM.label')} value={firstToken(selectedOrbit.Vel__Geo)} controlClassName={toNumber(selectedOrbit.Vel__Geo) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.AR.label')} value={firstToken(selectedOrbit.Ar)} />
                 <ReportField label={t('ORBIT_REPORT.E.label')} value={firstToken(selectedOrbit.e)} controlClassName={toNumber(selectedOrbit.e) < 0 ? 'border-danger text-danger' : ''} />
                 <ReportField label={t('ORBIT_REPORT.Q.label')} value={firstToken(selectedOrbit.q)} controlClassName={toNumber(selectedOrbit.q) <= 0 ? 'border-danger text-danger' : ''} />
                 <ReportField label={t('ORBIT_REPORT.OMEGA.label')} value={firstToken(selectedOrbit.omega)} />
@@ -126,10 +131,10 @@ const OrbitReport = ({ orbit, reportDate }) => {
                 <ReportField label={t('ORBIT_REPORT.HOUR.label')} value={selectedOrbit.time} />
                 <ReportField label={t('ORBIT_REPORT.DE.label')} value={firstToken(selectedOrbit.De)} />
                 <ReportField label={t('ORBIT_REPORT.I.label')} value={firstToken(selectedOrbit.i)} />
-                <ReportField label={t('ORBIT_REPORT.P.label')} value={firstToken(selectedOrbit.p)} />
+                <ReportField label={t('ORBIT_REPORT.P.label')} value={twoDecimals(selectedOrbit.p)} />
                 <ReportField label={t('ORBIT_REPORT.A.label')} value={firstToken(selectedOrbit.a)} controlClassName={toNumber(selectedOrbit.a) < 0 ? 'border-danger text-danger' : ''} />
                 <ReportField label={t('ORBIT_REPORT.T.label')} value={firstToken(selectedOrbit.T)} controlClassName={toNumber(selectedOrbit.T) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.OMEGA_DEGREE.label')} value={firstToken(selectedOrbit.Omega_grados_votos_max_min)} />
+                <ReportField label={t('ORBIT_REPORT.OMEGA_DEGREE.label')} value={twoDecimals(selectedOrbit.Omega_grados_votos_max_min)} />
               </ReportPanel>
             </Col>
 

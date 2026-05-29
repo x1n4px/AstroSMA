@@ -73,7 +73,7 @@ const MeteorInput = ({ onMeteorSelect, selectedMeteorData }) => {
                 Hora: selectedMeteorData.time
             };
             setSelectedMeteor(restoredMeteor);
-            setSuccess(`Restored meteor: ID ${restoredMeteor.Identificador} - ${restoredMeteor.Fecha} ${restoredMeteor.Hora}`);
+            setSuccess(`Restored meteor: ID ${restoredMeteor.Identificador} - ${formatDate(restoredMeteor.Fecha)} ${restoredMeteor.Hora}`);
         }
     }, [selectedMeteorData]);
 
@@ -161,7 +161,7 @@ const MeteorInput = ({ onMeteorSelect, selectedMeteorData }) => {
             ...prev,
             identifier: meteor.Identificador.toString()
         }));
-        setSuccess(`Selected meteor: ID ${meteor.Identificador} - ${meteor.Fecha} ${meteor.Hora}`);
+        setSuccess(`Selected meteor: ID ${meteor.Identificador} - ${formatDate(meteor.Fecha)} ${meteor.Hora}`);
 
         // Notify parent component with meteor data
         if (onMeteorSelect) {
@@ -220,7 +220,7 @@ const MeteorInput = ({ onMeteorSelect, selectedMeteorData }) => {
                         startTime: meteor.Hora || "",
                         endTime: meteor.Hora || ""
                     }));
-                    setSuccess(`Meteor loaded: ${meteor.Fecha} ${meteor.Hora}`);
+                    setSuccess(`Meteor loaded: ${formatDate(meteor.Fecha)} ${meteor.Hora}`);
 
                     // Notify parent component
                     if (onMeteorSelect) {
@@ -354,7 +354,7 @@ const MeteorInput = ({ onMeteorSelect, selectedMeteorData }) => {
                     </Card.Header>
                     <Card.Body>
                         <ListGroup>
-                            {searchResults.map((meteor, index) => (
+                            {searchResults.map(meteor => (
                                 <ListGroup.Item
                                     key={meteor.Identificador}
                                     action
