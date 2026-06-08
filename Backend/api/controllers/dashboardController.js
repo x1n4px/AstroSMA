@@ -141,6 +141,20 @@ const getGeneral = async (req, res) => {
       Object.keys(queryPromises).map((key, i) => [key, results[i][0]])
     );
 
+    let safeLastReport = null;
+    if (data.lastReport && data.lastReport.length > 0) {
+      try {
+        safeLastReport = processLastReport(data.lastReport)[0];
+      } catch (parseError) {
+        console.warn("⚠️ Advertencia en getGeneral: Último informe corrupto saltado en panel dinámico. Error:", parseError.message);
+        safeLastReport = { 
+          ...data.lastReport[0], 
+          _errorFormato: true,
+          mensaje: "Coordenadas con formato incorrecto" 
+        };
+      }
+    }
+
     // Procesar los datos
     const processedData = {
       barChartData: data.barChartData,
@@ -152,7 +166,7 @@ const getGeneral = async (req, res) => {
       observatoryDataFormatted: data.observatory.map(transform),
       lastReportMap: formatLastReportMap(data.lastReportMap),
       showerPerYearData: data.showerPerYear,
-      processedLastReport: processLastReport(data.lastReport)[0],
+      processedLastReport: safeLastReport, // 👈 2. CAMBIAMOS ESTA LÍNEA PARA USAR EL ESCUDO
       counterReport: data.counterReport,
       percentageFromLastBolideMonth: data.percentageFromLastBolideMonth[0],
       curvePercentageGroupLastYearBolido: data.curvePercentageGroupLastYearBolido,
@@ -160,6 +174,7 @@ const getGeneral = async (req, res) => {
 
     res.json(processedData);
   } catch (error) {
+    console.error("💥 ERROR CRÍTICO EN GETGENERAL:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -197,14 +212,30 @@ const getGeneralHome = async (req, res) => {
                                                 `);
     const [stations] = await pool.query('SELECT * FROM Observatorio');
     const convertedStations = transform(stations);
+    // 👇 CONTROL DE SEGURIDAD PARA EL REPORT CORRUPTO 👇
+    let processedReports = null;
+    if (lastReport && lastReport.length > 0) {
+      try {
+        processedReports = processLastReport(lastReport)[0];
+      } catch (parseError) {
+        console.warn("⚠️ Advertencia: El último informe tiene coordenadas corruptas. Enviando datos crudos como fallback. Error:", parseError.message);
+        processedReports = {
+          ...lastReport[0],
+          _errorFormato: true,
+          mensaje: "Coordenadas con formato incorrecto"
+        };
+      }
+    }
+
     res.json({
       lastReportMap: formatLastReportMap(lastReportMap),
-      processedReports: processLastReport(lastReport)[0],
+      processedReports, // <-- Usamos la variable protegida
       counterReport,
       meteorLastYear,
       stations: convertedStations
     });
   } catch (error) {
+    console.error("💥 ERROR CRÍTICO EN GETGENERALHOME:", error);
     res.status(500).json({ error: error.message });
   }
 };

@@ -3,7 +3,10 @@ const pool = require('../database/connection');
 
 const checkUserBlockedByIp = async (req, res, next) => {
     try {
-        const clientIp = req.header('x-client-ip');
+        const clientIp = req.headers['x-forwarded-for'] || 
+           req.headers['x-real-ip'] || 
+           req.ip || 
+           req.socket.remoteAddress;
         if (!clientIp) {
             return res.status(400).json({ message: 'Missing IP address in headers' });
         }

@@ -20,12 +20,12 @@ function buildReportZVisibilityCondition(reportAlias = 'iz') {
 
     // Observatorio keeps latitude in Longitud_Radianes and longitude in Latitud_Radianes.
     return `
-        NOT EXISTS (
+       NOT EXISTS (
             SELECT 1
             FROM Observatorio report_z_observatory_1
-            JOIN Observatorio report_z_observatory_2
-              ON report_z_observatory_2.\`Número\` = ${reportAlias}.\`Observatorio_Número2\`
+            CROSS JOIN Observatorio report_z_observatory_2
             WHERE report_z_observatory_1.\`Número\` = ${reportAlias}.\`Observatorio_Número\`
+              AND report_z_observatory_2.\`Número\` = ${reportAlias}.\`Observatorio_Número2\`
               AND report_z_observatory_1.Longitud_Radianes IS NOT NULL
               AND report_z_observatory_1.Latitud_Radianes IS NOT NULL
               AND report_z_observatory_2.Longitud_Radianes IS NOT NULL
@@ -35,11 +35,11 @@ function buildReportZVisibilityCondition(reportAlias = 'iz') {
                     1,
                     GREATEST(
                         -1,
-                        COS(report_z_observatory_1.Longitud_Radianes)
-                          * COS(report_z_observatory_2.Longitud_Radianes)
-                          * COS(report_z_observatory_2.Latitud_Radianes - report_z_observatory_1.Latitud_Radianes)
-                          + SIN(report_z_observatory_1.Longitud_Radianes)
+                        SIN(report_z_observatory_1.Longitud_Radianes) 
                           * SIN(report_z_observatory_2.Longitud_Radianes)
+                        + COS(report_z_observatory_1.Longitud_Radianes) 
+                          * COS(report_z_observatory_2.Longitud_Radianes) 
+                          * COS(report_z_observatory_2.Latitud_Radianes - report_z_observatory_1.Latitud_Radianes)
                     )
                 )
               ) <= ${maxDistanceKm}
