@@ -501,7 +501,7 @@ config = {
     "sonificationPath": str(resolve_runtime_dir(env("ruta_sonificacion", ""), RUNTIME_SONIFICATION_DIR)),
     "appLog": str(resolve_runtime_file(env("log_aplicacion", ""), RUNTIME_LOGS_DIR / "app-tfg.log")),
     "errorLog": str(resolve_runtime_file(env("log_errores", ""), RUNTIME_LOGS_DIR / "err-tfg.log")),
-    "python": env("PYTHON", "python"),
+    "python": env("PYTHON", str(ROOT_DIR / ".venv" / "bin" / "python")),
 }
 
 
