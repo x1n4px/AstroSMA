@@ -1,0 +1,325 @@
+.sonification-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.sonification-global-alert {
+  margin: 0;
+  border-width: 2px;
+  border-radius: 1.1rem;
+  border-color: #f0b6b6;
+  background:
+    radial-gradient(circle at top left, rgba(185, 28, 28, 0.12), transparent 34%),
+    linear-gradient(180deg, #fff7f7, #ffffff);
+  box-shadow: 0 16px 34px rgba(185, 28, 28, 0.14);
+}
+
+.sonification-global-alert .alert-heading {
+  margin-bottom: 0.45rem;
+  color: #7f1d1d;
+  font-weight: 800;
+}
+
+.sonification-global-alert__layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sonification-global-alert__copy {
+  min-width: 0;
+}
+
+.sonification-global-alert__description {
+  margin: 0;
+  color: #7f1d1d;
+  line-height: 1.55;
+  font-weight: 600;
+}
+
+.sonification-global-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.sonification-method-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.sonification-method-button {
+  width: 100%;
+  text-align: left;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #dbe4f0;
+  background: linear-gradient(180deg, #ffffff, #fafcff);
+  color: #172033;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.sonification-method-button:hover {
+  transform: translateY(-1px);
+  border-color: #b8c6d9;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.sonification-method-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.sonification-method-button:disabled:hover {
+  border-color: #dbe4f0;
+}
+
+.sonification-method-button.is-active {
+  border-color: #980100;
+  background: linear-gradient(180deg, rgba(152, 1, 0, 0.08), rgba(255, 250, 247, 0.98));
+  box-shadow: 0 14px 30px rgba(152, 1, 0, 0.12);
+}
+
+.sonification-method-button__label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.sonification-method-button__help {
+  display: block;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.sonification-control-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.sonification-control-actions .btn {
+  width: 100%;
+}
+
+.sonification-status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid #dbe4f0;
+  background: linear-gradient(180deg, #fff, #f8fbff);
+}
+
+.sonification-status--warm {
+  border-color: #f2d1bf;
+  background: linear-gradient(180deg, #fffaf7, #fffdfc);
+}
+
+.sonification-status--danger {
+  border-color: #f1c0c0;
+  background: linear-gradient(180deg, #fff6f6, #fffdfd);
+}
+
+.sonification-status__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  background: #172033;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sonification-status--warm .sonification-status__chip {
+  background: #9a3412;
+}
+
+.sonification-status--danger .sonification-status__chip {
+  background: #b91c1c;
+}
+
+.sonification-status__hint {
+  color: #5b677d;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.sonification-loading-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid #dbe4f0;
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at top left, rgba(152, 1, 0, 0.08), transparent 30%),
+    linear-gradient(180deg, #fffdfc, #ffffff);
+  color: #172033;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.sonification-loading-card__subtext {
+  margin-top: 0.1rem;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.sonification-feedback {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1.1rem 1.15rem;
+  border-radius: 1.1rem;
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
+
+.sonification-feedback--neutral {
+  background:
+    radial-gradient(circle at top left, rgba(100, 116, 139, 0.08), transparent 38%),
+    linear-gradient(180deg, #ffffff, #f8fbff);
+}
+
+.sonification-feedback--warm {
+  border-color: #f2d1bf;
+  background:
+    radial-gradient(circle at top left, rgba(152, 1, 0, 0.08), transparent 38%),
+    linear-gradient(180deg, #fffaf7, #ffffff);
+}
+
+.sonification-feedback--danger {
+  border-color: #f0c4c4;
+  background:
+    radial-gradient(circle at top left, rgba(185, 28, 28, 0.1), transparent 38%),
+    linear-gradient(180deg, #fff7f7, #ffffff);
+}
+
+.sonification-feedback__visual {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  align-items: end;
+  min-height: 72px;
+  padding: 0.5rem;
+}
+
+.sonification-feedback__visual span {
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(23, 32, 51, 0.9), rgba(152, 1, 0, 0.8));
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+.sonification-feedback__visual span:nth-child(1) {
+  height: 34px;
+}
+
+.sonification-feedback__visual span:nth-child(2) {
+  height: 58px;
+}
+
+.sonification-feedback__visual span:nth-child(3) {
+  height: 22px;
+}
+
+.sonification-feedback__content {
+  min-width: 0;
+}
+
+.sonification-feedback__title {
+  margin: 0 0 0.35rem;
+  color: #172033;
+  font-weight: 700;
+}
+
+.sonification-feedback__description {
+  margin-bottom: 0.45rem;
+  color: #5b677d;
+  line-height: 1.55;
+}
+
+.sonification-feedback__details {
+  margin-bottom: 0.9rem;
+  color: #334155;
+  font-size: 0.92rem;
+  word-break: break-word;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.85rem;
+}
+
+.sonification-feedback__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .sonification-global-alert__layout {
+    flex-direction: column;
+  }
+
+  .sonification-global-alert__actions {
+    justify-content: flex-start;
+  }
+}
+
+.sonification-video-frame {
+  width: 100%;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid #e5ebf3;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 247, 0.92), rgba(255, 255, 255, 0.96)),
+    radial-gradient(circle at top left, rgba(152, 1, 0, 0.08), transparent 36%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.sonification-video-frame video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #0f172a;
+}
+
+.sonification-download {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .sonification-method-group {
+    grid-template-columns: 1fr;
+  }
+
+  .sonification-feedback {
+    grid-template-columns: 1fr;
+  }
+
+  .sonification-feedback__visual {
+    min-height: 46px;
+    max-width: 160px;
+  }
+
+  .sonification-control-actions {
+    grid-template-columns: 1fr;
+  }
+}

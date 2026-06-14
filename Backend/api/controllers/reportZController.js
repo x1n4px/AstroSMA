@@ -323,6 +323,7 @@ const getReportZ = async (req, res) => {
 
         const [obs1] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número]);
         const [obs2] = await pool.query('SELECT * FROM Observatorio o WHERE o.Número = ?', [report[0].Observatorio_Número2]);
+        const [parametricEquation] = await pool.query('SELECT * FROM Ecuacion_parametrica WHERE IdEc = ?', [report[0].Ecuacion_parametrica_IdEc]);
         const [zwo] = await pool.query('SELECT * FROM Puntos_ZWO WHERE Informe_Z_IdInforme = ?', [id]);
         const [orbitalElement] = await pool.query(`
                 SELECT 
@@ -413,6 +414,7 @@ const getReportZ = async (req, res) => {
             orbitalElement: orbitalElement,
             trajectory: trajectory,
             regressionTrajectory: regressionTrajectory,
+            parametricEquation: parametricEquation[0] || null,
             activeShower: IMOS,
             photometryReport: photometryReport,
             slopeMap: slopeMap,
@@ -627,24 +629,26 @@ const getReportZListFromRain = async (req, res) => {
         }
 
 
-        // 2. Fetch the established shower data for this code from established_meteor_showers
+        // 2. Fetch the established shower data for this code from the canonical IAU catalog.
         // We fetch all relevant parameters needed for the calculateMembership function.
         const [establishedShowerData] = await pool.query(`SELECT 
-                                                                ms.Code, 
-                                                                ms.Activity, 
-                                                                ms.ShowerNameDesignation, 
-                                                                ms.SubDate, ROUND(AVG(ms.Ra), 3) AS Ar, 
+                                                                ms.Code,
+                                                                MIN(NULLIF(TRIM(ms.Activity), '')) AS Activity,
+                                                                MIN(NULLIF(TRIM(ms.ShowerNameDesignation), '')) AS ShowerNameDesignation,
+                                                                MAX(ms.SubDate) AS SubDate,
+                                                                ROUND(AVG(ms.Ra), 3) AS Ar,
                                                                 ROUND(AVG(ms.De), 3) AS De, 
                                                                 ROUND(AVG(ms.E), 3) AS e, 
                                                                 ROUND(AVG(ms.A), 3) AS a, 
                                                                 ROUND(AVG(ms.Q), 3) AS q, 
                                                                 ROUND(AVG(ms.Incl), 3) AS i 
                                                                 FROM meteor_showers ms 
-                                                                WHERE ms.Code = ?;`, [showerCode]);
+                                                                WHERE ms.Code = ?
+                                                                GROUP BY ms.Code;`, [showerCode]);
 
 
         if (establishedShowerData.length === 0) {
-            console.error(`Established shower data not found for code '${showerCode}' in established_meteor_showers. Cannot calculate membership.`);
+            console.error(`Established shower data not found for code '${showerCode}' in meteor_showers. Cannot calculate membership.`);
             return res.status(404).json({ error: `Established shower data not found for code '${showerCode}'.` });
         }
 
@@ -886,7 +890,8 @@ async function IMOShowers(id) {
         FROM Lluvia_activa la  
         LEFT JOIN Informe_Z iz ON iz.IdInforme = la.Informe_Z_IdInforme 
         LEFT JOIN Lluvia l ON l.Identificador = la.Lluvia_Identificador AND l.Año = la.Lluvia_Año 
-        WHERE iz.IdInforme = ?;
+        WHERE iz.IdInforme = ?
+        AND la.Lluvia_Año = YEAR(iz.Fecha);
     `, [report.IdInforme]);
     let lluvias_datos = [];
 

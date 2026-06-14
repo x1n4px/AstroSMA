@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { ConstructionIcon } from 'lucide-react';
 import { getIpAndLocation } from './networkService'
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -8,6 +7,7 @@ export const loginUser = async (credentials) => {
     try {
         // Obtener la IP y la ubicación del usuario
         const ipLocationData = await getIpAndLocation();
+        const headers = ipLocationData?.ip ? { 'X-Client-IP': ipLocationData.ip } : {};
         const response = await axios.post(
             `${apiUrl}/login`,
             {
@@ -16,11 +16,7 @@ export const loginUser = async (credentials) => {
                 isMobile: credentials.isMobile,
                 ipLocationData: ipLocationData
             },
-            {
-                headers: {
-                    'X-Client-IP': ipLocationData?.ip // o simplemente ip si lo tienes separado
-                }
-            }
+            { headers }
         );
         
         // Si la llamada es exitosa y la respuesta contiene un token

@@ -13,7 +13,7 @@ function resolveReportPath(report) {
     return `/radiant-report/${report.reportId}`;
   }
 
-  return `/report/${report.reportId}`;
+  return `/report/${report.reportId}/RADIANT`;
 }
 
 function formatTime(value) {

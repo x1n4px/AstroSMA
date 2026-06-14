@@ -126,7 +126,22 @@ Configura `Frontend/.env`:
 VITE_API_URL=http://localhost:3005/api
 ```
 
-5. Arranque en local:
+5. Sonificacion:
+
+```bash
+cd ../sonificacion/python-backend
+cp .env.example .env
+sh setup.sh
+.venv/bin/python endpoint.py
+```
+
+Este servidor lee las detecciones desde:
+
+```text
+/home/in4p/git/sma/tfg-pub/Detecciones
+```
+
+6. Arranque en local:
 
 En una terminal (backend):
 

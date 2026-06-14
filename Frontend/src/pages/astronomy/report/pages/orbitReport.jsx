@@ -2,11 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { formatDate } from '@/pipe/formatDate';
 import OrbitalView3D from '@/components/three/OrbitalView3D';
 import {
   ReportPanel,
-  ReportField,
   ReportMetricCard,
   ReportMetricsGrid,
   ReportSelectField,
@@ -32,9 +30,28 @@ function twoDecimals(value) {
   return Number.isFinite(parsed) ? parsed.toFixed(2) : firstToken(value);
 }
 
+function formatValue(value, unit = '') {
+  const text = firstToken(value);
+  return unit ? `${text} ${unit}` : text;
+}
+
+function resolveOrbitOption(item, index, isEnglish) {
+  const raw = String(item?.Calculados_con || '').toLowerCase();
+  if (raw.includes('media') || index === 1) {
+    return isEnglish ? 'Mean velocity' : 'Velocidad media';
+  }
+  if (raw.includes('aceler') || index === 0) {
+    return isEnglish
+      ? 'Velocity fitted to uniformly accelerated motion'
+      : 'Velocidad ajustada a movimiento uniformemente acelerado';
+  }
+  return item?.Calculados_con || (isEnglish ? `Orbital solution ${index + 1}` : `Solución orbital ${index + 1}`);
+}
+
 const OrbitReport = ({ orbit, reportDate }) => {
-  const { t } = useTranslation(['text']);
+  const { t, i18n } = useTranslation(['text']);
   const [selectedOrbitIndex, setSelectedOrbitIndex] = useState(0);
+  const isEnglish = i18n.language?.startsWith('en');
 
   useEffect(() => {
     if (orbit && orbit.length === 1) {
@@ -44,20 +61,26 @@ const OrbitReport = ({ orbit, reportDate }) => {
 
   const selectedOrbit = orbit?.[selectedOrbitIndex];
 
-  const summaryMetrics = useMemo(() => {
+  const orbitalMetrics = useMemo(() => {
     if (!selectedOrbit) {
       return [];
     }
 
     return [
-      { label: t('ORBIT_REPORT.DATE.label'), value: formatDate(selectedOrbit.date) },
-      { label: t('ORBIT_REPORT.HOUR.label'), value: selectedOrbit.time || '-' },
-      { label: t('ORBIT_REPORT.A.label'), value: firstToken(selectedOrbit.a) },
-      { label: t('ORBIT_REPORT.E.label'), value: firstToken(selectedOrbit.e) },
-      { label: t('ORBIT_REPORT.I.label'), value: firstToken(selectedOrbit.i) },
-      { label: t('ORBIT_REPORT.Q.label'), value: firstToken(selectedOrbit.q) }
+      { label: isEnglish ? 'Velocity at infinity' : 'Velocidad en el infinito', value: formatValue(selectedOrbit.Vel__Inf, 'Km/s') },
+      { label: isEnglish ? 'Geocentric velocity' : 'Velocidad geocéntrica', value: formatValue(selectedOrbit.Vel__Geo, 'Km/s') },
+      { label: isEnglish ? 'Geocentric radiant right ascension J2000' : 'Ascensión recta geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.Ar, '°') },
+      { label: isEnglish ? 'Geocentric radiant declination J2000' : 'Declinación geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.De, '°') },
+      { label: 'a', value: formatValue(selectedOrbit.a, 'UA') },
+      { label: 'e', value: firstToken(selectedOrbit.e) },
+      { label: 'i', value: formatValue(selectedOrbit.i, '°') },
+      { label: 'omega J2000', value: formatValue(selectedOrbit.omega, '°') },
+      { label: isEnglish ? 'Omega at date' : 'Omega a la fecha', value: formatValue(twoDecimals(selectedOrbit.Omega_grados_votos_max_min), '°') },
+      { label: 'p', value: formatValue(twoDecimals(selectedOrbit.p), 'UA') },
+      { label: 'q', value: formatValue(selectedOrbit.q, 'UA') },
+      { label: 'T', value: firstToken(selectedOrbit.T) }
     ];
-  }, [selectedOrbit, t]);
+  }, [selectedOrbit, isEnglish]);
 
   const canRender3D = useMemo(() => {
     if (!selectedOrbit) {
@@ -82,7 +105,7 @@ const OrbitReport = ({ orbit, reportDate }) => {
       <Row className="g-4">
         {orbit.length > 1 ? (
           <Col xs={12}>
-            <ReportPanel title="Seleccion orbital" description="Elige la solucion orbital que quieres inspeccionar.">
+            <ReportPanel title="Selección orbital" description="Elija la solución orbital que quiere inspeccionar.">
               <ReportSelectField
                 label={t('ORBIT_REPORT.SELECT_OPT.LABEL')}
                 value={selectedOrbitIndex}
@@ -90,7 +113,7 @@ const OrbitReport = ({ orbit, reportDate }) => {
               >
                 {orbit.map((item, index) => (
                   <option key={`${item.date}-${item.time}-${index}`} value={index}>
-                    {formatDate(item.date)} - {item.time}
+                    {resolveOrbitOption(item, index, isEnglish)}
                   </option>
                 ))}
               </ReportSelectField>
@@ -102,39 +125,15 @@ const OrbitReport = ({ orbit, reportDate }) => {
           <>
             <Col xs={12}>
               <ReportPanel
-                title="Resumen orbital"
-                description={`Vista sintetica de la solucion orbital${reportDate ? ` para el informe del ${reportDate}` : ''}.`}
+                title="Elementos orbitales"
+                description={reportDate ? `Solución orbital para el informe del ${reportDate}.` : ''}
                 accent="warm"
               >
                 <ReportMetricsGrid>
-                  {summaryMetrics.map(metric => (
+                  {orbitalMetrics.map(metric => (
                     <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
                   ))}
                 </ReportMetricsGrid>
-              </ReportPanel>
-            </Col>
-
-            <Col xs={12} lg={6}>
-              <ReportPanel title="Dinamica heliocentrica" description="Velocidades y parametros fisicos principales.">
-                <ReportField label={t('ORBIT_REPORT.DATE.label')} value={formatDate(selectedOrbit.date)} />
-                <ReportField label={t('ORBIT_REPORT.AR.label')} value={firstToken(selectedOrbit.Ar)} />
-                <ReportField label={t('ORBIT_REPORT.VELOCITY_INF.label')} value={firstToken(selectedOrbit.Vel__Inf)} controlClassName={toNumber(selectedOrbit.Vel__Inf) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.VELOCITY_GEOM.label')} value={firstToken(selectedOrbit.Vel__Geo)} controlClassName={toNumber(selectedOrbit.Vel__Geo) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.E.label')} value={firstToken(selectedOrbit.e)} controlClassName={toNumber(selectedOrbit.e) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.Q.label')} value={firstToken(selectedOrbit.q)} controlClassName={toNumber(selectedOrbit.q) <= 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.OMEGA.label')} value={firstToken(selectedOrbit.omega)} />
-              </ReportPanel>
-            </Col>
-
-            <Col xs={12} lg={6}>
-              <ReportPanel title="Geometria orbital" description="Orientacion espacial y elementos derivados de la orbita.">
-                <ReportField label={t('ORBIT_REPORT.HOUR.label')} value={selectedOrbit.time} />
-                <ReportField label={t('ORBIT_REPORT.DE.label')} value={firstToken(selectedOrbit.De)} />
-                <ReportField label={t('ORBIT_REPORT.I.label')} value={firstToken(selectedOrbit.i)} />
-                <ReportField label={t('ORBIT_REPORT.P.label')} value={twoDecimals(selectedOrbit.p)} />
-                <ReportField label={t('ORBIT_REPORT.A.label')} value={firstToken(selectedOrbit.a)} controlClassName={toNumber(selectedOrbit.a) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.T.label')} value={firstToken(selectedOrbit.T)} controlClassName={toNumber(selectedOrbit.T) < 0 ? 'border-danger text-danger' : ''} />
-                <ReportField label={t('ORBIT_REPORT.OMEGA_DEGREE.label')} value={twoDecimals(selectedOrbit.Omega_grados_votos_max_min)} />
               </ReportPanel>
             </Col>
 

@@ -6,6 +6,7 @@ const BolideRoute = require('./routes/bolideRoute')
 const AuthRoute = require('./routes/authRoute')
 const UserRoute = require('./routes/userRoute')
 const ReportZRoute = require('./routes/reportZRoute')
+const SonificationRoute = require('./routes/sonificationRoute')
 const AuxiliaryRoute = require('./routes/auxiliaryRoute')
 const DashboardRoute = require('./routes/dashboardRoute')
 const PhotometryRoute = require('./routes/photometryRoute')
@@ -32,6 +33,7 @@ app.use('/api', BolideRoute);
 app.use('/api', AuthRoute);
 app.use('/api', UserRoute);
 app.use('/api', ReportZRoute);
+app.use('/api', SonificationRoute);
 app.use('/api', AuxiliaryRoute);
 app.use('/api', DashboardRoute);
 app.use('/api', PhotometryRoute);

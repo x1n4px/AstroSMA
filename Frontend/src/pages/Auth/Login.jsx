@@ -40,12 +40,13 @@ function Login({ onLogin }) {
 
     } catch (error) {
       console.log(error)
-      console.error('Login error:', error.response.status === 403);
-      if (error.response.status === 403) {
+      const status = error.response?.status;
+      console.error('Login error:', status);
+      if (status === 403) {
         setError(t('REGISTER.ERROR.FORBIDDEN'));
-      } else if (error.response.status === 404) {
+      } else if (status === 404) {
         setError(t('REGISTER.ERROR.NOT_FOUND'));
-      } else if (error.response.status === 401) {
+      } else if (status === 401) {
         setError(t('REGISTER.ERROR.CREDENTIALS'));
       } else {
         setError(t('REGISTER.ERROR.GENERAL'));

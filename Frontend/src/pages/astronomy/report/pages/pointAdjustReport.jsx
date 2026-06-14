@@ -47,42 +47,38 @@ DataTable.propTypes = {
   rowKey: PropTypes.func.isRequired
 };
 
-const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajectoryData }) => {
+function formatFitsDateTime(row) {
+  const date = formatDate(row.Fecha);
+  const time = String(row.Hora || '').substring(0, 8);
+  return date && time ? `${date}T${time}` : date || time || '-';
+}
+
+const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
   const { t } = useTranslation(['text']);
 
   const summaryMetrics = [
-    { label: 'Puntos de ajuste', value: zwoAdjustmentPoints.length },
-    { label: 'Puntos de regresion', value: regressionTrajectory.length },
-    { label: 'Puntos de trayectoria', value: trajectoryData.length }
-  ];
-
-  const zwoColumns = [
-    { key: 'date', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.DATE'), render: row => formatDate(row.Fecha) },
-    { key: 'hour', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.HOUR'), render: row => row.Hora },
-    { key: 'ar', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.Ar_Grados'), render: row => truncateDecimal(row.Ar_Grados) },
-    { key: 'de', label: t('REPORT.POINT_ADJUST.ZWO.TABLE.HEADER.De_Grados'), render: row => truncateDecimal(row.De_Grados) }
+    { label: 'Número de fotogramas usados para trayectoria', value: trajectoryData.length },
+    { label: 'Número de fotogramas usados para velocidad', value: regressionTrajectory.length }
   ];
 
   const regressionColumns = [
-    { key: 'date', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.DATE'), render: row => formatDate(row.Fecha) },
-    { key: 'hour', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.HOUR'), render: row => row.Hora },
+    { key: 'dateTime', label: 'Fecha/hora', render: row => formatFitsDateTime(row) },
     { key: 't', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.t'), render: row => truncateDecimal(row.t) },
     { key: 's', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.s'), render: row => truncateDecimal(row.s) },
     { key: 'v', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.v'), render: row => truncateDecimal(row.v_Kms) }
   ];
 
   const trajectoryColumns = [
-    { key: 'date', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DATE'), render: row => formatDate(row.Fecha) },
-    { key: 'hour', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.HOUR'), render: row => row.Hora },
+    { key: 'dateTime', label: 'Fecha/hora', render: row => formatFitsDateTime(row) },
     { key: 's', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S'), render: row => truncateDecimal(row.s) },
     { key: 't', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T'), render: row => truncateDecimal(row.t) },
     { key: 'v', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V'), render: row => truncateDecimal(row.v) },
     { key: 'lambda', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA'), render: row => truncateDecimal(row.lambda) },
     { key: 'phi', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI'), render: row => truncateDecimal(row.phi) },
-    { key: 'ra1', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '1' }), render: row => truncateDecimal(row.AR_Estacion_1) },
-    { key: 'de1', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '1' }), render: row => truncateDecimal(row.De_Estacion_1) },
-    { key: 'ra2', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.RA', { id: '2' }), render: row => truncateDecimal(row.Ar_Estacion_2) },
-    { key: 'de2', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.DE', { id: '2' }), render: row => truncateDecimal(row.De_Estacion_2) }
+    { key: 'ra1', label: 'RA (estación 1) (grados)', render: row => truncateDecimal(row.AR_Estacion_1, 5) },
+    { key: 'de1', label: 'De (estación 1) (grados)', render: row => truncateDecimal(row.De_Estacion_1, 5) },
+    { key: 'ra2', label: 'RA (estación 2) (grados)', render: row => truncateDecimal(row.Ar_Estacion_2, 5) },
+    { key: 'de2', label: 'De (estación 2) (grados)', render: row => truncateDecimal(row.De_Estacion_2, 5) }
   ];
 
   return (
@@ -90,8 +86,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
       <Row className="g-4">
         <Col xs={12}>
           <ReportPanel
-            title="Resumen de ajuste"
-            description="Inventario de puntos utilizados para ajuste, regresion y trayectoria observada."
+            title="Fotogramas"
             accent="warm"
           >
             <ReportMetricsGrid>
@@ -103,21 +98,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
         </Col>
 
         <Col xs={12}>
-          <ReportPanel title={t('REPORT.POINT_ADJUST.ZWO.TITLE')} description="Puntos utilizados para calibracion angular.">
-            {zwoAdjustmentPoints.length > 0 ? (
-              <DataTable
-                columns={zwoColumns}
-                rows={zwoAdjustmentPoints}
-                rowKey={(row, index) => `${row.Fecha}-${row.X}-${index}`}
-              />
-            ) : (
-              <ReportEmptyState message="No hay puntos de ajuste disponibles." />
-            )}
-          </ReportPanel>
-        </Col>
-
-        <Col xs={12}>
-          <ReportPanel title={t('REPORT.POINT_ADJUST.TRAJECTORY.TITLE')} description="Detalle completo de la trayectoria medida y sus coordenadas derivadas.">
+          <ReportPanel title="Trayectoria" description="Datos de cada fotograma.">
             {trajectoryData.length > 0 ? (
               <DataTable
                 columns={trajectoryColumns}
@@ -131,7 +112,7 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
         </Col>
 
         <Col xs={12}>
-          <ReportPanel title={t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TITLE')} description="Serie temporal derivada por regresion para la trayectoria.">
+          <ReportPanel title="Ajuste de velocidades" description="Velocidad ajustada a un polinomio de segundo grado.">
             {regressionTrajectory.length > 0 ? (
               <DataTable
                 columns={regressionColumns}
@@ -149,13 +130,11 @@ const PointAdjustReport = ({ zwoAdjustmentPoints, regressionTrajectory, trajecto
 };
 
 PointAdjustReport.propTypes = {
-  zwoAdjustmentPoints: PropTypes.arrayOf(PropTypes.object),
   regressionTrajectory: PropTypes.arrayOf(PropTypes.object),
   trajectoryData: PropTypes.arrayOf(PropTypes.object)
 };
 
 PointAdjustReport.defaultProps = {
-  zwoAdjustmentPoints: [],
   regressionTrajectory: [],
   trajectoryData: []
 };

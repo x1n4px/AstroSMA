@@ -4,8 +4,21 @@ const pool = require('../database/connection');
 const checkUserBlockedByIp = async (req, res, next) => {
     try {
         const clientIp = req.header('x-client-ip');
+        const { email } = req.body;
+
+        if (email) {
+            const [userRows] = await pool.query(
+                'SELECT is_blocked FROM user WHERE email = ?',
+                [email]
+            );
+
+            if (userRows[0]?.is_blocked) {
+                return res.status(403).json({ message: 'Access denied: user is blocked' });
+            }
+        }
+
         if (!clientIp) {
-            return res.status(400).json({ message: 'Missing IP address in headers' });
+            return next();
         }
 
         // Buscar la IP en la tabla user_ips
@@ -21,16 +34,16 @@ const checkUserBlockedByIp = async (req, res, next) => {
         const userId = ipRows[0].user_id;
 
         // Buscar el usuario y su estado de bloqueo
-        const [userRows] = await pool.query(
+        const [userRowsByIp] = await pool.query(
             'SELECT is_blocked FROM user WHERE id = ?',
             [userId]
         );
 
-        if (userRows.length === 0) {
+        if (userRowsByIp.length === 0) {
             return res.status(404).json({ message: 'User not found for this IP address' });
         }
 
-        if (userRows[0].is_blocked) {
+        if (userRowsByIp[0].is_blocked) {
             return res.status(403).json({ message: 'Access denied: user is blocked' });
         }
 

@@ -31,16 +31,24 @@ function formatMetric(value, unit = '', decimalPlaces = 3) {
   return unit ? `${truncated} ${unit}` : truncated;
 }
 
-function getAverage(values) {
-  const validValues = values
-    .map(value => Number(value))
-    .filter(Number.isFinite);
+function extractNumbers(value) {
+  if (!value) return [];
+  return String(value).match(/[+-]?\d+(?:[.,]\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
+}
 
-  if (validValues.length === 0) {
-    return null;
-  }
+function formatVector(value, decimals) {
+  const numbers = Array.isArray(value) ? value : extractNumbers(value);
+  if (!numbers.length) return '-';
+  return numbers.map(item => Number.isFinite(item) ? item.toFixed(decimals) : '-').join(' ');
+}
 
-  return validValues.reduce((sum, value) => sum + value, 0) / validValues.length;
+function formatMotionEquation(value) {
+  const [a, b, c] = extractNumbers(value);
+  const parts = [];
+  if (Number.isFinite(a)) parts.push(`a = ${a.toFixed(6)}`);
+  if (Number.isFinite(b)) parts.push(`b = ${b.toFixed(6)}`);
+  if (Number.isFinite(c)) parts.push(`c = ${c.toFixed(6)}`);
+  return parts.length ? parts.join(', ') : '-';
 }
 
 function StationMetricsPanel({ title, metrics }) {
@@ -63,54 +71,36 @@ StationMetricsPanel.propTypes = {
   })).isRequired
 };
 
-const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, regressionTrajectory }) => {
+const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, regressionTrajectory, parametricEquation }) => {
   const { t } = useTranslation(['text']);
 
   if (!reportData) {
     return <ReportEmptyState message={t('REPORT.PENDING.NO_DATA')} />;
   }
 
-  const station1Distance = Number(reportData.trajectoryStartStation1?.distance) - Number(reportData.trajectoryEndStation1?.distance);
-  const station2Distance = Number(reportData.trajectoryStartStation2?.distance) - Number(reportData.trajectoryEndStation2?.distance);
-  const visibleStartHeight = getAverage([
-    reportData.trajectoryStartStation1?.height,
-    reportData.trajectoryStartStation2?.height
-  ]);
-  const visibleEndHeight = getAverage([
-    reportData.trajectoryEndStation1?.height,
-    reportData.trajectoryEndStation2?.height
-  ]);
   const predictedImpact = reportData.predictedImpact
     ? formatCoordinate(reportData.predictedImpact)
     : '-';
 
   const station1Metrics = [
     { label: t('REPORT.PENDING.START_COORDINATES'), value: formatCoordinate(reportData.trajectoryStartStation1) },
-    { label: t('REPORT.PENDING.END_COORDINATES'), value: formatCoordinate(reportData.trajectoryEndStation1) },
     { label: t('REPORT.PENDING.INITIAL_DISTANCE'), value: formatMetric(reportData.trajectoryStartStation1?.distance, 'Km') },
-    { label: t('REPORT.PENDING.FINAL_DISTANCE'), value: formatMetric(reportData.trajectoryEndStation1?.distance, 'Km') },
     { label: t('REPORT.PENDING.INITIAL_HEIGHT'), value: formatMetric(reportData.trajectoryStartStation1?.height, 'Km') },
+    { label: t('REPORT.PENDING.END_COORDINATES'), value: formatCoordinate(reportData.trajectoryEndStation1) },
+    { label: t('REPORT.PENDING.FINAL_DISTANCE'), value: formatMetric(reportData.trajectoryEndStation1?.distance, 'Km') },
     { label: t('REPORT.PENDING.FINAL_HEIGHT'), value: formatMetric(reportData.trajectoryEndStation1?.height, 'Km') }
   ];
 
   const station2Metrics = [
     { label: t('REPORT.PENDING.START_COORDINATES'), value: formatCoordinate(reportData.trajectoryStartStation2) },
-    { label: t('REPORT.PENDING.END_COORDINATES'), value: formatCoordinate(reportData.trajectoryEndStation2) },
     { label: t('REPORT.PENDING.INITIAL_DISTANCE'), value: formatMetric(reportData.trajectoryStartStation2?.distance, 'Km') },
-    { label: t('REPORT.PENDING.FINAL_DISTANCE'), value: formatMetric(reportData.trajectoryEndStation2?.distance, 'Km') },
     { label: t('REPORT.PENDING.INITIAL_HEIGHT'), value: formatMetric(reportData.trajectoryStartStation2?.height, 'Km') },
+    { label: t('REPORT.PENDING.END_COORDINATES'), value: formatCoordinate(reportData.trajectoryEndStation2) },
+    { label: t('REPORT.PENDING.FINAL_DISTANCE'), value: formatMetric(reportData.trajectoryEndStation2?.distance, 'Km') },
     { label: t('REPORT.PENDING.FINAL_HEIGHT'), value: formatMetric(reportData.trajectoryEndStation2?.height, 'Km') }
   ];
 
   const summaryMetrics = [
-    {
-      label: 'Inicio visible medio',
-      value: visibleStartHeight !== null ? formatMetric(visibleStartHeight, 'Km') : '-'
-    },
-    {
-      label: 'Fin visible medio',
-      value: visibleEndHeight !== null ? formatMetric(visibleEndHeight, 'Km') : '-'
-    },
     {
       label: t('REPORT.PENDING.AVERAGE_VELOCITY'),
       value: formatMetric(reportData.averageVelocity, 'Km/s')
@@ -125,11 +115,11 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
     },
     {
       label: `${t('REPORT.PENDING.DISTANCE_TRAVELLED', { id: '1' })}`,
-      value: formatMetric(station1Distance, 'Km')
+      value: formatMetric(reportData.distanceTraveledStation1, 'Km')
     },
     {
       label: `${t('REPORT.PENDING.DISTANCE_TRAVELLED', { id: '2' })}`,
-      value: formatMetric(station2Distance, 'Km')
+      value: formatMetric(reportData.distanceTraveledStation2, 'Km')
     },
     {
       label: `${t('REPORT.PENDING.TIME_TRAVELLED', { id: '1' })}`,
@@ -140,36 +130,45 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
       value: formatMetric(reportData.trajectoryTimeStation2, 's')
     },
     {
-      label: 'Impacto previsto',
+      label: 'Intersección con la Tierra (Lat. y long.)',
       value: predictedImpact
     },
     {
-      label: 'Puntos de trayectoria',
-      value: Array.isArray(trajectoryData) ? String(trajectoryData.length) : '0'
+      label: t('INFERRED_DATA.DIHEDRAL_ANGLE_BTW_PLANES.label'),
+      value: formatMetric(reportData.trajectoryPlanesDihedralAngle, '°')
     },
     {
-      label: 'Puntos de regresion',
+      label: 'Fotogramas usados para trayectoria',
+      value: String(reportData.usedFrames ?? (Array.isArray(trajectoryData) ? trajectoryData.length : 0))
+    },
+    {
+      label: 'Fotogramas usados para velocidad',
       value: Array.isArray(regressionTrajectory) ? String(regressionTrajectory.length) : '0'
+    }
+  ];
+
+  const equationMetrics = [
+    {
+      label: 'Vector de posición del inicio (Km)',
+      value: formatVector(parametricEquation?.Inicio_Estacion_1, 3)
+    },
+    {
+      label: 'Vector dirección del radiante',
+      value: formatVector([parametricEquation?.a, parametricEquation?.b, parametricEquation?.c], 6)
+    },
+    {
+      label: 'Ecuación del movimiento (e=at²+bt+c)',
+      value: formatMotionEquation(reportData.motionEquationKms)
+    },
+    {
+      label: t('REPORT.PENDING.ACCELERATION'),
+      value: formatMetric(reportData.accelerationKms, 'Km/s²')
     }
   ];
 
   return (
     <Container fluid className="px-0">
       <Row className="g-4">
-        <Col xs={12}>
-          <ReportPanel
-            title="Resumen dinamico"
-            description="Sintesis de velocidades, tiempos y parametros globales del tramo atmosferico."
-            accent="warm"
-          >
-            <ReportMetricsGrid>
-              {summaryMetrics.map(metric => (
-                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
-              ))}
-            </ReportMetricsGrid>
-          </ReportPanel>
-        </Col>
-
         <Col xs={12} lg={6}>
           <StationMetricsPanel
             title={t('REPORT.PENDING.STATION_DETAILS', { id: reportData.ob1 })}
@@ -182,6 +181,32 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
             title={t('REPORT.PENDING.STATION_DETAILS', { id: reportData.ob2 })}
             metrics={station2Metrics}
           />
+        </Col>
+
+        <Col xs={12}>
+          <ReportPanel
+            title="Características de la trayectoria"
+            accent="warm"
+          >
+            <ReportMetricsGrid>
+              {summaryMetrics.map(metric => (
+                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+              ))}
+            </ReportMetricsGrid>
+          </ReportPanel>
+        </Col>
+
+        <Col xs={12}>
+          <ReportPanel
+            title="Ecuación de la trayectoria"
+            description="Ajuste a un polinomio de segundo grado."
+          >
+            <ReportMetricsGrid>
+              {equationMetrics.map(metric => (
+                <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
+              ))}
+            </ReportMetricsGrid>
+          </ReportPanel>
         </Col>
 
         <Col xs={12}>
@@ -201,10 +226,9 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
 
         <Col xs={12}>
           <ReportPanel
-            title="Entrada atmosferica, origen simulado y desaparicion teorica"
-            description="Vista global del trayecto completo desde la aproximacion simulada hasta el tramo visible reconstruido."
+            title="Trayectoria 3D"
+            description="Arrastre para rotar, use la rueda para acercar o alejar y click derecho para desplazar la vista."
             accent="warm"
-            eyebrow="Trayectoria 3D completa"
           >
             <CompleteTrajectoryView3D
               reportData={reportData}
@@ -217,10 +241,9 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
 
         <Col xs={12}>
           <ReportPanel
-            title="Plano 2D de Espana con trayectoria 3D y sombra"
-            description="Representacion rotatoria del bolido: linea 3D en altura y su proyeccion sobre el plano 2D de Espana."
+            title="Trayectoria 3D y proyección"
+            description="Arrastre para rotar, use la rueda para acercar o alejar y click derecho para desplazar la vista."
             accent="cool"
-            eyebrow="Plano + Volumen"
           >
             <SpainBolidePlane3D
               reportData={reportData}
@@ -238,7 +261,8 @@ PendingReport.propTypes = {
   observatory: PropTypes.arrayOf(PropTypes.object),
   slopeMapData: PropTypes.arrayOf(PropTypes.object),
   trajectoryData: PropTypes.arrayOf(PropTypes.object),
-  regressionTrajectory: PropTypes.arrayOf(PropTypes.object)
+  regressionTrajectory: PropTypes.arrayOf(PropTypes.object),
+  parametricEquation: PropTypes.object
 };
 
 PendingReport.defaultProps = {
@@ -246,7 +270,8 @@ PendingReport.defaultProps = {
   observatory: [],
   slopeMapData: [],
   trajectoryData: [],
-  regressionTrajectory: []
+  regressionTrajectory: [],
+  parametricEquation: null
 };
 
 export default PendingReport;
