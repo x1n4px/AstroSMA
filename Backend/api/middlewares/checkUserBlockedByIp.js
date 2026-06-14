@@ -3,8 +3,10 @@ const pool = require('../database/connection');
 
 const checkUserBlockedByIp = async (req, res, next) => {
     try {
-        const clientIp = req.header('x-client-ip');
-        const { email } = req.body;
+        const clientIp = req.headers['x-forwarded-for'] ||
+            req.headers['x-real-ip'] ||
+            req.ip ||
+            req.socket.remoteAddress; const { email } = req.body;
 
         if (email) {
             const [userRows] = await pool.query(
