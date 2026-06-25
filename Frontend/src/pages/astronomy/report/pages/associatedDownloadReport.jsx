@@ -17,7 +17,7 @@ const downloadItems = [
     fileName: 'UFOORBIT.tgz',
     translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
     translationValues: { name: 'UFOORBIT' },
-    description: 'Paquete comprimido listo para procesado orbital.'
+    description: 'Ficheros csv que pueden ser usados como entrada de datos para UFOORBIT'
   },
   {
     id: 'wmpl',
@@ -25,7 +25,7 @@ const downloadItems = [
     fileName: 'wmpl.txt',
     translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
     translationValues: { name: 'WMPL' },
-    description: 'Exportacion textual adaptada al flujo WMPL.'
+    description: 'Ficheros que sirven como entrada para el software wmpl'
   },
   {
     id: 'gritsevich',
