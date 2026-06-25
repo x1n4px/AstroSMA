@@ -5,9 +5,12 @@ require('dotenv').config();
 
 const getOrbitFile = (req, res) => {
   const {
+    button,
     date,
     time,
     fileName,
+    id1,
+    id2,
     year,
     month,
     day,
@@ -81,15 +84,28 @@ const getOrbitFile = (req, res) => {
   const hasDeteccionesSuffix = normalizedFullPath.endsWith(deteccionesSuffix);
   const deteccionesRoot = normalizedFullPath;
   const baseFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);
-  const filePath = path.resolve(baseFolder, safeFileName);
+  const stationIds = [id1, id2].map((value) => String(value || '').trim()).filter(Boolean);
+  const pairFolders = stationIds.length === 2
+    ? [`${stationIds[0]}-${stationIds[1]}`, `${stationIds[1]}-${stationIds[0]}`]
+    : [];
+  const candidateRoots = button === 'WMPL_PROGRAM'
+    ? [deteccionesRoot]
+    : [
+        baseFolder,
+        ...pairFolders.map((pairFolder) => path.resolve(baseFolder, pairFolder))
+      ];
+  const candidatePaths = candidateRoots.map((candidateRoot) => path.resolve(candidateRoot, safeFileName));
 
   console.log(
     '[getOrbitFile] request=',
     JSON.stringify({
+      button,
       date,
       time,
       fileName,
       safeFileName,
+      id1,
+      id2,
       year: dateParts.year,
       yyyymmdd: formattedDate,
       hhmmss: formattedTime,
@@ -99,29 +115,35 @@ const getOrbitFile = (req, res) => {
     })
   );
   console.log('[getOrbitFile] baseFolder=', baseFolder);
-  console.log('[getOrbitFile] filePath=', filePath);
+  console.log('[getOrbitFile] candidatePaths=', JSON.stringify(candidatePaths));
 
-  if (!filePath.startsWith(`${baseFolder}${path.sep}`) && filePath !== path.join(baseFolder, safeFileName)) {
-    console.warn('[getOrbitFile] INVALID_PATH', filePath);
+  const invalidPath = candidatePaths.find((candidatePath, index) => {
+    const root = candidateRoots[index];
+    return !candidatePath.startsWith(`${root}${path.sep}`) && candidatePath !== path.join(root, safeFileName);
+  });
+
+  if (invalidPath) {
+    console.warn('[getOrbitFile] INVALID_PATH', invalidPath);
     return res.status(400).json({ error: 'Ruta de archivo inválida' });
   }
 
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      console.warn('[getOrbitFile] NOT_FOUND', filePath);
-      return res.status(404).json({
-        error: 'Archivo no encontrado',
-        path: filePath
-      });
-    }
+  const filePath = candidatePaths.find((candidatePath) => fs.existsSync(candidatePath));
 
-    console.log('[getOrbitFile] FOUND', filePath);
-    res.download(filePath, safeFileName, (err) => {
-      if (err) {
-        console.error('[getOrbitFile] SEND_ERROR', filePath, err);
-        res.status(500).send('Error al enviar el archivo');
-      }
+  if (!filePath) {
+    console.warn('[getOrbitFile] NOT_FOUND', JSON.stringify(candidatePaths));
+    return res.status(404).json({
+      error: 'Archivo no encontrado',
+      path: candidatePaths[0],
+      candidates: candidatePaths
     });
+  }
+
+  console.log('[getOrbitFile] FOUND', filePath);
+  res.download(filePath, safeFileName, (err) => {
+    if (err) {
+      console.error('[getOrbitFile] SEND_ERROR', filePath, err);
+      res.status(500).send('Error al enviar el archivo');
+    }
   });
 };
 

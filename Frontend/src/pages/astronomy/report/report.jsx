@@ -10,6 +10,7 @@ import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport'
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import RotationReport from './pages/rotationReport';
+import SonificationReport from '@/pages/astronomy/report/pages/sonification/sonification.jsx';
 import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
 import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
@@ -31,7 +32,18 @@ const Report = () => {
     const params = useParams();
     const navigate = useNavigate();
     const id = params?.reportId || '-1'; // Asegura que id tenga un valor válido
-    const initialTab = params?.tab || 'INFERRED_DATA_TAB'; // Obtiene la pestaña de la URL o usa una por defecto
+    const normalizeTab = (tab) => {
+            const aliases = {
+                INFERRED_DATA_TAB: 'RADIANT',
+                ZWO: 'FRAMES',
+                SONIFICATION_TAB: 'SONIFICATION',
+                ASSOCIATED_DOWNLOAD_LINK: 'RESOURCES',
+                RELATED_REPORTS_TAB: 'OTHER_REPORTS'
+            };
+        return aliases[tab] || tab || 'RADIANT';
+    };
+
+    const initialTab = normalizeTab(params?.tab); // Obtiene la pestaña de la URL o usa una por defecto
 
     const [activeTab, setActiveTab] = useState(initialTab); // Inicializa activeTab con el valor de la URL
     const [reportData, setReportData] = useState(null);
@@ -40,6 +52,7 @@ const Report = () => {
     const [zwoData, setZwoData] = useState(null);
     const [regressionTrajectory, setRegressionTrajectory] = useState(null);
     const [trajectoryData, setTrajectoryData] = useState(null);
+    const [parametricEquation, setParametricEquation] = useState(null);
     const [activeShowerData, setActiveShowerData] = useState([]);
     const [AIUShowerData, setAIUShowerData] = useState([]);
     const [adviceData] = useState([]);
@@ -57,7 +70,7 @@ const Report = () => {
 
     useEffect(() => {
         if (params?.tab && params.tab !== activeTab) {
-            setActiveTab(params.tab);
+            setActiveTab(normalizeTab(params.tab));
         }
     }, [params.tab]);
 
@@ -88,6 +101,7 @@ const Report = () => {
             setPhotometryData(response.photometryReport);
             setRegressionTrajectory(response.regressionTrajectory);
             setTrajectoryData(response.trajectory);
+            setParametricEquation(response.parametricEquation);
             setZwoData(response.zwo);
             setAIUShowerData(response.showers.sort((a, b) => new Date(a.SubDate) - new Date(b.SubDate)));
             setSlopeMapData(response.slopeMap);
@@ -101,7 +115,6 @@ const Report = () => {
     useEffect(() => {
         if (id && id !== '-1') {
             fetchReportData(id);
-            setLoading(false);
         }
     }, [id]);
 
@@ -110,18 +123,18 @@ const Report = () => {
 
     const getTabAdvice = (tabKey) => {
         const tabMap = {
-            //'SUMMARY_TAB': 'SUMMARY_TAB',
-            'INFERRED_DATA_TAB': 'INFERRED_DATA_TAB',
+            'RADIANT': 'INFERRED_DATA_TAB',
             'MAP_TAB': 'MAP_TAB',
             'ACTIVE_RAIN_TAB': 'ACTIVE_RAIN_TAB',
             'STATIONS': 'STATIONS',
             'ORBIT': 'ORBIT',
             'PENDING_TAB': 'PENDING_TAB',
-            'ZWO': 'ZWO',
+            'FRAMES': 'ZWO',
+            'SONIFICATION': 'SONIFICATION',
             'PHOTOMETRY': 'PHOTOMETRY',
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
-            'ASSOCIATED_DOWNLOAD_LINK': 'ASSOCIATED_DOWNLOAD_LINK',
-            'RELATED_REPORTS_TAB': 'RELATED_REPORTS_TAB'
+            'RESOURCES': 'ASSOCIATED_DOWNLOAD_LINK',
+            'OTHER_REPORTS': 'RELATED_REPORTS_TAB'
         };
         const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '1');
         return adviceForTab;
@@ -133,6 +146,31 @@ const Report = () => {
         setActiveTab(tabKey);
         navigate(`/report/${id}/${tabKey}`);
     };
+
+    const resolveStationHeader = (stationNumber, stationLabel) => {
+        const cleanNumber = stationNumber ?? '';
+        if (!stationLabel) {
+            return cleanNumber ? `${cleanNumber}-No tiene` : '';
+        }
+
+        const text = String(stationLabel).trim();
+        const parenthesized = text.match(/^(.*)\(([^)]+)\)$/);
+        if (parenthesized) {
+            return `${parenthesized[2].trim()}-${parenthesized[1].trim()}`;
+        }
+
+        return cleanNumber && !text.startsWith(`${cleanNumber}-`) ? `${cleanNumber}-${text}` : text;
+    };
+
+    const eventTitle = reportData
+        ? [
+            'Evento',
+            formatDate(reportData?.date),
+            reportData?.time?.substring(0, 8) || '',
+            resolveStationHeader(reportData?.observatoryNumber, reportData?.ob1),
+            resolveStationHeader(reportData?.observatoryNumber2, reportData?.ob2)
+        ].filter(Boolean).join(' ')
+        : '';
     if (loading) {
         return <AstronomyLoader />;
     }
@@ -148,10 +186,7 @@ const Report = () => {
                         <Col xs="auto">
                             {reportData && (
                                 <>
-                                    <h1>{t('REPORT.TITLE', { date: formatDate(reportData?.date), hour: reportData?.time.substring(0, 8) })}</h1>
-                                    <h2 className="report-stations-subtitle">
-                                        {[reportData.ob1, reportData.ob2].filter(Boolean).join(' - ')}
-                                    </h2>
+                                    <h1>{eventTitle}</h1>
                                 </>
                             )}
                         </Col>
@@ -178,7 +213,7 @@ const Report = () => {
                                 onGeneratingEnd={() => setGeneratingGemini(false)}
                             />
                         </Tab> */}
-                        <Tab eventKey="INFERRED_DATA_TAB" title={t('REPORT.INFERRED_DATA_TAB')}>
+                        <Tab eventKey="RADIANT" title={t('REPORT.INFERRED_DATA_TAB')}>
 
                             <InferredDataReport data={reportData} />
                             {/* <VideoReport nombreCamara={observatoryName} report={reportData} /> */}
@@ -192,7 +227,7 @@ const Report = () => {
                         {orbitalData.length > 0 && (
                             <Tab eventKey="ORBIT" title={t('REPORT.TRAJECTORY')}>
 
-                                <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} reportDate={formatDate(reportData.Fecha)} />
+                                <OrbitReport orbit={orbitalData} observatory={observatoryData[0]} reportDate={formatDate(reportData.date)} />
                             </Tab>
                         )}
                         <Tab eventKey="PENDING_TAB" title={t('REPORT.PENDING.TITLE')}>
@@ -203,13 +238,18 @@ const Report = () => {
                                 slopeMapData={slopeMapData}
                                 trajectoryData={trajectoryData}
                                 regressionTrajectory={regressionTrajectory}
+                                parametricEquation={parametricEquation}
                             />
                             <RotationReport data={reportData} />
                         </Tab>
 
-                        <Tab eventKey="ZWO" title={t('REPORT.ZWO')}>
+                        <Tab eventKey="FRAMES" title={t('REPORT.ZWO')}>
 
-                            <PointAdjustReport zwoAdjustmentPoints={zwoData} regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
+                            <PointAdjustReport regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
+                        </Tab>
+
+                        <Tab eventKey="SONIFICATION" title={t('REPORT.SONIFICATION.TAB_TITLE')}>
+                            <SonificationReport report={reportData} />
                         </Tab>
 
 
@@ -221,13 +261,13 @@ const Report = () => {
                         )}
 
                         {isNotQRUser(rol) && (
-                            <Tab eventKey="ASSOCIATED_DOWNLOAD_LINK" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
+                            <Tab eventKey="RESOURCES" title={t('REPORT.ASSOCIATED_DOWNLOAD_LINK.TITLE')}>
 
                                 <AssociatedDownloadReport report={reportData} />
                             </Tab>
                         )}
 
-                        <Tab eventKey="RELATED_REPORTS_TAB" title={t('REPORT.RELATED_REPORTS.TAB_TITLE')}>
+                        <Tab eventKey="OTHER_REPORTS" title={t('REPORT.RELATED_REPORTS.TAB_TITLE')}>
                             <RelatedReportsTab reportId={id} meteorId={reportData?.meteorId} currentReportType="REPORT_Z" />
                         </Tab>
 

@@ -7,7 +7,7 @@ import * as THREE from 'three';
 const EARTH_RADIUS_KM = 6371;
 const SCENE_SCALE = 0.00105;
 const EARTH_RADIUS_SCENE = EARTH_RADIUS_KM * SCENE_SCALE;
-const ENTRY_ALTITUDE_FLOOR_KM = 220;
+const ENTRY_ALTITUDE_FLOOR_KM = 250;
 const ENTRY_ALTITUDE_PADDING_KM = 120;
 const SIMULATED_ORIGIN_RADIUS_MULTIPLIER = 3.35;
 const SURFACE_MARKER_RADIUS = 0.045;
@@ -224,8 +224,8 @@ function buildVisibleSamples(reportData, trajectoryData) {
   const endStation1 = extractGeoPoint(reportData?.trajectoryEndStation1);
   const endStation2 = extractGeoPoint(reportData?.trajectoryEndStation2);
 
-  const averagedStart = averageGeoPoint([startStation1, startStation2]);
-  const averagedEnd = averageGeoPoint([endStation1, endStation2]);
+  const averagedStart = startStation1 || averageGeoPoint([startStation1, startStation2]);
+  const averagedEnd = endStation1 || averageGeoPoint([endStation1, endStation2]);
 
   if (!averagedStart || !averagedEnd) {
     return { valid: false, message: 'No hay suficientes coordenadas para reconstruir la trayectoria.' };
@@ -433,35 +433,9 @@ SceneMarker.defaultProps = {
   emissiveIntensity: 0.45
 };
 
-function DirectionCone({ tail, tip }) {
-  const coneTransform = useMemo(() => {
-    const direction = tip.clone().sub(tail).normalize();
-    const position = tip.clone().addScaledVector(direction, -0.28);
-    const quaternion = new THREE.Quaternion().setFromUnitVectors(
-      new THREE.Vector3(0, 1, 0),
-      direction
-    );
-
-    return { position, quaternion };
-  }, [tail, tip]);
-
-  return (
-    <mesh position={coneTransform.position.toArray()} quaternion={coneTransform.quaternion}>
-      <coneGeometry args={[0.11, 0.36, 18]} />
-      <meshStandardMaterial color="#ffd166" emissive="#ffd166" emissiveIntensity={0.65} />
-    </mesh>
-  );
-}
-
-DirectionCone.propTypes = {
-  tail: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  tip: PropTypes.instanceOf(THREE.Vector3).isRequired
-};
-
 export default function CompleteTrajectoryView3D({
   reportData,
   trajectoryData,
-  regressionTrajectory,
   observatory,
   earthTexture
 }) {
@@ -469,23 +443,6 @@ export default function CompleteTrajectoryView3D({
     () => buildTrajectoryScene(reportData, trajectoryData, observatory),
     [reportData, trajectoryData, observatory]
   );
-
-  const metrics = useMemo(() => {
-    if (!sceneData.valid) {
-      return [];
-    }
-
-    return [
-      `Entrada estimada: ${sceneData.entryAltitudeKm.toFixed(1)} km`,
-      `Inicio visible: ${sceneData.startAltitudeKm.toFixed(1)} km`,
-      `Fin visible: ${sceneData.endAltitudeKm.toFixed(1)} km`,
-      `Muestras reconstruidas: ${sceneData.sampleCount}`,
-      `Velocidad media: ${Number.isFinite(toNumber(reportData?.averageVelocity)) ? `${toNumber(reportData.averageVelocity).toFixed(3)} km/s` : 'sin dato'}`,
-      `Aceleracion: ${Number.isFinite(toNumber(reportData?.accelerationKms)) ? `${toNumber(reportData.accelerationKms).toFixed(3)} km/s²` : 'sin dato'}`
-    ];
-  }, [reportData, sceneData]);
-
-  const regressionCount = Array.isArray(regressionTrajectory) ? regressionTrajectory.length : 0;
 
   if (!sceneData.valid) {
     return (
@@ -520,23 +477,15 @@ export default function CompleteTrajectoryView3D({
               <Earth textureUrl={earthTexture} />
             </Suspense>
 
-            <Line points={sceneData.originSegment} color="#fef3c7" lineWidth={1.6} dashed dashSize={0.26} gapSize={0.14} />
-            <Line points={sceneData.entrySegment} color="#ffd166" lineWidth={2.4} dashed dashSize={0.22} gapSize={0.12} />
-            <DirectionCone tail={sceneData.originPoint} tip={sceneData.entryPoint} />
             <Line points={sceneData.visiblePoints} color="#38bdf8" lineWidth={2.8} />
-            <Line points={[sceneData.visibleStartPoint, sceneData.incomingGroundProjection]} color="#94a3b8" lineWidth={1.3} dashed dashSize={0.1} gapSize={0.08} />
-            <Line points={[sceneData.visibleEndPoint, sceneData.endGroundProjection]} color="#f97316" lineWidth={1.3} dashed dashSize={0.1} gapSize={0.08} />
 
-            <SceneMarker position={sceneData.originPoint} label="Origen simulado" color="#fef3c7" radius={PATH_MARKER_RADIUS * 0.82} emissiveIntensity={0.28} />
-            <SceneMarker position={sceneData.entryPoint} label="Entrada" color="#ffd166" radius={PATH_MARKER_RADIUS * 0.95} />
-            <SceneMarker position={sceneData.visibleStartPoint} label="Inicio visible" color="#38bdf8" />
-            <SceneMarker position={sceneData.visibleEndPoint} label="Desaparicion" color="#f97316" />
-            <SceneMarker position={sceneData.incomingGroundProjection} label="Suelo" color="#94a3b8" radius={SURFACE_MARKER_RADIUS} emissiveIntensity={0.18} />
+            <SceneMarker position={sceneData.visibleStartPoint} color="#38bdf8" radius={PATH_MARKER_RADIUS * 0.55} />
+            <SceneMarker position={sceneData.visibleEndPoint} color="#f97316" radius={PATH_MARKER_RADIUS * 0.55} />
 
             {sceneData.predictedImpactPoint ? (
               <>
                 <Line points={[sceneData.visibleEndPoint, sceneData.predictedImpactPoint]} color="#fb7185" lineWidth={1.2} dashed dashSize={0.08} gapSize={0.08} />
-                <SceneMarker position={sceneData.predictedImpactPoint} label="Impacto" color="#fb7185" radius={SURFACE_MARKER_RADIUS} emissiveIntensity={0.25} />
+                <SceneMarker position={sceneData.predictedImpactPoint} color="#fb7185" radius={SURFACE_MARKER_RADIUS * 0.75} emissiveIntensity={0.25} />
               </>
             ) : null}
 
@@ -554,9 +503,8 @@ export default function CompleteTrajectoryView3D({
               <SceneMarker
                 key={item.label}
                 position={item.point}
-                label={item.label}
                 color="#a78bfa"
-                radius={SURFACE_MARKER_RADIUS}
+                radius={SURFACE_MARKER_RADIUS * 0.7}
                 emissiveIntensity={0.22}
               />
             ))}
@@ -574,34 +522,8 @@ export default function CompleteTrajectoryView3D({
         </div>
 
         <div className="complete-trajectory-3d__info">
-          <div className="complete-trajectory-3d__legend-item">
-            <span className="complete-trajectory-3d__swatch complete-trajectory-3d__swatch--earth"></span>
-            Globo terrestre y contexto espacial
-          </div>
-          <div className="complete-trajectory-3d__legend-item">
-            <span className="complete-trajectory-3d__swatch complete-trajectory-3d__swatch--incoming"></span>
-            Llegada simulada desde fuera de la Tierra
-          </div>
-          <div className="complete-trajectory-3d__legend-item">
-            <span className="complete-trajectory-3d__swatch complete-trajectory-3d__swatch--visible"></span>
-            Tramo visible reconstruido con la secuencia de trayectoria
-          </div>
-          <div className="complete-trajectory-3d__legend-item">
-            <span className="complete-trajectory-3d__swatch complete-trajectory-3d__swatch--impact"></span>
-            Desaparicion y proyecciones sobre la superficie
-          </div>
-
-          <div className="complete-trajectory-3d__metrics">
-            {metrics.map(metric => (
-              <div key={metric} className="complete-trajectory-3d__metric">{metric}</div>
-            ))}
-            {regressionCount > 0 ? (
-              <div className="complete-trajectory-3d__metric">Puntos de regresion: {regressionCount}</div>
-            ) : null}
-          </div>
-
           <div className="complete-trajectory-3d__note">
-            El tramo visible se apoya en la trayectoria medida y se suaviza en 3D. La extension exterior simula la aproximacion previa al contacto con la atmosfera usando la direccion de entrada inferida a partir del inicio de la trayectoria.
+            Arrastre para rotar la escena, use la rueda del ratón para acercar o alejar y mantenga el botón derecho para desplazar el encuadre.
           </div>
         </div>
       </div>
@@ -625,11 +547,6 @@ CompleteTrajectoryView3D.propTypes = {
     s: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     t: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   })),
-  regressionTrajectory: PropTypes.arrayOf(PropTypes.shape({
-    t: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    s: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    v_Kms: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
-  })),
   observatory: PropTypes.arrayOf(PropTypes.shape({
     latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     longitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
@@ -640,7 +557,6 @@ CompleteTrajectoryView3D.propTypes = {
 CompleteTrajectoryView3D.defaultProps = {
   reportData: null,
   trajectoryData: [],
-  regressionTrajectory: [],
   observatory: [],
   earthTexture: '/earthmap10k.jpg'
 };

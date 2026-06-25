@@ -292,31 +292,96 @@
         }
     },
     "REPORT": {
-        "TITLE": "Two-station report: {{date}} {{hour}}",
+        "TITLE": "Event {{date}} {{hour}} {{stations}}",
         "TITLE_RADIAN": "Radiant report {{id}}",
         "WARNING_BTN": "Report error",
         "SUMMARY_TAB": "Summary",
         "UNSELECTED_TAB": "Select a tab",
-        "INFERRED_DATA_TAB": "Inferred Data",
+        "INFERRED_DATA_TAB": "Radiant",
         "MAP_TAB": "Map",
-        "ACTIVE_RAIN_TAB": "Active Shower",
+        "ACTIVE_RAIN_TAB": "Active shower association",
         "STATIONS": "Stations",
         "TRAJECTORY": "Orbit",
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Resources",
-            "DESCRIPTION": "Download the report associated with the active shower",
+            "DESCRIPTION": "Downloads associated with the report.",
             "LINK": "Download {{name}}",
             "METEOR_GLOW": "Download instrumental magnitudes (brightnesses) of the meteor",
             "RAW_DATA": "Download raw meteor data",
+            "LOADING_TEXT": "Downloading...",
             "ERROR_GENERAL": "Error downloading {{software}}. Please try again."
+        },
+        "SONIFICATION": {
+            "TAB_TITLE": "Sonification",
+            "TITLE": "Detection sonification",
+            "DESCRIPTION": "Choose a sonification method, play the generated video and download the associated files.",
+            "EMPTY": "There is not enough data to sonify this report.",
+            "NO_VIDEO": "A video has not been generated for this method yet.",
+            "LOADING": "Preparing sonification...",
+            "ERROR": "The sonification could not be prepared.",
+            "STATUS": {
+                "READY": "Ready to play",
+                "GENERATING": "Generating sonification",
+                "WAITING": "Not generated yet",
+                "ERROR": "Generation failed"
+            },
+            "FEEDBACK": {
+                "NO_VIDEO_TITLE": "There is no generated video yet",
+                "NO_VIDEO_DESCRIPTION": "Pick a method to build the sonification. Once it finishes, you will be able to watch it and download the associated files from this same tab.",
+                "ERROR_TITLE": "The sonification could not be generated",
+                "ERROR_DESCRIPTION": "The process stopped and there is no video or downloadable resources until it completes successfully.",
+                "RETRY": "Retry",
+                "TRY_OTHER_METHOD": "Try another method",
+                "REFRESH_OVERVIEW": "Reload"
+            },
+            "SUMMARY": {
+                "REPORT_ID": "Report ID",
+                "DATE": "Date",
+                "HOUR": "Time"
+            },
+            "CONTROLS": {
+                "TITLE": "Controls",
+                "DESCRIPTION": "Select the method to generate or reuse the output.",
+                "METHOD_LABEL": "Sonification method",
+                "DOWNLOAD_VIDEO": "Download generated video"
+            },
+            "METHODS": {
+                "SIMPLE": "Simple sonification",
+                "MIDI": "MIDI sonification"
+            },
+            "VIDEO": {
+                "TITLE": "Sonified video",
+                "DESCRIPTION": "The backend resolves the video path from FULL_PATH and the database record."
+            },
+            "RESOURCES": {
+                "TITLE": "Generated resources",
+                "DESCRIPTION": "Files produced by the sonification process.",
+                "TABLE": {
+                    "RESOURCE": "Resource",
+                    "FILE": "File",
+                    "ACTION": "Action"
+                },
+                "DOWNLOAD": "Download",
+                "SIMPLE_MP4": "Simple video",
+                "SIMPLE_MP4_DESC": "Video with the simple audio track.",
+                "MIDI_MP4": "MIDI video",
+                "MIDI_MP4_DESC": "Video with the generated MIDI mix.",
+                "SIMPLE_WAV": "Simple audio",
+                "SIMPLE_WAV_DESC": "Intermediate WAV file for the simple sonification.",
+                "MIDI_WAV": "MIDI audio",
+                "MIDI_WAV_DESC": "Intermediate WAV file for the MIDI sonification.",
+                "MIDI_FILE": "MIDI score",
+                "MIDI_FILE_DESC": "The .mid file with the sequence used."
+            }
         },
         "PENDING": {
             "TITLE": "Atmospheric trajectory",
-            "STATION_DETAILS": "Station details {{id}}",
-            "START_COORDINATES": "Start Coordinates",
+            "NO_DATA": "No trajectory data available.",
+            "STATION_DETAILS": "Trajectory viewed from station {{id}}",
+            "START_COORDINATES": "Start coordinates: geographic latitude and longitude",
             "INITIAL_DISTANCE": "Initial Distance",
             "INITIAL_HEIGHT": "Initial Height",
-            "END_COORDINATES": "End Coordinates",
+            "END_COORDINATES": "End coordinates: geographic latitude and longitude",
             "FINAL_DISTANCE": "Final Distance",
             "FINAL_HEIGHT": "Final Height",
             "DISTANCE_TRAVELLED": "Distance Travelled (Station {{id}})",
@@ -325,7 +390,7 @@
             "INITIAL_VELOCITY": "Initial Velocity (Station {{id}})",
             "ACCELERATION": "Acceleration in Km/sec²"
         },
-        "ZWO": "Point and trajectory adjustment",
+        "ZWO": "Frames",
         "ASSOCIATED_STATIONS": {
             "TITLE": " Associated Stations",
             "STATION_TITLE": "Station {{id}}",
@@ -476,7 +541,7 @@
             "METEOR": "meteor"
         },
         "RELATED_REPORTS": {
-            "TAB_TITLE": "Related reports",
+            "TAB_TITLE": "Other reports",
             "TITLE": "Other meteor reports",
             "DESCRIPTION": "Quick access to single and two-station reports for meteor {{meteorId}}.",
             "METEOR_PAGE": "Go to meteor page",

@@ -1,0 +1,15 @@
+numpy
+sounddevice
+scipy
+midiutil
+opencv-python
+moviepy
+mysql
+mysql-connector-python
+mysqlclient
+datetime
+pyfluidsynth
+flask
+flask_cors
+python-dotenv
+gunicorn

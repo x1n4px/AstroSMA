@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import FormatDate from '@/pipe/formatDate.jsx';
-import truncateDecimal from '@/pipe/truncateDecimal';
 import {
   ReportPanel,
-  ReportField,
   ReportMetricCard,
   ReportMetricsGrid,
   ReportEmptyState
@@ -25,34 +23,45 @@ function getDecimalCoordinates(value) {
   return `${parts[2]} ${parts[3]}`;
 }
 
-function formatEquationCoefficients(value) {
-  if (!value) {
-    return '';
-  }
+function extractNumbers(value) {
+  if (!value) return [];
+  return String(value).match(/[+-]?\d+(?:[.,]\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
+}
 
-  const parts = value.trim().split(' ');
-  if (parts.length < 3) {
-    return '';
-  }
+function formatNumber(value, decimals = 4) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(decimals) : '-';
+}
 
-  const [a, b, c] = parts;
-  return `a = ${a}, b = ${b}, c = ${c}`;
+function formatDegrees(value, suffix) {
+  return `${formatNumber(value, 4)} ${suffix}`;
+}
+
+function radiansToDegrees(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric * 180 / Math.PI : NaN;
 }
 
 function InferredDataReport({ data }) {
-  const { t } = useTranslation(['text']);
+  const { t, i18n } = useTranslation(['text']);
+  const angleSuffix = i18n.language?.startsWith('en') ? 'deg' : '°';
 
   if (!data) {
     return <ReportEmptyState message="No hay datos del informe." />;
   }
 
+  const radiantCoordinates = extractNumbers(getDecimalCoordinates(data.radiantJ2000Coordinates));
+  const radiantErrors = extractNumbers(data.radiantRaDeErrors);
+
   const summaryMetrics = [
     { label: t('INFERRED_DATA.DATE.label'), value: FormatDate(data.date) },
     { label: t('INFERRED_DATA.HOUR.label'), value: data.time?.substring(0, 8) || '-' },
-    { label: t('INFERRED_DATA.AZIMUTH.label'), value: `${truncateDecimal(data.azimuth)} °` },
-    { label: t('INFERRED_DATA.ZENITHAL_DISTANCE.label'), value: `${truncateDecimal(data.zenithDistance)} °` },
-    { label: t('INFERRED_DATA.STATISTICAL_WEIGHTS.label'), value: truncateDecimal(data.statisticalWeight) },
-    { label: t('INFERRED_DATA.DIHEDRAL_ANGLE_BTW_PLANES.label'), value: `${truncateDecimal(data.trajectoryPlanesDihedralAngle)} °` }
+    { label: t('INFERRED_DATA.AZIMUTH.label'), value: formatDegrees(data.azimuth, angleSuffix) },
+    { label: t('INFERRED_DATA.ZENITHAL_DISTANCE.label'), value: formatDegrees(data.zenithDistance, angleSuffix) },
+    { label: 'Ascensión recta', value: formatDegrees(radiantCoordinates[0], angleSuffix) },
+    { label: 'Declinación', value: formatDegrees(radiantCoordinates[1], angleSuffix) },
+    { label: 'Error ascensión recta', value: formatDegrees(radiansToDegrees(radiantErrors[0]), angleSuffix) },
+    { label: 'Error declinación', value: formatDegrees(radiansToDegrees(radiantErrors[1]), angleSuffix) }
   ];
 
   return (
@@ -60,8 +69,8 @@ function InferredDataReport({ data }) {
       <Row className="g-4">
         <Col xs={12}>
           <ReportPanel
-            title="Resumen inferido"
-            description="Parametros geometricos y de calidad del informe organizados con el mismo lenguaje visual que el resto del reporte."
+            title="Resumen"
+            description="Coordenadas altacimutales y ecuatoriales a J2000 del radiante."
             accent="warm"
           >
             <ReportMetricsGrid>
@@ -72,33 +81,6 @@ function InferredDataReport({ data }) {
           </ReportPanel>
         </Col>
 
-        <Col xs={12} lg={6}>
-          <ReportPanel title="Geometria del evento" description="Magnitudes principales de orientacion y trayectoria.">
-            <ReportField label={t('INFERRED_DATA.DATE.label')} value={FormatDate(data.date)} />
-            <ReportField label={t('INFERRED_DATA.AZIMUTH.label')} value={truncateDecimal(data.azimuth)} suffix="°" />
-            <ReportField label={t('INFERRED_DATA.DIHEDRAL_ANGLE_BTW_PLANES.label')} value={truncateDecimal(data.trajectoryPlanesDihedralAngle)} suffix="°" />
-            <ReportField label={t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_ECLIPTIC_OF_THE_DATE.label')} value={getDecimalCoordinates(data.radiantEclipticCoordinatesOfDate)} suffix="°" />
-          </ReportPanel>
-        </Col>
-
-        <Col xs={12} lg={6}>
-          <ReportPanel title="Radiante y calidad" description="Resumen temporal y de consistencia estadistica.">
-            <ReportField label={t('INFERRED_DATA.HOUR.label')} value={data.time?.substring(0, 8) || '-'} />
-            <ReportField label={t('INFERRED_DATA.ZENITHAL_DISTANCE.label')} value={truncateDecimal(data.zenithDistance)} suffix="°" />
-            <ReportField label={t('INFERRED_DATA.STATISTICAL_WEIGHTS.label')} value={truncateDecimal(data.statisticalWeight)} />
-            <ReportField label={t('INFERRED_DATA.ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200.label')} value={getDecimalCoordinates(data.radiantJ2000Coordinates)} suffix="°" />
-          </ReportPanel>
-        </Col>
-
-        <Col xs={12}>
-          <ReportPanel title="Ecuacion del movimiento" description="Coeficientes del ajuste cinematico en el sistema de unidades del informe.">
-            <ReportField
-              label={`${t('INFERRED_DATA.EQUATION_OF_MOTION_IN_KMS.label')} (e = at^2 + bt + c)`}
-              value={formatEquationCoefficients(data.Ecuacion_del_movimiento_en_Kms)}
-              suffix="Km/s"
-            />
-          </ReportPanel>
-        </Col>
       </Row>
     </Container>
   );

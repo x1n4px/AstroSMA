@@ -1,4 +1,9 @@
 /Frontend/node_modules
 /Frontend/.env
 /Backend/node_modules
+/Backend/.env
+/sonificacion-backend/.env
+/sonficacion-backend/node_modules
+/sonificacion-backend/runtime
+sonificacion-backend/__pycache__
 /Backend/.envFrontend/ecosystem.config.js

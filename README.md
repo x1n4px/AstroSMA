@@ -126,7 +126,27 @@ Configura `Frontend/.env`:
 VITE_API_URL=http://localhost:3005/api
 ```
 
-5. Arranque en local:
+5. Sonificacion:
+
+```bash
+cd ../sonificacion-backend
+cp .env.example .env
+./start.sh
+```
+
+Este servidor lee las detecciones desde:
+
+```text
+/home/in4p/git/sma/tfg-pub/Detecciones
+```
+
+`./start.sh` crea la venv e instala dependencias si hace falta, y usa Gunicorn por defecto para producción. Si quieres arrancarlo en modo desarrollo, usa:
+
+```bash
+SONIFICATION_MODE=dev ./start.sh
+```
+
+6. Arranque en local:
 
 En una terminal (backend):
 

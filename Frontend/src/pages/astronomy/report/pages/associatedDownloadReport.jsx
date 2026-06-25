@@ -10,53 +10,87 @@ import {
   ReportMetricsGrid
 } from '@/pages/astronomy/report/components/ReportSurface.jsx';
 
-const downloadItems = [
-  {
-    id: 'ufoorbit',
-    apiButtonName: 'UFOORBIT',
-    fileName: 'UFOORBIT.tgz',
-    translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-    translationValues: { name: 'UFOORBIT' },
-    description: 'Ficheros csv que pueden ser usados como entrada de datos para UFOORBIT'
-  },
-  {
-    id: 'wmpl',
-    apiButtonName: 'WMPL',
-    fileName: 'wmpl.txt',
-    translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-    translationValues: { name: 'WMPL' },
-    description: 'Ficheros que sirven como entrada para el software wmpl'
-  },
-  {
-    id: 'gritsevich',
-    apiButtonName: 'GRITSEVICH',
-    fileName: 'Gritsevich.zip',
-    translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.LINK',
-    translationValues: { name: 'Meteor ToolKit' },
-    description: 'Datos preparados para Meteor ToolKit.'
-  },
-  {
-    id: 'meteorglow',
-    apiButtonName: 'METEORGLOW',
-    fileName: 'MeteorGlow_data.zip',
-    translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.METEOR_GLOW',
-    translationValues: {},
-    description: 'Conjunto de datos exportado para MeteorGlow.'
-  },
-  {
-    id: 'rawdata',
-    apiButtonName: 'RAWDATA',
-    fileName: 'RawData.zip',
-    translationKey: 'REPORT.ASSOCIATED_DOWNLOAD_LINK.RAW_DATA',
-    translationValues: {},
-    description: 'Datos brutos asociados al informe.'
-  }
-];
+function compactDateTime(date, time) {
+  const rawDate = String(date || '').slice(0, 10).replaceAll('-', '');
+  const rawTime = String(time || '').substring(0, 8).replaceAll(':', '');
+  return `${rawDate}${rawTime}`;
+}
+
+function resolveStationNumbers(report) {
+  return [
+    report?.observatoryNumber ?? report?.Observatorio_Número ?? report?.stationNumber1,
+    report?.observatoryNumber2 ?? report?.Observatorio_Número2 ?? report?.stationNumber2
+  ].map(value => value ?? '');
+}
+
+function buildDownloadItems(report) {
+  const timestamp = compactDateTime(report?.date ?? report?.Fecha, report?.time ?? report?.Hora);
+  const [id1, id2] = resolveStationNumbers(report);
+  const pair = `${id1}-${id2}`;
+
+  return [
+    {
+      id: 'raw-measures',
+      title: 'Medidas en bruto',
+      apiButtonName: 'RAW_MEASURES',
+      fileName: `Coordenadas-${timestamp}-${id1}.csv`,
+      buttonText: 'Descargar datos en bruto del meteoro',
+      description: 'Coordenadas celestes (acimut, distancia zenital, ascensión recta y declinación a la fecha) de los centroides de las trazas de los fotogramas individuales sin ajustar a una circunferencia máxima.'
+    },
+    {
+      id: 'ufoorbit',
+      title: 'UFOORBIT',
+      apiButtonName: 'UFOORBIT',
+      fileName: 'UFOORBIT.tgz',
+      buttonText: 'Descargar archivo para UFOORBIT',
+      description: 'Ficheros csv que pueden ser usados como entrada de datos para UFOORBIT (http://sonotaco.com/soft/e_index.html).'
+    },
+    {
+      id: 'los',
+      title: 'Líneas de visión (LoS)',
+      apiButtonName: 'LOS',
+      fileName: `Magnitudes-${timestamp}-${pair}`,
+      buttonText: 'Descargar archivo LoS',
+      description: 'Coordenadas ECI de la estación en movimiento con la rotación de la Tierra y coordenadas del centroide del meteoro en el mismo sistema.'
+    },
+    {
+      id: 'wmpl',
+      title: 'Western Meteor PyLib',
+      apiButtonName: 'WMPL',
+      fileName: 'wmpl.txt',
+      buttonText: 'Descargar archivo para wmpl',
+      description: 'Ficheros que sirven como entrada para WesternMeteorPyLib (https://github.com/wmpg/WesternMeteorPyLib).',
+      secondaryButton: {
+        apiButtonName: 'WMPL_PROGRAM',
+        fileName: 'trayectorias-interactivo.py',
+        buttonText: 'Descarga del programa Python'
+      }
+    },
+    {
+      id: 'meteortoolkit',
+      title: 'Meteor ToolKit',
+      apiButtonName: 'METEOR_TOOLKIT',
+      fileName: `Gritsevivh-${timestamp}-${pair}`,
+      buttonText: 'Descargar datos MeteorToolKit',
+      description: 'Ficheros que contienen los datos de entrada del software Meteor ToolKit (https://sourceforge.net/projects/meteortoolkit/).'
+    },
+    {
+      id: 'alpha-beta',
+      title: 'Parámetros alpha-beta',
+      apiButtonName: 'ALPHA_BETA',
+      fileName: `alpha-beta-${timestamp}-${pair}.csv`,
+      buttonText: 'Descargar datos para alpha-beta',
+      description: 'Ficheros csv que pueden usarse para calcular parámetros alpha-beta con alpha_beta_modules_master (https://github.com/desertfireballnetwork/alpha_beta_modules).'
+    }
+  ];
+}
 
 const AssociatedDownloadReport = ({ report }) => {
   const { t } = useTranslation(['text']);
   const [loadingSoftware, setLoadingSoftware] = useState(null);
   const [error, setError] = useState(null);
+  const downloadItems = buildDownloadItems(report);
+  const downloadCount = downloadItems.reduce((count, item) => count + (item.secondaryButton ? 2 : 1), 0);
 
   const handleDownload = async (apiButtonName, fileNameToDownload) => {
     setLoadingSoftware(fileNameToDownload);
@@ -92,8 +126,8 @@ const AssociatedDownloadReport = ({ report }) => {
         isMobile,
         button_name: apiButtonName,
         event_type: 'DOWNLOAD',
-        event_target: `Descarga datos asociados a ${apiButtonName} en /report/${report.IdInforme} en la pestaña de descargar informe asociado`,
-        report_id: report.IdInforme
+        event_target: `Descarga datos asociados a ${apiButtonName} en /report/${report?.reportId ?? report?.IdInforme} en la pestaña de recursos`,
+        report_id: report?.reportId ?? report?.IdInforme
       });
     } catch (err) {
       setError(t('REPORT.ASSOCIATED_DOWNLOAD_LINK.ERROR_GENERAL', { software: apiButtonName }));
@@ -103,10 +137,10 @@ const AssociatedDownloadReport = ({ report }) => {
   };
 
   const summaryMetrics = [
-    { label: 'Informe', value: report?.IdInforme ?? '-' },
-    { label: 'Paquetes disponibles', value: downloadItems.length },
-    { label: 'Estacion 1', value: report?.Observatorio_Número ?? '-' },
-    { label: 'Estacion 2', value: report?.Observatorio_Número2 ?? '-' }
+    { label: 'Informe', value: report?.reportId ?? report?.IdInforme ?? '-' },
+    { label: 'Descargas disponibles', value: downloadCount },
+    { label: 'Estación 1', value: resolveStationNumbers(report)[0] || '-' },
+    { label: 'Estación 2', value: resolveStationNumbers(report)[1] || '-' }
   ];
 
   return (
@@ -133,11 +167,10 @@ const AssociatedDownloadReport = ({ report }) => {
 
         {downloadItems.map(item => {
           const isLoading = loadingSoftware === item.fileName;
-          const title = item.translationValues?.name ? item.translationValues.name : t(item.translationKey);
 
           return (
             <Col xs={12} md={6} key={item.id}>
-              <ReportPanel title={title} description={item.description}>
+              <ReportPanel title={item.title} description={item.description}>
                 <Button
                   style={{ backgroundColor: '#980100', borderColor: '#980100' }}
                   onClick={() => handleDownload(item.apiButtonName, item.fileName)}
@@ -149,9 +182,19 @@ const AssociatedDownloadReport = ({ report }) => {
                       <span className="ms-2">{t('REPORT.ASSOCIATED_DOWNLOAD_LINK.LOADING_TEXT')}</span>
                     </>
                   ) : (
-                    t(item.translationKey, item.translationValues)
+                    item.buttonText
                   )}
                 </Button>
+                {item.secondaryButton ? (
+                  <Button
+                    className="ms-2"
+                    variant="outline-secondary"
+                    onClick={() => handleDownload(item.secondaryButton.apiButtonName, item.secondaryButton.fileName)}
+                    disabled={loadingSoftware !== null}
+                  >
+                    {item.secondaryButton.buttonText}
+                  </Button>
+                ) : null}
               </ReportPanel>
             </Col>
           );

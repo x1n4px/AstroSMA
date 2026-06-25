@@ -27,6 +27,12 @@ cp .env.example .env
 VITE_API_URL=http://localhost:3005/api
 ```
 
+Si la pestaña de sonificación apunta a otro servicio, añade también:
+
+```env
+VITE_SONIFICATION_API_URL=http://localhost:5000
+```
+
 ## Desarrollo
 
 ```bash

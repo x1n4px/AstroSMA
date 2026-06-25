@@ -292,7 +292,7 @@
         }
     },
     "REPORT": {
-        "TITLE": "Informe de dos estaciones: {{date}} {{hour}}",
+        "TITLE": "Evento {{date}} {{hour}} {{stations}}",
         "TITLE_RADIAN": "Informe de una sola estación {{id}}",
         "WARNING_BTN": "Informar error",
         "SUMMARY_TAB": "Resumen",
@@ -304,19 +304,84 @@
         "TRAJECTORY": "Órbita",
         "ASSOCIATED_DOWNLOAD_LINK": {
             "TITLE": "Recursos",
-            "DESCRIPTION": "Recursos asociados al informe.",
+            "DESCRIPTION": "Descargas asociadas al informe.",
             "LINK": "Descargar {{name}}",
             "METEOR_GLOW": "Descargar magnitudes instrumentales del meteoro",
             "RAW_DATA": "Descargar datos en bruto del meteoro",
+            "LOADING_TEXT": "Descargando...",
             "ERROR_GENERAL": "Error al descargar {{software}}. Por favor, inténtalo de nuevo."
+        },
+        "SONIFICATION": {
+            "TAB_TITLE": "Sonificación",
+            "TITLE": "Sonificación de la detección",
+            "DESCRIPTION": "Elige un método de sonificación, reproduce el vídeo generado y descarga los archivos asociados.",
+            "EMPTY": "No hay datos suficientes para sonificar este informe.",
+            "NO_VIDEO": "Todavía no se ha generado un vídeo para este método.",
+            "LOADING": "Preparando la sonificación...",
+            "ERROR": "No se ha podido preparar la sonificación.",
+            "STATUS": {
+                "READY": "Lista para reproducir",
+                "GENERATING": "Generando sonificación",
+                "WAITING": "Aún no generada",
+                "ERROR": "Generación fallida"
+            },
+            "FEEDBACK": {
+                "NO_VIDEO_TITLE": "Todavía no hay un vídeo generado",
+                "NO_VIDEO_DESCRIPTION": "Selecciona un método para crear la sonificación. Cuando termine, podrás verla y descargar los archivos asociados desde esta misma pestaña.",
+                "ERROR_TITLE": "No se ha podido generar la sonificación",
+                "ERROR_DESCRIPTION": "La generación se ha detenido y no hay vídeo ni recursos disponibles hasta que el proceso se complete correctamente.",
+                "RETRY": "Reintentar",
+                "TRY_OTHER_METHOD": "Probar otro método",
+                "REFRESH_OVERVIEW": "Volver a cargar"
+            },
+            "SUMMARY": {
+                "REPORT_ID": "ID del informe",
+                "DATE": "Fecha",
+                "HOUR": "Hora"
+            },
+            "CONTROLS": {
+                "TITLE": "Controles",
+                "DESCRIPTION": "Selecciona el método para generar o reutilizar la salida.",
+                "METHOD_LABEL": "Método de sonificación",
+                "DOWNLOAD_VIDEO": "Descargar vídeo generado"
+            },
+            "METHODS": {
+                "SIMPLE": "Sonificación simple",
+                "MIDI": "Sonificación MIDI"
+            },
+            "VIDEO": {
+                "TITLE": "Vídeo sonificado",
+                "DESCRIPTION": "La ruta del vídeo se resuelve en el backend a partir de FULL_PATH y de la ruta almacenada en la base de datos."
+            },
+            "RESOURCES": {
+                "TITLE": "Recursos generados",
+                "DESCRIPTION": "Archivos producidos por el proceso de sonificación.",
+                "TABLE": {
+                    "RESOURCE": "Recurso",
+                    "FILE": "Archivo",
+                    "ACTION": "Acción"
+                },
+                "DOWNLOAD": "Descargar",
+                "SIMPLE_MP4": "Vídeo simple",
+                "SIMPLE_MP4_DESC": "Vídeo con la pista de audio simple.",
+                "MIDI_MP4": "Vídeo MIDI",
+                "MIDI_MP4_DESC": "Vídeo con la mezcla MIDI generada.",
+                "SIMPLE_WAV": "Audio simple",
+                "SIMPLE_WAV_DESC": "Archivo WAV intermedio de la sonificación simple.",
+                "MIDI_WAV": "Audio MIDI",
+                "MIDI_WAV_DESC": "Archivo WAV intermedio de la sonificación MIDI.",
+                "MIDI_FILE": "Partitura MIDI",
+                "MIDI_FILE_DESC": "Archivo .mid con la secuencia utilizada."
+            }
         },
         "PENDING": {
             "TITLE": "Trayectoria atmosférica",
-            "STATION_DETAILS": "Detalles de la estación {{id}}",
-            "START_COORDINATES": "Coordenadas de inicio (grados)",
+            "NO_DATA": "No hay datos de trayectoria disponibles.",
+            "STATION_DETAILS": "Trayectoria vista desde la estación {{id}}",
+            "START_COORDINATES": "Coordenadas de inicio: latitud y longitud geográficas (grados)",
             "INITIAL_DISTANCE": "Distancia inicial (Km)",
             "INITIAL_HEIGHT": "Altura inicial (Km)",
-            "END_COORDINATES": "Coordenadas de fin (grados)",
+            "END_COORDINATES": "Coordenadas de fin: latitud y longitud geográficas (grados)",
             "FINAL_DISTANCE": "Distancia final (Km)",
             "FINAL_HEIGHT": "Altura final (Km)",
             "DISTANCE_TRAVELLED": "Distancia recorrida (Estación {{id}}) (Km)",

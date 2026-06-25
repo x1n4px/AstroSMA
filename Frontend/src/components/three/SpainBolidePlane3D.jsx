@@ -511,7 +511,6 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
   const [planeTexture, setPlaneTexture] = useState(null);
   const [heightTexture, setHeightTexture] = useState(null);
   const [bounds, setBounds] = useState(SPAIN_BOUNDS);
-  const [mapProvider, setMapProvider] = useState('OpenStreetMap');
   const [hasTerrain3D, setHasTerrain3D] = useState(false);
 
   useEffect(() => {
@@ -534,7 +533,6 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
           setBounds(fallback.bounds);
           setPlaneTexture(fallback.texture);
           setHeightTexture(null);
-          setMapProvider(fallback.mapProvider);
           setHasTerrain3D(false);
           return;
         }
@@ -544,7 +542,6 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
         setBounds(result.bounds || SPAIN_BOUNDS);
         setPlaneTexture(result.texture);
         setHeightTexture(result.heightTexture || null);
-        setMapProvider(result.mapProvider || 'OpenStreetMap');
         setHasTerrain3D(Boolean(result.hasTerrain3D));
       })
       .catch(() => {
@@ -555,7 +552,6 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
           setBounds(fallback.bounds);
           setPlaneTexture(fallback.texture);
           setHeightTexture(null);
-          setMapProvider(fallback.mapProvider);
           setHasTerrain3D(false);
         }
       });
@@ -603,25 +599,7 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
 
       <div className="spain-bolide-3d__legend">
         <span className="spain-bolide-3d__chip">
-          <span className="spain-bolide-3d__dot" style={{ backgroundColor: '#dc2626' }} />
-          Linea roja inclinada (trayectoria)
-        </span>
-        <span className="spain-bolide-3d__chip">
-          <span className="spain-bolide-3d__dot" style={{ backgroundColor: '#ef4444' }} />
-          Linea roja en plano (proyeccion)
-        </span>
-        <span className="spain-bolide-3d__chip">
-          <span className="spain-bolide-3d__dot" style={{ backgroundColor: '#fca5a5' }} />
-          Union sutil entre ambas
-        </span>
-        <span className="spain-bolide-3d__chip">
           Arrastra para rotar, rueda para zoom, click derecho para desplazar
-        </span>
-        <span className="spain-bolide-3d__chip">
-          Base cartografica: {mapProvider} (estilo Leaflet)
-        </span>
-        <span className="spain-bolide-3d__chip">
-          Relieve: {hasTerrain3D ? 'topografico 3D (DEM)' : 'topografico 2D'}
         </span>
       </div>
     </div>

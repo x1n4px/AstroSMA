@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem("authToken") || null);
-  const [role, setRole] = useState(localStorage.getItem("role") || null);
+  const [rol, setRol] = useState(localStorage.getItem("rol") || null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -20,20 +20,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (credentials) => {
-    const { token: receivedToken, role: receivedRole } = await authService.loginUser(credentials);
+    const { token: receivedToken, rol: receivedRol } = await authService.loginUser(credentials);
     setToken(receivedToken);
-    setRole(receivedRole);
+    setRol(receivedRol);
     localStorage.setItem("authToken", receivedToken);
-    localStorage.setItem("role", receivedRole);
+    localStorage.setItem("rol", receivedRol);
     axios.defaults.headers.common['Authorization'] = `Bearer ${receivedToken}`;
-    return token
+    return receivedToken
   };
 
   const logout = () => {
     setToken(null);
-    setRole(null);
+    setRol(null);
     localStorage.removeItem("authToken");
-    localStorage.removeItem("role");
+    localStorage.removeItem("rol");
     delete axios.defaults.headers.common['Authorization'];
     window.location.href = "/login";
   };
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   const isAuthenticated = !!token;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout, rol }}>
       {!isLoading && children}
     </AuthContext.Provider>
   );
