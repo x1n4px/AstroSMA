@@ -16,3 +16,4 @@
 - El backend de sonificacion solo acepta rutas de informe que se puedan mapear al arbol permitido de detecciones; si la BD propone una ruta fuera de ese arbol, se rechaza en vez de copiar o servir contenido arbitrario.
 - La limpieza del runtime de sonificacion trata los enlaces simbolicos como enlaces, no como directorios, para evitar borrados accidentales fuera del area de trabajo.
 - `sonificacion-repo/` y `sonificacion-backend/new/` se eliminaron del repo activo despues de verificar la integracion, para evitar confusiones con copias de referencia.
+- La asociacion de lluvias activas en `/report` se resuelve agrupando por codigo canónico de familia y calculando la actividad IAU con la longitud ecliptica solar estimada en backend, en vez de una ventana fija de fechas o un CSV externo no versionado.

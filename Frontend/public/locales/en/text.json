@@ -255,7 +255,7 @@
             "measure": ""
         },
         "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
-            "label": "Astronomical Coordinates of the Radiant (J2000)",
+            "label": "Astronomical Coordinates of the Apparent Radiant (J2000)",
             "measure": ""
         },
         "AZIMUTH": {
@@ -310,6 +310,22 @@
             "RAW_DATA": "Download raw meteor data",
             "LOADING_TEXT": "Downloading...",
             "ERROR_GENERAL": "Error downloading {{software}}. Please try again."
+        },
+        "MEDIA_TAB": "Videos and images",
+        "MEDIA": {
+            "TITLE": "Event audiovisual material",
+            "DESCRIPTION": "Videos and images associated with the detection and uploaded to the SMA meteor website.",
+            "LOADING": "Loading audiovisual material...",
+            "EMPTY": "No audiovisual material is available for this event.",
+            "ERROR": "The event audiovisual material could not be loaded.",
+            "OPEN": "Open link",
+            "VIDEO": "Video",
+            "IMAGE": "Image",
+            "LINK": "Link",
+            "REPORT_ID": "Report",
+            "TOTAL": "Links",
+            "VIDEOS": "Videos",
+            "IMAGES": "Images"
         },
         "SONIFICATION": {
             "TAB_TITLE": "Sonification",
@@ -436,15 +452,15 @@
                     "HEADER": {
                         "DATE": "Date",
                         "HOUR": "Time",
-                        "T": "t",
-                        "S": "s",
-                        "V": "v",
-                        "LAMBDA": "Lambda",
-                        "PHI": "Phi",
-                        "RA": "Ra (Station {{id}})",
-                        "DE": "De (Station {{id}})"
-                    }
+                    "T": "t",
+                    "S": "s",
+                    "V": "v",
+                    "LAMBDA": "lambda",
+                    "PHI": "phi",
+                    "RA": "Ra (Station {{id}})",
+                    "DE": "De (Station {{id}})"
                 }
+            }
             }
         },
         "PHOTOMETRY": {
@@ -743,11 +759,11 @@
             "measure": ""
         },
         "OMEGA": {
-            "label": "Omega",
+            "label": "ω at date",
             "measure": "°"
         },
         "OMEGA_DEGREE": {
-            "label": "Omega degrees votes max min",
+            "label": "Ω at J2000",
             "measure": "°"
         }
     },

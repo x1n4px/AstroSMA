@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
+const { resolveDetectionContext } = require('../utils/detectionFolder');
 
 
 const getOrbitFile = (req, res) => {
@@ -31,60 +32,26 @@ const getOrbitFile = (req, res) => {
       return res.status(500).json({ error: 'FULL_PATH no está configurado' });
     }
 
-    const normalizeDate = (inputDate) => {
-      const value = String(inputDate || '').trim();
-
-      // Caso ISO/UTC: convertir a fecha local Europe/Madrid para evitar desfase de día.
-      if (value.includes('T')) {
-        const parsed = new Date(value);
-        if (!Number.isNaN(parsed.getTime())) {
-          const parts = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Europe/Madrid',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-          }).formatToParts(parsed);
-          const year = parts.find((p) => p.type === 'year')?.value;
-          const month = parts.find((p) => p.type === 'month')?.value;
-          const day = parts.find((p) => p.type === 'day')?.value;
-          if (year && month && day) {
-            return { year, month, day };
-          }
-        }
-      }
-
-      const match = value.match(/(\d{4})[-/]?(\d{2})[-/]?(\d{2})/);
-      if (!match) return null;
-      return { year: match[1], month: match[2], day: match[3] };
-    };
-
-    const normalizeTime = (inputTime) => {
-      const value = String(inputTime || '').trim();
-      const match = value.match(/(\d{2}):?(\d{2}):?(\d{2})/);
-      if (!match) return null;
-      return { hour: match[1], minute: match[2], second: match[3] };
-    };
-
-    const dateParts = normalizeDate(date) || (
-      year && month && day ? { year: String(year).padStart(4, '0'), month: String(month).padStart(2, '0'), day: String(day).padStart(2, '0') } : null
-    );
-    const timeParts = normalizeTime(time) || (
-      hour && minute && second ? { hour: String(hour).padStart(2, '0'), minute: String(minute).padStart(2, '0'), second: String(second).padStart(2, '0') } : null
+    const detectionContext = resolveDetectionContext(
+      date || (year && month && day ? `${year}-${month}-${day}` : ''),
+      time || (hour && minute && second ? `${hour}:${minute}:${second}` : '')
     );
 
-    if (!dateParts || !timeParts) {
+    if (!detectionContext) {
       console.warn('[getOrbitFile] INVALID_DATE_OR_TIME', JSON.stringify({ date, time, year, month, day, hour, minute, second }));
       return res.status(400).json({ error: 'Fecha u hora inválida para construir la ruta' });
     }
 
+    const {
+      dateParts,
+      timeParts,
+      deteccionesRoot,
+      eventFolder,
+      formattedDate,
+      formattedTime
+    } = detectionContext;
+
     const safeFileName = path.basename(String(fileName));
-    const formattedDate = `${dateParts.year}${dateParts.month}${dateParts.day}`;
-    const formattedTime = `${timeParts.hour}${timeParts.minute}${timeParts.second}`;
-    const normalizedFullPath = path.resolve(fullPath);
-    const deteccionesSuffix = path.join('home', 'sma', 'Meteoros', 'Detecciones');
-    const hasDeteccionesSuffix = normalizedFullPath.endsWith(deteccionesSuffix);
-    const deteccionesRoot = normalizedFullPath;
-    const baseFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);
     const stationIds = [id1, id2].map((value) => String(value || '').trim()).filter(Boolean);
     const pairFolders = stationIds.length === 2
       ? [`${stationIds[0]}-${stationIds[1]}`, `${stationIds[1]}-${stationIds[0]}`]
@@ -92,8 +59,8 @@ const getOrbitFile = (req, res) => {
     const candidateRoots = button === 'WMPL_PROGRAM'
       ? [deteccionesRoot]
       : [
-          baseFolder,
-          ...pairFolders.map((pairFolder) => path.resolve(baseFolder, pairFolder))
+          eventFolder,
+          ...pairFolders.map((pairFolder) => path.resolve(eventFolder, pairFolder))
         ];
     const candidatePaths = candidateRoots.map((candidateRoot) => path.resolve(candidateRoot, safeFileName));
 
@@ -110,12 +77,10 @@ const getOrbitFile = (req, res) => {
         year: dateParts.year,
         yyyymmdd: formattedDate,
         hhmmss: formattedTime,
-        normalizedFullPath,
-        deteccionesRoot,
-        hasDeteccionesSuffix
+        deteccionesRoot
       })
     );
-    console.log('[getOrbitFile] baseFolder=', baseFolder);
+    console.log('[getOrbitFile] eventFolder=', eventFolder);
     console.log('[getOrbitFile] candidatePaths=', JSON.stringify(candidatePaths));
 
     const invalidPath = candidatePaths.find((candidatePath, index) => {

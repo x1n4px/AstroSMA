@@ -70,7 +70,7 @@ function InferredDataReport({ data }) {
         <Col xs={12}>
           <ReportPanel
             title="Resumen"
-            description="Coordenadas altacimutales y ecuatoriales a J2000 del radiante."
+            description="Coordenadas altacimutales y ecuatoriales a J2000 del radiante aparente."
             accent="warm"
           >
             <ReportMetricsGrid>

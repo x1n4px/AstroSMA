@@ -7,40 +7,59 @@
 - Última actualización: 2026-06-28
 
 ## Instrucciones
-- Actualiza esta tabla cada vez que cambie el estado de una tarea.
-- Si detectas trabajo nuevo, añade una fila nueva en `Pendientes`.
+- Actualiza esta lista cada vez que cambie el estado de una tarea.
+- Si detectas trabajo nuevo, añade un nuevo elemento en `Pendientes`.
 - Si una tarea queda parcialmente resuelta, mantenla en `En progreso` con contexto explícito.
 - Si una tarea no puede continuar, muévela a `Bloqueadas` y explica el motivo.
 
 ## En progreso
-
-| ID | Prioridad | Estado | Contexto | Criterios de aceptación | Archivos relacionados | Creación | Última actualización |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| [PENDIENTE] | [PENDIENTE] | Vacío | No hay tareas en progreso ahora mismo. | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
+- Trayectoria atmosférica y recursos: revisión de etiquetas, formato y nombres de descarga; ya se ajustaron textos de la proyección y de los vectores, y queda por revisar el valor de tiempo, la visualización 3D y las descargas restantes.
 
 ## Pendientes
 
-| ID | Prioridad | Estado | Contexto | Criterios de aceptación | Archivos relacionados | Creación | Última actualización |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| [PENDIENTE] | [PENDIENTE] | Vacío | No hay tareas pendientes ahora mismo. | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
+- Todas las siguientes tareas hacen referencias a Front, dentro del /report:
+
+
+Fotogramas:
+* La fecha/hora en formato FITS sale partida por el guión del día. ¿No se podría achuchar un poco el resto de las columnas para dejar espacio a esta primera columna y la fecha/hora se viera en juna sola línea?
+* En el recuadro "Trayectoria" los títulos de las columnas T, V, lambda, phi deberían estar en minúsculas. Las letras griegas lambda y phi también, porque así es como se denotan universalmente a la longitud y la latitud. 
+* En el recuadro "Ajuste de velocidades" los títulos de las columnas T, S y V deberían estar en minúsculas.
+
+Recursos:
+* No funciona la descarga de "Medidas en bruto". El texto está bien, pero habría que añadir "a J2000", es decir, donde pone "...declinación a la fecha", debería poner "...declinación a la fecha, no a J2000". Fichero a enlazar: está en el subdirectorio de la pareja de estaciones con patrón 
+Coordenadas-<AAAAMMDDhhmmss>-<Nobs1>.csv
+* No funciona la descarga de UFOORBIT.  Fichero a enlazar: UFOORBIT.tgz (está en el directorio del evento.) En el evento que he usado de ejemplo, estaría en 
+/home/sma/Meteoros/Detecciones/2026/20260618/033005
+El enlace a 
+http://sonotaco.com/soft/e_index.html 
+no está activo.
+* No funciona la descarga de "Líneas de visión". Fichero a enlazar: El archivo responde al patrón
+rozador-<AAAAMMDDhhmmss>-<Nobs1-<Nobs2>
+Y está en el subdirectorio de la pareja de estaciones
+* No funciona la descarga de "Western Meteor PyLib". Fichero a enlazar: wmpl.txt  (está en el directorio del evento). En el ejemplo que he seguido sería el directorio
+/home/sma/Meteoros/Detecciones/2026/20260618/033005
+El enlace a 
+https://github.com/wmpg/WesternMeteorPyLib 
+no está activo
+La descarga del programa Python sí que funciona.
+* No funciona la descarga de "Meteor ToolKit". Fichero a enlazar: El archivo responde al patrón
+Gritsevivh-<AAAAMMDDhhmmss>-Nobs1>-<Nobs2>
+Y está en el subdirectorio de la pareja de estaciones. El enlace a
+https://sourceforge.net/projects/meteortoolkit/
+no está activo
+* No funciona la descarga de "Parámetros alpha-beta". Fichero a enlazar: El archivo responde al patrón
+alpha-beta-<AAAAMMDDhhmmss>-Nobs1>-<Nobs2>.csv
+Y está en el subdirectorio de la pareja de estaciones. El enlace a
+https://github.com/desertfireballnetwork/alpha_beta_module
+no está activo
+
+
 
 ## Bloqueadas
-
-| ID | Prioridad | Estado | Contexto | Criterios de aceptación | Archivos relacionados | Creación | Última actualización |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| [PENDIENTE] | [PENDIENTE] | Vacío | No hay tareas bloqueadas ahora mismo. | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] | [PENDIENTE] |
+- `T-0012` | Prioridad: Alta | Estado: Bloqueada | Contexto: El backend y el frontend ya exponen `azimuth` y `zenithDistance`, pero no puedo confirmar el caso `0.000` sin un `IdInforme` concreto o una traza reproducible del evento afectado. | Criterios de aceptación: con un evento reproducible, localizar si el valor malo viene de BD, API o parseo y corregirlo sin cambiar otros informes. | Archivos relacionados: [`Backend/api/controllers/reportZController.js`](/home/in4p/git/sma/AstroSMA/Backend/api/controllers/reportZController.js), [`Backend/api/mappers/reportZMapper.js`](/home/in4p/git/sma/AstroSMA/Backend/api/mappers/reportZMapper.js), [`Frontend/src/pages/astronomy/report/pages/inferredDataReport.jsx`](/home/in4p/git/sma/AstroSMA/Frontend/src/pages/astronomy/report/pages/inferredDataReport.jsx) | Creación: 2026-06-28 | Última actualización: 2026-06-28
 
 ## Completadas
-
-| ID | Prioridad | Estado | Contexto | Criterios de aceptación | Archivos relacionados | Creación | Última actualización |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| T-0001 | Alta | Completada | Se creó la base operativa del proyecto con documentos de contexto en `docs/contexto/`. | Existen los 6 documentos de contexto y están restringidos al alcance `Backend/`, `DB/` y `Frontend/`. | `docs/contexto/arquitectura.md`, `docs/contexto/convenciones.md`, `docs/contexto/decisiones.md`, `docs/contexto/errores-conocidos.md`, `docs/contexto/flujo-de-trabajo.md`, `docs/contexto/glosario.md` | 2026-06-28 | 2026-06-28 |
-| T-0002 | Alta | Completada | Se reforzaron las fronteras de error en backend y sonificación con handlers globales, captura en `fileController` y logging en el servicio frontend de sonificación. | El servicio no se cae por errores no capturados en las rutas revisadas; los fallos quedan logueados; sonificación falla de forma controlada; no se rompen rutas existentes. | `Backend/api/index.ts`, `Backend/api/controllers/fileController.js`, `Frontend/src/services/sonificationService.jsx` | 2026-06-28 | 2026-06-28 |
-| T-0003 | Alta | Completada | `Backend/api/models/index.js` se alineó con las variables `DB_*` del resto del backend y dejó de usar credenciales/host hardcodeados. | La conexión usa variables de entorno y no hay secretos ni valores fijos en código. | `Backend/api/models/index.js`, `Backend/api/database/connection.js`, `Backend/.env.example` | 2026-06-28 | 2026-06-28 |
-| T-0004 | Media | Completada | Se documentaron los escenarios de despliegue observados en el repo: PM2 para backend, PM2 para frontend y rewrite de Vercel hacia `/api`. | Queda documentada una única ruta preferente o se explican claramente los escenarios soportados. | `Backend/ecosystem.config.js`, `Backend/vercel.json`, `Frontend/ecosystem.config.cjs`, `docs/contexto/flujo-de-trabajo.md` | 2026-06-28 | 2026-06-28 |
-| T-0005 | Media | Completada | Se cerró el glosario con las siglas visibles en el catálogo `meteor_showers` y en las tablas científicas del repo. | Cada sigla queda definida o marcada como no verificable con evidencia del repo. | `docs/contexto/glosario.md`, `DB/update_bd.sql`, `Backend/api/controllers/adminScientificTableController.js` | 2026-06-28 | 2026-06-28 |
-| T-0006 | Media | Completada | Se dejó una convención operativa para commits y una estrategia mínima de verificación basada en revisión manual, lint y chequeo de sintaxis. | Queda una decisión explícita o se añade el proceso recomendado con límites claros. | `docs/contexto/convenciones.md`, `docs/contexto/errores-conocidos.md`, `Backend/package.json`, `Frontend/package.json` | 2026-06-28 | 2026-06-28 |
-| T-0007 | Media | Completada | Se añadieron units `systemd` para Backend, Frontend y `sonificacion-backend`, con reinicio automático ante fallos y nota de despliegue en el README. | Existen los tres `.service`, se documenta cómo instalarlos y el reinicio automático queda explícito. | `deploy/systemd/astrosma-backend.service`, `deploy/systemd/astrosma-frontend.service`, `deploy/systemd/astrosma-sonificacion-backend.service`, `README.md` | 2026-06-28 | 2026-06-28 |
-| T-0008 | Media | Completada | Se comparo `sonificacion-backend/endpoint.py` con `sonificacion-backend/new/endpoint.py` y se confirmo que la version activa es la de `endpoint.py`; la copia de `new/` queda como referencia historica. | La comparacion queda registrada y no se sustituye el endpoint estable por la copia antigua. | `sonificacion-backend/endpoint.py`, `sonificacion-backend/new/endpoint.py`, `docs/contexto/decisiones.md` | 2026-06-28 | 2026-06-28 |
-| T-0009 | Alta | Completada | Se endurecio la integracion de `sonificacion-backend` para aceptar solo rutas mapeadas al arbol permitido de detecciones y para tratar enlaces simbolicos de forma segura al limpiar el runtime. | Una ruta maliciosa o fuera de arbol se rechaza; el runtime no puede borrarse por enlaces simbolicos; la compilacion sintactica sigue pasando. | `sonificacion-backend/endpoint.py`, `docs/contexto/decisiones.md` | 2026-06-28 | 2026-06-28 |
-| T-0010 | Media | Completada | Se eliminaron `sonificacion-repo/` y `sonificacion-backend/new/` del repo activo para dejar una unica fuente integrada y evitar confusiones futuras. | No quedan restos de esas copias en el arbol del proyecto y la documentacion refleja la decision. | `docs/contexto/decisiones.md` | 2026-06-28 | 2026-06-28 |
+- Asociación a lluvia activa: resuelta en `/report` con deduplicación por código canónico de familia para IMO y filtro IAU basado en longitud eclíptica solar calculada en backend.
+- Fotogramas: fecha/hora FITS en una sola línea y cabeceras de `Trayectoria` y `Ajuste de velocidades` ajustadas a minúsculas, con `lambda` y `phi` también en minúsculas.
+- Vídeos e imágenes: nueva pestaña en `/report` con lectura de `videos-e-imagenes.txt`, listado de enlaces y previsualización básica de vídeos e imágenes asociadas al evento.
+- `T-0013` | Prioridad: Alta | Estado: Completada | Contexto: La activación IAU en `/report` ya no depende de un CSV externo; ahora se calcula en backend con longitud eclíptica solar y se filtra por `LoSb`/`LoSe`. | Criterios de aceptación: mostrar lluvias IAU activas en la fecha sin inventar datos externos. | Archivos relacionados: [`Backend/api/controllers/reportZController.js`](/home/in4p/git/sma/AstroSMA/Backend/api/controllers/reportZController.js), [`Backend/api/utils/activeShowerHelpers.js`](/home/in4p/git/sma/AstroSMA/Backend/api/utils/activeShowerHelpers.js), [`Frontend/src/pages/astronomy/report/pages/activeRain.jsx`](/home/in4p/git/sma/AstroSMA/Frontend/src/pages/astronomy/report/pages/activeRain.jsx) | Creación: 2026-06-28 | Última actualización: 2026-06-28

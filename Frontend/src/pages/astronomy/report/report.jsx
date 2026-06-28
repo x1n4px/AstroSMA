@@ -12,6 +12,7 @@ import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.js
 import RotationReport from './pages/rotationReport';
 import SonificationReport from '@/pages/astronomy/report/pages/sonification/sonification.jsx';
 import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
+import MediaReport from '@/pages/astronomy/report/pages/mediaReport.jsx';
 import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
 import '@/assets/TabsStyles.css';
@@ -49,13 +50,11 @@ const Report = () => {
     const [reportData, setReportData] = useState(null);
     const [observatoryData, setObservatoryData] = useState([]);
     const [orbitalData, setOrbitalData] = useState([]);
-    const [zwoData, setZwoData] = useState(null);
     const [regressionTrajectory, setRegressionTrajectory] = useState(null);
     const [trajectoryData, setTrajectoryData] = useState(null);
     const [parametricEquation, setParametricEquation] = useState(null);
     const [activeShowerData, setActiveShowerData] = useState([]);
     const [AIUShowerData, setAIUShowerData] = useState([]);
-    const [adviceData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [, setError] = useState(null);
     const [photometryData, setPhotometryData] = useState([]);
@@ -65,6 +64,7 @@ const Report = () => {
     const [resetCount, setResetCount] = useState(0);
     const [cachedReport, setCachedReport] = useState(null);
     const [generatingGemini] = useState(false);
+    const adviceData = [];
 
 
 
@@ -102,7 +102,6 @@ const Report = () => {
             setRegressionTrajectory(response.regressionTrajectory);
             setTrajectoryData(response.trajectory);
             setParametricEquation(response.parametricEquation);
-            setZwoData(response.zwo);
             setAIUShowerData(response.showers.sort((a, b) => new Date(a.SubDate) - new Date(b.SubDate)));
             setSlopeMapData(response.slopeMap);
         } catch (err) {
@@ -134,6 +133,7 @@ const Report = () => {
             'PHOTOMETRY': 'PHOTOMETRY',
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
             'RESOURCES': 'ASSOCIATED_DOWNLOAD_LINK',
+            'MEDIA_TAB': 'MEDIA_TAB',
             'OTHER_REPORTS': 'RELATED_REPORTS_TAB'
         };
         const adviceForTab = adviceData.filter(advice => advice.Tab === tabMap[tabKey] && advice.status == '1');
@@ -266,6 +266,10 @@ const Report = () => {
                                 <AssociatedDownloadReport report={reportData} />
                             </Tab>
                         )}
+
+                        <Tab eventKey="MEDIA_TAB" title={t('REPORT.MEDIA_TAB')}>
+                            <MediaReport reportId={id} />
+                        </Tab>
 
                         <Tab eventKey="OTHER_REPORTS" title={t('REPORT.RELATED_REPORTS.TAB_TITLE')}>
                             <RelatedReportsTab reportId={id} meteorId={reportData?.meteorId} currentReportType="REPORT_Z" />

@@ -33,6 +33,10 @@ const showerCode = {
   URS: 'Ursids'
 };
 
+const resolveShowerCode = (shower) => {
+  return shower?.canonicalCode || shower?.Code || shower?.Identificador || shower?.Lluvia_Identificador || '';
+};
+
 function ShowerTable({ children }) {
   return (
     <ReportTableShell>
@@ -57,7 +61,7 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
       return false;
     }
 
-    return activeShowerData.some(shower => shower.src || showerCode[shower.Identificador] || showerCode[shower.Code]);
+    return activeShowerData.some(shower => shower.src || showerCode[resolveShowerCode(shower)]);
   }, [activeShowerData]);
 
   const summaryMetrics = [
@@ -114,10 +118,10 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
                         <td>{truncateDecimal(shower.Distancia_mínima_entre_radianes_y_trayectoria)}</td>
                         <td>{getDistanceLabel(shower.membership)}</td>
                         <td>
-                          {showerCode[shower.Identificador] ? (
+                          {showerCode[resolveShowerCode(shower)] ? (
                             <Button
                               style={{ backgroundColor: '#980100', borderColor: '#980100' }}
-                              onClick={() => setSelectedShower({ ...shower, src: showerCode[shower.Identificador] })}
+                              onClick={() => setSelectedShower({ ...shower, src: showerCode[resolveShowerCode(shower)] })}
                               size="sm"
                             >
                               {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
@@ -167,10 +171,10 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
                         <td>{shower.Distancia}</td>
                         <td>{getDistanceLabel(convertDistanceToMembershipValue(shower.Distancia))}</td>
                         <td>
-                          {showerCode[shower.Identificador] ? (
+                          {showerCode[resolveShowerCode(shower)] ? (
                             <Button
                               style={{ backgroundColor: '#980100', borderColor: '#980100' }}
-                              onClick={() => setSelectedShower({ ...shower, src: showerCode[shower.Identificador] })}
+                              onClick={() => setSelectedShower({ ...shower, src: showerCode[resolveShowerCode(shower)] })}
                               size="sm"
                             >
                               {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
@@ -226,10 +230,10 @@ const ActiveRain = ({ activeShowerData, reportType, AIUShowerData }) => {
                         <td>{shower.Distancia_mínima_entre_radianes_y_trayectoria}</td>
                         <td>{getDistanceLabel(shower.membership)}</td>
                         <td>
-                          {showerCode[shower.Code] ? (
+                          {showerCode[resolveShowerCode(shower)] ? (
                             <Button
                               style={{ backgroundColor: '#980100', borderColor: '#980100' }}
-                              onClick={() => setSelectedShower({ ...shower, src: showerCode[shower.Code] })}
+                              onClick={() => setSelectedShower({ ...shower, src: showerCode[resolveShowerCode(shower)] })}
                               size="sm"
                             >
                               {t('REPORT.ACTIVE_RAIN.TABLE.SHOW_BUTTON')}
