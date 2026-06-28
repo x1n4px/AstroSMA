@@ -17,11 +17,21 @@ const buildSonificationUrl = (path) => {
 };
 
 export const getSonificationOverview = async (id) => {
-  const response = await axios.get(buildSonificationUrl(`/reportz/${id}/sonification`));
-  return response.data;
+  try {
+    const response = await axios.get(buildSonificationUrl(`/reportz/${id}/sonification`));
+    return response.data;
+  } catch (error) {
+    console.error('[sonificationService] getSonificationOverview failed:', error);
+    throw error;
+  }
 };
 
 export const getSonificationMethod = async (id, method) => {
-  const response = await axios.get(buildSonificationUrl(`/reportz/${id}/sonification/${method}`));
-  return response.data;
+  try {
+    const response = await axios.get(buildSonificationUrl(`/reportz/${id}/sonification/${method}`));
+    return response.data;
+  } catch (error) {
+    console.error('[sonificationService] getSonificationMethod failed:', error);
+    throw error;
+  }
 };

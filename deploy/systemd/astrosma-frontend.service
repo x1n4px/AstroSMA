@@ -1,0 +1,18 @@
+[Unit]
+Description=AstroSMA Frontend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=in4p
+WorkingDirectory=/home/in4p/git/sma/AstroSMA/Frontend
+EnvironmentFile=/home/in4p/git/sma/AstroSMA/Frontend/.env
+ExecStart=/bin/bash -lc 'source /home/in4p/.nvm/nvm.sh && nvm use 17.9.1 >/dev/null && cd /home/in4p/git/sma/AstroSMA/Frontend && exec npm run start -- --host 0.0.0.0 --port 5173'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
