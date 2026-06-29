@@ -1,0 +1,18 @@
+[Unit]
+Description=AstroSMA Backend
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=in4p
+WorkingDirectory=/home/in4p/git/sma/AstroSMA/Backend
+EnvironmentFile=/home/in4p/git/sma/AstroSMA/Backend/.env
+ExecStart=/bin/bash -lc 'source /home/in4p/.nvm/nvm.sh && nvm use 17.9.1 >/dev/null && cd /home/in4p/git/sma/AstroSMA/Backend && exec npm run start'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

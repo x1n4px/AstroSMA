@@ -4,6 +4,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { extraerUserId } = require('../middlewares/extractJWT')
+const { resolveDetectionContext } = require('../utils/detectionFolder');
 require('dotenv').config();
 
 const getPhotometryFromId = async (req, res) => {
@@ -28,31 +29,8 @@ const getPhotometryFromId = async (req, res) => {
 }
 
 function getDetectionFolder(date, time) {
-    const rawDate = date instanceof Date && !Number.isNaN(date.getTime())
-        ? new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Europe/Madrid',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        }).format(date)
-        : String(date || '');
-    const dateMatch = rawDate.match(/(\d{4})[-/]?(\d{2})[-/]?(\d{2})/);
-    const timeMatch = String(time || '').match(/(\d{2}):?(\d{2}):?(\d{2})/);
-    const fullPath = process.env.FULL_PATH;
-
-    if (!dateMatch || !timeMatch || !fullPath) {
-        return null;
-    }
-
-    const [, year, month, day] = dateMatch;
-    const [, hour, minute, second] = timeMatch;
-    const normalizedFullPath = path.resolve(fullPath);
-    const deteccionesSuffix = path.join('home', 'sma', 'Meteoros', 'Detecciones');
-    const deteccionesRoot = normalizedFullPath.endsWith(deteccionesSuffix)
-        ? normalizedFullPath
-        : path.resolve(normalizedFullPath, deteccionesSuffix);
-
-    return path.resolve(deteccionesRoot, year, `${year}${month}${day}`, `${hour}${minute}${second}`);
+    const detectionContext = resolveDetectionContext(date, time);
+    return detectionContext?.eventFolder || null;
 }
 
 const getPhotometryGraph = async (req, res) => {

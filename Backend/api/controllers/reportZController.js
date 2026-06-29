@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const pool = require('../database/connection');
 const { extraerUserId } = require('../middlewares/extractJWT')
 const { isAdminUser } = require('../utils/roleMaskUtils')
@@ -5,10 +7,17 @@ const { transform, convertSexagesimalToDecimal, individuaConvertSexagesimalToDec
 const { convertCoordinates } = require('../middlewares/convertCoordinates');
 const { QR_USER_ROL } = require('../utils/roleMaskUtils')
 const { getMoonPosition, getTimes, getPosition, getMoonIllumination } = require('suncalc');
+const {
+    dedupeShowerResults,
+    getSolarEclipticLongitude,
+    isSolarLongitudeWithinRange,
+    normalizeShowerCode
+} = require('../utils/activeShowerHelpers');
 
 const { translateObjectKeys } = require('../utils/objectTranslator')
 const { reportZMapper } = require('../mappers/reportZMapper')
 const { buildReportZVisibilityCondition } = require('../utils/reportZVisibility')
+const { resolveDetectionContext } = require('../utils/detectionFolder');
 
 const REPORT_Z_COLUMNS = [
     'IdInforme',
@@ -83,6 +92,79 @@ const REPORT_Z_NUMBER_COLUMNS = new Set([
     'Aceleración_en_gs'
 ]);
 const REPORT_Z_SELECT_COLUMNS = REPORT_Z_COLUMNS.map(column => `\`${column}\``).join(', ');
+
+function parseMediaListFile(content) {
+    return String(content || '')
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map((url, index) => {
+            const cleanedUrl = url.split('#')[0].trim();
+            const pathname = cleanedUrl.split('?')[0];
+            const filename = pathname.slice(pathname.lastIndexOf('/') + 1) || cleanedUrl;
+            const extension = filename.split('.').pop()?.toLowerCase() || '';
+            const type = ['mp4', 'webm', 'ogg', 'mov'].includes(extension)
+                ? 'video'
+                : ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)
+                    ? 'image'
+                    : 'link';
+
+            return {
+                id: `${index}-${filename}`,
+                url: cleanedUrl,
+                filename,
+                type
+            };
+        });
+}
+
+async function getReportMediaById(req, res) {
+    try {
+        const { id } = req.params;
+        const [reportRows] = await pool.query(
+            'SELECT IdInforme, Fecha, Hora FROM Informe_Z WHERE IdInforme = ? LIMIT 1',
+            [id]
+        );
+
+        if (!reportRows.length) {
+            return res.status(404).json({ message: 'Informe no encontrado' });
+        }
+
+        const report = reportRows[0];
+        const detectionContext = resolveDetectionContext(report.Fecha, report.Hora);
+
+        if (!detectionContext) {
+            return res.status(404).json({ message: 'No se pudo localizar el directorio del evento' });
+        }
+
+        const mediaPath = path.resolve(detectionContext.eventFolder, 'videos-e-imagenes.txt');
+        if (!mediaPath.startsWith(`${detectionContext.eventFolder}${path.sep}`)) {
+            return res.status(400).json({ message: 'Ruta de archivo inválida' });
+        }
+
+        if (!fs.existsSync(mediaPath)) {
+            return res.json({
+                reportId: report.IdInforme,
+                media: [],
+                sourceFile: mediaPath,
+                sourceFileExists: false
+            });
+        }
+
+        const fileContent = await fs.promises.readFile(mediaPath, 'utf8');
+        const media = parseMediaListFile(fileContent);
+
+        return res.json({
+            reportId: report.IdInforme,
+            media,
+            sourceFile: mediaPath,
+            sourceFileExists: true
+        });
+    } catch (error) {
+        console.error('Error al obtener el material audiovisual del informe:', error);
+        return res.status(500).json({ message: 'No se pudo obtener el material audiovisual del informe' });
+    }
+}
 
 function toNullableAdminValue(value) {
     if (value === undefined || value === null || value === '') {
@@ -911,16 +993,19 @@ async function IMOShowers(id) {
             WHERE ms.Code LIKE ?;
         `, [idLimpio]);
 
-        const code = lluviaData[0]?.Code?.replace(/[^a-zA-Z]/g, '');
+        const showerData = lluviaData[0] || {};
+        const code = showerData?.Code?.replace(/[^a-zA-Z]/g, '');
+        const canonicalCode = normalizeShowerCode(lluvia.Lluvia_Identificador || showerData.Code || showerData.Identificador);
 
         if (code === idLimpio) {
-            lluviaData[0].Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
+            showerData.Distancia_mínima_entre_radianes_y_trayectoria = lluvia.Distancia_mínima_entre_radianes_y_trayectoria;
 
         }
 
         lluvias_datos.push({
-            ...lluviaData[0],
-            ...lluvia
+            ...showerData,
+            ...lluvia,
+            canonicalCode
         });
     }
     const result = [];
@@ -934,13 +1019,14 @@ async function IMOShowers(id) {
         }
     }
 
-    return result;
+    return dedupeShowerResults(
+        result,
+        shower => shower.canonicalCode || shower.Lluvia_Identificador || shower.Code || shower.Identificador
+    );
 }
 
 
 async function IAUShowers(id, date) {
-    const UMBRAL_GRADOS = 5;
-
     const toRadians = deg => deg * Math.PI / 180;
     const toDegrees = rad => rad * 180 / Math.PI;
 
@@ -977,22 +1063,25 @@ async function IAUShowers(id, date) {
 
     if (!orbital || orbital.length === 0) return [];
 
-    // Obtener lluvias activas +/-30 días
-    const fecha = new Date(report.Fecha);
-    const formatted = `${fecha.getDate().toString().padStart(2, '0')}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+    const fecha = new Date(`${report.Fecha}T12:00:00Z`);
+    const solarLongitude = getSolarEclipticLongitude(fecha);
+    if (solarLongitude === null) {
+        return [];
+    }
 
     const [lluvias] = await pool.query(`
-        SELECT ms.Code, ms.Activity,ms.ShowerNameDesignation,ms.Status, ms.SubDate, ms.Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q, ms.Incl as i
+        SELECT ms.Code, ms.Activity, ms.ShowerNameDesignation, ms.Status, ms.SubDate, ms.Ra, ms.De, ms.E as e, ms.A as a, ms.Q as q, ms.Incl as i, ms.LoSb, ms.LoSe
         FROM meteor_showers ms
         WHERE 
-            ABS(DAYOFYEAR(ms.SubDate) - DAYOFYEAR(STR_TO_DATE(?, '%d-%m'))) <= 30
-            AND ms.Code != ""
-            AND ms.A != "" AND ms.Q != "" AND ms.E != "" AND ms.Ra != "" AND ms.De != "";
-    `, [formatted]);
+            TRIM(COALESCE(ms.Code, '')) != ''
+            AND ms.LoSb IS NOT NULL AND ms.LoSe IS NOT NULL
+            AND ms.A IS NOT NULL AND ms.Q IS NOT NULL AND ms.E IS NOT NULL AND ms.Ra IS NOT NULL AND ms.De IS NOT NULL;
+    `);
 
-    if (!lluvias || lluvias.length === 0) return [];
+    const lluviasActivas = lluvias.filter(lluvia => isSolarLongitudeWithinRange(solarLongitude, lluvia.LoSb, lluvia.LoSe));
+    if (!lluviasActivas || lluviasActivas.length === 0) return [];
 
-    const lluvias_datos = lluvias.map(lluvia => {
+    const lluvias_datos = lluviasActivas.map(lluvia => {
         const distancia = distanciaAngular(
             Number(orbital[0].Ar),
             Number(orbital[0].De),
@@ -1001,6 +1090,7 @@ async function IAUShowers(id, date) {
         );
         return {
             ...lluvia,
+            canonicalCode: normalizeShowerCode(lluvia.Code),
             Distancia_mínima_entre_radianes_y_trayectoria: distancia.toFixed(2)
         };
     });
@@ -1010,13 +1100,11 @@ async function IAUShowers(id, date) {
     for (const lluvia of lluvias_datos) {
         for (const ob of orbital) {
             const membership = calculateMembership(ob, lluvia);
-            if (membership > 1) {
-                result.push({ ...lluvia, membership });
-            }
+            result.push({ ...lluvia, membership });
         }
     }
 
-    return result;
+    return dedupeShowerResults(result, shower => shower.canonicalCode || shower.Code || shower.Identificador);
 }
 
 
@@ -1077,6 +1165,7 @@ const getPhaseName = (p) => {
 module.exports = {
     getAllReportZ,
     getReportZ,
+    getReportMediaById,
     getReportzWithCustomSearch,
     getReportZListFromRain,
     getRelatedReportsByMeteor,

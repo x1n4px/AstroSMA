@@ -64,6 +64,20 @@ def is_writable_dir(path: str | Path) -> bool:
         return False
 
 
+def is_within_directory(path: str | Path, base: str | Path) -> bool:
+    try:
+        target = Path(path).expanduser().resolve(strict=False)
+        root = Path(base).expanduser().resolve(strict=False)
+        return target == root or target.is_relative_to(root)
+    except OSError:
+        return False
+
+
+def get_source_root() -> Path | None:
+    source_root = env("FULL_PATH", env("ruta_proyecto", "")).strip()
+    return Path(source_root).expanduser() if source_root else None
+
+
 def resolve_runtime_dir(configured_path: str, fallback_path: Path) -> Path:
     if configured_path:
         candidate = Path(configured_path).expanduser()
@@ -102,7 +116,9 @@ def clear_directory_contents(directory: str | Path) -> None:
         return
 
     for child in target.iterdir():
-        if child.is_dir():
+        if child.is_symlink():
+            child.unlink()
+        elif child.is_dir():
             shutil.rmtree(child)
         else:
             child.unlink()
@@ -121,18 +137,25 @@ def detection_path_from_database_path(database_path: str | None) -> str | None:
         return None
 
     normalized = str(database_path).replace("\\", "/")
-    full_path = env("FULL_PATH", env("ruta_proyecto", "")).replace("\\", "/").rstrip("/")
+    source_root = get_source_root()
+    if not source_root:
+        return None
 
     match = re.search(r"(?:/(?:Meteoros/)?Detecciones|/Z)/(\d{4})/(.+)$", normalized)
-    if not match or not full_path:
-        return normalized
+    if not match:
+        return None
 
     year, suffix = match.groups()
-    base_name = Path(full_path).name
+    base_name = source_root.name
     if re.fullmatch(r"\d{4}", base_name):
-        return Path(full_path, suffix).as_posix()
+        candidate = source_root / suffix
+    else:
+        candidate = source_root / year / suffix
 
-    return Path(full_path, year, suffix).as_posix()
+    if not is_within_directory(candidate, source_root):
+        return None
+
+    return candidate.resolve(strict=False).as_posix()
 
 
 def parse_informe_timestamp(file_path: str | Path) -> dict[str, str] | None:
@@ -201,9 +224,12 @@ def find_source_video(project_path: str | Path) -> Path | None:
 def populate_runtime_project(project_path: str | Path, runtime_project_path: str | Path) -> None:
     source_project = Path(project_path)
     runtime_project = Path(runtime_project_path)
+    allowed_root = get_source_root()
 
     if not source_project.exists():
         raise FileNotFoundError("La ruta de deteccion no existe")
+    if allowed_root and not is_within_directory(source_project, allowed_root):
+        raise PermissionError("La ruta de deteccion queda fuera del directorio permitido")
 
     ensure_dir(runtime_project)
     clear_directory_contents(runtime_project)
@@ -271,6 +297,9 @@ def resolve_report_context(id_ec: int | str) -> dict | None:
         return None
 
     report_path = detection_path_from_database_path(row[2])
+    if not report_path:
+        return None
+
     return {
         "reportId": int(id_ec),
         "date": row[0],
@@ -299,12 +328,18 @@ def resolve_informe_id(fecha: str | None, hora: str | None, hora_base: str | Non
     expected_path = normalize_local_path(ruta)
 
     for row in rows:
-        resolved_path = normalize_local_path(detection_path_from_database_path(row[1]))
+        resolved = detection_path_from_database_path(row[1])
+        if not resolved:
+            continue
+        resolved_path = normalize_local_path(resolved)
         if resolved_path == expected_path:
             return int(row[0])
 
     for row in rows:
-        resolved_path = normalize_local_path(detection_path_from_database_path(row[1]))
+        resolved = detection_path_from_database_path(row[1])
+        if not resolved:
+            continue
+        resolved_path = normalize_local_path(resolved)
         if Path(resolved_path).parent.as_posix() == expected_path or resolved_path == Path(expected_path).parent.as_posix():
             return int(row[0])
 

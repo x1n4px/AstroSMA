@@ -1,37 +1,26 @@
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
-const token = localStorage.getItem('authToken');
-
-
 
 export const getReportZ = async (id) => {
-    try {
-        const response = await axios.get(`${apiUrl}/reportz/${id}`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.get(`${apiUrl}/reportz/${id}`);
+    return response.data;
 }
 
 
 export const getReportZListFromRain = async(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold) => {
-    try {
-        const response = await axios.post(`${apiUrl}/reportz/showerInfo/${selectedCode}/${dateIn === '' ? null : dateIn }/${dateOut === '' ? null : dateOut }`, {membershipThreshold, distanceThreshold});
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.post(`${apiUrl}/reportz/showerInfo/${selectedCode}/${dateIn === '' ? null : dateIn }/${dateOut === '' ? null : dateOut }`, {membershipThreshold, distanceThreshold});
+    return response.data;
 }
 
 export const getRelatedReportsByReportZId = async(id) => {
-    try {
-        const response = await axios.get(`${apiUrl}/reportz/${id}/related`);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await axios.get(`${apiUrl}/reportz/${id}/related`);
+    return response.data;
+}
+
+export const getReportMediaByReportZId = async(id) => {
+    const response = await axios.get(`${apiUrl}/reportz/${id}/media`);
+    return response.data;
 }
 
  
-

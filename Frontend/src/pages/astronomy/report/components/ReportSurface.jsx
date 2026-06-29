@@ -130,7 +130,7 @@ ReportMetricsGrid.propTypes = {
 export function ReportMetricCard({ label, value }) {
   return (
     <div style={metricCardStyle}>
-      <div style={{ color: '#64748b', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
+      <div style={{ color: '#64748b', fontSize: '0.82rem',  letterSpacing: '0.08em', marginBottom: '0.3rem' }}>
         {label}
       </div>
       <div style={{ color: '#182338', fontSize: '1.05rem', fontWeight: 700, overflowWrap: 'anywhere' }}>

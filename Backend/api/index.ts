@@ -23,6 +23,19 @@ app.use(cors());
 app.use(express.json());
 const PORT = process.env.PORT || 3005;
 
+const logUnhandledError = (label, error) => {
+  const message = error instanceof Error ? error.stack || error.message : String(error);
+  console.error(`[${new Date().toISOString()}] ${label}`, message);
+};
+
+process.on('unhandledRejection', (reason) => {
+  logUnhandledError('unhandledRejection', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  logUnhandledError('uncaughtException', error);
+});
+
 
 app.get("/", (req, res) => {
   res.send("Express on Vercel");
@@ -45,6 +58,19 @@ app.use('/api', FileRoute);
 app.use('/api', RequestRoute);
 app.use('/api', WorkflowsRoute);
 app.use('/api', AdminScientificTableRoute);
+
+app.use((err, req, res, next) => {
+  logUnhandledError('expressError', err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  return res.status(500).json({
+    ok: false,
+    msg: 'Internal server error',
+  });
+});
 
 
 

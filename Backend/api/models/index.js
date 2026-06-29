@@ -1,6 +1,16 @@
 const { Sequelize } = require("sequelize");
-const sequelize = new Sequelize("astro", "in4p", "0000", {
-    host: "localhost",
+
+const dbName = process.env.DB_NAME;
+const dbUser = process.env.DB_USER;
+const dbPassword = process.env.DB_PASSWORD;
+const dbHost = process.env.DB_HOST;
+
+if (!dbName || !dbUser || !dbPassword || !dbHost) {
+    throw new Error('Faltan variables de entorno de base de datos para Sequelize');
+}
+
+const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
+    host: dbHost,
     dialect: "mariadb"
 });
 

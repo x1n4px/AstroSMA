@@ -1,0 +1,23 @@
+# Glosario
+
+- `Informe_Z`: reporte principal de bólido/meteoro usado en el panel y en la mayoria de visualizaciones.
+- `Informe_Radiante`: informe del radiante asociado.
+- `Informe_Fotometria`: informe fotometrico.
+- `Meteoro`: entidad base del evento.
+- `Observatorio`: estacion/camara que aporta datos.
+- `Lluvia_activa`: relacion entre un informe Z y una lluvia.
+- `Elementos_Orbitales`: parametros orbitales calculados.
+- `Puntos_ZWO`: puntos asociados a ZWO.
+- `Trayectoria_medida`: trayectoria medida.
+- `Trayectoria_por_regresion`: trayectoria derivada por regresion.
+- `requests`: solicitudes de usuarios para consultas o descargas.
+- `event_config`: configuracion de eventos.
+- `auditing` / `audit_log`: trazas de auditoria.
+- `user_ips`: mapeo IP -> usuario para bloqueos.
+- `workflow view`: composicion guardada en Mongo para el studio de workflows.
+- `QR`, `BASIC`, `ADMIN`: masks de rol internas.
+- `ZWO`: formato/capa de datos usada para puntos y trayectorias en el dominio del proyecto.
+- `LP`: clave primaria del catalogo `meteor_showers`.
+- `IAUNo`: identificador IAU del catalogo `meteor_showers`.
+- `AdNo`: numero adicional de catalogo en `meteor_showers`.
+- `CG`: campo entero del catalogo `meteor_showers`, usado junto a `GroupIAU`.

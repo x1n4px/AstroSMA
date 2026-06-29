@@ -255,7 +255,7 @@
             "measure": ""
         },
         "ASTRONOMICAL_COORDINATES_OF_THE_RADIANT_J200": {
-            "label": "Radiante J2000 (ar, de en grados)",
+            "label": "Radiante aparente J2000 (ar, de en grados)",
             "measure": ""
         },
         "AZIMUTH": {
@@ -310,6 +310,22 @@
             "RAW_DATA": "Descargar datos en bruto del meteoro",
             "LOADING_TEXT": "Descargando...",
             "ERROR_GENERAL": "Error al descargar {{software}}. Por favor, inténtalo de nuevo."
+        },
+        "MEDIA_TAB": "Vídeos e imágenes",
+        "MEDIA": {
+            "TITLE": "Material audiovisual del evento",
+            "DESCRIPTION": "Vídeos e imágenes asociados a la detección y subidos a la web de meteoros de la SMA.",
+            "LOADING": "Cargando material audiovisual...",
+            "EMPTY": "No hay material audiovisual disponible para este evento.",
+            "ERROR": "No se pudo cargar el material audiovisual del evento.",
+            "OPEN": "Abrir enlace",
+            "VIDEO": "Vídeo",
+            "IMAGE": "Imagen",
+            "LINK": "Enlace",
+            "REPORT_ID": "Informe",
+            "TOTAL": "Enlaces",
+            "VIDEOS": "Vídeos",
+            "IMAGES": "Imágenes"
         },
         "SONIFICATION": {
             "TAB_TITLE": "Sonificación",
@@ -743,11 +759,11 @@
             "measure": ""
         },
         "OMEGA": {
-            "label": "omega (peri) grados",
+            "label": "ω a la fecha",
             "measure": "°"
         },
         "OMEGA_DEGREE": {
-            "label": "Omega (grados)",
+            "label": "Ω a J2000",
             "measure": "°"
         }
     },

@@ -160,6 +160,15 @@
   background-color: #f4f7fb;
 }
 
+.point-adjust-table .table > :not(caption) > * > * {
+  padding: 0.72rem 0.82rem;
+}
+
+.point-adjust-table .table thead th {
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
 .report-empty-state {
   padding: 1rem 1.1rem;
   border: 1px dashed #d7dee9;

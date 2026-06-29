@@ -74,8 +74,8 @@ const OrbitReport = ({ orbit, reportDate }) => {
       { label: 'a', value: formatValue(selectedOrbit.a, 'UA') },
       { label: 'e', value: firstToken(selectedOrbit.e) },
       { label: 'i', value: formatValue(selectedOrbit.i, '°') },
-      { label: 'omega J2000', value: formatValue(selectedOrbit.omega, '°') },
-      { label: isEnglish ? 'Omega at date' : 'Omega a la fecha', value: formatValue(twoDecimals(selectedOrbit.Omega_grados_votos_max_min), '°') },
+      { label: isEnglish ? 'ω at date' : 'ω a la fecha', value: formatValue(selectedOrbit.omega, '°') },
+      { label: isEnglish ? 'Ω at J2000' : 'Ω a J2000', value: formatValue(twoDecimals(selectedOrbit.Omega_grados_votos_max_min), '°') },
       { label: 'p', value: formatValue(twoDecimals(selectedOrbit.p), 'UA') },
       { label: 'q', value: formatValue(selectedOrbit.q, 'UA') },
       { label: 'T', value: firstToken(selectedOrbit.T) }

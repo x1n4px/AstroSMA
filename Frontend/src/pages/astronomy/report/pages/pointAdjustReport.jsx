@@ -12,10 +12,10 @@ import {
   ReportEmptyState
 } from '@/pages/astronomy/report/components/ReportSurface.jsx';
 
-function DataTable({ columns, rows, rowKey }) {
+function DataTable({ columns, rows, rowKey, tableClassName }) {
   return (
     <ReportTableShell>
-      <Table hover responsive className="mb-0 align-middle">
+      <Table hover responsive className={`mb-0 align-middle ${tableClassName}`.trim()}>
         <thead>
           <tr>
             {columns.map(column => (
@@ -44,7 +44,12 @@ DataTable.propTypes = {
     render: PropTypes.func.isRequired
   })).isRequired,
   rows: PropTypes.arrayOf(PropTypes.object).isRequired,
-  rowKey: PropTypes.func.isRequired
+  rowKey: PropTypes.func.isRequired,
+  tableClassName: PropTypes.string
+};
+
+DataTable.defaultProps = {
+  tableClassName: ''
 };
 
 function formatFitsDateTime(row) {
@@ -62,14 +67,14 @@ const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
   ];
 
   const regressionColumns = [
-    { key: 'dateTime', label: 'Fecha/hora', render: row => formatFitsDateTime(row) },
+    { key: 'dateTime', label: 'Fecha/hora', render: row => <span className="text-nowrap">{formatFitsDateTime(row)}</span> },
     { key: 't', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.t'), render: row => truncateDecimal(row.t) },
     { key: 's', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.s'), render: row => truncateDecimal(row.s) },
     { key: 'v', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.v'), render: row => truncateDecimal(row.v_Kms) }
   ];
 
   const trajectoryColumns = [
-    { key: 'dateTime', label: 'Fecha/hora', render: row => formatFitsDateTime(row) },
+    { key: 'dateTime', label: 'Fecha/hora', render: row => <span className="text-nowrap">{formatFitsDateTime(row)}</span> },
     { key: 's', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S'), render: row => truncateDecimal(row.s) },
     { key: 't', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T'), render: row => truncateDecimal(row.t) },
     { key: 'v', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V'), render: row => truncateDecimal(row.v) },
@@ -103,6 +108,7 @@ const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
               <DataTable
                 columns={trajectoryColumns}
                 rows={trajectoryData}
+                tableClassName="point-adjust-table"
                 rowKey={(row, index) => `${row.Fecha}-${row.s}-${index}`}
               />
             ) : (
@@ -117,6 +123,7 @@ const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
               <DataTable
                 columns={regressionColumns}
                 rows={regressionTrajectory}
+                tableClassName="point-adjust-table"
                 rowKey={(row, index) => `${row.Fecha}-${row.t}-${index}`}
               />
             ) : (

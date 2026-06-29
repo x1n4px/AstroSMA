@@ -35,7 +35,7 @@ function buildDownloadItems(report) {
       apiButtonName: 'RAW_MEASURES',
       fileName: `Coordenadas-${timestamp}-${id1}.csv`,
       buttonText: 'Descargar datos en bruto del meteoro',
-      description: 'Coordenadas celestes (acimut, distancia zenital, ascensión recta y declinación a la fecha) de los centroides de las trazas de los fotogramas individuales sin ajustar a una circunferencia máxima.'
+      description: 'Coordenadas celestes (acimut, distancia zenital, ascensión recta y declinación a la fecha, no a J2000) de los centroides de las trazas de los fotogramas individuales sin ajustar a una circunferencia máxima.'
     },
     {
       id: 'ufoorbit',
@@ -49,7 +49,7 @@ function buildDownloadItems(report) {
       id: 'los',
       title: 'Líneas de visión (LoS)',
       apiButtonName: 'LOS',
-      fileName: `Magnitudes-${timestamp}-${pair}`,
+      fileName: `rozador-${timestamp}-${pair}`,
       buttonText: 'Descargar archivo LoS',
       description: 'Coordenadas ECI de la estación en movimiento con la rotación de la Tierra y coordenadas del centroide del meteoro en el mismo sistema.'
     },

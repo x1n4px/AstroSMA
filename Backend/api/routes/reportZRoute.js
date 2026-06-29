@@ -14,6 +14,7 @@ router.put('/admin/reportz/:id', [validateJWT, validateRol], ReportZController.u
 router.delete('/admin/reportz/:id', [validateJWT, validateRol], ReportZController.deleteAdminReportZ);
 router.post('/reportz/showerInfo/:selectedCode/:dateIn/:dateOut', validateJWT, ReportZController.getReportZListFromRain);
 router.get('/reportz/:id/related', ReportZController.getRelatedReportsByMeteor);
+router.get('/reportz/:id/media', ReportZController.getReportMediaById);
 router.get('/reportz/:id',  ReportZController.getReportZ);
 
 

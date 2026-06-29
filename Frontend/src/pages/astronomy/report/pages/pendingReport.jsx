@@ -36,10 +36,14 @@ function extractNumbers(value) {
   return String(value).match(/[+-]?\d+(?:[.,]\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
 }
 
-function formatVector(value, decimals) {
+function formatVector(value, decimals, labels = []) {
   const numbers = Array.isArray(value) ? value : extractNumbers(value);
   if (!numbers.length) return '-';
-  return numbers.map(item => Number.isFinite(item) ? item.toFixed(decimals) : '-').join(' ');
+  return numbers.map((item, index) => {
+    if (!Number.isFinite(item)) return '-';
+    const formatted = item.toFixed(decimals);
+    return labels[index] ? `${labels[index]}=${formatted}` : formatted;
+  }).join(' ');
 }
 
 function formatMotionEquation(value) {
@@ -150,11 +154,11 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
   const equationMetrics = [
     {
       label: 'Vector de posición del inicio (Km)',
-      value: formatVector(parametricEquation?.Inicio_Estacion_1, 3)
+      value: formatVector(parametricEquation?.Inicio_Estacion_1, 3, ['x', 'y', 'z'])
     },
     {
       label: 'Vector dirección del radiante',
-      value: formatVector([parametricEquation?.a, parametricEquation?.b, parametricEquation?.c], 6)
+      value: formatVector([parametricEquation?.a, parametricEquation?.b, parametricEquation?.c], 6, ['a', 'b', 'c'])
     },
     {
       label: 'Ecuación del movimiento (e=at²+bt+c)',
@@ -211,7 +215,7 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
 
         <Col xs={12}>
           <ReportPanel
-            title="Proyeccion en superficie por estacion"
+            title="Proyección en superficie"
             description="El mapa 2D conserva la lectura por estaciones y sirve como referencia geodesica complementaria al modelo 3D."
           >
             <div style={{ width: '100%', minHeight: '36rem', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #e5ebf3' }}>
