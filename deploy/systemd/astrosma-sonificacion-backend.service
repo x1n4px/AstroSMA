@@ -6,9 +6,9 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=in4p
-WorkingDirectory=/home/in4p/git/sma/AstroSMA/sonificacion-backend
-EnvironmentFile=/home/in4p/git/sma/AstroSMA/sonificacion-backend/.env
-ExecStart=/bin/bash /home/in4p/git/sma/AstroSMA/sonificacion-backend/start.sh
+WorkingDirectory=/home/sma/AstroSMA/sonificacion-backend
+EnvironmentFile=/home/sma/AstroSMA/sonificacion-backend/.env
+ExecStart=/bin/bash /home/sma/AstroSMA/sonificacion-backend/start.sh
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
