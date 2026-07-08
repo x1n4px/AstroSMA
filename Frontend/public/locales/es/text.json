@@ -666,8 +666,8 @@
         "ACCEPT_BUTTON": "Enviar Solicitud"
     },
     "STATION": {
-        "TITLE": "Mapa de estaciones espaciales",
-        "DESCRIPTION": "La red de bólidos y Meteoros de la Universidad de Málaga",
+        "TITLE": "Mapa de estaciones",
+        "DESCRIPTION": "Red de bólidos y Meteoros de la Universidad de Málaga (UMA) y de la Sociedad Malagueña de Astronomía (SMA)",
         "LOADING_MSG": "Cargando estaciones...",
         "ERROR_MSG": "Error al cargar estaciones",
         "STATION_LIST": "Lista de estaciones",
@@ -677,12 +677,12 @@
             "DESCRIPTION": "Descripción",
             "COORDINATES": "Coordenadas",
             "CHIP": {
-                "SIZE": "Tamaño del chip",
-                "ORIENTATION": "Orientación"
+                "SIZE": "Tamaño (horizontal)",
+                "ORIENTATION": "Tamaño (vertical)"
             },
             "FILTER": "Filtro",
             "HEIGHT": {
-                "TITLE": "Altura",
+                "TITLE": "Altitud",
                 "MEASURE": "m"
             }
         },
