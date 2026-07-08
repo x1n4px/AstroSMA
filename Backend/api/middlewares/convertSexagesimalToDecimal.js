@@ -1,23 +1,58 @@
 require('dotenv').config(); // Asegúrate de que dotenv esté configurado
 
+function parseSexagesimalParts(sexagesimalValue) {
+    if (!sexagesimalValue) {
+        return null;
+    }
+
+    const normalizedValue = String(sexagesimalValue).trim();
+    if (!normalizedValue) {
+        return null;
+    }
+
+    const parts = normalizedValue
+        .replace(/\s*:\s*/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (parts.length < 3) {
+        return null;
+    }
+
+    const degrees = Number.parseFloat(parts[0]);
+    const minutes = Number.parseFloat(parts[1]);
+    const seconds = Number.parseFloat(parts[2]);
+
+    if (![degrees, minutes, seconds].every(Number.isFinite)) {
+        return null;
+    }
+
+    return { degrees, minutes, seconds };
+}
+
 function convertSexagesimalToDecimal(sexagesimalValue) {
-    if (!sexagesimalValue) return null; // Manejar valores nulos o indefinidos
+    const parts = parseSexagesimalParts(sexagesimalValue);
+    if (!parts) return null;
 
-    // Split the string into parts using space as a separator
-    const parts = sexagesimalValue.split(' ');
+    const sign = parts.degrees < 0 ? -1 : 1;
+    return sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600);
+}
 
-    if (parts.length < 3) return null; // Validar el formato correcto
+function convertSexagesimalToRadians(sexagesimalValue) {
+    const decimalDegrees = convertSexagesimalToDecimal(sexagesimalValue);
+    return decimalDegrees === null ? null : decimalDegrees * (Math.PI / 180);
+}
 
-    // Extract degrees, minutes, and seconds
-    const degrees = parseFloat(parts[0]);
-    const minutes = parseFloat(parts[1]);
-    const seconds = parseFloat(parts[2]);
+function formatResolution(horizontalPixels, verticalPixels) {
+    const horizontal = Number.parseInt(horizontalPixels, 10);
+    const vertical = Number.parseInt(verticalPixels, 10);
 
-    // Determine the sign (negative for west or south)
-    const sign = degrees < 0 ? -1 : 1;
+    if (!Number.isFinite(horizontal) || !Number.isFinite(vertical)) {
+        return null;
+    }
 
-    // Calculate the decimal value
-    return sign * (Math.abs(degrees) + Math.abs(minutes) / 60 + Math.abs(seconds) / 3600);
+    const formatter = new Intl.NumberFormat('es-ES');
+    return `${formatter.format(Math.abs(horizontal))}x${formatter.format(Math.abs(vertical))}`;
 }
 
 function transformStation(station) {
@@ -39,6 +74,7 @@ function transformStation(station) {
         cloudDirectory: station.Directorio_Nube,
         chipSize: station.Tamaño_Chip,
         chipOrientation: station.Orientación_Chip,
+        resolution: formatResolution(station.Tamaño_Chip, station.Orientación_Chip),
         filter: station.Máscara,
         credit: station.Créditos,
         stationName: station.Nombre_Observatorio,
@@ -59,28 +95,18 @@ function transform(input) {
 }
 
 function individuaConvertSexagesimalToDecimal(sexagesimalValue) {
-    if (!sexagesimalValue) return null; // Manejar valores nulos o indefinidos
+    const parts = parseSexagesimalParts(sexagesimalValue);
+    if (!parts) return null;
 
-    // Reemplazar posibles separadores incorrectos y dividir en partes
-    const parts = sexagesimalValue.replace(/[^0-9.:+-]/g, '').split(':');
-
-    if (parts.length < 3) return null; // Validar el formato correcto
-
-    // Extraer grados, minutos y segundos
-    const degrees = parseFloat(parts[0]);
-    const minutes = parseFloat(parts[1]);
-    const seconds = parseFloat(parts[2]);
-
-    // Determinar el signo según el prefijo (si tiene)
-    const sign = sexagesimalValue.trim().startsWith('-') ? -1 : 1;
-
-    // Calcular el valor decimal
-    return parseFloat((sign * (Math.abs(degrees) + minutes / 60 + seconds / 3600)).toFixed(4));
+    const sign = String(sexagesimalValue).trim().startsWith('-') ? -1 : 1;
+    return parseFloat((sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600)).toFixed(4));
 }
 
 
 module.exports = {
     convertSexagesimalToDecimal,
+    convertSexagesimalToRadians,
+    formatResolution,
     transform, 
     individuaConvertSexagesimalToDecimal
 };

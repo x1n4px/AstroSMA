@@ -674,11 +674,13 @@
         "STATION": {
             "NAME": "Nombre",
             "ALTITUDE": "Altitud",
+            "CREDITS": "Créditos",
             "DESCRIPTION": "Descripción",
-            "COORDINATES": "Coordenadas",
+            "COORDINATES": "Latitud y longitud",
+            "RESOLUTION": "Resolución",
             "CHIP": {
-                "SIZE": "Tamaño (horizontal)",
-                "ORIENTATION": "Tamaño (vertical)"
+                "SIZE": "Horizontal (píxeles)",
+                "ORIENTATION": "Vertical (píxeles)"
             },
             "FILTER": "Filtro",
             "HEIGHT": {

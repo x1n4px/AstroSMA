@@ -1,5 +1,5 @@
 const pool = require('../database/connection');
-const { transform } = require('../middlewares/convertSexagesimalToDecimal');
+const { convertSexagesimalToRadians, transform } = require('../middlewares/convertSexagesimalToDecimal');
 
 const STATION_COLUMNS = `
     \`Número\`,
@@ -39,14 +39,17 @@ function toNullableNumber(value) {
 }
 
 function normalizeStationPayload(payload = {}) {
+    const longitudeSexagesimal = toNullableValue(payload.longitudeSexagesimal);
+    const latitudeSexagesimal = toNullableValue(payload.latitudeSexagesimal);
+
     return {
         id: toNullableNumber(payload.id),
         name: toNullableValue(payload.name),
         description: toNullableValue(payload.description),
-        longitudeSexagesimal: toNullableValue(payload.longitudeSexagesimal),
-        latitudeSexagesimal: toNullableValue(payload.latitudeSexagesimal),
-        longitudeRadians: toNullableNumber(payload.longitude_Radianes),
-        latitudeRadians: toNullableNumber(payload.latitude_Radianes),
+        longitudeSexagesimal,
+        latitudeSexagesimal,
+        longitudeRadians: toNullableNumber(payload.longitude_Radianes) ?? convertSexagesimalToRadians(longitudeSexagesimal),
+        latitudeRadians: toNullableNumber(payload.latitude_Radianes) ?? convertSexagesimalToRadians(latitudeSexagesimal),
         height: toNullableNumber(payload.height),
         localDirectory: toNullableValue(payload.localDirectory),
         cloudDirectory: toNullableValue(payload.cloudDirectory),
@@ -201,9 +204,9 @@ const getAllStations = async (req, res) => {
         );
         let stations = [];
         if (userRows[0]?.rol === '10000000') { 
-            stations = await pool.query('SELECT * FROM Observatorio ORDER BY Activo ASC');
+            stations = await pool.query('SELECT * FROM Observatorio ORDER BY Nombre_Observatorio ASC, Número ASC');
         } else {
-            stations = await pool.query('SELECT * FROM Observatorio WHERE Activo = 1 ORDER BY Activo ASC');
+            stations = await pool.query('SELECT * FROM Observatorio WHERE Activo = 1 ORDER BY Nombre_Observatorio ASC, Número ASC');
         }
         const convertedStations = transform(stations[0]);
 

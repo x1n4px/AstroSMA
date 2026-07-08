@@ -1,0 +1,247 @@
+.station-page {
+  padding: 20px;
+}
+
+.station-admin-shell {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.station-admin-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid #d8e0ea;
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(circle at top left, rgba(152, 1, 0, 0.08), transparent 28%),
+    linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.station-admin-hero__copy {
+  min-width: 0;
+}
+
+.station-admin-hero__eyebrow {
+  display: inline-flex;
+  padding: 0.3rem 0.7rem;
+  margin-bottom: 0.6rem;
+  border-radius: 999px;
+  background: rgba(152, 1, 0, 0.08);
+  color: #980100;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.station-admin-hero__title {
+  margin: 0 0 0.35rem;
+  color: #172033;
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 800;
+}
+
+.station-admin-hero__subtitle {
+  margin: 0;
+  color: #5b677d;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.station-admin-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.station-admin-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.station-admin-workbench {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.station-admin-panel {
+  border: 1px solid #d8e0ea;
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+}
+
+.station-admin-panel__body {
+  padding: 1.2rem;
+}
+
+.station-admin-panel--sticky {
+  position: sticky;
+  top: 1rem;
+}
+
+.station-admin-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e5ebf3;
+}
+
+.station-admin-panel__label {
+  margin: 0 0 0.35rem;
+  color: #980100;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.station-admin-panel__title {
+  margin: 0;
+  color: #172033;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.station-admin-panel__text {
+  margin: 0.35rem 0 0;
+  color: #5b677d;
+  line-height: 1.55;
+  max-width: 50ch;
+}
+
+.station-admin-summary {
+  padding: 0.85rem 0.95rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fafcff 0%, #ffffff 100%);
+  border: 1px solid #e5ebf3;
+}
+
+.station-admin-summary__label {
+  margin-bottom: 0.2rem;
+  color: #667085;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.station-admin-summary__value {
+  color: #172033;
+  font-weight: 700;
+}
+
+.station-admin-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.station-admin-form .form-label {
+  font-weight: 700;
+  color: #334155;
+}
+
+.station-admin-form .form-control,
+.station-admin-form .form-select {
+  border-radius: 0.9rem;
+  min-height: 44px;
+}
+
+.station-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+}
+
+.station-admin-list__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.station-admin-list__title {
+  margin: 0;
+  color: #172033;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.station-admin-list__meta {
+  margin: 0.25rem 0 0;
+  color: #5b677d;
+}
+
+.station-admin-table thead th {
+  background: #f7f9fc;
+  color: #334155;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.station-admin-table tbody tr.is-selected {
+  background: rgba(152, 1, 0, 0.05);
+}
+
+.station-admin-map-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid #d8e0ea;
+  border-radius: 1.1rem;
+  background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+}
+
+.station-admin-map-toggle__copy {
+  min-width: 0;
+}
+
+.station-admin-map-toggle__title {
+  margin: 0 0 0.2rem;
+  color: #172033;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.station-admin-map-toggle__text {
+  margin: 0;
+  color: #5b677d;
+  line-height: 1.5;
+}
+
+.station-admin-map {
+  overflow: hidden;
+  border-radius: 1.1rem;
+  border: 1px solid #e5ebf3;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+.station-admin-map__body {
+  padding: 0.75rem;
+  background: #fff;
+}
+
+@media (max-width: 991.98px) {
+  .station-admin-panel--sticky {
+    position: static;
+  }
+}

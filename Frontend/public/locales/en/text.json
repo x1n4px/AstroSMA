@@ -666,7 +666,7 @@
         }
     },
     "STATION": {
-        "TITLE": "Space station map",
+        "TITLE": "Stations map",
         "DESCRIPTION": "The University of Malaga's Meteor and Fireball Network",
         "LOADING_MSG": "Loading stations...",
         "ERROR_MSG": "Error loading stations",
@@ -674,15 +674,17 @@
         "STATION": {
             "NAME": "Name",
             "ALTITUDE": "Altitude",
+            "CREDITS": "Credits",
             "DESCRIPTION": "Description",
-            "COORDINATES": "Coordinates",
+            "COORDINATES": "Latitude and longitude",
+            "RESOLUTION": "Resolution",
             "CHIP": {
-                "SIZE": "Chip size",
-                "ORIENTATION": "Orientation"
+                "SIZE": "Horizontal (pixels)",
+                "ORIENTATION": "Vertical (pixels)"
             },
             "FILTER": "Filter",
             "HEIGHT": {
-                "TITLE": "Height",
+                "TITLE": "Altitude",
                 "MEASURE": "m"
             }
         },

@@ -1,15 +1,82 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {
+  formatResolution,
+  formatSexagesimalDisplay,
+} from '@/utils/stationDisplay';
 
-const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4.4216, zoom = 11, useStatinIcon = false }) => {
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getCoordinateValue(station, primaryKey, fallbackKey) {
+  if (station && station[primaryKey] !== undefined && station[primaryKey] !== null && station[primaryKey] !== '') {
+    return station[primaryKey];
+  }
+
+  return station?.[fallbackKey];
+}
+
+function getGroupLabel(point) {
+  return point?.stationName || point?.title || point?.name || point?.id || '-';
+}
+
+function groupStationsByObservatory(points) {
+  const groups = new Map();
+
+  points.forEach((point) => {
+    const groupKey = getGroupLabel(point);
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        stationName: point.stationName || point.title || point.name || point.id,
+        latitude: point.latitude,
+        longitude: point.longitude,
+        latitudeSexagesimal: point.latitudeSexagesimal,
+        longitudeSexagesimal: point.longitudeSexagesimal,
+        height: point.height,
+        credit: point.credit,
+        state: point.state,
+        stations: [point],
+      });
+      return;
+    }
+
+    groups.get(groupKey).stations.push(point);
+  });
+
+  return Array.from(groups.values()).map((group) => ({
+    ...group,
+    stations: group.stations.sort((left, right) => Number(left?.id ?? 0) - Number(right?.id ?? 0)),
+  }));
+}
+
+const StationMapChart = ({
+  data,
+  activePopUp,
+  latitude,
+  longitude,
+  lat,
+  lon,
+  zoom = 11,
+  useStatinIcon = false,
+  height = 800,
+}) => {
   const { t } = useTranslation(['text']);
-  const navigate = useNavigate();
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
-  const markersRef = useRef([]);
+  const resolvedLatitude = Number.isFinite(Number(latitude))
+    ? Number(latitude)
+    : (Number.isFinite(Number(lat)) ? Number(lat) : 36.7213);
+  const resolvedLongitude = Number.isFinite(Number(longitude))
+    ? Number(longitude)
+    : (Number.isFinite(Number(lon)) ? Number(lon) : -4.4216);
 
   const hasCoordinate = (coordinate) => coordinate !== null
     && coordinate !== undefined
@@ -17,10 +84,14 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
     && Number.isFinite(Number(coordinate));
 
   const hasValidCoordinates = (station) => (
-    hasCoordinate(station?.latitude) && hasCoordinate(station?.longitude)
+    hasCoordinate(getCoordinateValue(station, 'latitude', 'lat'))
+    && hasCoordinate(getCoordinateValue(station, 'longitude', 'lon'))
   );
 
-  const formatCoordinate = (coordinate) => Number(coordinate).toString().substring(0, 8);
+  const formatDecimalCoordinate = (coordinate) => {
+    const numericCoordinate = Number(coordinate);
+    return Number.isFinite(numericCoordinate) ? numericCoordinate.toFixed(6) : '-';
+  };
 
   const getMarkerColor = (state) => {
     switch (state) {
@@ -35,43 +106,86 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
     }
   };
 
+  const buildPopupHtml = (group) => {
+    const representative = group.stations[0] || group;
+    const observableName = escapeHtml(group.stationName || '-');
+    const latitudeText = escapeHtml(
+      formatSexagesimalDisplay(representative.latitudeSexagesimal)
+      === '-'
+        ? formatDecimalCoordinate(getCoordinateValue(representative, 'latitude', 'lat'))
+        : formatSexagesimalDisplay(representative.latitudeSexagesimal)
+    );
+    const longitudeText = escapeHtml(
+      formatSexagesimalDisplay(representative.longitudeSexagesimal)
+      === '-'
+        ? formatDecimalCoordinate(getCoordinateValue(representative, 'longitude', 'lon'))
+        : formatSexagesimalDisplay(representative.longitudeSexagesimal)
+    );
+    const altitudeText = escapeHtml(group.height ?? representative.height ?? '-');
+    const creditsText = escapeHtml(group.credit || representative.credit || '-');
+    const resolutionItems = group.stations
+      .filter((station) => station.chipSize !== undefined || station.chipOrientation !== undefined)
+      .map((station) => {
+        const resolution = escapeHtml(formatResolution(station.chipSize, station.chipOrientation));
+        return `<li><strong>Resolución ${escapeHtml(station.id)}:</strong> ${resolution}</li>`;
+      })
+      .join('');
+    const imageName = escapeHtml(group.stationName || '');
+
+    return `
+      <div class="station-popup">
+        <h5>${t('STATION.STATION.NAME')}: ${observableName}</h5>
+        <p>${t('STATION.STATION.COORDINATES')}: ${latitudeText}, ${longitudeText}</p>
+        <p>${t('STATION.STATION.ALTITUDE')}: ${altitudeText} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
+        <p>${t('STATION.STATION.CREDITS')}: ${creditsText}</p>
+        ${resolutionItems ? `
+        <div>
+          <p class="mb-1">${t('STATION.STATION.RESOLUTION')}:</p>
+          <ul class="mb-2 ps-3">${resolutionItems}</ul>
+        </div>
+        ` : ''}
+        ${imageName ? `<img src="/station/${imageName}.webp" alt="Imagen" width="250" height="auto" />` : ''}
+      </div>
+    `;
+  };
+
+  const buildMarkers = (map, stations) => {
+    const groupedStations = groupStationsByObservatory(stations.filter(hasValidCoordinates));
+
+    groupedStations.forEach((group) => {
+      const markerStation = group.stations.find((station) => station.state === 1) || group.stations[0];
+      const markerLatitude = Number(getCoordinateValue(markerStation, 'latitude', 'lat'));
+      const markerLongitude = Number(getCoordinateValue(markerStation, 'longitude', 'lon'));
+
+      const marker = L.marker([markerLatitude, markerLongitude], {
+        icon: new L.Icon({
+          iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(markerStation.state)),
+          iconSize: [25, 25],
+        }),
+      }).addTo(map);
+
+      if (activePopUp) {
+        marker.bindPopup(buildPopupHtml(group));
+      }
+    });
+  };
+
   useEffect(() => {
     const mapContainer = mapRef.current;
 
     // Check if the map container exists and the map instance hasn't been created yet
     if (mapContainer && !mapInstance.current) {
-      const map = L.map(mapContainer).setView([latitude, longitude], zoom);
+      const map = L.map(mapContainer).setView([resolvedLatitude, resolvedLongitude], zoom);
       mapInstance.current = map; // Store the map instance in the ref
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
       }).addTo(map);
 
-      data?.filter(hasValidCoordinates).forEach((punto) => {
-        const marker = L.marker([punto.latitude, punto.longitude], {
-          icon: new L.Icon({
-            iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(punto.state)),
-            iconSize: [25, 25],
-          }),
-        }).addTo(map);
-
-        if (activePopUp) {
-          marker.bindPopup(`
-            <div>
-              <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
-              <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
-              <p>${t('STATION.STATION.COORDINATES')}: ${formatCoordinate(punto.latitude)}, ${formatCoordinate(punto.longitude)}</p>
-              <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
-              <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
-              <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>
-              <img src="/station/${punto.stationName}.webp" alt="Imagen" width="250" height="auto" />
-            </div>
-          `);
-        }
-      });
-    } else if (mapInstance.current && (latitude !== mapInstance.current.getCenter().lat || longitude !== mapInstance.current.getCenter().lng || zoom !== mapInstance.current.getZoom())) {
+      buildMarkers(map, data || []);
+    } else if (mapInstance.current && (resolvedLatitude !== mapInstance.current.getCenter().lat || resolvedLongitude !== mapInstance.current.getCenter().lng || zoom !== mapInstance.current.getZoom())) {
       // If the map instance exists and the view parameters have changed, update the view
-      mapInstance.current.setView([latitude, longitude], zoom);
+      mapInstance.current.setView([resolvedLatitude, resolvedLongitude], zoom);
 
       // You might also want to clear existing markers and re-add them if the data has changed significantly
       mapInstance.current.eachLayer((layer) => {
@@ -80,28 +194,7 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
         }
       });
 
-      data?.filter(hasValidCoordinates).forEach((punto) => {
-        const marker = L.marker([punto.latitude, punto.longitude], {
-          icon: new L.Icon({
-            iconUrl: (useStatinIcon ? '/antena.png' : getMarkerColor(punto.state)),
-            iconSize: [25, 25],
-          }),
-        }).addTo(mapInstance.current);
-
-        if (activePopUp) {
-          marker.bindPopup(`
-            <div>
-              <h5>${t('STATION.STATION.NAME')}: ${punto.stationName} (${punto.name})</h5>
-              <p>${t('STATION.STATION.DESCRIPTION')}: ${punto.description}</p>
-              <p>${t('STATION.STATION.COORDINATES')}: ${formatCoordinate(punto.latitude)}, ${formatCoordinate(punto.longitude)}</p>
-              <p> ${t('STATION.STATION.HEIGHT.TITLE')}: ${punto.height} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
-              <p> ${t('STATION.STATION.CHIP.SIZE')}: ${punto.chipSize} , ${t('STATION.STATION.CHIP.ORIENTATION')}: ${punto.chipOrientation}</p>
-              <p> ${t('STATION.STATION.FILTER')}: ${punto.filter} </p>
-              <img src="/station/${punto.stationName}.webp" alt="Imagen" width="250" height="auto" />
-            </div>
-          `);
-        }
-      });
+      buildMarkers(mapInstance.current, data || []);
     }
 
     // Cleanup function
@@ -111,9 +204,9 @@ const StationMapChart = ({ data, activePopUp, latitude = 36.7213, longitude = -4
         mapInstance.current = null; // Reset the ref
       }
     };
-  }, [data, activePopUp, latitude, longitude, zoom, navigate, t, useStatinIcon]);
+  }, [data, activePopUp, resolvedLatitude, resolvedLongitude, zoom, t, useStatinIcon]);
 
-  return <div id="map2" style={{ width: '100%', height: '800px' }} ref={mapRef}></div>;
+  return <div id="map2" style={{ width: '100%', height }} ref={mapRef}></div>;
 };
 
 export default StationMapChart;
