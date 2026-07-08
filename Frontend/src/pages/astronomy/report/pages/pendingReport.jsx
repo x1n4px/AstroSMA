@@ -4,7 +4,6 @@ import { Container, Row, Col } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import MultiMarkerMapChart from '@/components/map/MultiMarkerMapChart';
-import CompleteTrajectoryView3D from '@/components/three/CompleteTrajectoryView3D';
 import SpainBolidePlane3D from '@/components/three/SpainBolidePlane3D';
 import {
   ReportPanel,
@@ -33,7 +32,7 @@ function formatMetric(value, unit = '', decimalPlaces = 3) {
 
 function extractNumbers(value) {
   if (!value) return [];
-  return String(value).match(/[+-]?\d+(?:[.,]\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
+  return String(value).match(/[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
 }
 
 function formatVector(value, decimals, labels = []) {
@@ -161,6 +160,18 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
       value: formatVector([parametricEquation?.a, parametricEquation?.b, parametricEquation?.c], 6, ['a', 'b', 'c'])
     },
     {
+      label: 'a',
+      value: formatMetric(parametricEquation?.a, '', 6)
+    },
+    {
+      label: 'b',
+      value: formatMetric(parametricEquation?.b, '', 6)
+    },
+    {
+      label: 'c',
+      value: formatMetric(parametricEquation?.c, '', 6)
+    },
+    {
       label: 'Ecuación del movimiento (e=at²+bt+c)',
       value: formatMotionEquation(reportData.motionEquationKms)
     },
@@ -225,21 +236,6 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
                 eminHeight={576}
               />
             </div>
-          </ReportPanel>
-        </Col>
-
-        <Col xs={12}>
-          <ReportPanel
-            title="Trayectoria 3D"
-            description="Arrastre para rotar, use la rueda para acercar o alejar y click derecho para desplazar la vista."
-            accent="warm"
-          >
-            <CompleteTrajectoryView3D
-              reportData={reportData}
-              trajectoryData={trajectoryData}
-              regressionTrajectory={regressionTrajectory}
-              observatory={observatory}
-            />
           </ReportPanel>
         </Col>
 

@@ -1,0 +1,19 @@
+[Unit]
+Description=AstroSMA Frontend (PM2)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=in4p
+WorkingDirectory=/home/in4p/git/sma/AstroSMA/Frontend
+EnvironmentFile=/home/in4p/git/sma/AstroSMA/Frontend/.env
+ExecStart=/bin/bash -lc 'source /home/in4p/.nvm/nvm.sh && nvm use 17.9.1 >/dev/null && exec pm2-runtime start /home/in4p/git/sma/AstroSMA/deploy/systemd-pm2/Frontend/ecosystem.config.cjs'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

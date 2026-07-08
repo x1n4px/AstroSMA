@@ -403,7 +403,7 @@
             "DISTANCE_TRAVELLED": "Distance Travelled (Station {{id}})",
             "TIME_TRAVELLED": "Time Travelled (Station {{id}})",
             "AVERAGE_VELOCITY": "Average Velocity",
-            "INITIAL_VELOCITY": "Initial Velocity (Station {{id}})",
+            "INITIAL_VELOCITY": "Initial velocity (Km/s)",
             "ACCELERATION": "Acceleration in Km/sec²"
         },
         "ZWO": "Frames",

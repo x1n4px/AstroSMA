@@ -25,7 +25,7 @@ function getDecimalCoordinates(value) {
 
 function extractNumbers(value) {
   if (!value) return [];
-  return String(value).match(/[+-]?\d+(?:[.,]\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
+  return String(value).match(/[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?/g)?.map(item => Number(item.replace(',', '.'))) || [];
 }
 
 function formatNumber(value, decimals = 4) {

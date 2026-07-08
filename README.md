@@ -164,6 +164,18 @@ Este servidor lee las detecciones desde:
 SONIFICATION_MODE=dev ./start.sh
 ```
 
+## Reprocesado de meteoros desde una fecha
+
+El script `reprocesar_meteoros_desde_fecha.py` se utiliza para volver a procesar los meteoros a partir de una fecha concreta. Se ejecuta con Python 3 y la fecha de inicio debe indicarse en formato `YYYY-MM-DD`.
+
+Ejemplo de uso:
+
+```bash
+python3 reprocesar_meteoros_desde_fecha.py 2024-01-01
+```
+
+En este ejemplo se reprocesan los meteoros desde el 1 de enero de 2024 en adelante.
+
 ## Despliegue con systemd
 
 Para dejar los tres servicios levantando solos al arrancar el servidor, usa los units de `deploy/systemd/`.

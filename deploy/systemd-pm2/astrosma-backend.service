@@ -1,0 +1,19 @@
+[Unit]
+Description=AstroSMA Backend (PM2)
+After=network-online.target mariadb.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=in4p
+WorkingDirectory=/home/in4p/git/sma/AstroSMA/Backend
+EnvironmentFile=/home/in4p/git/sma/AstroSMA/Backend/.env
+ExecStart=/bin/bash -lc 'source /home/in4p/.nvm/nvm.sh && nvm use 17.9.1 >/dev/null && exec pm2-runtime start /home/in4p/git/sma/AstroSMA/deploy/systemd-pm2/Backend/ecosystem.config.js'
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+

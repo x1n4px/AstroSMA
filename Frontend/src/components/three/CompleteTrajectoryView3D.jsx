@@ -1,7 +1,7 @@
 import React, { Suspense, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Canvas } from '@react-three/fiber';
-import { Billboard, Line, OrbitControls, Sphere, Stars, Text, useTexture } from '@react-three/drei';
+import { Line, OrbitControls, Sphere, Stars, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 const EARTH_RADIUS_KM = 6371;
@@ -10,10 +10,6 @@ const EARTH_RADIUS_SCENE = EARTH_RADIUS_KM * SCENE_SCALE;
 const ENTRY_ALTITUDE_FLOOR_KM = 250;
 const ENTRY_ALTITUDE_PADDING_KM = 120;
 const SIMULATED_ORIGIN_RADIUS_MULTIPLIER = 3.35;
-const SURFACE_MARKER_RADIUS = 0.045;
-const PATH_MARKER_RADIUS = 0.075;
-const LABEL_OFFSET = 0.22;
-
 const completeTrajectoryStyles = `
   .complete-trajectory-3d {
     display: grid;
@@ -132,7 +128,7 @@ function toNumber(value) {
   }
 
   const cleaned = value.trim().replace(',', '.');
-  const match = cleaned.match(/[+-]?\d+(?:\.\d+)?/);
+  const match = cleaned.match(/[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
   return match ? Number.parseFloat(match[0]) : NaN;
 }
 
@@ -326,7 +322,7 @@ function buildTrajectoryScene(reportData, trajectoryData, observatory) {
     .add(new THREE.Vector3(0.35, 0.18, 0.3))
     .normalize();
   const focusTarget = trajectoryMidDirection.clone().multiplyScalar(EARTH_RADIUS_SCENE * 0.42);
-  const cameraPosition = cameraDirection.multiplyScalar(EARTH_RADIUS_SCENE * 5.15);
+  const cameraPosition = cameraDirection.multiplyScalar(EARTH_RADIUS_SCENE * 4.25);
 
   const detailStep = Math.max(1, Math.floor(visiblePoints.length / 10));
   const detailMarkers = visiblePoints.filter((_, index) => index > 0 && index < visiblePoints.length - 1 && index % detailStep === 0);
@@ -402,37 +398,6 @@ Earth.defaultProps = {
   textureUrl: '/earthmap10k.jpg'
 };
 
-function SceneMarker({ position, label, color, radius = PATH_MARKER_RADIUS, emissiveIntensity = 0.45 }) {
-  return (
-    <group position={position.toArray()}>
-      <Sphere args={[radius, 24, 24]}>
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={emissiveIntensity} />
-      </Sphere>
-      {label ? (
-        <Billboard follow position={[0, radius + LABEL_OFFSET, 0]}>
-          <Text fontSize={0.18} color={color} anchorX="center" anchorY="middle">
-            {label}
-          </Text>
-        </Billboard>
-      ) : null}
-    </group>
-  );
-}
-
-SceneMarker.propTypes = {
-  position: PropTypes.instanceOf(THREE.Vector3).isRequired,
-  label: PropTypes.string,
-  color: PropTypes.string.isRequired,
-  radius: PropTypes.number,
-  emissiveIntensity: PropTypes.number
-};
-
-SceneMarker.defaultProps = {
-  label: null,
-  radius: PATH_MARKER_RADIUS,
-  emissiveIntensity: 0.45
-};
-
 export default function CompleteTrajectoryView3D({
   reportData,
   trajectoryData,
@@ -477,45 +442,22 @@ export default function CompleteTrajectoryView3D({
               <Earth textureUrl={earthTexture} />
             </Suspense>
 
-            <Line points={sceneData.visiblePoints} color="#38bdf8" lineWidth={2.8} />
-
-            <SceneMarker position={sceneData.visibleStartPoint} color="#38bdf8" radius={PATH_MARKER_RADIUS * 0.55} />
-            <SceneMarker position={sceneData.visibleEndPoint} color="#f97316" radius={PATH_MARKER_RADIUS * 0.55} />
-
-            {sceneData.predictedImpactPoint ? (
-              <>
-                <Line points={[sceneData.visibleEndPoint, sceneData.predictedImpactPoint]} color="#fb7185" lineWidth={1.2} dashed dashSize={0.08} gapSize={0.08} />
-                <SceneMarker position={sceneData.predictedImpactPoint} color="#fb7185" radius={SURFACE_MARKER_RADIUS * 0.75} emissiveIntensity={0.25} />
-              </>
-            ) : null}
-
-            {sceneData.detailMarkers.map((point, index) => (
-              <SceneMarker
-                key={`detail-${index}`}
-                position={point}
-                color="#7dd3fc"
-                radius={PATH_MARKER_RADIUS * 0.45}
-                emissiveIntensity={0.18}
-              />
-            ))}
-
-            {sceneData.observatoryPoints.map(item => (
-              <SceneMarker
-                key={item.label}
-                position={item.point}
-                color="#a78bfa"
-                radius={SURFACE_MARKER_RADIUS * 0.7}
-                emissiveIntensity={0.22}
-              />
-            ))}
+            <Line points={sceneData.visiblePoints} color="#ef4444" lineWidth={5.2} />
 
             <OrbitControls
               enablePan
               enableZoom
-              zoomSpeed={1.25}
-              panSpeed={0.85}
-              minDistance={EARTH_RADIUS_SCENE * 1.18}
-              maxDistance={EARTH_RADIUS_SCENE * 8.5}
+              enableRotate
+              enableDamping
+              dampingFactor={0.08}
+              rotateSpeed={0.42}
+              zoomSpeed={1.55}
+              panSpeed={0.7}
+              screenSpacePanning={false}
+              minPolarAngle={0.18}
+              maxPolarAngle={Math.PI - 0.16}
+              minDistance={EARTH_RADIUS_SCENE * 0.42}
+              maxDistance={EARTH_RADIUS_SCENE * 16}
               target={sceneData.focusTarget.toArray()}
             />
           </Canvas>

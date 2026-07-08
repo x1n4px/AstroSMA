@@ -472,6 +472,18 @@ function SonificationReport({ report }) {
           </>
         ) : null}
       </Row>
+
+      <div className="sonification-footer" aria-label="Créditos de sonificación">
+        El módulo de sonificación ha sido desarrollado por:{' '}
+        <a
+          href="https://www.linkedin.com/in/hilaria-romero-bouyahia/"
+          target="_blank"
+          rel="noreferrer"
+          className="sonification-footer__link"
+        >
+          Hilaria Romero Bouyahia
+        </a>
+      </div>
     </Container>
   );
 }

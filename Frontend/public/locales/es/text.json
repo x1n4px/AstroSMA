@@ -403,7 +403,7 @@
             "DISTANCE_TRAVELLED": "Distancia recorrida (Estación {{id}}) (Km)",
             "TIME_TRAVELLED": "Tiempo transcurrido (Estación {{id}}) (segundos)",
             "AVERAGE_VELOCITY": "Velocidad media (Km/s)",
-            "INITIAL_VELOCITY": "Velocidad inicial (Estación {{id}}) (Km/s)",
+            "INITIAL_VELOCITY": "Velocidad inicial (Km/s)",
             "ACCELERATION": " Aceleración en Km/sec²"
         },
         "ZWO": "Fotogramas",

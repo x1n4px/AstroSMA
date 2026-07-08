@@ -428,7 +428,14 @@ const getReportZ = async (req, res) => {
                 Elementos_Orbitales ob
                 JOIN Informe_Z iz ON iz.IdInforme = ob.Informe_Z_IdInforme
                 WHERE 
-                ob.Informe_Z_IdInforme = ?;`, [id]);
+                ob.Informe_Z_IdInforme = ?
+                ORDER BY
+                    CASE
+                        WHEN LOWER(COALESCE(ob.Calculados_con, '')) LIKE '%aceler%' THEN 0
+                        WHEN LOWER(COALESCE(ob.Calculados_con, '')) LIKE '%media%' THEN 1
+                        ELSE 2
+                    END,
+                    ob.Calculados_con ASC;`, [id]);
         const [trajectoryPre] = await pool.query('SELECT * FROM Trayectoria_medida WHERE Informe_Z_IdInforme = ?', [id]);
         const [regressionTrajectory] = await pool.query('SELECT * FROM Trayectoria_por_regresion WHERE Informe_Z_IdInforme = ?', [id]);
         const [photometryReport] = await pool.query(`

@@ -37,13 +37,13 @@ function formatValue(value, unit = '') {
 
 function resolveOrbitOption(item, index, isEnglish) {
   const raw = String(item?.Calculados_con || '').toLowerCase();
-  if (raw.includes('media') || index === 1) {
-    return isEnglish ? 'Mean velocity' : 'Velocidad media';
-  }
-  if (raw.includes('aceler') || index === 0) {
+  if (raw.includes('aceler')) {
     return isEnglish
       ? 'Velocity fitted to uniformly accelerated motion'
       : 'Velocidad ajustada a movimiento uniformemente acelerado';
+  }
+  if (raw.includes('media')) {
+    return isEnglish ? 'Mean velocity' : 'Velocidad media';
   }
   return item?.Calculados_con || (isEnglish ? `Orbital solution ${index + 1}` : `Solución orbital ${index + 1}`);
 }
@@ -54,9 +54,14 @@ const OrbitReport = ({ orbit, reportDate }) => {
   const isEnglish = i18n.language?.startsWith('en');
 
   useEffect(() => {
-    if (orbit && orbit.length === 1) {
+    if (!orbit || orbit.length === 0) {
       setSelectedOrbitIndex(0);
+      return;
     }
+
+    const preferredIndex = orbit.findIndex(item => String(item?.Calculados_con || '').toLowerCase().includes('aceler'));
+    const fallbackIndex = orbit.findIndex(item => String(item?.Calculados_con || '').toLowerCase().includes('media'));
+    setSelectedOrbitIndex(preferredIndex >= 0 ? preferredIndex : Math.max(fallbackIndex, 0));
   }, [orbit]);
 
   const selectedOrbit = orbit?.[selectedOrbitIndex];

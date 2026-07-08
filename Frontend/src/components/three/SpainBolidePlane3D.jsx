@@ -83,7 +83,7 @@ function toNumber(value) {
   }
 
   const cleaned = value.trim().replace(',', '.');
-  const matchedNumber = cleaned.match(/[+-]?\d+(?:\.\d+)?/);
+  const matchedNumber = cleaned.match(/[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
   return matchedNumber ? Number.parseFloat(matchedNumber[0]) : NaN;
 }
 
@@ -207,13 +207,75 @@ function createFallbackTexture() {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#2d4f76';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(45, 79, 118, 0.22)';
+  ctx.lineWidth = 2;
+  for (let lon = 0; lon <= 4; lon += 1) {
+    const x = 120 + lon * 220;
+    ctx.beginPath();
+    ctx.moveTo(x, 40);
+    ctx.lineTo(x, canvas.height - 40);
+    ctx.stroke();
+  }
+  for (let lat = 0; lat <= 3; lat += 1) {
+    const y = 80 + lat * 200;
+    ctx.beginPath();
+    ctx.moveTo(40, y);
+    ctx.lineTo(canvas.width - 40, y);
+    ctx.stroke();
+  }
+  ctx.restore();
 
-  ctx.fillStyle = '#2d4f76';
+  const outline = [
+    [0.16, 0.20],
+    [0.23, 0.14],
+    [0.34, 0.12],
+    [0.46, 0.13],
+    [0.58, 0.16],
+    [0.71, 0.20],
+    [0.80, 0.26],
+    [0.84, 0.34],
+    [0.83, 0.43],
+    [0.79, 0.53],
+    [0.74, 0.61],
+    [0.69, 0.69],
+    [0.64, 0.78],
+    [0.56, 0.85],
+    [0.45, 0.89],
+    [0.34, 0.87],
+    [0.26, 0.80],
+    [0.19, 0.70],
+    [0.14, 0.58],
+    [0.12, 0.45],
+    [0.13, 0.32]
+  ];
+
+  ctx.save();
+  ctx.beginPath();
+  outline.forEach(([x, y], index) => {
+    const px = x * canvas.width;
+    const py = y * canvas.height;
+    if (index === 0) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  });
+  ctx.closePath();
+  ctx.fillStyle = '#f4e8c8';
+  ctx.strokeStyle = '#244766';
+  ctx.lineWidth = 10;
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = '#1f3b59';
   ctx.font = '700 46px "Trebuchet MS", "Segoe UI", sans-serif';
-  ctx.fillText('Base tipo Leaflet', 46, 76);
+  ctx.fillText('Península Ibérica', 44, 78);
+  ctx.font = '500 26px "Trebuchet MS", "Segoe UI", sans-serif';
+  ctx.fillText('Mapa de respaldo sin teselas remotas', 44, 116);
+  ctx.restore();
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
@@ -351,7 +413,7 @@ function decodeTerrariumToHeightCanvas(terrariumCanvas) {
   return heightCanvas;
 }
 
-async function loadLeafletLikeTexture() {
+async function loadColorTexture() {
   const topoMap = await loadTileCanvas(OPENTOPOMAP_URL, SPAIN_BOUNDS);
   const colorMap = topoMap || await loadTileCanvas(OPENSTREETMAP_URL, SPAIN_BOUNDS);
   if (!colorMap) {
@@ -360,41 +422,46 @@ async function loadLeafletLikeTexture() {
 
   const colorTexture = colorMap.texture;
   colorTexture.anisotropy = 8;
+  if ('colorSpace' in colorTexture) {
+    colorTexture.colorSpace = THREE.SRGBColorSpace;
+  }
   colorTexture.needsUpdate = true;
 
-  const elevationMap = await loadTileCanvas(TERRARIUM_URL, SPAIN_BOUNDS).catch(() => null);
-  if (!elevationMap) {
-    return {
-      texture: colorTexture,
-      heightTexture: null,
-      bounds: colorMap.bounds,
-      mapProvider: topoMap ? 'OpenTopoMap' : 'OpenStreetMap',
-      hasTerrain3D: false
-    };
+  return {
+    texture: colorTexture,
+    bounds: colorMap.bounds,
+    mapProvider: topoMap ? 'OpenTopoMap' : 'OpenStreetMap'
+  };
+}
+
+async function loadHeightTexture() {
+  let elevationMap = null;
+  try {
+    elevationMap = await loadTileCanvas(TERRARIUM_URL, SPAIN_BOUNDS);
+  } catch (error) {
+    elevationMap = null;
   }
 
-  const heightCanvas = decodeTerrariumToHeightCanvas(elevationMap.canvas);
+  if (!elevationMap) {
+    return null;
+  }
+
+  let heightCanvas = null;
+  try {
+    heightCanvas = decodeTerrariumToHeightCanvas(elevationMap.canvas);
+  } catch (error) {
+    heightCanvas = null;
+  }
+
   if (!heightCanvas) {
-    return {
-      texture: colorTexture,
-      heightTexture: null,
-      bounds: colorMap.bounds,
-      mapProvider: topoMap ? 'OpenTopoMap' : 'OpenStreetMap',
-      hasTerrain3D: false
-    };
+    return null;
   }
 
   const heightTexture = new THREE.CanvasTexture(heightCanvas);
   heightTexture.anisotropy = 8;
   heightTexture.needsUpdate = true;
 
-  return {
-    texture: colorTexture,
-    heightTexture,
-    bounds: colorMap.bounds,
-    mapProvider: topoMap ? 'OpenTopoMap' : 'OpenStreetMap',
-    hasTerrain3D: true
-  };
+  return heightTexture;
 }
 
 function TrajectoryScene({ points, planeTexture, heightTexture, bounds, hasTerrain3D }) {
@@ -517,43 +584,51 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
     let mounted = true;
     let createdColorTexture = null;
     let createdHeightTexture = null;
+    const fallback = createFallbackTexture();
+    createdColorTexture = fallback.texture;
+    setBounds(fallback.bounds);
+    setPlaneTexture(fallback.texture);
+    setHeightTexture(null);
+    setHasTerrain3D(false);
 
-    loadLeafletLikeTexture()
+    loadColorTexture()
       .then(result => {
         if (!mounted) {
           result?.texture?.dispose?.();
-          result?.heightTexture?.dispose?.();
           return;
         }
 
         if (!result?.texture) {
-          const fallback = createFallbackTexture();
-          createdColorTexture = fallback.texture;
-          createdHeightTexture = null;
-          setBounds(fallback.bounds);
-          setPlaneTexture(fallback.texture);
-          setHeightTexture(null);
-          setHasTerrain3D(false);
           return;
         }
 
+        createdColorTexture?.dispose?.();
         createdColorTexture = result.texture;
-        createdHeightTexture = result.heightTexture || null;
         setBounds(result.bounds || SPAIN_BOUNDS);
         setPlaneTexture(result.texture);
-        setHeightTexture(result.heightTexture || null);
-        setHasTerrain3D(Boolean(result.hasTerrain3D));
       })
       .catch(() => {
-        if (mounted) {
-          const fallback = createFallbackTexture();
-          createdColorTexture = fallback.texture;
-          createdHeightTexture = null;
-          setBounds(fallback.bounds);
-          setPlaneTexture(fallback.texture);
-          setHeightTexture(null);
-          setHasTerrain3D(false);
+        // Keep the local fallback already mounted.
+      });
+
+    loadHeightTexture()
+      .then(heightTexture => {
+        if (!mounted) {
+          heightTexture?.dispose?.();
+          return;
         }
+
+        if (!heightTexture) {
+          return;
+        }
+
+        createdHeightTexture?.dispose?.();
+        createdHeightTexture = heightTexture;
+        setHeightTexture(heightTexture);
+        setHasTerrain3D(true);
+      })
+      .catch(() => {
+        // Keep the local fallback terrain profile disabled.
       });
 
     return () => {

@@ -152,7 +152,7 @@ function parseOrbitalNumber(value) {
     return NaN;
   }
 
-  const match = value.trim().match(/[+-]?\d+(?:[.,]\d+)?/);
+  const match = value.trim().match(/[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?/);
   return match ? Number.parseFloat(match[0].replace(',', '.')) : NaN;
 }
 
