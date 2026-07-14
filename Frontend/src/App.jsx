@@ -12,6 +12,7 @@ const BolideGlobe = lazy(() => import('@/pages/astronomy/bolideGlobe'));
 const Profile = lazy(() => import('@/pages/basic/Profile'));
 const Report = lazy(() => import('@/pages/astronomy/report/report'));
 const NotFound = lazy(() => import('@/pages/basic/NotFound'));
+const NotFoundPhotometry = lazy(() => import('@/pages/basic/NotFoundPhotometry'));
 const CustomizeSearch = lazy(() => import('@/pages/search/customizeSearch'));
 const ActiveRain = lazy(() => import('@/pages/astronomy/activeShower.jsx'));
 const RadiantReport = lazy(() => import('@/pages/astronomy/report/radiantReport'));
@@ -197,7 +198,7 @@ function App() {
               <Route path="/customize-search" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <CustomizeSearch /></ProtectedRoute>} />
               <Route path="/active-rain" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <ActiveRain /></ProtectedRoute>} />
               <Route path="/radiant-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <RadiantReport /></ProtectedRoute>} />
-              <Route path="/photometry-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <PhotometryReport /></ProtectedRoute>} />
+              <Route path="/photometry-report/:reportId" element={<ProtectedRoute requiredRoleMask="ALL_USER"> <NotFoundPhotometry /></ProtectedRoute>} />
               <Route path="/admin-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AdminPanel /></ProtectedRoute>} />
               <Route path="/admin-panel/event-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><EventComponent /></ProtectedRoute>} />
               <Route path="/admin-panel/audit-panel" element={<ProtectedRoute requiredRoleMask="ADMIN"><AuditPanel /></ProtectedRoute>} />

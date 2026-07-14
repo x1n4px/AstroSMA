@@ -10,7 +10,19 @@ require('dotenv').config();
 const getPhotometryFromId = async (req, res) => {
     try {
         const { selectedId } = req.params;
-        const [photometryArray] = await pool.query('SELECT * FROM Informe_Fotometria where Identificador = ?', [selectedId]);
+        const [photometryArray] = await pool.query(`
+            SELECT
+                if2.*,
+                (
+                    SELECT iz.\`Observatorio_Número\`
+                    FROM Informe_Z iz
+                    WHERE iz.Meteoro_Identificador = if2.Meteoro_Identificador
+                    ORDER BY iz.Fecha DESC, iz.Hora DESC, iz.IdInforme DESC
+                    LIMIT 1
+                ) AS Nobs
+            FROM Informe_Fotometria if2
+            WHERE if2.Identificador = ?
+        `, [selectedId]);
         const [regressionStart] = await pool.query('select * FROM Estrellas_usadas_para_regresión where Informe_Fotometria_Identificador = ?', [selectedId]);
         const [meteor] = await pool.query('SELECT * FROM Datos_meteoro_fotometria WHERE Informe_Fotometria_Identificador = ?', [selectedId]);
         const [adjustPoint] = await pool.query('SELECT * FROM Puntos_del_ajuste WHERE Informe_Fotometria_Identificador = ?', [selectedId]);

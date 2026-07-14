@@ -441,6 +441,9 @@ const getReportZ = async (req, res) => {
         const [photometryReport] = await pool.query(`
             SELECT
                 if2.Identificador,
+                if2.Fecha,
+                if2.Hora,
+                iz.\`Observatorio_Número\` AS Nobs,
                 CONCAT(o1.Nombre_Observatorio, ' (', o1.Número, ')') AS station1,
                 CONCAT(o2.Nombre_Observatorio, ' (', o2.Número, ')') AS station2
             FROM Informe_Fotometria if2

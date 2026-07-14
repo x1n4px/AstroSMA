@@ -4,8 +4,8 @@ import { Container, Row, Col, Table } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getPhotometryFromId, getPhotometryGraph } from '@/services/photometryService.jsx';
-import { formatDate } from '@/pipe/formatDate.jsx';
 import truncateDecimal from '@/pipe/truncateDecimal';
+import { buildPhotometryEventTitle } from '@/utils/photometryReportTitle';
 import {
   ReportPanel,
   ReportField,
@@ -130,6 +130,7 @@ const PhotometryReport = ({ photometryData, isChild }) => {
   const selectedStations = [selectedPhotometry?.station1, selectedPhotometry?.station2]
     .filter(Boolean)
     .join(' - ');
+  const eventTitle = buildPhotometryEventTitle(photometryCData || selectedPhotometry);
 
   const summaryMetrics = useMemo(() => {
     if (!photometryCData) {
@@ -137,14 +138,14 @@ const PhotometryReport = ({ photometryData, isChild }) => {
     }
 
     return [
-      { label: t('REPORT.PHOTOMETRY.INPUT.DATE'), value: formatDate(photometryCData.Fecha, 'yyyy-mm-dd') },
-      { label: t('REPORT.PHOTOMETRY.INPUT.HOUR'), value: photometryCData.Hora },
       { label: t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS'), value: photometryCData.Estrellas_visibles },
       { label: t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION'), value: photometryCData.Estrellas_usadas_para_regresion },
-      { label: 'Puntos de regresion', value: regressionData.length },
-      { label: 'Puntos de ajuste', value: adjustmenPoints.length }
+      { label: 'Puntos de ajuste', value: adjustmenPoints.length },
+      { label: 'Magnitud máxima', value: round(photometryCData.MagMax, 2) },
+      { label: 'Magnitud mínima', value: round(photometryCData.MagMin, 2) },
+      { label: 'Masa fotométrica (gramos)', value: round(photometryCData.Masa_fotometrica, 2) }
     ];
-  }, [adjustmenPoints.length, photometryCData, regressionData.length, t]);
+  }, [adjustmenPoints.length, photometryCData, t]);
 
   const regressionColumns = [
     { key: 'id', label: t('REPORT.PHOTOMETRY.REGRESSION_DATA_TAB.START_ID'), render: row => row.Id_estrella },
@@ -160,12 +161,12 @@ const PhotometryReport = ({ photometryData, isChild }) => {
     { key: 'ma', label: t('REPORT.PHOTOMETRY.ADJUSTEMENT_POINT.MA'), render: row => row.Ma }
   ];
 
-  return (
+  const content = (
     <Container fluid className="px-0">
       <Row className="g-4">
         {isChild !== false ? (
           <Col xs={12}>
-            <ReportPanel title={t('REPORT.PHOTOMETRY.TITLE')} description="Selecciona un informe de fotometria asociado para cargar sus datos." accent="warm">
+            <ReportPanel title={eventTitle || t('REPORT.PHOTOMETRY.TITLE')} description="Selecciona un informe de fotometria asociado para cargar sus datos." accent="warm">
               <ReportSelectField
                 label="Selecciona un ID"
                 value={selectedId}
@@ -195,7 +196,7 @@ const PhotometryReport = ({ photometryData, isChild }) => {
           <>
             <Col xs={12}>
               <ReportPanel
-                title={isChild !== false ? `Fotometria ${selectedId}` : t('REPORT.PHOTOMETRY.TITLE', { id })}
+                title="Resumen fotométrico"
                 description="Resumen general del ajuste fotometrico y de sus tablas derivadas."
                 accent="warm"
               >
@@ -203,30 +204,32 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                   {summaryMetrics.map(metric => (
                     <ReportMetricCard key={metric.label} label={metric.label} value={metric.value} />
                   ))}
-                  <ReportMetricCard label="Magnitud máxima" value={round(photometryCData.MagMax, 2)} />
-                  <ReportMetricCard label="Magnitud mínima" value={round(photometryCData.MagMin, 2)} />
-                  <ReportMetricCard label="Masa fotométrica (gramos)" value={round(photometryCData.Masa_fotometrica, 2)} />
                 </ReportMetricsGrid>
               </ReportPanel>
             </Col>
 
-            <Col xs={12} lg={6}>
-              <ReportPanel title="Calibracion fotometrica" description="Parametros principales del ajuste de Bouguer y de la regresion.">
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.DATE')} value={formatDate(photometryCData.Fecha, 'yyyy-mm-dd')} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.HOUR')} value={photometryCData.Hora} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.VISIBLE_STARS')} value={photometryCData.Estrellas_visibles} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STAR_USED_IN_REGRESSION')} value={photometryCData.Estrellas_usadas_para_regresion} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')} value={round(photometryCData.Coeficiente_externo_Recta_de_Bouger, 4)} />
-              </ReportPanel>
-            </Col>
-
-            <Col xs={12} lg={6}>
-              <ReportPanel title="Errores y coeficientes" description="Medidas de error tipico y coeficientes asociados al modelo.">
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')} value={round(photometryCData.Punto_cero_Recta_de_Bouger, 4)} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')} value={round(photometryCData.Error_tipico_regresion, 4)} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')} value={round(photometryCData.Error_tipico_punto_cero, 4)} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={round(photometryCData.Error_tipico_coeficiente_externo, 4)} />
-                <ReportField label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={formatMovementCoefficients(photometryCData.Coeficientes_parabola_trayectoria)} />
+            <Col xs={12}>
+              <ReportPanel title="Calibracion fotometrica" description="Parametros principales del ajuste de Bouguer, errores y coeficientes asociados al modelo.">
+                <Row className="g-3">
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_EXTERNAL')} value={round(photometryCData.Coeficiente_externo_Recta_de_Bouger, 4)} />
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.BOUGER_LINE_ZERO')} value={round(photometryCData.Punto_cero_Recta_de_Bouger, 4)} />
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.REGRESSION_STANDART_ERROR')} value={round(photometryCData.Error_tipico_regresion, 4)} />
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ZERO_POINT')} value={round(photometryCData.Error_tipico_punto_cero, 4)} />
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={round(photometryCData.Error_tipico_coeficiente_externo, 4)} />
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={formatMovementCoefficients(photometryCData.Coeficientes_parabola_trayectoria)} />
+                  </Col>
+                </Row>
               </ReportPanel>
             </Col>
 
@@ -279,6 +282,25 @@ const PhotometryReport = ({ photometryData, isChild }) => {
             </Col>
           </>
         )}
+      </Row>
+    </Container>
+  );
+
+  if (isChild !== false) {
+    return content;
+  }
+
+  return (
+    <Container>
+      <Row className="mb-4">
+        <div className="p-4">
+          <Row className="justify-content-between align-items-center mb-4">
+            <Col xs="auto">
+              <h1>{eventTitle || 'Cargando...'}</h1>
+            </Col>
+          </Row>
+          {content}
+        </div>
       </Row>
     </Container>
   );
