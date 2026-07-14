@@ -167,8 +167,9 @@ if __name__ == "__main__":
         audio_clip = AudioFileClip(f'{ruta_archivo}.wav')
 
         #Recortamos los segundos sobrantes...
-        logger.info(f"Recortando la salida midi a la duracion real del video ( {audio_clip.duration} -> {duracion_real} )...")
-        audio_clip = audio_clip.subclipped(0, duracion_real)
+        if (duracion_real<audio_clip.duration):
+           logger.info(f"Recortando la salida midi a la duracion real del video ( {audio_clip.duration} -> {duracion_real} )...")
+           audio_clip = audio_clip.subclipped(0, duracion_real)
         audio_clip.write_audiofile(f'{ruta_archivo}.wav')
         audio_clip = AudioFileClip(f'{ruta_archivo}.wav')
 
