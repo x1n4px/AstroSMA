@@ -132,27 +132,61 @@ def normalize_local_path(file_path: str | Path) -> str:
     return Path(normalized).resolve().as_posix()
 
 
-def detection_path_from_database_path(database_path: str | None) -> str | None:
+def normalize_report_date(value) -> dict[str, str] | None:
+    match = re.search(r"(\d{4})[-/]?(\d{2})[-/]?(\d{2})", str(value or ""))
+    if not match:
+        return None
+
+    return {"year": match.group(1), "month": match.group(2), "day": match.group(3)}
+
+
+def normalize_report_time(value) -> dict[str, str] | None:
+    match = re.search(r"(\d{2}):?(\d{2}):?(\d{2})", str(value or ""))
+    if not match:
+        return None
+
+    return {"hour": match.group(1), "minute": match.group(2), "second": match.group(3)}
+
+
+def build_detection_event_folder(fecha, hora) -> Path | None:
+    source_root = get_source_root()
+    date_parts = normalize_report_date(fecha)
+    time_parts = normalize_report_time(hora)
+
+    if not source_root or not date_parts or not time_parts:
+        return None
+
+    formatted_date = f"{date_parts['year']}{date_parts['month']}{date_parts['day']}"
+    formatted_time = f"{time_parts['hour']}{time_parts['minute']}{time_parts['second']}"
+    return source_root / date_parts["year"] / formatted_date / formatted_time
+
+
+def extract_project_suffix_from_database_path(database_path: str | None) -> str | None:
     if not database_path:
         return None
 
     normalized = str(database_path).replace("\\", "/")
-    source_root = get_source_root()
-    if not source_root:
-        return None
-
-    match = re.search(r"(?:/(?:Meteoros/)?Detecciones|/Z)/(\d{4})/(.+)$", normalized)
+    match = re.search(r"(?:/(?:Meteoros/)?Detecciones|/Z)/\d{4}/\d{8}/\d{6}/(.+)$", normalized)
     if not match:
         return None
 
-    year, suffix = match.groups()
-    base_name = source_root.name
-    if re.fullmatch(r"\d{4}", base_name):
-        candidate = source_root / suffix
-    else:
-        candidate = source_root / year / suffix
+    suffix = match.group(1).strip("/")
+    if not suffix or ".." in Path(suffix).parts:
+        return None
 
-    if not is_within_directory(candidate, source_root):
+    return suffix
+
+
+def detection_path_from_database_path(database_path: str | None, fecha=None, hora=None) -> str | None:
+    event_folder = build_detection_event_folder(fecha, hora)
+    if not event_folder:
+        return None
+
+    source_root = get_source_root()
+    suffix = extract_project_suffix_from_database_path(database_path)
+    candidate = event_folder / suffix if suffix else event_folder
+
+    if not source_root or not is_within_directory(candidate, source_root):
         return None
 
     return candidate.resolve(strict=False).as_posix()
@@ -276,14 +310,14 @@ def query_all(sql: str, params: tuple | list = ()) -> list[tuple]:
 
 def get_ruta_server(id_ec: int | str) -> str | None:
     row = query_one(
-        "SELECT Ruta_del_informe FROM Informe_Z WHERE IdInforme = %s",
+        "SELECT Fecha, Hora, Ruta_del_informe FROM Informe_Z WHERE IdInforme = %s",
         (id_ec,),
     )
     if not row:
         return None
 
-    ruta = detection_path_from_database_path(row[0])
-    print(f"Ruta obtenida en la BD:\n{row[0]}")
+    ruta = detection_path_from_database_path(row[2], row[0], row[1])
+    print(f"Ruta obtenida en la BD:\n{row[2]}")
     print(f"Ruta local resuelta:\n{ruta}")
     return ruta
 
@@ -296,7 +330,7 @@ def resolve_report_context(id_ec: int | str) -> dict | None:
     if not row:
         return None
 
-    report_path = detection_path_from_database_path(row[2])
+    report_path = detection_path_from_database_path(row[2], row[0], row[1])
     if not report_path:
         return None
 
@@ -328,7 +362,7 @@ def resolve_informe_id(fecha: str | None, hora: str | None, hora_base: str | Non
     expected_path = normalize_local_path(ruta)
 
     for row in rows:
-        resolved = detection_path_from_database_path(row[1])
+        resolved = detection_path_from_database_path(row[1], fecha, hora or hora_base)
         if not resolved:
             continue
         resolved_path = normalize_local_path(resolved)
@@ -336,7 +370,7 @@ def resolve_informe_id(fecha: str | None, hora: str | None, hora_base: str | Non
             return int(row[0])
 
     for row in rows:
-        resolved = detection_path_from_database_path(row[1])
+        resolved = detection_path_from_database_path(row[1], fecha, hora or hora_base)
         if not resolved:
             continue
         resolved_path = normalize_local_path(resolved)

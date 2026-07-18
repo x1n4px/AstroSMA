@@ -46,11 +46,7 @@ function resolveDetectionContext(date, time, fullPath = process.env.FULL_PATH) {
     return null;
   }
 
-  const normalizedFullPath = path.resolve(fullPath);
-  const deteccionesSuffix = path.join('home', 'sma', 'Meteoros', 'Detecciones');
-  const deteccionesRoot = normalizedFullPath.endsWith(deteccionesSuffix)
-    ? normalizedFullPath
-    : path.resolve(normalizedFullPath, deteccionesSuffix);
+  const deteccionesRoot = path.resolve(fullPath);
   const formattedDate = `${dateParts.year}${dateParts.month}${dateParts.day}`;
   const formattedTime = `${timeParts.hour}${timeParts.minute}${timeParts.second}`;
   const eventFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);

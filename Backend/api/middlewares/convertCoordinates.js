@@ -18,6 +18,8 @@ function convertCoordinates(input, fullReturn = true) {
 
     const sexagesimalToken = /^[+-]?\d+:\d{1,2}:\d{1,2}(?:\.\d+)?$/;
     const numericToken = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
+    const labeledDistanceToken = /^d:\s*([+-]?(?:\d+(?:\.\d+)?|\.\d+))$/i;
+    const labeledHeightToken = /^h:\s*([+-]?(?:\d+(?:\.\d+)?|\.\d+))$/i;
 
     function gmsToDecimal(degrees, minutes, seconds) {
         const sign = [degrees, minutes, seconds].some(value => value < 0) ? -1 : 1;
@@ -52,16 +54,68 @@ function convertCoordinates(input, fullReturn = true) {
     if (Math.abs(longitude) > 180) longitude += longitude > 0 ? -360 : 360;
     if (Math.abs(latitude) > 180) latitude += latitude > 0 ? -360 : 360;
 
-    const beforePair = tokens.slice(0, pairStartIndex).filter(token => numericToken.test(token));
-    const afterPair = tokens.slice(pairStartIndex + 2).filter(token => numericToken.test(token));
+    const parseMetricToken = (token) => {
+        if (numericToken.test(token)) {
+            return { type: 'number', value: token };
+        }
+
+        const distanceMatch = token.match(labeledDistanceToken);
+        if (distanceMatch) {
+            return { type: 'distance', value: distanceMatch[1] };
+        }
+
+        const heightMatch = token.match(labeledHeightToken);
+        if (heightMatch) {
+            return { type: 'height', value: heightMatch[1] };
+        }
+
+        return null;
+    };
+
+    const collectMetrics = (metricTokens) => metricTokens
+        .map(parseMetricToken)
+        .filter(Boolean);
+
+    const beforePair = collectMetrics(tokens.slice(0, pairStartIndex));
+    const afterPair = collectMetrics(tokens.slice(pairStartIndex + 2));
 
     let distance = null;
     let height = null;
 
-    if (afterPair.length >= 2) {
-        [distance, height] = afterPair;
-    } else if (beforePair.length >= 2) {
-        [distance, height] = beforePair.slice(-2);
+    const assignMetrics = (metrics) => {
+        if (!metrics.length) {
+            return false;
+        }
+
+        const labeledDistance = metrics.find(metric => metric.type === 'distance');
+        const labeledHeight = metrics.find(metric => metric.type === 'height');
+
+        if (labeledDistance) {
+            distance = labeledDistance.value;
+        }
+
+        if (labeledHeight) {
+            height = labeledHeight.value;
+        }
+
+        if (distance !== null && height !== null) {
+            return true;
+        }
+
+        const numericValues = metrics
+            .filter(metric => metric.type === 'number')
+            .map(metric => metric.value);
+
+        if (numericValues.length >= 2) {
+            [distance, height] = numericValues.slice(-2);
+            return true;
+        }
+
+        return distance !== null || height !== null;
+    };
+
+    if (!assignMetrics(afterPair)) {
+        assignMetrics(beforePair);
     }
 
     const result = {

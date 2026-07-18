@@ -93,6 +93,18 @@ const REPORT_Z_NUMBER_COLUMNS = new Set([
 ]);
 const REPORT_Z_SELECT_COLUMNS = REPORT_Z_COLUMNS.map(column => `\`${column}\``).join(', ');
 
+function normalizeCoordinateRange(value) {
+    if (!Number.isFinite(value)) {
+        return value;
+    }
+
+    if (Math.abs(value) > 180) {
+        return value + (value > 0 ? -360 : 360);
+    }
+
+    return value;
+}
+
 function parseMediaListFile(content) {
     return String(content || '')
         .split(/\r?\n/)
@@ -483,7 +495,7 @@ const getReportZ = async (req, res) => {
         const trajectory = trajectoryPre.map(item => {
             return {
                 ...item,
-                lambda: individuaConvertSexagesimalToDecimal(item.lambda),
+                lambda: normalizeCoordinateRange(individuaConvertSexagesimalToDecimal(item.lambda)),
                 phi: individuaConvertSexagesimalToDecimal(item.phi),
                 AR_Estacion_1: individuaConvertSexagesimalToDecimal(item.AR_Estacion_1),
                 De_Estacion_1: individuaConvertSexagesimalToDecimal(item.De_Estacion_1),
