@@ -4,17 +4,24 @@ import { Canvas } from '@react-three/fiber';
 import { Line, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
-const SPAIN_BOUNDS = {
+const IBERIA_BOUNDS = {
   minLat: 35.4,
   maxLat: 43.95,
   minLon: -10.1,
   maxLon: 4.8
 };
 
-const PLANE_WIDTH = 13.8;
-const PLANE_HEIGHT = 9.3;
+const MAP_MARGIN = {
+  latitude: 0.85,
+  longitude: 1.25
+};
+
+const PLANE_WIDTH = 15.2;
+const PLANE_HEIGHT = 9.9;
 const MIN_POINTS_TO_RENDER = 2;
 const MAP_ZOOM = 6;
+const KM_PER_DEGREE_LATITUDE = 111.32;
+const TRAJECTORY_VERTICAL_EXAGGERATION = 1.25;
 const TERRAIN_HEIGHT_SCALE = 0.34;
 const TERRAIN_BIAS = -0.02;
 const TERRAIN_SHADOW_Z = 0.12;
@@ -100,6 +107,40 @@ function clamp01(value) {
   return THREE.MathUtils.clamp(value, 0, 1);
 }
 
+function padBounds(bounds, margin = MAP_MARGIN) {
+  return {
+    minLat: bounds.minLat - margin.latitude,
+    maxLat: bounds.maxLat + margin.latitude,
+    minLon: bounds.minLon - margin.longitude,
+    maxLon: bounds.maxLon + margin.longitude
+  };
+}
+
+function buildMapBounds(points = []) {
+  const bounds = { ...IBERIA_BOUNDS };
+
+  points.forEach(point => {
+    if (!point) {
+      return;
+    }
+
+    const latitude = toNumber(point.latitude);
+    const longitude = toNumber(point.longitude);
+
+    if (Number.isFinite(latitude)) {
+      bounds.minLat = Math.min(bounds.minLat, latitude);
+      bounds.maxLat = Math.max(bounds.maxLat, latitude);
+    }
+
+    if (Number.isFinite(longitude)) {
+      bounds.minLon = Math.min(bounds.minLon, longitude);
+      bounds.maxLon = Math.max(bounds.maxLon, longitude);
+    }
+  });
+
+  return padBounds(bounds);
+}
+
 function geoToPlane(lat, lon, bounds) {
   const lonRatio = clamp01((lon - bounds.minLon) / (bounds.maxLon - bounds.minLon));
   const latRatio = clamp01((lat - bounds.minLat) / (bounds.maxLat - bounds.minLat));
@@ -108,6 +149,19 @@ function geoToPlane(lat, lon, bounds) {
   const y = latRatio * PLANE_HEIGHT - PLANE_HEIGHT / 2;
 
   return new THREE.Vector3(x, y, 0);
+}
+
+function getKmPerPlaneUnit(bounds) {
+  const centerLatitude = (bounds.minLat + bounds.maxLat) / 2;
+  const latitudeKm = (bounds.maxLat - bounds.minLat) * KM_PER_DEGREE_LATITUDE;
+  const longitudeKm = (bounds.maxLon - bounds.minLon)
+    * KM_PER_DEGREE_LATITUDE
+    * Math.cos(THREE.MathUtils.degToRad(centerLatitude));
+
+  return average([
+    latitudeKm / PLANE_HEIGHT,
+    longitudeKm / PLANE_WIDTH
+  ]);
 }
 
 function extractPoint(source) {
@@ -279,7 +333,7 @@ function createFallbackTexture() {
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
-  return { texture, bounds: { ...SPAIN_BOUNDS }, mapProvider: 'Fallback', hasTerrain3D: false };
+  return { texture, mapProvider: 'Fallback', hasTerrain3D: false };
 }
 
 function buildTileUrl(template, zoom, x, y) {
@@ -413,9 +467,9 @@ function decodeTerrariumToHeightCanvas(terrariumCanvas) {
   return heightCanvas;
 }
 
-async function loadColorTexture() {
-  const topoMap = await loadTileCanvas(OPENTOPOMAP_URL, SPAIN_BOUNDS);
-  const colorMap = topoMap || await loadTileCanvas(OPENSTREETMAP_URL, SPAIN_BOUNDS);
+async function loadColorTexture(bounds) {
+  const topoMap = await loadTileCanvas(OPENTOPOMAP_URL, bounds);
+  const colorMap = topoMap || await loadTileCanvas(OPENSTREETMAP_URL, bounds);
   if (!colorMap) {
     return null;
   }
@@ -434,10 +488,10 @@ async function loadColorTexture() {
   };
 }
 
-async function loadHeightTexture() {
+async function loadHeightTexture(bounds) {
   let elevationMap = null;
   try {
-    elevationMap = await loadTileCanvas(TERRARIUM_URL, SPAIN_BOUNDS);
+    elevationMap = await loadTileCanvas(TERRARIUM_URL, bounds);
   } catch (error) {
     elevationMap = null;
   }
@@ -466,27 +520,28 @@ async function loadHeightTexture() {
 
 function TrajectoryScene({ points, planeTexture, heightTexture, bounds, hasTerrain3D }) {
   const trajectory = useMemo(() => {
-    const start = points[0];
-    const end = points[points.length - 1];
-    const startFlat = geoToPlane(start.latitude, start.longitude, bounds);
-    const endFlat = geoToPlane(end.latitude, end.longitude, bounds);
+    const kmPerPlaneUnit = getKmPerPlaneUnit(bounds);
+    const zScale = Number.isFinite(kmPerPlaneUnit) && kmPerPlaneUnit > 0
+      ? TRAJECTORY_VERTICAL_EXAGGERATION / kmPerPlaneUnit
+      : 0.012;
 
-    const startHeight = Number.isFinite(toNumber(start.height)) ? toNumber(start.height) : 95;
-    const endHeight = Number.isFinite(toNumber(end.height)) ? toNumber(end.height) : 30;
-    const maxHeight = Math.max(startHeight, endHeight, 1);
-    const zScale = 2.6 / maxHeight;
+    const elevated = points.map(point => {
+      const flatPoint = geoToPlane(point.latitude, point.longitude, bounds);
+      const heightKm = Number.isFinite(toNumber(point.height)) ? Math.max(0, toNumber(point.height)) : 0;
+      return new THREE.Vector3(
+        flatPoint.x,
+        flatPoint.y,
+        Math.max(TERRAIN_SHADOW_Z + 0.06, heightKm * zScale)
+      );
+    });
 
-    const elevatedStart = new THREE.Vector3(startFlat.x, startFlat.y, Math.max(0.12, startHeight * zScale));
-    const elevatedEnd = new THREE.Vector3(endFlat.x, endFlat.y, Math.max(0.06, endHeight * zScale));
-    const shadowStart = new THREE.Vector3(startFlat.x, startFlat.y, TERRAIN_SHADOW_Z);
-    const shadowEnd = new THREE.Vector3(endFlat.x, endFlat.y, TERRAIN_SHADOW_Z);
-    const elevatedMid = elevatedStart.clone().lerp(elevatedEnd, 0.5);
-    const shadowMid = shadowStart.clone().lerp(shadowEnd, 0.5);
+    const shadow = elevated.map(point => new THREE.Vector3(point.x, point.y, TERRAIN_SHADOW_Z));
+    const middleIndex = Math.floor(elevated.length / 2);
 
     return {
-      elevated: [elevatedStart, elevatedEnd],
-      shadow: [shadowStart, shadowEnd],
-      connector: [elevatedMid, shadowMid]
+      elevated,
+      shadow,
+      connector: [elevated[middleIndex], shadow[middleIndex]]
     };
   }, [bounds, points]);
 
@@ -543,7 +598,7 @@ function TrajectoryScene({ points, planeTexture, heightTexture, bounds, hasTerra
         minPolarAngle={0}
         maxPolarAngle={Math.PI}
         minDistance={4}
-        maxDistance={19}
+        maxDistance={24}
       />
     </>
   );
@@ -569,15 +624,16 @@ TrajectoryScene.propTypes = {
 TrajectoryScene.defaultProps = {
   planeTexture: null,
   heightTexture: null,
-  bounds: SPAIN_BOUNDS,
+  bounds: padBounds(IBERIA_BOUNDS),
   hasTerrain3D: false
 };
 
 export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
   const points = useMemo(() => buildTrajectoryPoints(reportData, trajectoryData), [reportData, trajectoryData]);
+  const mapBounds = useMemo(() => buildMapBounds(points), [points]);
   const [planeTexture, setPlaneTexture] = useState(null);
   const [heightTexture, setHeightTexture] = useState(null);
-  const [bounds, setBounds] = useState(SPAIN_BOUNDS);
+  const [bounds, setBounds] = useState(mapBounds);
   const [hasTerrain3D, setHasTerrain3D] = useState(false);
 
   useEffect(() => {
@@ -586,12 +642,12 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
     let createdHeightTexture = null;
     const fallback = createFallbackTexture();
     createdColorTexture = fallback.texture;
-    setBounds(fallback.bounds);
+    setBounds(mapBounds);
     setPlaneTexture(fallback.texture);
     setHeightTexture(null);
     setHasTerrain3D(false);
 
-    loadColorTexture()
+    loadColorTexture(mapBounds)
       .then(result => {
         if (!mounted) {
           result?.texture?.dispose?.();
@@ -604,14 +660,14 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
 
         createdColorTexture?.dispose?.();
         createdColorTexture = result.texture;
-        setBounds(result.bounds || SPAIN_BOUNDS);
+        setBounds(result.bounds || mapBounds);
         setPlaneTexture(result.texture);
       })
       .catch(() => {
         // Keep the local fallback already mounted.
       });
 
-    loadHeightTexture()
+    loadHeightTexture(mapBounds)
       .then(heightTexture => {
         if (!mounted) {
           heightTexture?.dispose?.();
@@ -636,7 +692,7 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
       createdColorTexture?.dispose?.();
       createdHeightTexture?.dispose?.();
     };
-  }, []);
+  }, [mapBounds]);
 
   if (!points || points.length < MIN_POINTS_TO_RENDER) {
     return (
@@ -656,7 +712,7 @@ export default function SpainBolidePlane3D({ reportData, trajectoryData }) {
       <style>{spainBolideStyles}</style>
       <div className="spain-bolide-3d__viewport">
         <Canvas
-          camera={{ position: [0, -10.4, 7.8], fov: 50, near: 0.1, far: 120 }}
+          camera={{ position: [0, -12.2, 8.6], fov: 52, near: 0.1, far: 120 }}
           dpr={[1, 2]}
           gl={{ antialias: true }}
         >
