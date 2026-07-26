@@ -244,6 +244,7 @@ function Station() {
     const mapKey = `${latitude}-${longitude}-${zoom}`;
     const renderedStations = stations
         .filter(station => station?.id !== null && station?.id !== undefined)
+        .filter(station => isStationAdminPanel || Number(station?.state) === 1)
         .sort(sortStationsByObservatoryAndId);
     const selectedStation = editingStationId
         ? renderedStations.find(station => station.id === editingStationId)

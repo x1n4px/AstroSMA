@@ -27,15 +27,16 @@ function parseSexagesimalParts(sexagesimalValue) {
         return null;
     }
 
-    return { degrees, minutes, seconds };
+    const sign = parts.some(part => String(part).trim().startsWith('-')) ? -1 : 1;
+
+    return { degrees, minutes, seconds, sign };
 }
 
 function convertSexagesimalToDecimal(sexagesimalValue) {
     const parts = parseSexagesimalParts(sexagesimalValue);
     if (!parts) return null;
 
-    const sign = parts.degrees < 0 ? -1 : 1;
-    return sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600);
+    return parts.sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600);
 }
 
 function convertSexagesimalToRadians(sexagesimalValue) {
@@ -98,8 +99,7 @@ function individuaConvertSexagesimalToDecimal(sexagesimalValue) {
     const parts = parseSexagesimalParts(sexagesimalValue);
     if (!parts) return null;
 
-    const sign = String(sexagesimalValue).trim().startsWith('-') ? -1 : 1;
-    return parseFloat((sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600)).toFixed(4));
+    return parseFloat((parts.sign * (Math.abs(parts.degrees) + Math.abs(parts.minutes) / 60 + Math.abs(parts.seconds) / 3600)).toFixed(4));
 }
 
 

@@ -47,7 +47,9 @@ export function sexagesimalToDegrees(value) {
         return null;
     }
 
-    const sign = degrees < 0 ? -1 : 1;
+    const sign = [degreesToken, minutesToken, secondsToken].some(token => String(token).trim().startsWith('-'))
+        ? -1
+        : 1;
     return sign * (Math.abs(degrees) + Math.abs(minutes) / 60 + Math.abs(seconds) / 3600);
 }
 
