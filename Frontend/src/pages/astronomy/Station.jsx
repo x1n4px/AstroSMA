@@ -25,8 +25,6 @@ const EMPTY_STATION = {
     description: '',
     longitudeSexagesimal: '',
     latitudeSexagesimal: '',
-    longitude_Radianes: '',
-    latitude_Radianes: '',
     height: '',
     localDirectory: '',
     cloudDirectory: '',
@@ -44,8 +42,6 @@ const toStationForm = (station) => ({
     description: station.description ?? '',
     longitudeSexagesimal: station.longitudeSexagesimal ?? '',
     latitudeSexagesimal: station.latitudeSexagesimal ?? '',
-    longitude_Radianes: station.longitude_Radianes ?? '',
-    latitude_Radianes: station.latitude_Radianes ?? '',
     height: station.height ?? '',
     localDirectory: station.localDirectory ?? '',
     cloudDirectory: station.cloudDirectory ?? '',
@@ -100,7 +96,7 @@ function Station() {
         const fetchStations = async () => {
             try {
                 const data = await getStations();
-                setStations(data);
+                setStations([...data].sort(sortStationsByObservatoryAndId));
             } catch (err) {
                 setError(err);
             } finally {
@@ -139,7 +135,7 @@ function Station() {
             setStations(prevStations =>
                 prevStations.map(st =>
                     st.id === id ? { ...st, state: st.state === 0 ? 1 : 0 } : st
-                )
+                ).sort(sortStationsByObservatoryAndId)
             );
         } catch (error) {
             console.error('Error fetching report data:', error);
@@ -172,12 +168,6 @@ function Station() {
         setStationForm(currentForm => {
             const nextForm = { ...currentForm, [name]: value };
 
-            if (name === 'longitudeSexagesimal' || name === 'latitudeSexagesimal') {
-                const computedRadians = computeStationRadians(nextForm);
-                nextForm.longitude_Radianes = computedRadians.longitude_Radianes;
-                nextForm.latitude_Radianes = computedRadians.latitude_Radianes;
-            }
-
             return nextForm;
         });
     };
@@ -208,9 +198,10 @@ function Station() {
                 throw new Error('Station save returned an invalid response');
             }
 
-            setStations(currentStations => editingStationId
+            setStations(currentStations => (editingStationId
                 ? currentStations.map(station => station.id === editingStationId ? savedStation : station)
                 : [...currentStations, savedStation]
+            ).sort(sortStationsByObservatoryAndId)
             );
 
             setEditingStationId(null);
@@ -242,7 +233,7 @@ function Station() {
     };
 
     const mapKey = `${latitude}-${longitude}-${zoom}`;
-    const renderedStations = stations
+    const renderedStations = [...stations]
         .filter(station => station?.id !== null && station?.id !== undefined)
         .filter(station => isStationAdminPanel || Number(station?.state) === 1)
         .sort(sortStationsByObservatoryAndId);
@@ -368,10 +359,10 @@ function Station() {
                                                     </Col>
                                                     <Col md={6}>
                                                         <Form.Group>
-                                                            <Form.Label>Estado</Form.Label>
+                                                            <Form.Label>Visible</Form.Label>
                                                             <Form.Select name="state" value={stationForm.state} onChange={handleStationInput}>
-                                                                <option value="1">Activa</option>
-                                                                <option value="0">En colaboración</option>
+                                                                <option value="1">Visible</option>
+                                                                <option value="0">No visible</option>
                                                                 <option value="2">Colaboración</option>
                                                             </Form.Select>
                                                         </Form.Group>
@@ -478,7 +469,7 @@ function Station() {
                                                             <th>Cámara</th>
                                                             <th>Latitud y longitud</th>
                                                             <th>Resolución</th>
-                                                            <th>Estado</th>
+                                                            <th>Visible</th>
                                                             <th>Acciones</th>
                                                         </tr>
                                                     </thead>
@@ -494,8 +485,8 @@ function Station() {
                                                                 <td>{formatStationCoordinates(station)}</td>
                                                                 <td>{station.resolution || formatResolution(station.chipSize, station.chipOrientation)}</td>
                                                                 <td>
-                                                                    <Badge bg={station.state === 1 ? 'success' : station.state === 0 ? 'warning' : 'primary'}>
-                                                                        {station.state === 1 ? 'Activa' : station.state === 0 ? 'En colaboración' : 'Colaboración'}
+                                                                    <Badge bg={station.state === 1 ? 'success' : station.state === 0 ? 'secondary' : 'primary'}>
+                                                                        {station.state === 1 ? 'Visible' : station.state === 0 ? 'No visible' : 'Colaboración'}
                                                                     </Badge>
                                                                 </td>
                                                                 <td>
@@ -528,7 +519,7 @@ function Station() {
                                                                             size="sm"
                                                                             onClick={() => fetchUpdateStation(station.id)}
                                                                         >
-                                                                            {station.state === 1 ? 'Desactivar' : 'Activar'}
+                                                                            {station.state === 1 ? 'Ocultar' : 'Mostrar'}
                                                                         </Button>
                                                                     </div>
                                                                 </td>
@@ -615,30 +606,16 @@ function Station() {
                         <ListGroup>
                             {renderedStations.map((station) => (
                                 <ListGroup.Item key={station.id} className="d-flex flex-column flex-lg-row justify-content-between gap-3">
-                                    <div className="d-flex align-items-start flex-grow-1 gap-2">
-                                        <span
-                                            className="rounded-circle me-2"
-                                            style={{
-                                                width: '12px',
-                                                height: '12px',
-                                                backgroundColor: station.state === 1 ? 'green' : station.state === 0 ? 'orange' : 'blue',
-                                                marginTop: '0.35rem',
-                                            }}
-                                        ></span>
-                                        <div className="flex-grow-1">
-                                            <div className="fw-bold">{station.stationName || '-'}</div>
-                                            <div className="text-muted small">
-                                                {t('STATION.STATION.COORDINATES')}: {formatStationCoordinates(station)}
-                                            </div>
-                                            <div className="text-muted small">
-                                                {t('STATION.STATION.RESOLUTION')} {station.id}: {station.resolution || formatResolution(station.chipSize, station.chipOrientation)}
-                                            </div>
-                                            <div className="text-muted small">
-                                                {t('STATION.STATION.ALTITUDE')}: {station.height ?? '-'} m
-                                            </div>
-                                            <div className="text-muted small">
-                                                {t('STATION.STATION.CREDITS')}: {station.credit || '-'}
-                                            </div>
+                                    <div className="flex-grow-1">
+                                        <div className="fw-bold">{station.stationName || '-'}</div>
+                                        <div className="text-muted small">
+                                            {t('STATION.STATION.COORDINATES')}: {formatStationCoordinates(station)}
+                                        </div>
+                                        <div className="text-muted small">
+                                            {t('STATION.STATION.RESOLUTION')}: {station.resolution || formatResolution(station.chipSize, station.chipOrientation)}
+                                        </div>
+                                        <div className="text-muted small">
+                                            {t('STATION.STATION.CREDITS')}: {station.credit || '-'}
                                         </div>
                                     </div>
                                     <Button

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   formatResolution,
   formatSexagesimalDisplay,
+  sortStationsByObservatoryAndId,
 } from '@/utils/stationDisplay';
 
 function escapeHtml(value) {
@@ -51,10 +52,16 @@ function groupStationsByObservatory(points) {
     groups.get(groupKey).stations.push(point);
   });
 
-  return Array.from(groups.values()).map((group) => ({
-    ...group,
-    stations: group.stations.sort((left, right) => Number(left?.id ?? 0) - Number(right?.id ?? 0)),
-  }));
+  return Array.from(groups.values())
+    .sort((left, right) => String(left.stationName ?? '').localeCompare(String(right.stationName ?? ''), 'es', {
+      ignorePunctuation: true,
+      numeric: true,
+      sensitivity: 'base',
+    }))
+    .map((group) => ({
+      ...group,
+      stations: [...group.stations].sort(sortStationsByObservatoryAndId),
+    }));
 }
 
 const StationMapChart = ({
@@ -126,11 +133,15 @@ const StationMapChart = ({
     const resolutionItems = group.stations
       .filter((station) => station.chipSize !== undefined || station.chipOrientation !== undefined)
       .map((station) => {
-        const resolution = escapeHtml(formatResolution(station.chipSize, station.chipOrientation));
-        return `<li><strong>Resolución ${escapeHtml(station.id)}:</strong> ${resolution}</li>`;
+        const resolution = station.resolution || formatResolution(station.chipSize, station.chipOrientation);
+        if (!resolution || resolution === '-') {
+          return '';
+        }
+
+        return `<li><strong>${t('STATION.STATION.RESOLUTION')} ${escapeHtml(station.id)}:</strong> ${escapeHtml(resolution)}</li>`;
       })
+      .filter(Boolean)
       .join('');
-    const imageName = escapeHtml(group.stationName || '');
 
     return `
       <div class="station-popup">
@@ -138,13 +149,7 @@ const StationMapChart = ({
         <p>${t('STATION.STATION.COORDINATES')}: ${latitudeText}, ${longitudeText}</p>
         <p>${t('STATION.STATION.ALTITUDE')}: ${altitudeText} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>
         <p>${t('STATION.STATION.CREDITS')}: ${creditsText}</p>
-        ${resolutionItems ? `
-        <div>
-          <p class="mb-1">${t('STATION.STATION.RESOLUTION')}:</p>
-          <ul class="mb-2 ps-3">${resolutionItems}</ul>
-        </div>
-        ` : ''}
-        ${imageName ? `<img src="/station/${imageName}.webp" alt="Imagen" width="250" height="auto" />` : ''}
+        ${resolutionItems ? `<ul class="mb-2 ps-3">${resolutionItems}</ul>` : ''}
       </div>
     `;
   };

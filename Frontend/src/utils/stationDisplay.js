@@ -25,11 +25,13 @@ export function formatSexagesimalDisplay(value) {
     }
 
     const [degrees, minutes, seconds] = parts;
-    const normalizedDegrees = degrees.startsWith('+') ? degrees.slice(1) : degrees;
-    const normalizedMinutes = minutes.startsWith('+') || minutes.startsWith('-') ? minutes.slice(1) : minutes;
-    const normalizedSeconds = seconds.startsWith('+') || seconds.startsWith('-') ? seconds.slice(1) : seconds;
+    const isNegative = parts.some(part => String(part).trim().startsWith('-'));
+    const normalizedDegrees = degrees.replace(/^[+-]/, '');
+    const normalizedMinutes = minutes.replace(/^[+-]/, '');
+    const normalizedSeconds = seconds.replace(/^[+-]/, '');
+    const sign = isNegative ? '-' : '';
 
-    return `${normalizedDegrees}:${normalizedMinutes}:${normalizedSeconds}`;
+    return `${sign}${normalizedDegrees}:${normalizedMinutes}:${normalizedSeconds}`;
 }
 
 export function sexagesimalToDegrees(value) {
@@ -72,7 +74,11 @@ export function formatResolution(horizontalPixels, verticalPixels) {
 export function sortStationsByObservatoryAndId(left, right) {
     const leftName = String(left?.stationName ?? '').trim();
     const rightName = String(right?.stationName ?? '').trim();
-    const nameComparison = leftName.localeCompare(rightName, 'es', { sensitivity: 'base' });
+    const nameComparison = leftName.localeCompare(rightName, 'es', {
+        ignorePunctuation: true,
+        numeric: true,
+        sensitivity: 'base',
+    });
 
     if (nameComparison !== 0) {
         return nameComparison;

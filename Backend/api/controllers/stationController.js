@@ -196,18 +196,14 @@ const stations = [
 const getAllStations = async (req, res) => {
     try {
         const userId = req.userId;
-
-        // Verificar si el usuario tiene el rol adecuado
         const [userRows] = await pool.query(
             'SELECT rol FROM user WHERE id = ?',
             [userId]
         );
-        let stations = [];
-        if (userRows[0]?.rol === '10000000') { 
-            stations = await pool.query('SELECT * FROM Observatorio ORDER BY Nombre_Observatorio ASC, Número ASC');
-        } else {
-            stations = await pool.query('SELECT * FROM Observatorio WHERE Activo = 1 ORDER BY Nombre_Observatorio ASC, Número ASC');
-        }
+        const query = userRows[0]?.rol === '10000000'
+            ? 'SELECT * FROM Observatorio ORDER BY Nombre_Observatorio ASC, Número ASC'
+            : 'SELECT * FROM Observatorio WHERE Activo = 1 ORDER BY Nombre_Observatorio ASC, Número ASC';
+        const stations = await pool.query(query);
         const convertedStations = transform(stations[0]);
 
         return res.json(convertedStations);
