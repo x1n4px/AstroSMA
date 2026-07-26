@@ -29,12 +29,17 @@ function extractNumbers(value) {
 }
 
 function formatNumber(value, decimals = 4) {
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric.toFixed(decimals) : '-';
 }
 
 function formatDegrees(value, suffix) {
-  return `${formatNumber(value, 4)} ${suffix}`;
+  const formattedValue = formatNumber(value, 4);
+  return formattedValue === '-' ? '-' : `${formattedValue} ${suffix}`;
 }
 
 function radiansToDegrees(value) {

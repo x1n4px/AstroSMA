@@ -54,6 +54,22 @@ function formatMotionEquation(value) {
   return parts.length ? parts.join(', ') : '-';
 }
 
+function formatRadiantDirectionVector(parametricEquation) {
+  const values = [
+    parametricEquation?.a,
+    parametricEquation?.b,
+    parametricEquation?.c
+  ].map(value => Number(value));
+
+  if (!values.every(Number.isFinite)) {
+    return '-';
+  }
+
+  return values
+    .map((value, index) => `${['a', 'b', 'c'][index]}=${value.toFixed(6)}`)
+    .join(' ');
+}
+
 function StationMetricsPanel({ title, metrics }) {
   return (
     <ReportPanel title={title} description="Coordenadas, distancias y alturas reconstruidas para la estacion.">
@@ -157,19 +173,7 @@ const PendingReport = ({ reportData, observatory, slopeMapData, trajectoryData, 
     },
     {
       label: 'Vector dirección del radiante',
-      value: formatVector([parametricEquation?.a, parametricEquation?.b, parametricEquation?.c], 6, ['a', 'b', 'c'])
-    },
-    {
-      label: 'a',
-      value: formatMetric(parametricEquation?.a, '', 6)
-    },
-    {
-      label: 'b',
-      value: formatMetric(parametricEquation?.b, '', 6)
-    },
-    {
-      label: 'c',
-      value: formatMetric(parametricEquation?.c, '', 6)
+      value: formatRadiantDirectionVector(parametricEquation)
     },
     {
       label: 'Ecuación del movimiento (e=at²+bt+c)',

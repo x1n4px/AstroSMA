@@ -25,13 +25,13 @@ function toNumber(value) {
   return Number.isFinite(parsed) ? parsed : NaN;
 }
 
-function twoDecimals(value) {
+function formatNumber(value, decimals) {
   const parsed = toNumber(value);
-  return Number.isFinite(parsed) ? parsed.toFixed(2) : firstToken(value);
+  return Number.isFinite(parsed) ? parsed.toFixed(decimals) : firstToken(value);
 }
 
-function formatValue(value, unit = '') {
-  const text = firstToken(value);
+function formatValue(value, unit = '', decimals = 2) {
+  const text = formatNumber(value, decimals);
   return unit ? `${text} ${unit}` : text;
 }
 
@@ -72,18 +72,18 @@ const OrbitReport = ({ orbit, reportDate }) => {
     }
 
     return [
-      { label: isEnglish ? 'Velocity at infinity' : 'Velocidad en el infinito', value: formatValue(selectedOrbit.Vel__Inf, 'Km/s') },
-      { label: isEnglish ? 'Geocentric velocity' : 'Velocidad geocéntrica', value: formatValue(selectedOrbit.Vel__Geo, 'Km/s') },
-      { label: isEnglish ? 'Geocentric radiant right ascension J2000' : 'Ascensión recta geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.Ar, '°') },
-      { label: isEnglish ? 'Geocentric radiant declination J2000' : 'Declinación geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.De, '°') },
-      { label: 'a', value: formatValue(selectedOrbit.a, 'UA') },
-      { label: 'e', value: firstToken(selectedOrbit.e) },
+      { label: isEnglish ? 'Velocity at infinity' : 'Velocidad en el infinito', value: formatValue(selectedOrbit.Vel__Inf, 'Km/s', 2) },
+      { label: isEnglish ? 'Geocentric velocity' : 'Velocidad geocéntrica', value: formatValue(selectedOrbit.Vel__Geo, 'Km/s', 2) },
+      { label: isEnglish ? 'Geocentric radiant right ascension J2000' : 'Ascensión recta geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.Ar, '°', 6) },
+      { label: isEnglish ? 'Geocentric radiant declination J2000' : 'Declinación geocéntrica del radiante a J2000', value: formatValue(selectedOrbit.De, '°', 6) },
+      { label: 'a', value: formatValue(selectedOrbit.a, 'UA', 3) },
+      { label: 'e', value: formatValue(selectedOrbit.e, '', 3) },
       { label: 'i', value: formatValue(selectedOrbit.i, '°') },
       { label: isEnglish ? 'ω at date' : 'ω a la fecha', value: formatValue(selectedOrbit.omega, '°') },
-      { label: isEnglish ? 'Ω at J2000' : 'Ω a J2000', value: formatValue(twoDecimals(selectedOrbit.Omega_grados_votos_max_min), '°') },
-      { label: 'p', value: formatValue(twoDecimals(selectedOrbit.p), 'UA') },
+      { label: isEnglish ? 'Ω at J2000' : 'Ω a J2000', value: formatValue(selectedOrbit.Omega_grados_votos_max_min, '°') },
+      { label: 'p', value: formatValue(selectedOrbit.p, 'UA') },
       { label: 'q', value: formatValue(selectedOrbit.q, 'UA') },
-      { label: 'T', value: firstToken(selectedOrbit.T) }
+      { label: 'T', value: formatValue(selectedOrbit.T) }
     ];
   }, [selectedOrbit, isEnglish]);
 

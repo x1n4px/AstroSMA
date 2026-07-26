@@ -186,6 +186,12 @@ function extractPoint(source) {
   };
 }
 
+function isValidTrajectoryPoint(point) {
+  return point
+    && Number.isFinite(point.latitude)
+    && Number.isFinite(point.longitude);
+}
+
 function buildTrajectoryPoints(reportData, trajectoryData) {
   const startStation1 = extractPoint(reportData?.trajectoryStartStation1);
   const startStation2 = extractPoint(reportData?.trajectoryStartStation2);
@@ -204,8 +210,12 @@ function buildTrajectoryPoints(reportData, trajectoryData) {
     height: average([endStation1?.height, endStation2?.height])
   };
 
-  const fallbackStart = Number.isFinite(avgStart.latitude) && Number.isFinite(avgStart.longitude) ? avgStart : null;
-  const fallbackEnd = Number.isFinite(avgEnd.latitude) && Number.isFinite(avgEnd.longitude) ? avgEnd : null;
+  const segmentStart = isValidTrajectoryPoint(avgStart) ? avgStart : null;
+  const segmentEnd = isValidTrajectoryPoint(avgEnd) ? avgEnd : null;
+
+  if (segmentStart && segmentEnd) {
+    return [segmentStart, segmentEnd];
+  }
 
   const measuredPoints = Array.isArray(trajectoryData)
     ? trajectoryData
@@ -214,28 +224,34 @@ function buildTrajectoryPoints(reportData, trajectoryData) {
         .sort((left, right) => {
           const leftKey = Number.isFinite(left.sortDistance) ? left.sortDistance : left.sortTime;
           const rightKey = Number.isFinite(right.sortDistance) ? right.sortDistance : right.sortTime;
-          return leftKey - rightKey;
+          if (Number.isFinite(leftKey) && Number.isFinite(rightKey)) {
+            return leftKey - rightKey;
+          }
+          return 0;
         })
     : [];
 
   if (measuredPoints.length >= MIN_POINTS_TO_RENDER) {
     const startHeight = Number.isFinite(avgStart.height) ? avgStart.height : 95;
     const endHeight = Number.isFinite(avgEnd.height) ? avgEnd.height : 28;
-    const total = Math.max(measuredPoints.length - 1, 1);
+    const firstMeasuredPoint = measuredPoints[0];
+    const lastMeasuredPoint = measuredPoints[measuredPoints.length - 1];
 
-    return measuredPoints.map((point, index) => {
-      const ratio = index / total;
-      const interpolatedHeight = startHeight + ((endHeight - startHeight) * ratio);
-
-      return {
-        latitude: point.latitude,
-        longitude: point.longitude,
-        height: Number.isFinite(point.height) ? point.height : interpolatedHeight
-      };
-    });
+    return [
+      {
+        latitude: firstMeasuredPoint.latitude,
+        longitude: firstMeasuredPoint.longitude,
+        height: Number.isFinite(firstMeasuredPoint.height) ? firstMeasuredPoint.height : startHeight
+      },
+      {
+        latitude: lastMeasuredPoint.latitude,
+        longitude: lastMeasuredPoint.longitude,
+        height: Number.isFinite(lastMeasuredPoint.height) ? lastMeasuredPoint.height : endHeight
+      }
+    ];
   }
 
-  return [fallbackStart, fallbackEnd].filter(Boolean);
+  return [segmentStart, segmentEnd].filter(Boolean);
 }
 
 function latLonToTile(lat, lon, zoom) {

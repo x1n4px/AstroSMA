@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Container, Row, Col, Table } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Button, Container, Row, Col, Table } from 'react-bootstrap';
+import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getPhotometryFromId, getPhotometryGraph } from '@/services/photometryService.jsx';
 import truncateDecimal from '@/pipe/truncateDecimal';
@@ -43,18 +43,6 @@ function TableBlock({ columns, rows }) {
 
 function round(value, decimalPlaces) {
   return truncateDecimal(value, decimalPlaces);
-}
-
-function formatMovementCoefficients(value) {
-  if (!value) {
-    return '-';
-  }
-
-  return String(value)
-    .trim()
-    .split(/\s+/)
-    .map(coefficient => round(coefficient, 4))
-    .join(' / ');
 }
 
 TableBlock.propTypes = {
@@ -130,6 +118,7 @@ const PhotometryReport = ({ photometryData, isChild }) => {
   const selectedStations = [selectedPhotometry?.station1, selectedPhotometry?.station2]
     .filter(Boolean)
     .join(' - ');
+  const selectedPhotometryId = photometryCData?.Identificador || selectedPhotometry?.Identificador || selectedId;
   const eventTitle = buildPhotometryEventTitle(photometryCData || selectedPhotometry);
 
   const summaryMetrics = useMemo(() => {
@@ -180,6 +169,18 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                 ))}
               </ReportSelectField>
               {selectedStations ? <p className="mb-0 mt-3 text-muted">Estaciones: {selectedStations}</p> : null}
+              {selectedPhotometryId ? (
+                <Button
+                  as={Link}
+                  to={`/photometry-report/${selectedPhotometryId}`}
+                  className="mt-3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ backgroundColor: '#980100', borderColor: '#980100', color: '#ffffff' }}
+                >
+                  Ver informe de fotometría
+                </Button>
+              ) : null}
             </ReportPanel>
           </Col>
         ) : null}
@@ -225,9 +226,6 @@ const PhotometryReport = ({ photometryData, isChild }) => {
                   </Col>
                   <Col xs={12} md={6}>
                     <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.STANDART_ERROR_EXTERNAL_COEFF')} value={round(photometryCData.Error_tipico_coeficiente_externo, 4)} />
-                  </Col>
-                  <Col xs={12} md={6}>
-                    <ReportField className="mb-0" label={t('REPORT.PHOTOMETRY.INPUT.PATH_PARABOLA_COEFF')} value={formatMovementCoefficients(photometryCData.Coeficientes_parabola_trayectoria)} />
                   </Col>
                 </Row>
               </ReportPanel>

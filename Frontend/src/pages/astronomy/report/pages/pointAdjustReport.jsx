@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row, Col, Table } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
 import formatDate from '@/pipe/formatDate.jsx';
 import truncateDecimal from '@/pipe/truncateDecimal';
 import {
@@ -19,7 +18,7 @@ function DataTable({ columns, rows, rowKey, tableClassName }) {
         <thead>
           <tr>
             {columns.map(column => (
-              <th key={column.key}>{column.label}</th>
+              <th key={column.key} style={{ textTransform: 'none' }}>{column.label}</th>
             ))}
           </tr>
         </thead>
@@ -54,13 +53,11 @@ DataTable.defaultProps = {
 
 function formatFitsDateTime(row) {
   const date = formatDate(row.Fecha);
-  const time = String(row.Hora || '').substring(0, 8);
+  const time = String(row.Hora || '').trim();
   return date && time ? `${date}T${time}` : date || time || '-';
 }
 
 const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
-  const { t } = useTranslation(['text']);
-
   const summaryMetrics = [
     { label: 'Número de fotogramas usados para trayectoria', value: trajectoryData.length },
     { label: 'Número de fotogramas usados para velocidad', value: regressionTrajectory.length }
@@ -68,18 +65,18 @@ const PointAdjustReport = ({ regressionTrajectory, trajectoryData }) => {
 
   const regressionColumns = [
     { key: 'dateTime', label: 'Fecha/hora', render: row => <span className="text-nowrap">{formatFitsDateTime(row)}</span> },
-    { key: 't', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.t'), render: row => truncateDecimal(row.t) },
-    { key: 's', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.s'), render: row => truncateDecimal(row.s) },
-    { key: 'v', label: t('REPORT.POINT_ADJUST.REGRESSION_TRAJECTORY.TABLE.HEADER.v'), render: row => truncateDecimal(row.v_Kms) }
+    { key: 't', label: 't (segundos)', render: row => truncateDecimal(row.t) },
+    { key: 's', label: 's (Km)', render: row => truncateDecimal(row.s) },
+    { key: 'v', label: 'v (Km/s)', render: row => truncateDecimal(row.v_Kms) }
   ];
 
   const trajectoryColumns = [
     { key: 'dateTime', label: 'Fecha/hora', render: row => <span className="text-nowrap">{formatFitsDateTime(row)}</span> },
-    { key: 's', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.S'), render: row => truncateDecimal(row.s) },
-    { key: 't', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.T'), render: row => truncateDecimal(row.t) },
-    { key: 'v', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.V'), render: row => truncateDecimal(row.v) },
-    { key: 'lambda', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.LAMBDA'), render: row => truncateDecimal(row.lambda) },
-    { key: 'phi', label: t('REPORT.POINT_ADJUST.TRAJECTORY.TABLE.HEADER.PHI'), render: row => truncateDecimal(row.phi) },
+    { key: 's', label: 's (Km)', render: row => truncateDecimal(row.s) },
+    { key: 't', label: 't (segundos)', render: row => truncateDecimal(row.t) },
+    { key: 'v', label: 'v (Km/s)', render: row => truncateDecimal(row.v) },
+    { key: 'lambda', label: 'λ (grados)', render: row => truncateDecimal(row.lambda) },
+    { key: 'phi', label: 'φ (grados)', render: row => truncateDecimal(row.phi) },
     { key: 'ra1', label: 'RA (estación 1) (grados)', render: row => truncateDecimal(row.AR_Estacion_1, 5) },
     { key: 'de1', label: 'De (estación 1) (grados)', render: row => truncateDecimal(row.De_Estacion_1, 5) },
     { key: 'ra2', label: 'RA (estación 2) (grados)', render: row => truncateDecimal(row.Ar_Estacion_2, 5) },
