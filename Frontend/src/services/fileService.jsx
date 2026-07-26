@@ -16,9 +16,29 @@ const formatDateInMadrid = (value) => {
     return `${year}-${month}-${day}`;
 };
 
+const adjustDateByTime = (date, time) => {
+    if (!date || !time) return date;
+
+    // Si la hora es <= 12:00:00, usar el día anterior
+    if (time <= "12:00:00") {
+        const d = new Date(date);
+        d.setDate(d.getDate() - 1);
+
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    return date;
+};
+
 export const getOrbitFile = async (button, Fecha, Hora, fileName, id1, id2) => {
     try {
-        const normalizedDate = formatDateInMadrid(Fecha);
+        let normalizedDate = formatDateInMadrid(Fecha);
+
+	normalizedDate = adjustDateByTime(normalizedDate, Hora);
 
         const response = await axios.get(`${apiUrl}/detecciones`, {
             params: {

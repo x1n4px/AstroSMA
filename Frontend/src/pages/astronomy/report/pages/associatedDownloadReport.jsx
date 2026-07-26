@@ -70,7 +70,7 @@ function buildDownloadItems(report) {
       id: 'meteortoolkit',
       title: 'Meteor ToolKit',
       apiButtonName: 'METEOR_TOOLKIT',
-      fileName: `Gritsevivh-${timestamp}-${pair}`,
+      fileName: `Gritsevich-${timestamp}-${pair}`,
       buttonText: 'Descargar datos MeteorToolKit',
       description: 'Ficheros que contienen los datos de entrada del software Meteor ToolKit (https://sourceforge.net/projects/meteortoolkit/).'
     },
