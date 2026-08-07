@@ -1140,7 +1140,62 @@
             }
         }
     },
+    "ACTIVE_SHOWER_PAGE": {
+        "EYEBROW": "Catálogo de actividad meteorítica",
+        "TITLE": "Lluvias de meteoros activas",
+        "DESCRIPTION": "Consulta los periodos de actividad publicados por IMO y el catálogo de referencia de la IAU, y accede a los informes asociados a cada lluvia.",
+        "LOADING": "Cargando catálogos...",
+        "ERROR": "No se pudieron cargar las lluvias de meteoros.",
+        "RETRY": "Reintentar",
+        "SEARCH_LABEL": "Buscar una lluvia",
+        "SEARCH_PLACEHOLDER": "Buscar por código o nombre...",
+        "CLEAR_SEARCH": "Limpiar búsqueda",
+        "RESULT_COUNT": "{{count}} lluvias",
+        "SUMMARY": {
+            "LABEL": "Resumen de los catálogos",
+            "IMO": "Registros IMO",
+            "IAU": "Registros IAU",
+            "YEARS": "Años disponibles"
+        },
+        "CATALOG": {
+            "TITLE": "Explorar catálogos",
+            "DESCRIPTION": "Compara la información IMO e IAU y abre los informes de cada lluvia."
+        },
+        "YEARS": {
+            "TITLE": "Años de inicio",
+            "SELECTED": "{{selected}} de {{total}} seleccionados",
+            "ALL": "Todos",
+            "NONE": "Ninguno"
+        },
+        "TABLE": {
+            "YEAR": "Año",
+            "SPEED": "Velocidad",
+            "ACTIVITY": "Actividad",
+            "ACTIONS": "Acciones"
+        },
+        "ACTIONS": {
+            "REPORTS": "Informes",
+            "VISUALIZE": "Visualizar"
+        },
+        "GROUP": {
+            "RECORDS": "{{count}} registros"
+        },
+        "EMPTY": {
+            "SELECT_YEAR": "Selecciona al menos un año para mostrar sus lluvias.",
+            "NO_RESULTS": "No hay resultados para esta búsqueda.",
+            "NO_RESULTS_DESCRIPTION": "Prueba con otro código o nombre, o amplía la selección de años."
+        },
+        "VISUALIZATION": {
+            "EYEBROW": "Representación interactiva",
+            "HIDE": "Ocultar",
+            "IFRAME_TITLE": "Visualización de la lluvia de meteoros {{code}}",
+            "CREDITS": "Visualización ofrecida por"
+        }
+    },
     "SHOWER_INFO": {
+        "EYEBROW": "Explorador de lluvias meteoríticas",
+        "PAGE_TITLE": "Consulta y analiza una lluvia",
+        "PAGE_DESCRIPTION": "Selecciona una lluvia y ajusta los criterios para explorar sus detecciones, datos orbitales y condiciones lunares.",
         "TITLE": "Seleccionar una lluvia",
         "START_YEAR": "Año de inicio",
         "MEMBERSHIP_THRESHOLD": "Grado de asociación mínimo a visualizar",
@@ -1150,7 +1205,73 @@
         "CLEAR_BTN": "Limpiar",
         "LOADING": "Cargando...",
         "RESULTS_HEADING": "Meteoros detectados con grado de asociación mínimo {{membership}} a la lluvia {{shower}}",
-        "MOON_PHASE_ICON": "El dibujo representa la fase lunar",
+        "TWO_STATION_BADGE": "Dos estaciones",
+        "FILTERS": {
+            "TITLE": "Criterios de búsqueda",
+            "DESCRIPTION": "Define la lluvia, el periodo y los umbrales que quieres analizar.",
+            "INVALID_DATE_RANGE": "El año de inicio no puede ser posterior al año de fin."
+        },
+        "SUMMARY": {
+            "TOTAL": "Informes encontrados",
+            "DUAL": "Dos estaciones",
+            "RADIANT": "Una estación",
+            "MIN_MEMBERSHIP": "Asociación mínima"
+        },
+        "VISIBILITY": {
+            "TITLE": "Personaliza la vista",
+            "DESCRIPTION": "Elige qué información quieres mantener visible en los resultados."
+        },
+        "GRAPH": {
+            "TITLE": "Evolución de las detecciones",
+            "DESCRIPTION": "Distribución temporal de los meteoros asociados a la lluvia seleccionada."
+        },
+        "RESULTS": {
+            "TITLE": "Informes detectados",
+            "VISIBLE": "{{visible}} de {{total}} visibles"
+        },
+        "CARD": {
+            "MOON_PHASE": "Fase lunar"
+        },
+        "MOON_PHASE_GUIDE": {
+            "TITLE": "Guía de fases lunares",
+            "DESCRIPTION": "Selecciona una o varias fases para filtrar los informes. Si no seleccionas ninguna, se mostrarán todas.",
+            "CLEAR_FILTER": "Mostrar todas",
+            "VISIBLE_RESULTS": "{{count}} visibles",
+            "PHASES": {
+                "NEW_MOON": {
+                    "NAME": "Luna nueva",
+                    "DESCRIPTION": "Iluminación mínima"
+                },
+                "WAXING_CRESCENT": {
+                    "NAME": "Luna creciente",
+                    "DESCRIPTION": "La iluminación aumenta"
+                },
+                "FIRST_QUARTER": {
+                    "NAME": "Cuarto creciente",
+                    "DESCRIPTION": "Mitad iluminada y creciendo"
+                },
+                "WAXING_GIBBOUS": {
+                    "NAME": "Gibosa creciente",
+                    "DESCRIPTION": "Más de la mitad y creciendo"
+                },
+                "FULL_MOON": {
+                    "NAME": "Luna llena",
+                    "DESCRIPTION": "Iluminación máxima"
+                },
+                "WANING_GIBBOUS": {
+                    "NAME": "Gibosa menguante",
+                    "DESCRIPTION": "Más de la mitad y menguando"
+                },
+                "LAST_QUARTER": {
+                    "NAME": "Cuarto menguante",
+                    "DESCRIPTION": "Mitad iluminada y menguando"
+                },
+                "WANING_CRESCENT": {
+                    "NAME": "Luna menguante",
+                    "DESCRIPTION": "La iluminación disminuye"
+                }
+            }
+        },
         "RADIANT_REPORT_BADGE": "I.Radiante",
         "PLACEHOLDERS": {
             "START_YEAR": "Ej: 2023",
@@ -1165,7 +1286,9 @@
         "NO_DATA": {
             "DEFAULT": "No se encontraron datos para mostrar",
             "GRAPH": "No hay datos suficientes para mostrar el gráfico",
-            "REPORTS": "No se encontraron reportes para los criterios seleccionados"
+            "REPORTS": "No se encontraron reportes para los criterios seleccionados",
+            "HIDDEN_REPORTS": "Todos los tipos de informe están ocultos. Activa alguno en “Personaliza la vista” para mostrar sus tarjetas.",
+            "MOON_PHASE": "No hay informes visibles para las fases lunares seleccionadas. Prueba con otra fase o muestra todas."
         },
         "CHECKBOX": {
             "SHOW_REPORT_Z": "Mostrar informes de dos estaciones",
@@ -1174,6 +1297,7 @@
         },
         "DATA": {
             "TITLE": "Datos de la lluvia",
+            "DETAILS_TITLE": "Características de la lluvia",
             "BASIC_INFO": "Información básica",
             "ORBITAL_PARAMS": "Parámetros orbitales",
             "ACTIVITY": "Actividad",

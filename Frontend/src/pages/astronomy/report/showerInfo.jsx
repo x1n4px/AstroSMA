@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, Button, Container, Row, Col, Badge, Form, Stack, Alert } from "react-bootstrap"
-import { Calendar, Clock, EvStation, Pencil, Person, ExclamationTriangle } from "react-bootstrap-icons"
+import { Card, Button, Container, Row, Col, Badge, Form, Alert } from "react-bootstrap"
+import { Calendar, Clock, EvStation, ExclamationTriangle } from "react-bootstrap-icons"
 import MoonPhase from '@/components/Image/MoonPhase.jsx';
 import { getReportZListFromRain } from '@/services/reportService'
 import { useEffect, useState } from 'react';
@@ -11,25 +11,222 @@ import { getAllShower } from '@/services/activeShower'
 import { useTranslation } from 'react-i18next';
 import CurveLineChart from '@/components/chart/CurveLineChart.jsx'
 import truncateDecimal from '@/pipe/truncateDecimal';
+import './showerInfo.css';
 
-// Componente Skeleton para tarjetas
-const CardSkeleton = () => (
-    <Card className="h-100 shadow-sm border-0">
-        <Card.Body className="d-flex flex-column">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-                <div className="skeleton skeleton-badge" style={{ width: '80px', height: '20px' }}></div>
-                <div className="skeleton skeleton-badge" style={{ width: '70px', height: '20px' }}></div>
+const MOON_PHASES = [
+    { name: 'New Moon', translationKey: 'NEW_MOON' },
+    { name: 'Waxing Crescent', translationKey: 'WAXING_CRESCENT' },
+    { name: 'First Quarter', translationKey: 'FIRST_QUARTER' },
+    { name: 'Waxing Gibbous', translationKey: 'WAXING_GIBBOUS' },
+    { name: 'Full Moon', translationKey: 'FULL_MOON' },
+    { name: 'Waning Gibbous', translationKey: 'WANING_GIBBOUS' },
+    { name: 'Last Quarter', translationKey: 'LAST_QUARTER' },
+    { name: 'Waning Crescent', translationKey: 'WANING_CRESCENT' },
+];
+
+const getMoonPhaseLabel = (t, phaseName) => {
+    const phase = MOON_PHASES.find((item) => item.name === phaseName);
+    return phase
+        ? t(`SHOWER_INFO.MOON_PHASE_GUIDE.PHASES.${phase.translationKey}.NAME`)
+        : phaseName;
+};
+
+const MoonPhaseGuide = ({
+    reports,
+    radiantReports,
+    showDualStationReports,
+    showRadiantReports,
+    showCurveGraph,
+    selectedMoonPhases,
+    onToggleDualStationReports,
+    onToggleRadiantReports,
+    onToggleCurveGraph,
+    onTogglePhase,
+    onClearPhases,
+}) => {
+    const { t } = useTranslation(['text']);
+    const visibleReports = [
+        ...(showDualStationReports ? reports : []),
+        ...(showRadiantReports ? radiantReports : []),
+    ];
+    const phaseCounts = visibleReports.reduce((counts, item) => {
+        counts[item.moonPhase] = (counts[item.moonPhase] || 0) + 1;
+        return counts;
+    }, {});
+
+    return (
+        <section className="moon-phase-guide mb-4" aria-labelledby="moon-phase-guide-title">
+            <div className="moon-phase-guide__intro">
+                <span className="shower-info__section-icon" aria-hidden="true">
+                    <i className="bi bi-moon-stars" />
+                </span>
+                <div>
+                    <h3 id="moon-phase-guide-title" className="mb-1">
+                        {t('SHOWER_INFO.MOON_PHASE_GUIDE.TITLE')}
+                    </h3>
+                    <p className="mb-0">{t('SHOWER_INFO.MOON_PHASE_GUIDE.DESCRIPTION')}</p>
+                </div>
+                {selectedMoonPhases.length > 0 && (
+                    <Button className="moon-phase-guide__clear" variant="link" size="sm" onClick={onClearPhases}>
+                        <i className="bi bi-x-circle" aria-hidden="true" />
+                        {t('SHOWER_INFO.MOON_PHASE_GUIDE.CLEAR_FILTER')}
+                    </Button>
+                )}
             </div>
-            <div className="text-center my-3">
-                <div className="skeleton skeleton-circle mx-auto mb-2" style={{ width: '60px', height: '60px' }}></div>
-                <div className="skeleton skeleton-text" style={{ width: '80%', height: '16px', margin: '0 auto' }}></div>
+
+            <div className="moon-phase-guide__view-options">
+                <div className="shower-info__toggle-grid">
+                    <label htmlFor="dual-station-switch">
+                        <span><i className="bi bi-diagram-3" /><strong>{t('SHOWER_INFO.CHECKBOX.SHOW_REPORT_Z')}</strong></span>
+                        <span className="shower-info__toggle-meta">
+                            <Badge bg="light" text="dark">{reports.length}</Badge>
+                            <Form.Check type="switch" id="dual-station-switch" checked={showDualStationReports} onChange={onToggleDualStationReports} />
+                        </span>
+                    </label>
+                    <label htmlFor="radiant-switch">
+                        <span><i className="bi bi-broadcast" /><strong>{t('SHOWER_INFO.CHECKBOX.SHOW_RADIANT_REPORT')}</strong></span>
+                        <span className="shower-info__toggle-meta">
+                            <Badge bg="light" text="dark">{radiantReports.length}</Badge>
+                            <Form.Check type="switch" id="radiant-switch" checked={showRadiantReports} onChange={onToggleRadiantReports} />
+                        </span>
+                    </label>
+                    <label htmlFor="curve-switch">
+                        <span><i className="bi bi-graph-up" /><strong>{t('SHOWER_INFO.CHECKBOX.SHOW_GRAPH')}</strong></span>
+                        <span className="shower-info__toggle-meta">
+                            <Form.Check type="switch" id="curve-switch" checked={showCurveGraph} onChange={onToggleCurveGraph} />
+                        </span>
+                    </label>
+                </div>
             </div>
-            <div className="mt-auto text-center">
-                <div className="skeleton skeleton-button" style={{ width: '120px', height: '32px', margin: '0 auto' }}></div>
+
+            <div className="moon-phase-guide__grid">
+                {MOON_PHASES.map((phase) => {
+                    const isSelected = selectedMoonPhases.includes(phase.name);
+                    const classNames = [
+                        'moon-phase-guide__phase',
+                        phaseCounts[phase.name] ? 'moon-phase-guide__phase--available' : '',
+                        isSelected ? 'moon-phase-guide__phase--selected' : '',
+                    ].filter(Boolean).join(' ');
+
+                    return (
+                    <button
+                        type="button"
+                        className={classNames}
+                        key={phase.name}
+                        aria-pressed={isSelected}
+                        disabled={!phaseCounts[phase.name]}
+                        onClick={() => onTogglePhase(phase.name)}
+                    >
+                        <img
+                            src={`/moon/${phase.name}.webp`}
+                            alt={t(`SHOWER_INFO.MOON_PHASE_GUIDE.PHASES.${phase.translationKey}.NAME`)}
+                            width="54"
+                            height="54"
+                            loading="lazy"
+                        />
+                        <strong>{t(`SHOWER_INFO.MOON_PHASE_GUIDE.PHASES.${phase.translationKey}.NAME`)}</strong>
+                        <small>{t(`SHOWER_INFO.MOON_PHASE_GUIDE.PHASES.${phase.translationKey}.DESCRIPTION`)}</small>
+                        <Badge bg={phaseCounts[phase.name] ? 'dark' : 'light'} text={phaseCounts[phase.name] ? 'white' : 'dark'} pill>
+                            {t('SHOWER_INFO.MOON_PHASE_GUIDE.VISIBLE_RESULTS', {
+                                count: phaseCounts[phase.name] || 0,
+                            })}
+                        </Badge>
+                        <span className="moon-phase-guide__selected-mark" aria-hidden="true">
+                            <i className="bi bi-check" />
+                        </span>
+                    </button>
+                    );
+                })}
             </div>
-        </Card.Body>
-    </Card>
+        </section>
+    );
+};
+
+const SectionHeading = ({ id, icon, title, description, action }) => (
+    <div className="shower-info__section-heading">
+        <div className="shower-info__section-heading-main">
+            <span className="shower-info__section-icon" aria-hidden="true">
+                <i className={`bi ${icon}`} />
+            </span>
+            <div>
+                <h2 id={id}>{title}</h2>
+                {description && <p>{description}</p>}
+            </div>
+        </div>
+        {action}
+    </div>
 );
+
+const ResultCard = ({ result, type, getDistanceLabel, t }) => {
+    const isDualStation = type === 'dual';
+    const membership = isDualStation ? result?.orbitalMemberships : result?.distance;
+    const detailPath = isDualStation
+        ? `/report/${result?.reportId}`
+        : `/radiant-report/${result?.reportId}`;
+
+    return (
+        <Card className="report-result-card h-100">
+            <Card.Body>
+                <div className="report-result-card__topline">
+                    <Badge className={`report-result-card__type report-result-card__type--${type}`} pill>
+                        {isDualStation ? (
+                            <><i className="bi bi-diagram-3 me-1" />{t('SHOWER_INFO.TWO_STATION_BADGE')}</>
+                        ) : (
+                            <><EvStation className="me-1" />{t('SHOWER_INFO.RADIANT_REPORT_BADGE')}</>
+                        )}
+                    </Badge>
+                    <span className="report-result-card__id">#{result?.reportId}</span>
+                </div>
+
+                <div className="report-result-card__datetime">
+                    <span><Calendar aria-hidden="true" /> {formatDate(result.fecha)}</span>
+                    <span><Clock aria-hidden="true" /> {result.hora.substring(0, 8)}</span>
+                </div>
+
+                <div className="report-result-card__moon">
+                    <MoonPhase
+                        phaseName={result.moonPhase}
+                        eheight={68}
+                        ewidth={68}
+                        alt={getMoonPhaseLabel(t, result.moonPhase)}
+                    />
+                    <div>
+                        <small>{t('SHOWER_INFO.CARD.MOON_PHASE')}</small>
+                        <strong>{getMoonPhaseLabel(t, result.moonPhase)}</strong>
+                    </div>
+                </div>
+
+                <div className="report-result-card__membership">
+                    <small>{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
+                    <strong>{getDistanceLabel(membership)}</strong>
+                </div>
+
+                {isDualStation && result.azimut !== null && result.distanciaCenital !== null && (
+                    <div className="report-result-card__metrics">
+                        <div>
+                            <small>{t('INFERRED_DATA.AZIMUTH.label')}</small>
+                            <strong>{truncateDecimal(result.azimut)}º</strong>
+                        </div>
+                        <div>
+                            <small>{t('INFERRED_DATA.ZENITHAL_DISTANCE.label')}</small>
+                            <strong>{truncateDecimal(result.distanciaCenital)}º</strong>
+                        </div>
+                    </div>
+                )}
+
+                <Link
+                    className="report-result-card__link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    to={detailPath}
+                >
+                    {t('SHOWER_INFO.SHOW_DETAILS_BTN')}
+                    <i className="bi bi-arrow-up-right" aria-hidden="true" />
+                </Link>
+            </Card.Body>
+        </Card>
+    );
+};
 
 // Componente Skeleton para el gráfico
 const ChartSkeleton = () => (
@@ -117,6 +314,7 @@ const MoonReport = () => {
     const [showerGraph, setShowerGraph] = useState([]);
     const [membershipThreshold, setMembershipThreshold] = useState(1);
     const [distanceThreshold, setDistanceThreshold] = useState(80);
+    const [selectedMoonPhases, setSelectedMoonPhases] = useState([]);
     const selectedShowerOption = lluvias.find((lluvia) => lluvia.Identificador === selectedCode);
     const selectedShowerDisplayName = selectedLluvia
         ? `${selectedLluvia.Code} - ${selectedLluvia.ShowerNameDesignation}`
@@ -124,6 +322,7 @@ const MoonReport = () => {
             ? `${selectedShowerOption.Identificador} - ${selectedShowerOption.Nombre}`
             : selectedCode;
     const selectedMembershipLabel = getDistanceLabel(membershipThreshold);
+    const invalidDateRange = Boolean(dateIn && dateOut && Number(dateIn) > Number(dateOut));
 
     // Cargar la lista de lluvias al inicio
     useEffect(() => {
@@ -170,20 +369,23 @@ const MoonReport = () => {
         setShowDualStationReports(false);
         setShowRadiantReports(false);
         setShowCurveGraph(false);
+        setSelectedMoonPhases([]);
         setDataError(null);
     };
 
     const fetchMoonData = async () => {
+        if (!selectedCode || invalidDateRange) return;
+
         setLoadingData(true);
         setDataError(null);
         try {
             const data = await getReportZListFromRain(selectedCode, dateIn, dateOut, membershipThreshold, distanceThreshold);
-            console.log('Fetched data:', data); // Log para depuración
             setReport(data.reportResults || []);
             setRain(data.establishedShowerDataUsed);
             setRadiantReport(data.radiantReport || []);
             setShowerGraph(data.showerGraph || []);
             setSelectedLluvia(data.shower);
+            setSelectedMoonPhases([]);
 
             // Mostrar secciones solo si hay datos
             setShowDualStationReports(data.reportResults && data.reportResults.length > 0);
@@ -192,8 +394,16 @@ const MoonReport = () => {
 
         } catch (error) {
             console.error('Error fetching moon data:', error);
+            setReport([]);
+            setRadiantReport([]);
+            setRain(null);
+            setShowerGraph([]);
+            setSelectedLluvia(null);
+            setShowDualStationReports(false);
+            setShowRadiantReports(false);
+            setShowCurveGraph(false);
+            setSelectedMoonPhases([]);
             setDataError(t('SHOWER_INFO.ERRORS.LOAD_REPORT_DATA'));
-            handleLimpiar();
         } finally {
             setLoadingData(false);
         }
@@ -209,6 +419,14 @@ const MoonReport = () => {
 
     const handleSelectChange = (e) => {
         setSelectedCode(e.target.value);
+    };
+
+    const handleMoonPhaseToggle = (phaseName) => {
+        setSelectedMoonPhases((currentPhases) => (
+            currentPhases.includes(phaseName)
+                ? currentPhases.filter((phase) => phase !== phaseName)
+                : [...currentPhases, phaseName]
+        ));
     };
 
     const retryLoadShowers = () => {
@@ -232,469 +450,239 @@ const MoonReport = () => {
         fetchLluvias();
     };
 
+    const totalReports = report.length + radiantReport.length;
+    const matchesMoonPhaseFilter = (result) => (
+        selectedMoonPhases.length === 0 || selectedMoonPhases.includes(result.moonPhase)
+    );
+    const filteredDualStationReports = showDualStationReports
+        ? report.filter(matchesMoonPhaseFilter)
+        : [];
+    const filteredRadiantReports = showRadiantReports
+        ? radiantReport.filter(matchesMoonPhaseFilter)
+        : [];
+    const typeVisibleReports = (showDualStationReports ? report.length : 0)
+        + (showRadiantReports ? radiantReport.length : 0);
+    const visibleReports = filteredDualStationReports.length + filteredRadiantReports.length;
+
     return (
-        <div className='min-h-screen'>
-            {/* CSS para skeletons */}
-            <style>{`
-                .skeleton {
-                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-                    background-size: 200% 100%;
-                    animation: loading 1.5s infinite;
-                    border-radius: 4px;
-                }
-                
-                .skeleton-badge {
-                    border-radius: 12px;
-                }
-                
-                .skeleton-circle {
-                    border-radius: 50%;
-                }
-                
-                .skeleton-button {
-                    border-radius: 20px;
-                }
-                
-                .skeleton-text {
-                    border-radius: 4px;
-                }
-                
-                @keyframes loading {
-                    0% {
-                        background-position: 200% 0;
-                    }
-                    100% {
-                        background-position: -200% 0;
-                    }
-                }
-            `}</style>
-
-            <Container className="my-4 p-4 border rounded shadow-sm">
-                {/* Error al cargar lluvias */}
-                {showersError && (
-                    <ErrorAlert message={showersError} onRetry={retryLoadShowers} />
-                )}
-
-                <Row>
-                    <Col md={6}>
-                        <Form.Group controlId="lluviaSelect">
-                            <Form.Label>{t('SHOWER_INFO.TITLE')}</Form.Label>
-                            {loadingShowers ? (
-                                <div className="skeleton" style={{ width: '100%', height: '38px', borderRadius: '6px' }}></div>
-                            ) : (
-                                <Form.Select
-                                    value={selectedCode}
-                                    onChange={handleSelectChange}
-                                    disabled={loadingData}
-                                >
-                                    <option value="">{t('SHOWER_INFO.TITLE')}</option>
-                                    {Array.isArray(lluvias) && lluvias.map((lluvia) => (
-                                        <option key={lluvia.Identificador} value={lluvia.Identificador}>
-                                            {lluvia.Identificador} - {lluvia.Nombre}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                            )}
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={3}>
-                        <Form.Group controlId="anioInicio">
-                            <Form.Label>{t('SHOWER_INFO.START_YEAR')}</Form.Label>
-                            <Form.Control
-                                type="number"
-                                min="1900"
-                                max="2100"
-                                placeholder={t('SHOWER_INFO.PLACEHOLDERS.START_YEAR')}
-                                value={dateIn}
-                                onChange={(e) => setDateIn(e.target.value)}
-                                disabled={loadingData}
-                            />
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={3}>
-                        <Form.Group controlId="anioFin">
-                            <Form.Label>{t('SHOWER_INFO.END_YEAR')}</Form.Label>
-                            <Form.Control
-                                type="number"
-                                min="1900"
-                                max="2100"
-                                placeholder={t('SHOWER_INFO.PLACEHOLDERS.END_YEAR')}
-                                value={dateOut}
-                                onChange={(e) => setDateOut(e.target.value)}
-                                disabled={loadingData}
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-
-                <Row className="mt-3">
-                    <Col md={6}>
-                        <Form.Group controlId="membershipThreshold">
-                            <Form.Label>{t('SHOWER_INFO.MEMBERSHIP_THRESHOLD')}</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={membershipThreshold}
-                                onChange={(e) => handleMembershipThresholdChange(Number(e.target.value))}
-                                disabled={loadingData}
-                            >
-                                <option value="1">{t('DISTANCE.VERYFAR')}</option>
-                                <option value="3">{t('DISTANCE.FAR')}</option>
-                                <option value="5">{t('DISTANCE.CLOSE')}</option>
-                                <option value="7">{t('DISTANCE.VERYCLOSE')}</option>
-                            </Form.Control>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={6}>
-                        <Form.Group controlId="distanceThreshold">
-                            <Form.Label>{t('SHOWER_INFO.DISTANCE_THRESHOLD')}</Form.Label>
-                            <Form.Control
-                                type="number"
-                                min="0"
-                                max="200"
-                                step="1"
-                                placeholder="80"
-                                value={distanceThreshold}
-                                onChange={(e) => handleDistanceThresholdChange(e.target.value)}
-                                disabled={loadingData}
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-
-                <Row className="mt-3">
-                    <Col className="d-flex justify-content-end gap-2">
-                        <Button
-                            variant="outline-secondary"
-                            onClick={handleLimpiar}
-                            disabled={loadingData || loadingShowers}
-                        >
-                            <i className="bi bi-eraser me-2"></i>
-                            {t('SHOWER_INFO.CLEAR_BTN')}
-                        </Button>
-
-                        <Button
-                            style={{ backgroundColor: '#980100', borderColor: '#980100' }}
-                            onClick={fetchMoonData}
-                            disabled={loadingData || loadingShowers || !selectedCode}
-                        >
-                            {loadingData ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    {t('SHOWER_INFO.LOADING')}
-                                </>
-                            ) : (
-                                <>
-                                    <i className="bi bi-search me-2"></i>
-                                    {t('SHOWER_INFO.SEARCH_BTN')}
-                                </>
-                            )}
-                        </Button>
-                    </Col>
-                </Row>
-
-                {/* Switches de visualización */}
-                {(selectedLluvia || loadingData) && (
-                    <>
-                        <hr />
-                        <Row className="mt-4 pt-4">
-                            <Form className="mb-3">
-                                <Stack direction="horizontal" gap={4}>
-                                    <Form.Check
-                                        type="switch"
-                                        id="dual-station-switch"
-                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_REPORT_Z')}
-                                        value={showDualStationReports}
-                                        checked={showDualStationReports}
-                                        onChange={(e) => setShowDualStationReports(e.target.checked)}
-                                        disabled={loadingData}
-                                    />
-                                    {(report.length > 0 ? ` (${report.length})` : '')}
-                                    <Form.Check
-                                        type="switch"
-                                        id="radiant-switch"
-                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_RADIANT_REPORT')}
-                                        value={showRadiantReports}
-                                        checked={showRadiantReports}
-                                        onChange={(e) => setShowRadiantReports(e.target.checked)}
-                                        disabled={loadingData}
-                                    />
-                                    {(report.length > 0 ? ` (${radiantReport.length})` : '')}
-                                    <Form.Check
-                                        type="switch"
-                                        id="curve-switch"
-                                        label={t('SHOWER_INFO.CHECKBOX.SHOW_GRAPH')}
-                                        value={showCurveGraph}
-                                        checked={showCurveGraph}
-                                        onChange={(e) => setShowCurveGraph(e.target.checked)}
-                                        disabled={loadingData}
-                                    />
-                                </Stack>
-                            </Form>
-                        </Row>
-                    </>
-                )}
-            </Container>
-
-            {/* Error en la carga de datos */}
-            {dataError && (
-                <Container className="my-4">
-                    <ErrorAlert message={dataError} onRetry={fetchMoonData} />
+        <main className="shower-info">
+            <header className="shower-info__hero">
+                <Container>
+                    <span className="shower-info__eyebrow">{t('SHOWER_INFO.EYEBROW')}</span>
+                    <h1>{t('SHOWER_INFO.PAGE_TITLE')}</h1>
+                    <p>{t('SHOWER_INFO.PAGE_DESCRIPTION')}</p>
                 </Container>
-            )}
+            </header>
 
-            {/* Gráfico */}
-            <Container className="py-4">
-                {loadingData && showCurveGraph && <ChartSkeleton />}
-                {!loadingData && showCurveGraph && showerGraph.length > 0 && (
-                    <div style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-                        <CurveLineChart data={showerGraph} />
-                    </div>
-                )}
-                {!loadingData && showCurveGraph && showerGraph.length === 0 && selectedLluvia && (
-                    <NoDataAlert message={t('SHOWER_INFO.NO_DATA.GRAPH')} />
-                )}
-            </Container>
+            <Container className="shower-info__content">
+                <section className="shower-info__panel shower-info__search-panel" aria-labelledby="search-title">
+                    <SectionHeading
+                        id="search-title"
+                        icon="bi-sliders"
+                        title={t('SHOWER_INFO.FILTERS.TITLE')}
+                        description={t('SHOWER_INFO.FILTERS.DESCRIPTION')}
+                    />
 
-            {/* Información básica */}
-            <Container className="my-4 p-4">
-                {loadingData && (
-                    <div className="mt-4">
-                        <div className="d-flex align-items-center mb-4">
-                            <div className="p-2 rounded me-3" style={{ backgroundColor: '#980100' }}>
-                                <i className="bi bi-droplet text-white fs-4"></i>
-                            </div>
-                            <div className="skeleton skeleton-text" style={{ width: '300px', height: '24px' }}></div>
-                        </div>
-                        <Row>
-                            <Col md={6}>
-                                <DataSkeleton />
+                    {showersError && <ErrorAlert message={showersError} onRetry={retryLoadShowers} />}
+
+                    <Form onSubmit={(event) => { event.preventDefault(); fetchMoonData(); }}>
+                        <Row className="g-3">
+                            <Col lg={6}>
+                                <Form.Group controlId="lluviaSelect">
+                                    <Form.Label>{t('SHOWER_INFO.TITLE')}</Form.Label>
+                                    {loadingShowers ? (
+                                        <div className="skeleton shower-info__input-skeleton" />
+                                    ) : (
+                                        <Form.Select value={selectedCode} onChange={handleSelectChange} disabled={loadingData}>
+                                            <option value="">{t('SHOWER_INFO.TITLE')}</option>
+                                            {Array.isArray(lluvias) && lluvias.map((lluvia) => (
+                                                <option key={lluvia.Identificador} value={lluvia.Identificador}>
+                                                    {lluvia.Identificador} - {lluvia.Nombre}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    )}
+                                </Form.Group>
                             </Col>
-                            <Col md={6}>
-                                <DataSkeleton />
+                            <Col sm={6} lg={3}>
+                                <Form.Group controlId="anioInicio">
+                                    <Form.Label>{t('SHOWER_INFO.START_YEAR')}</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        min="1900"
+                                        max="2100"
+                                        placeholder={t('SHOWER_INFO.PLACEHOLDERS.START_YEAR')}
+                                        value={dateIn}
+                                        isInvalid={invalidDateRange}
+                                        onChange={(event) => setDateIn(event.target.value)}
+                                        disabled={loadingData}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col sm={6} lg={3}>
+                                <Form.Group controlId="anioFin">
+                                    <Form.Label>{t('SHOWER_INFO.END_YEAR')}</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        min="1900"
+                                        max="2100"
+                                        placeholder={t('SHOWER_INFO.PLACEHOLDERS.END_YEAR')}
+                                        value={dateOut}
+                                        isInvalid={invalidDateRange}
+                                        onChange={(event) => setDateOut(event.target.value)}
+                                        disabled={loadingData}
+                                    />
+                                    <Form.Control.Feedback type="invalid">
+                                        {t('SHOWER_INFO.FILTERS.INVALID_DATE_RANGE')}
+                                    </Form.Control.Feedback>
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="membershipThreshold">
+                                    <Form.Label>{t('SHOWER_INFO.MEMBERSHIP_THRESHOLD')}</Form.Label>
+                                    <Form.Select
+                                        value={membershipThreshold}
+                                        onChange={(event) => handleMembershipThresholdChange(Number(event.target.value))}
+                                        disabled={loadingData}
+                                    >
+                                        <option value="1">{t('DISTANCE.VERYFAR')}</option>
+                                        <option value="3">{t('DISTANCE.FAR')}</option>
+                                        <option value="5">{t('DISTANCE.CLOSE')}</option>
+                                        <option value="7">{t('DISTANCE.VERYCLOSE')}</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col lg={6}>
+                                <Form.Group controlId="distanceThreshold">
+                                    <Form.Label>{t('SHOWER_INFO.DISTANCE_THRESHOLD')}</Form.Label>
+                                    <div className="shower-info__input-suffix">
+                                        <Form.Control
+                                            type="number"
+                                            min="0"
+                                            max="200"
+                                            step="1"
+                                            placeholder="80"
+                                            value={distanceThreshold}
+                                            onChange={(event) => handleDistanceThresholdChange(event.target.value)}
+                                            disabled={loadingData}
+                                        />
+                                        <span>°</span>
+                                    </div>
+                                </Form.Group>
                             </Col>
                         </Row>
-                    </div>
+
+                        <div className="shower-info__form-actions">
+                            <Button variant="outline-secondary" type="button" onClick={handleLimpiar} disabled={loadingData || loadingShowers}>
+                                <i className="bi bi-eraser me-2" />{t('SHOWER_INFO.CLEAR_BTN')}
+                            </Button>
+                            <Button className="shower-info__primary-button" type="submit" disabled={loadingData || loadingShowers || !selectedCode || invalidDateRange}>
+                                {loadingData ? (
+                                    <><span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />{t('SHOWER_INFO.LOADING')}</>
+                                ) : (
+                                    <><i className="bi bi-search me-2" />{t('SHOWER_INFO.SEARCH_BTN')}</>
+                                )}
+                            </Button>
+                        </div>
+                    </Form>
+                </section>
+
+                {dataError && <ErrorAlert message={dataError} onRetry={fetchMoonData} />}
+
+                {loadingData && (
+                    <section className="shower-info__loading" aria-live="polite">
+                        <div className="skeleton skeleton-text shower-info__title-skeleton" />
+                        <Row className="g-3 mb-4">
+                            <Col md={6}><DataSkeleton /></Col>
+                            <Col md={6}><DataSkeleton /></Col>
+                        </Row>
+                        <ChartSkeleton />
+                    </section>
                 )}
 
                 {!loadingData && selectedLluvia && (
-                    <div className="mt-4">
-                        <div className="d-flex align-items-center mb-4">
-                            <div className="p-2 rounded me-3" style={{ backgroundColor: '#980100' }}>
-                                <i className="bi bi-droplet text-white fs-4"></i>
+                    <>
+                        <section className="shower-info__overview" aria-labelledby="overview-title">
+                            <div className="shower-info__overview-title">
+                                <span>{selectedLluvia.Code}</span>
+                                <div>
+                                    <small>{t('SHOWER_INFO.DATA.TITLE')}</small>
+                                    <h2 id="overview-title">{selectedLluvia.ShowerNameDesignation}</h2>
+                                </div>
                             </div>
-                            <h4 className="mb-0 " style={{ color: '#980100' }}>
-                                {t('SHOWER_INFO.DATA.TITLE')}: {selectedLluvia.Code} - {selectedLluvia.ShowerNameDesignation}
-                            </h4>
-                        </div>
+                            <div className="shower-info__summary-grid">
+                                <div><strong>{totalReports}</strong><span>{t('SHOWER_INFO.SUMMARY.TOTAL')}</span></div>
+                                <div><strong>{report.length}</strong><span>{t('SHOWER_INFO.SUMMARY.DUAL')}</span></div>
+                                <div><strong>{radiantReport.length}</strong><span>{t('SHOWER_INFO.SUMMARY.RADIANT')}</span></div>
+                                <div><strong>{selectedMembershipLabel}</strong><span>{t('SHOWER_INFO.SUMMARY.MIN_MEMBERSHIP')}</span></div>
+                            </div>
+                        </section>
 
-                        <Row>
-                            <Col md={6}>
-                                <Card className="mb-3 shadow-sm">
-                                    <Card.Header className="text-white" style={{ backgroundColor: '#980100' }}>
-                                        <h5 className="mb-0">{t('SHOWER_INFO.DATA.BASIC_INFO')}</h5>
-                                    </Card.Header>
-                                    <Card.Body>
-                                        <ul className="list-unstyled">
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.ACTIVITY')}:</strong>
-                                                <span className="ms-2">{selectedLluvia.Activity}</span>
-                                            </li>
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.DATE')}:</strong>
-                                                <span className="ms-2">{formatDate(selectedLluvia.SubDate)}</span>
-                                            </li>
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>AR:</strong>
-                                                <span className="ms-2">{selectedLluvia.Ar}</span>
-                                            </li>
-                                            <li>
-                                                <strong style={{ color: '#980100' }}>DE:</strong>
-                                                <span className="ms-2">{selectedLluvia.De}</span>
-                                            </li>
-                                        </ul>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                        {totalReports > 0 && (
+                            <MoonPhaseGuide
+                                reports={report}
+                                radiantReports={radiantReport}
+                                showDualStationReports={showDualStationReports}
+                                showRadiantReports={showRadiantReports}
+                                showCurveGraph={showCurveGraph}
+                                selectedMoonPhases={selectedMoonPhases}
+                                onToggleDualStationReports={(event) => setShowDualStationReports(event.target.checked)}
+                                onToggleRadiantReports={(event) => setShowRadiantReports(event.target.checked)}
+                                onToggleCurveGraph={(event) => setShowCurveGraph(event.target.checked)}
+                                onTogglePhase={handleMoonPhaseToggle}
+                                onClearPhases={() => setSelectedMoonPhases([])}
+                            />
+                        )}
 
-                            <Col md={6}>
-                                <Card className="mb-3 shadow-sm">
-                                    <Card.Header className="text-white" style={{ backgroundColor: '#980100' }}>
-                                        <h5 className="mb-0">{t('SHOWER_INFO.DATA.ORBITAL_PARAMS')}:</h5>
-                                    </Card.Header>
-                                    <Card.Body>
-                                        <ul className="list-unstyled">
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.EXCENTRICITY')} (e):</strong>
-                                                <span className="ms-2">{selectedLluvia.e}</span>
-                                            </li>
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.MAX_SEMIEJE')} (a):</strong>
-                                                <span className="ms-2">{selectedLluvia.a}</span>
-                                            </li>
-                                            <li className="mb-2">
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.PERIHELION')} (q):</strong>
-                                                <span className="ms-2">{selectedLluvia.q}</span>
-                                            </li>
-                                            <li>
-                                                <strong style={{ color: '#980100' }}>{t('SHOWER_INFO.DATA.MIN_DISTANCE')}:</strong>
-                                                <span className="ms-2">{truncateDecimal(selectedLluvia.Distancia_mínima_entre_radianes_y_trayectoria)}</span>
-                                            </li>
-                                        </ul>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        </Row>
-                    </div>
+                        {showCurveGraph && (
+                            <section className="shower-info__panel shower-info__chart" aria-labelledby="chart-title">
+                                <SectionHeading id="chart-title" icon="bi-bar-chart-line" title={t('SHOWER_INFO.GRAPH.TITLE')} description={t('SHOWER_INFO.GRAPH.DESCRIPTION')} />
+                                {showerGraph.length > 0 ? (
+                                    <div className="shower-info__chart-content"><CurveLineChart data={showerGraph} /></div>
+                                ) : (
+                                    <NoDataAlert message={t('SHOWER_INFO.NO_DATA.GRAPH')} />
+                                )}
+                            </section>
+                        )}
+
+                        {totalReports > 0 ? (
+                            <section className="shower-info__results" aria-labelledby="results-title">
+                                <SectionHeading
+                                    id="results-title"
+                                    icon="bi-grid"
+                                    title={t('SHOWER_INFO.RESULTS.TITLE')}
+                                    description={t('SHOWER_INFO.RESULTS_HEADING', { membership: selectedMembershipLabel, shower: selectedShowerDisplayName })}
+                                    action={<Badge className="shower-info__visible-count" pill>{t('SHOWER_INFO.RESULTS.VISIBLE', { visible: visibleReports, total: totalReports })}</Badge>}
+                                />
+
+                                {visibleReports > 0 ? (
+                                    <Row xs={1} md={2} xl={3} className="g-4">
+                                        {filteredDualStationReports.map((result) => (
+                                            <Col key={`dual-${result.reportId || result.hora}`}>
+                                                <ResultCard result={result} type="dual" getDistanceLabel={getDistanceLabel} t={t} />
+                                            </Col>
+                                        ))}
+                                        {filteredRadiantReports.map((result) => (
+                                            <Col key={`radiant-${result.reportId || result.hora}`}>
+                                                <ResultCard result={result} type="radiant" getDistanceLabel={getDistanceLabel} t={t} />
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                ) : (
+                                    <NoDataAlert message={t(
+                                        typeVisibleReports === 0
+                                            ? 'SHOWER_INFO.NO_DATA.HIDDEN_REPORTS'
+                                            : 'SHOWER_INFO.NO_DATA.MOON_PHASE'
+                                    )} />
+                                )}
+                            </section>
+                        ) : (
+                            <NoDataAlert message={t('SHOWER_INFO.NO_DATA.REPORTS')} />
+                        )}
+                    </>
                 )}
             </Container>
-
-            {/* Lista de tarjetas */}
-            <Container className="py-4">
-                {!loadingData && selectedLluvia && (report.length > 0 || radiantReport.length > 0) && (
-                    <div className="mb-4">
-                        <h4 className="mb-1" style={{ color: '#980100' }}>
-                            {t('SHOWER_INFO.RESULTS_HEADING', {
-                                membership: selectedMembershipLabel,
-                                shower: selectedShowerDisplayName,
-                            })}
-                        </h4>
-                    </div>
-                )}
-
-                {loadingData && (
-                    <Row xs={1} md={2} lg={4} className="g-4">
-                        {[...Array(10)].map((_, index) => (
-                            <Col key={`skeleton-${index}`}>
-                                <CardSkeleton />
-                            </Col>
-                        ))}
-                    </Row>
-                )}
-
-                {!loadingData && (report.length > 0 || radiantReport.length > 0) && (
-                    <Row xs={1} md={2} lg={4} className="g-4">
-                        {showDualStationReports && report.map((r) => (
-                            <Col key={r.hora}>
-                                <Card className="h-100 shadow-sm border-0 hover-shadow transition-all">
-                                    <Card.Body className="d-flex flex-column">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <Badge bg='#980100' style={{ backgroundColor: '#980100' }} pill>
-                                                <Calendar className="me-1" /> {formatDate(r.fecha)}
-                                            </Badge>
-                                            <Badge bg="secondary" pill>
-                                                <Clock className="me-1" /> {r.hora.substring(0, 8)}
-                                            </Badge>
-                                        </div>
-
-                                        <div className="text-center my-3">
-                                            <MoonPhase
-                                                phaseName={r.moonPhase}
-                                                eheight={60}
-                                                ewidth={60}
-                                                className="mb-2"
-                                            />
-                                            <small className="d-block text-muted mb-2">
-                                                {t('SHOWER_INFO.MOON_PHASE_ICON')}
-                                            </small>
-                                            <Card.Title className="h6 d-flex flex-column">
-                                                <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
-                                                {getDistanceLabel(r?.orbitalMemberships)}
-                                            </Card.Title>
-                                            {r.azimut !== null && r.distanciaCenital !== null && (
-                                                <Card.Title className="h6 d-flex flex-column">
-                                                    <small className="">{t('INFERRED_DATA.AZIMUTH.label')}: {truncateDecimal(r.azimut)}º</small>
-                                                    <small className="">{t('INFERRED_DATA.ZENITHAL_DISTANCE.label')}: {truncateDecimal(r?.distanciaCenital)}</small>
-                                                </Card.Title>
-                                            )}
-                                        </div>
-
-                                        <div className="mt-auto text-center">
-                                            <Link
-                                                target="_blank"
-                                                to={`/report/${r?.reportId}`}
-                                                style={{
-                                                    backgroundColor: 'transparent',
-                                                    border: '#980100 1px solid',
-                                                    borderRadius: '30px',
-                                                    color: '#980100',
-                                                    padding: '0.3rem 1rem',
-                                                    textDecoration: 'none',
-                                                }}
-                                            >
-                                                {t('SHOWER_INFO.SHOW_DETAILS_BTN')}
-                                            </Link>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
-
-                        {showRadiantReports && radiantReport?.map((r) => (
-                            <Col key={r.hora}>
-                                <Card className="h-100 shadow-sm border-0 hover-shadow transition-all">
-                                    <Card.Body className="d-flex flex-column">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <Badge bg='#980100' style={{ backgroundColor: '#980100' }} pill>
-                                                <Calendar className="me-1" /> {formatDate(r.fecha)}
-                                            </Badge>
-                                            <Badge bg="secondary" pill>
-                                                <Clock className="me-1" /> {r.hora.substring(0, 8)}
-                                            </Badge>
-                                        </div>
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <Badge bg="#804000" style={{ backgroundColor: '#804000' }} pill>
-                                                <EvStation className="me-1" /> {t('SHOWER_INFO.RADIANT_REPORT_BADGE')}
-                                            </Badge>
-                                        </div>
-
-                                        <div className="text-center my-3">
-                                            <MoonPhase
-                                                phaseName={r.moonPhase}
-                                                eheight={60}
-                                                ewidth={60}
-                                                className="mb-2"
-                                            />
-                                            <small className="d-block text-muted mb-2">
-                                                {t('SHOWER_INFO.MOON_PHASE_ICON')}
-                                            </small>
-                                            <Card.Title className="h6 d-flex flex-column">
-                                                <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
-                                                {getDistanceLabel(r?.distance)}
-                                            </Card.Title>
-
-                                        </div>
-
-                                        <div className="mt-auto text-center">
-                                            <Link
-                                                target="_blank"
-                                                to={`/radiant-report/${r?.reportId}`}
-                                                style={{
-                                                    backgroundColor: 'transparent',
-                                                    border: '#980100 1px solid',
-                                                    borderRadius: '30px',
-                                                    color: '#980100',
-                                                    padding: '0.3rem 1rem',
-                                                    textDecoration: 'none',
-                                                }}
-                                            >
-                                                {t('SHOWER_INFO.SHOW_DETAILS_BTN')}
-                                            </Link>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
-                        ))}
-                    </Row>
-                )}
-
-                {!loadingData && report.length === 0 && radiantReport.length === 0 && selectedLluvia && (
-                    <NoDataAlert message={t('SHOWER_INFO.NO_DATA.REPORTS')} />
-                )}
-            </Container>
-        </div>
+        </main>
     );
 };
 

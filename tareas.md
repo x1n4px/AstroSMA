@@ -4,7 +4,7 @@
 
 ## Metadatos
 - Fecha de creación: 2026-06-28
-- Última actualización: 2026-06-28
+- Última actualización: 2026-08-07
 
 ## Instrucciones
 - Actualiza esta lista cada vez que cambie el estado de una tarea.
@@ -59,6 +59,8 @@ no está activo
 - `T-0012` | Prioridad: Alta | Estado: Bloqueada | Contexto: El backend y el frontend ya exponen `azimuth` y `zenithDistance`, pero no puedo confirmar el caso `0.000` sin un `IdInforme` concreto o una traza reproducible del evento afectado. | Criterios de aceptación: con un evento reproducible, localizar si el valor malo viene de BD, API o parseo y corregirlo sin cambiar otros informes. | Archivos relacionados: [`Backend/api/controllers/reportZController.js`](/home/in4p/git/sma/AstroSMA/Backend/api/controllers/reportZController.js), [`Backend/api/mappers/reportZMapper.js`](/home/in4p/git/sma/AstroSMA/Backend/api/mappers/reportZMapper.js), [`Frontend/src/pages/astronomy/report/pages/inferredDataReport.jsx`](/home/in4p/git/sma/AstroSMA/Frontend/src/pages/astronomy/report/pages/inferredDataReport.jsx) | Creación: 2026-06-28 | Última actualización: 2026-06-28
 
 ## Completadas
+- Lluvias activas: renovada la UI/UX de `/active-rain` con resumen de catálogos, búsqueda común, años seleccionables mediante chips, estados completos y representación interactiva reutilizable. Los registros se agrupan en desplegables por familia de identificador (`CAP`, `ANT1`/`ANT2` → `ANT`), manteniendo Informes y la visualización común visibles en la cabecera; las visualizaciones específicas quedan en su variante.
+- Información de lluvias: renovada por completo la UI/UX de `/shower-info/:code` con búsqueda jerarquizada, resumen, gráfico y cards responsive; la guía de ocho fases lunares permite selección múltiple, reúne los controles de personalización y mantiene contadores dinámicos. Las características científicas detalladas quedan ocultas en esta vista.
 - Asociación a lluvia activa: resuelta en `/report` con deduplicación por código canónico de familia para IMO y filtro IAU basado en longitud eclíptica solar calculada en backend.
 - Fotogramas: fecha/hora FITS en una sola línea y cabeceras de `Trayectoria` y `Ajuste de velocidades` ajustadas a minúsculas, con `lambda` y `phi` también en minúsculas.
 - Vídeos e imágenes: nueva pestaña en `/report` con lectura de `videos-e-imagenes.txt`, listado de enlaces y previsualización básica de vídeos e imágenes asociadas al evento.

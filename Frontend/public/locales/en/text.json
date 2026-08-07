@@ -1140,7 +1140,62 @@
             }
         }
     },
+    "ACTIVE_SHOWER_PAGE": {
+        "EYEBROW": "Meteor activity catalogue",
+        "TITLE": "Active meteor showers",
+        "DESCRIPTION": "Explore the activity periods published by the IMO and the IAU reference catalogue, and open the reports associated with each shower.",
+        "LOADING": "Loading catalogues...",
+        "ERROR": "Meteor showers could not be loaded.",
+        "RETRY": "Retry",
+        "SEARCH_LABEL": "Search for a shower",
+        "SEARCH_PLACEHOLDER": "Search by code or name...",
+        "CLEAR_SEARCH": "Clear search",
+        "RESULT_COUNT": "{{count}} showers",
+        "SUMMARY": {
+            "LABEL": "Catalogue summary",
+            "IMO": "IMO records",
+            "IAU": "IAU records",
+            "YEARS": "Available years"
+        },
+        "CATALOG": {
+            "TITLE": "Explore catalogues",
+            "DESCRIPTION": "Compare IMO and IAU information and open the reports for each shower."
+        },
+        "YEARS": {
+            "TITLE": "Starting years",
+            "SELECTED": "{{selected}} of {{total}} selected",
+            "ALL": "All",
+            "NONE": "None"
+        },
+        "TABLE": {
+            "YEAR": "Year",
+            "SPEED": "Speed",
+            "ACTIVITY": "Activity",
+            "ACTIONS": "Actions"
+        },
+        "ACTIONS": {
+            "REPORTS": "Reports",
+            "VISUALIZE": "Visualise"
+        },
+        "GROUP": {
+            "RECORDS": "{{count}} records"
+        },
+        "EMPTY": {
+            "SELECT_YEAR": "Select at least one year to display its showers.",
+            "NO_RESULTS": "There are no results for this search.",
+            "NO_RESULTS_DESCRIPTION": "Try another code or name, or expand the year selection."
+        },
+        "VISUALIZATION": {
+            "EYEBROW": "Interactive representation",
+            "HIDE": "Hide",
+            "IFRAME_TITLE": "Meteor shower {{code}} visualisation",
+            "CREDITS": "Visualisation provided by"
+        }
+    },
     "SHOWER_INFO": {
+        "EYEBROW": "Meteor shower explorer",
+        "PAGE_TITLE": "Explore and analyse a shower",
+        "PAGE_DESCRIPTION": "Select a shower and adjust the criteria to explore its detections, orbital data and lunar conditions.",
         "TITLE": "Select a shower",
         "START_YEAR": "Start year",
         "MEMBERSHIP_THRESHOLD": "Minimum association degree to display",
@@ -1150,7 +1205,73 @@
         "CLEAR_BTN": "Clear",
         "LOADING": "Loading...",
         "RESULTS_HEADING": "Meteors detected with minimum association degree {{membership}} to shower {{shower}}",
-        "MOON_PHASE_ICON": "The drawing represents the lunar phase",
+        "TWO_STATION_BADGE": "Two stations",
+        "FILTERS": {
+            "TITLE": "Search criteria",
+            "DESCRIPTION": "Define the shower, period and thresholds you want to analyse.",
+            "INVALID_DATE_RANGE": "The start year cannot be later than the end year."
+        },
+        "SUMMARY": {
+            "TOTAL": "Reports found",
+            "DUAL": "Two stations",
+            "RADIANT": "One station",
+            "MIN_MEMBERSHIP": "Minimum association"
+        },
+        "VISIBILITY": {
+            "TITLE": "Customise the view",
+            "DESCRIPTION": "Choose which information you want to keep visible in the results."
+        },
+        "GRAPH": {
+            "TITLE": "Detection timeline",
+            "DESCRIPTION": "Time distribution of the meteors associated with the selected shower."
+        },
+        "RESULTS": {
+            "TITLE": "Detection reports",
+            "VISIBLE": "{{visible}} of {{total}} visible"
+        },
+        "CARD": {
+            "MOON_PHASE": "Moon phase"
+        },
+        "MOON_PHASE_GUIDE": {
+            "TITLE": "Moon phase guide",
+            "DESCRIPTION": "Select one or more phases to filter the reports. If none are selected, all phases are shown.",
+            "CLEAR_FILTER": "Show all",
+            "VISIBLE_RESULTS": "{{count}} visible",
+            "PHASES": {
+                "NEW_MOON": {
+                    "NAME": "New Moon",
+                    "DESCRIPTION": "Minimum illumination"
+                },
+                "WAXING_CRESCENT": {
+                    "NAME": "Waxing Crescent",
+                    "DESCRIPTION": "Illumination is increasing"
+                },
+                "FIRST_QUARTER": {
+                    "NAME": "First Quarter",
+                    "DESCRIPTION": "Half lit and growing"
+                },
+                "WAXING_GIBBOUS": {
+                    "NAME": "Waxing Gibbous",
+                    "DESCRIPTION": "More than half and growing"
+                },
+                "FULL_MOON": {
+                    "NAME": "Full Moon",
+                    "DESCRIPTION": "Maximum illumination"
+                },
+                "WANING_GIBBOUS": {
+                    "NAME": "Waning Gibbous",
+                    "DESCRIPTION": "More than half and waning"
+                },
+                "LAST_QUARTER": {
+                    "NAME": "Last Quarter",
+                    "DESCRIPTION": "Half lit and waning"
+                },
+                "WANING_CRESCENT": {
+                    "NAME": "Waning Crescent",
+                    "DESCRIPTION": "Illumination is decreasing"
+                }
+            }
+        },
         "RADIANT_REPORT_BADGE": "Radiant report",
         "PLACEHOLDERS": {
             "START_YEAR": "e.g. 2023",
@@ -1165,7 +1286,9 @@
         "NO_DATA": {
             "DEFAULT": "No data found to display",
             "GRAPH": "There is not enough data to display the chart",
-            "REPORTS": "No reports were found for the selected criteria"
+            "REPORTS": "No reports were found for the selected criteria",
+            "HIDDEN_REPORTS": "All report types are hidden. Enable one under “Customise the view” to display its cards.",
+            "MOON_PHASE": "There are no visible reports for the selected moon phases. Try another phase or show all."
         },
         "CHECKBOX": {
             "SHOW_REPORT_Z": "Show two-station reports",
@@ -1174,6 +1297,7 @@
         },
         "DATA": {
             "TITLE": "Shower data",
+            "DETAILS_TITLE": "Shower characteristics",
             "BASIC_INFO": "Basic information",
             "ORBITAL_PARAMS": "Orbital parameters",
             "ACTIVITY": "Activity",
