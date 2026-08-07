@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { formatDate } from '@/pipe/formatDate.jsx'
 import { getReportData } from '@/services/bolideService.jsx';
-import { useParams, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 // Internationalization
 import { useTranslation } from 'react-i18next';
 
@@ -47,7 +47,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                     <div>
                         <h4 className="mb-0">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.TITLE')}</h4>
                         {/* <small className="text-muted d-block">Disponible los informes de fotometría</small> */}
-                        <table class="table table-sm">
+                        <table className="table table-sm">
                             <thead>
                                 <tr>
                                     {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_Z.ID')}</th> */}
@@ -86,7 +86,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                 {reportRadiantData.length > 0 && (
                     <div className="mt-4">
                         <h4>{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.TITLE')}</h4>
-                        <table class="table table-sm">
+                        <table className="table table-sm">
                             <thead>
                                 <tr>
                                     {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_RADIANT.ID')}</th> */}
@@ -132,7 +132,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
                     <div className="mt-4">
                         <h4>{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.TITLE')}</h4>
 
-                        <table class="table table-sm">
+                        <table className="table table-sm">
                             <thead>
                                 <tr>
                                     {/* <th scope="col">{t('CUSTOMIZE_SEARCH.MODAL.REPORT_PHOTOMETRY.ID')}</th> */}
@@ -172,7 +172,7 @@ const CustomizeSearchModal = ({ report, show, onHide }) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onHide}>
-                    Cerrar
+                    {t('CUSTOMIZE_SEARCH.MODAL.CLOSE')}
                 </Button>
             </Modal.Footer>
         </Modal>

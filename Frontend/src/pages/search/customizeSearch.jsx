@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
 import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
@@ -9,6 +9,8 @@ import { createRequest } from '@/services/requestService.jsx';
 import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx';
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser } from '../../utils/roleMaskUtils';
+import { getStations } from '@/services/stationService.jsx';
+import { getAllShower } from '@/services/activeShower.jsx';
 
 const getYearAgoDate = () => {
     const today = new Date();
@@ -35,8 +37,6 @@ const CustomizeSearch = () => {
     const [showerFilter, setShowerFilter] = useState('');
     const [minVelocityFilter, setMinVelocityFilter] = useState('');
     const [maxVelocityFilter, setMaxVelocityFilter] = useState('');
-    const [minAngularVelocityFilter, setMinAngularVelocityFilter] = useState('');
-    const [maxAngularVelocityFilter, setMaxAngularVelocityFilter] = useState('');
     const [requireReportZ, setRequireReportZ] = useState(false);
     const [requireReportRadiant, setRequireReportRadiant] = useState(false);
     const [requireReportPhotometry, setRequireReportPhotometry] = useState(false);
@@ -59,6 +59,49 @@ const CustomizeSearch = () => {
     const [modalReport, setModalReport] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false);
+    const [stations, setStations] = useState([]);
+    const [showers, setShowers] = useState([]);
+    const isPhotometryReportType = reportType === '4';
+
+    useEffect(() => {
+        const fetchCatalogs = async () => {
+            try {
+                const [stationsData, showersData] = await Promise.all([
+                    getStations(),
+                    getAllShower()
+                ]);
+
+                const uniqueShowers = Array.isArray(showersData?.shower)
+                    ? Array.from(
+                        new Map(showersData.shower.map((shower) => [shower.Identificador, shower])).values()
+                    )
+                    : [];
+
+                setStations(Array.isArray(stationsData) ? stationsData : []);
+                setShowers(uniqueShowers);
+            } catch (error) {
+                console.error('Error loading custom search catalogs:', error);
+            }
+        };
+
+        fetchCatalogs();
+    }, []);
+
+    const handleReportTypeChange = (value) => {
+        setReportType(value);
+        if (value !== '4') {
+            setMinMagMaxFilter('');
+            setMaxMagMaxFilter('');
+            setMinMassFilter('');
+            setMaxMassFilter('');
+        }
+    };
+
+    const formatDecimal = (value, decimals = 2) => {
+        if (value === null || value === undefined || value === '') return '';
+        const numericValue = Number(value);
+        return Number.isFinite(numericValue) ? numericValue.toFixed(decimals) : value;
+    };
 
     const handleApplyFilters = async (page = 0) => {
         try {
@@ -79,8 +122,6 @@ const CustomizeSearch = () => {
                 showerFilter,
                 minVelocityFilter,
                 maxVelocityFilter,
-                minAngularVelocityFilter,
-                maxAngularVelocityFilter,
                 requireReportZ,
                 requireReportRadiant,
                 requireReportPhotometry,
@@ -118,8 +159,6 @@ const CustomizeSearch = () => {
                 showerFilter,
                 minVelocityFilter,
                 maxVelocityFilter,
-                minAngularVelocityFilter,
-                maxAngularVelocityFilter,
                 requireReportZ,
                 requireReportRadiant,
                 requireReportPhotometry,
@@ -201,8 +240,6 @@ const CustomizeSearch = () => {
         setShowerFilter('');
         setMinVelocityFilter('');
         setMaxVelocityFilter('');
-        setMinAngularVelocityFilter('');
-        setMaxAngularVelocityFilter('');
         setRequireReportZ(false);
         setRequireReportRadiant(false);
         setRequireReportPhotometry(false);
@@ -229,7 +266,7 @@ const CustomizeSearch = () => {
                         <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
                     </Col>
                     <Col xs={12} md={9} className="d-flex align-items-center">
-                        <Form.Select value={reportType} onChange={(e) => setReportType(e.target.value)}>
+                        <Form.Select value={reportType} onChange={(e) => handleReportTypeChange(e.target.value)}>
                             <option value="1">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.ALL_TYPES')}</option>
                             <option value="2">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_Z')}</option>
                             <option value="3">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.SELECT.REPORT_RADIANT')}</option>
@@ -378,21 +415,31 @@ const CustomizeSearch = () => {
                     </Col>
                     <Col xs={12} md={4} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.OBSERVATORY')}</Form.Label>
-                        <Form.Control
-                            type="number"
+                        <Form.Select
                             value={observatoryFilter}
                             onChange={(e) => setObservatoryFilter(e.target.value)}
-                            placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.OBSERVATORY')}
-                        />
+                        >
+                            <option value="">{t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
+                            {stations.map((station) => (
+                                <option key={station.id} value={station.id}>
+                                    {station.id} - {station.stationName || station.name}
+                                </option>
+                            ))}
+                        </Form.Select>
                     </Col>
                     <Col xs={12} md={4} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}</Form.Label>
-                        <Form.Control
-                            type="text"
+                        <Form.Select
                             value={showerFilter}
                             onChange={(e) => setShowerFilter(e.target.value)}
-                            placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER_PLACEHOLDER')}
-                        />
+                        >
+                            <option value="">{t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
+                            {showers.map((shower) => (
+                                <option key={`${shower.Identificador}-${shower.Año || shower.Nombre}`} value={shower.Identificador}>
+                                    {shower.Identificador} - {shower.Nombre}
+                                </option>
+                            ))}
+                        </Form.Select>
                     </Col>
                 </Row>
 
@@ -416,7 +463,7 @@ const CustomizeSearch = () => {
                 </Row>
 
                 <Row className="mb-3">
-                    <Col xs={12} md={3} className="mb-2">
+                    <Col xs={12} md={6} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}</Form.Label>
                         <Form.Control
                             type="number"
@@ -425,7 +472,7 @@ const CustomizeSearch = () => {
                             onChange={(e) => setMinVelocityFilter(e.target.value)}
                         />
                     </Col>
-                    <Col xs={12} md={3} className="mb-2">
+                    <Col xs={12} md={6} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_VELOCITY')}</Form.Label>
                         <Form.Control
                             type="number"
@@ -434,26 +481,9 @@ const CustomizeSearch = () => {
                             onChange={(e) => setMaxVelocityFilter(e.target.value)}
                         />
                     </Col>
-                    <Col xs={12} md={3} className="mb-2">
-                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_ANGULAR_VELOCITY')}</Form.Label>
-                        <Form.Control
-                            type="number"
-                            step="any"
-                            value={minAngularVelocityFilter}
-                            onChange={(e) => setMinAngularVelocityFilter(e.target.value)}
-                        />
-                    </Col>
-                    <Col xs={12} md={3} className="mb-2">
-                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MAX_ANGULAR_VELOCITY')}</Form.Label>
-                        <Form.Control
-                            type="number"
-                            step="any"
-                            value={maxAngularVelocityFilter}
-                            onChange={(e) => setMaxAngularVelocityFilter(e.target.value)}
-                        />
-                    </Col>
                 </Row>
 
+                {isPhotometryReportType && (
                 <Row className="mb-3">
                     <Col xs={12} md={3} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_MAG_MAX')}</Form.Label>
@@ -492,6 +522,7 @@ const CustomizeSearch = () => {
                         />
                     </Col>
                 </Row>
+                )}
 
                 <Row className="mb-3">
                     <Col xs={12} className="d-flex flex-wrap gap-3">
@@ -563,10 +594,8 @@ const CustomizeSearch = () => {
                                         </strong>
                                         <div className="small text-muted">
                                             {report.velocidadMedia != null && `${t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}: ${report.velocidadMedia} km/s`}
-                                            {report.velocidadMedia != null && report.velocidadAngular != null && ' · '}
-                                            {report.velocidadAngular != null && `${t('CUSTOMIZE_SEARCH.ADVANCED.MIN_ANGULAR_VELOCITY')}: ${report.velocidadAngular} °/s`}
-                                            {report.magMax != null ? ` · MagMax: ${report.magMax}` : ''}
-                                            {report.masaFotometrica != null ? ` · Masa: ${report.masaFotometrica}` : ''}
+                                            {report.magMax != null ? ` · ${t('CUSTOMIZE_SEARCH.RESULT_FIELDS.MAG_MAX')}: ${formatDecimal(report.magMax)}` : ''}
+                                            {report.masaFotometrica != null ? ` · ${t('CUSTOMIZE_SEARCH.RESULT_FIELDS.PHOTOMETRIC_MASS')}: ${report.masaFotometrica}` : ''}
                                             {report.lluviasAsociadas ? ` · ${t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}: ${report.lluviasAsociadas}` : ''}
                                         </div>
                                     </div>
@@ -596,11 +625,11 @@ const CustomizeSearch = () => {
                         onConfirm={handleConfirmDownload}
                     />
 
-                    <nav aria-label="Page navigation example">
+                    <nav aria-label={t('CUSTOMIZE_SEARCH.PAGINATION.ARIA_LABEL')}>
                         <ul className="pagination justify-content-center py-4">
                             <li className={`page-item ${actualPage === 0 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={handlePrevPage}>
-                                    Previous
+                                    {t('CUSTOMIZE_SEARCH.PAGINATION.PREVIOUS')}
                                 </button>
                             </li>
 
@@ -633,7 +662,7 @@ const CustomizeSearch = () => {
 
                             <li className={`page-item ${actualPage === totalPages - 1 || totalPages === 0 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={handleNextPage}>
-                                    Next
+                                    {t('CUSTOMIZE_SEARCH.PAGINATION.NEXT')}
                                 </button>
                             </li>
                         </ul>

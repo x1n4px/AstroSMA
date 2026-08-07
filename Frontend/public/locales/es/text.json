@@ -592,6 +592,15 @@
         "REPORT_RADIANT": "Informe de una sola estación",
         "REPORT_PHOTOMETRY": "Informe de fotometría",
         "SHOW_BUTTON": "Ver más",
+        "RESULT_FIELDS": {
+            "MAG_MAX": "MagMax",
+            "PHOTOMETRIC_MASS": "Masa"
+        },
+        "PAGINATION": {
+            "ARIA_LABEL": "Paginación de resultados",
+            "PREVIOUS": "Anterior",
+            "NEXT": "Siguiente"
+        },
         "SORT": {
             "TITLE": "Ordenación",
             "ASC": "Fecha ascendente",
@@ -607,8 +616,6 @@
             "TIME_TO": "Hora hasta",
             "MIN_VELOCITY": "Velocidad media mínima",
             "MAX_VELOCITY": "Velocidad media máxima",
-            "MIN_ANGULAR_VELOCITY": "Velocidad angular mínima",
-            "MAX_ANGULAR_VELOCITY": "Velocidad angular máxima",
             "MIN_MAG_MAX": "MagMax mínima",
             "MAX_MAG_MAX": "MagMax máxima",
             "MIN_MASS": "Masa fotométrica mínima",
@@ -628,6 +635,7 @@
             }
         },
         "MODAL": {
+            "CLOSE": "Cerrar",
             "REPORT_Z": {
                 "TITLE": "Informes de dos estaciones",
                 "ID": "Id",
@@ -1097,11 +1105,30 @@
     "SHOWER_INFO": {
         "TITLE": "Seleccionar una lluvia",
         "START_YEAR": "Año de inicio",
-        "MEMBERSHIP_THRESHOLD": "Grado de asociación mínimo",
-        "DISTANCE_THRESHOLD": "Distancia máxima",
+        "MEMBERSHIP_THRESHOLD": "Grado de asociación mínimo a visualizar",
+        "DISTANCE_THRESHOLD": "Distancia angular máxima entre prolongación de la trayectoria y el radiante a la fecha",
         "END_YEAR": "Año de fin",
         "SEARCH_BTN": "Buscar",
         "CLEAR_BTN": "Limpiar",
+        "LOADING": "Cargando...",
+        "RESULTS_HEADING": "Meteoros detectados con grado de asociación mínimo {{membership}} a la lluvia {{shower}}",
+        "MOON_PHASE_ICON": "El dibujo representa la fase lunar",
+        "RADIANT_REPORT_BADGE": "I.Radiante",
+        "PLACEHOLDERS": {
+            "START_YEAR": "Ej: 2023",
+            "END_YEAR": "Ej: 2024"
+        },
+        "ERRORS": {
+            "TITLE": "Error",
+            "RETRY": "Reintentar",
+            "LOAD_SHOWERS": "Error al cargar la lista de lluvias meteorológicas",
+            "LOAD_REPORT_DATA": "Error al cargar los datos del reporte. Por favor, intenta nuevamente."
+        },
+        "NO_DATA": {
+            "DEFAULT": "No se encontraron datos para mostrar",
+            "GRAPH": "No hay datos suficientes para mostrar el gráfico",
+            "REPORTS": "No se encontraron reportes para los criterios seleccionados"
+        },
         "CHECKBOX": {
             "SHOW_REPORT_Z": "Mostrar informes de dos estaciones",
             "SHOW_RADIANT_REPORT": "Mostrar informes de una sola estación",

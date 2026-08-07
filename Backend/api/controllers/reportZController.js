@@ -702,30 +702,43 @@ const getReportZListFromRain = async (req, res) => {
         const { selectedCode, dateIn, dateOut } = req.params;
         const { membershipThreshold = 1, distanceThreshold = 80 } = req.body;
         const showerCode = selectedCode.replace(/[0-9]/g, '');
+        const appendYearFilter = (alias, targetParams) => {
+            if (dateIn !== 'null' && dateOut !== 'null') {
+                targetParams.push(dateIn, dateOut);
+                return ` AND YEAR(${alias}.Fecha) BETWEEN ? AND ?`;
+            }
+            if (dateIn !== 'null') {
+                targetParams.push(dateIn);
+                return ` AND YEAR(${alias}.Fecha) >= ?`;
+            }
+            if (dateOut !== 'null') {
+                targetParams.push(dateOut);
+                return ` AND YEAR(${alias}.Fecha) <= ?`;
+            }
+            return '';
+        };
 
         let query = `SELECT iz.IdInforme, iz.Fecha, iz.Hora, la.Distancia_mínima_entre_radianes_y_trayectoria, iz.Inicio_de_la_trayectoria_Estacion_1, iz.Azimut, iz.Dist_Cenital FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')}`;
         const params = [selectedCode];
 
-        if (dateIn !== 'null' && dateOut !== 'null') {
-            query += ` AND YEAR(iz.Fecha) BETWEEN ? AND ?`;
-            params.push(dateIn, dateOut);
-        } else if (dateIn !== 'null') {
-            query += ` AND YEAR(iz.Fecha) >= ?`;
-            params.push(dateIn);
-        } else if (dateOut !== 'null') {
-            query += ` AND YEAR(iz.Fecha) <= ?`;
-            params.push(dateOut);
-        }
+        query += appendYearFilter('iz', params);
         const [capReports] = await pool.query(query, params);
-        const [radiantReport] = await pool.query(`SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador LIKE CONCAT('%', ?, '%');`, [showerCode]);
+        let radiantQuery = `SELECT ir.Identificador , ir.Fecha , ir.Hora , lair.Distancia FROM Informe_Radiante ir JOIN Lluvia_Activa_InfRad lair ON lair.Informe_Radiante_Identificador = ir.Identificador WHERE lair.Lluvia_Identificador LIKE CONCAT('%', ?, '%')`;
+        const radiantParams = [showerCode];
+        radiantQuery += appendYearFilter('ir', radiantParams);
+        const [radiantReport] = await pool.query(`${radiantQuery};`, radiantParams);
+        const graphCurrentParams = [showerCode];
+        const graphCurrentYearFilter = appendYearFilter('iz', graphCurrentParams);
+        const graphPreviousParams = [showerCode];
+        const graphPreviousYearFilter = appendYearFilter('iz', graphPreviousParams);
         const [showerGraph] = await pool.query(`
             SELECT curr.year, curr.month, curr.num_detections, prev.num_detections AS previous_month_detections, ROUND(IF(prev.num_detections = 0, NULL, ((curr.num_detections - prev.num_detections) / prev.num_detections) * 100), 2) AS percentage_change
             FROM ( 
-                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
+                SELECT YEAR(iz.Fecha) AS year, MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador  WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')}${graphCurrentYearFilter} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)) AS curr
             LEFT JOIN (
-                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
+                SELECT YEAR(iz.Fecha) AS year,MONTH(iz.Fecha) AS month, COUNT(DISTINCT m.Identificador) AS num_detections FROM Informe_Z iz JOIN Lluvia_activa la ON la.Informe_Z_IdInforme = iz.IdInforme JOIN Meteoro m ON m.Identificador = iz.Meteoro_Identificador WHERE la.Lluvia_Identificador LIKE CONCAT('%', ?, '%') AND ${buildReportZVisibilityCondition('iz')}${graphPreviousYearFilter} GROUP BY YEAR(iz.Fecha), MONTH(iz.Fecha)
             ) AS prev ON (curr.year = prev.year AND curr.month = prev.month + 1) OR (curr.year = prev.year + 1 AND curr.month = 1 AND prev.month = 12) ORDER BY curr.year ASC, curr.month ASC;
-            `, [showerCode, showerCode]);
+            `, [...graphCurrentParams, ...graphPreviousParams]);
 
         if (capReports.length === 0) {
             // If no reports are found matching the criteria, return an appropriate response
@@ -877,7 +890,7 @@ const getReportZListFromRain = async (req, res) => {
         // 6. Return the accumulated results for all processed CAP reports
         res.json({
             shower: capShowerEstablished,
-            reportResults: all_reports_results.filter(item => item.orbitalMemberships > membershipThreshold),
+            reportResults: all_reports_results.filter(item => item.orbitalMemberships >= membershipThreshold),
             radiantReport: all_radiant_reports.filter(item => item.distance < distanceThreshold),
             showerGraph: showerGraph
         });

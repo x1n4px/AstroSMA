@@ -4,7 +4,7 @@ require('dotenv').config();
 const getAllShower = async (req, res) => {
     try {
 
-        const [shower] = await pool.query('SELECT DISTINCT * FROM Lluvia l GROUP BY Identificador');
+        const [shower] = await pool.query('SELECT * FROM Lluvia ORDER BY Fecha_Inicio DESC, Identificador ASC');
         const [IAUShower] = await pool.query('SELECT * FROM meteor_showers')
 
         res.json({ shower, IAUShower });

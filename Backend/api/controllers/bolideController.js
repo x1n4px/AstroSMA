@@ -310,8 +310,7 @@ const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
     GROUP_CONCAT(DISTINCT if2.Identificador SEPARATOR "/") AS IDs_Informe_Fotometria,
     MAX(iz.Inicio_de_la_trayectoria_Estacion_1) AS Inicio_de_la_trayectoria_Estacion_1,
     MAX(iz.Velocidad_media) AS velocidadMedia,
-    MAX(ir.Velocidad_angular_grad_sec) AS velocidadAngular,
-    MAX(if2.MagMax) AS magMax,
+    ROUND(MAX(if2.MagMax), 2) AS magMax,
     MAX(if2.Masa_fotometrica) AS masaFotometrica,
     MAX(if2.Estrellas_visibles) AS estrellasVisibles,
     GROUP_CONCAT(DISTINCT ir.Lluvia_Asociada SEPARATOR "/") AS lluviasAsociadas,
@@ -354,8 +353,6 @@ const getBolideWithCustomSearch = async (req, res) => {
       showerFilter: rawShowerFilter,
       minVelocityFilter,
       maxVelocityFilter,
-      minAngularVelocityFilter,
-      maxAngularVelocityFilter,
       requireReportZ,
       requireReportRadiant,
       requireReportPhotometry,
@@ -420,13 +417,33 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
 
     if (showerFilter) {
-      whereClauses.push(`EXISTS (
-        SELECT 1
-        FROM Informe_Radiante ir_sh
-        WHERE ir_sh.Meteoro_Identificador = m.Identificador
-          AND ir_sh.Lluvia_Asociada LIKE ?
+      whereClauses.push(`(
+        EXISTS (
+          SELECT 1
+          FROM Lluvia_activa la_sh
+          WHERE la_sh.Informe_Z_IdInforme IN (
+            SELECT iz_sh.IdInforme
+            FROM Informe_Z iz_sh
+            WHERE iz_sh.Meteoro_Identificador = m.Identificador
+              AND ${buildReportZVisibilityCondition('iz_sh')}
+          )
+            AND la_sh.Lluvia_Identificador LIKE ?
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Lluvia_Activa_InfRad lair_sh
+          JOIN Informe_Radiante ir_sh ON ir_sh.Identificador = lair_sh.Informe_Radiante_Identificador
+          WHERE ir_sh.Meteoro_Identificador = m.Identificador
+            AND lair_sh.Lluvia_Identificador LIKE ?
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Informe_Radiante ir_name_sh
+          WHERE ir_name_sh.Meteoro_Identificador = m.Identificador
+            AND ir_name_sh.Lluvia_Asociada LIKE ?
+        )
       )`);
-      whereParams.push(`%${showerFilter}%`);
+      whereParams.push(`%${showerFilter}%`, `%${showerFilter}%`, `%${showerFilter}%`);
     }
 
     const havingClauses = ['1=1'];
@@ -506,31 +523,12 @@ const getBolideWithCustomSearch = async (req, res) => {
       )`);
       whereParams.push(maxVelocityValue);
     }
-    let minAngularVelocityValue = parseNumber(minAngularVelocityFilter);
-    let maxAngularVelocityValue = parseNumber(maxAngularVelocityFilter);
-    if (minAngularVelocityValue !== null && maxAngularVelocityValue !== null && minAngularVelocityValue > maxAngularVelocityValue) {
-      const temp = minAngularVelocityValue;
-      minAngularVelocityValue = maxAngularVelocityValue;
-      maxAngularVelocityValue = temp;
-    }
-    if (minAngularVelocityValue !== null) {
-      whereClauses.push(`EXISTS (
-        SELECT 1 FROM Informe_Radiante ir_v
-        WHERE ir_v.Meteoro_Identificador = m.Identificador
-          AND ir_v.Velocidad_angular_grad_sec >= ?
-      )`);
-      whereParams.push(minAngularVelocityValue);
-    }
-    if (maxAngularVelocityValue !== null) {
-      whereClauses.push(`EXISTS (
-        SELECT 1 FROM Informe_Radiante ir_v
-        WHERE ir_v.Meteoro_Identificador = m.Identificador
-          AND ir_v.Velocidad_angular_grad_sec <= ?
-      )`);
-      whereParams.push(maxAngularVelocityValue);
-    }
     let minMagMaxValue = parseNumber(minMagMaxFilter);
     let maxMagMaxValue = parseNumber(maxMagMaxFilter);
+    if (reportType !== '4') {
+      minMagMaxValue = null;
+      maxMagMaxValue = null;
+    }
     if (minMagMaxValue !== null && maxMagMaxValue !== null && minMagMaxValue > maxMagMaxValue) {
       const temp = minMagMaxValue;
       minMagMaxValue = maxMagMaxValue;
@@ -554,6 +552,10 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
     let minMassValue = parseNumber(minMassFilter);
     let maxMassValue = parseNumber(maxMassFilter);
+    if (reportType !== '4') {
+      minMassValue = null;
+      maxMassValue = null;
+    }
     if (minMassValue !== null && maxMassValue !== null && minMassValue > maxMassValue) {
       const temp = minMassValue;
       minMassValue = maxMassValue;
@@ -640,8 +642,6 @@ const getBolideWithCustomSearch = async (req, res) => {
         ratioKm: parseNumber(ratioFilter),
         minVelocityValue,
         maxVelocityValue,
-        minAngularVelocityValue,
-        maxAngularVelocityValue,
         minMagMaxValue,
         maxMagMaxValue,
         minMassValue,
@@ -679,8 +679,6 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       showerFilter: rawShowerFilter,
       minVelocityFilter,
       maxVelocityFilter,
-      minAngularVelocityFilter,
-      maxAngularVelocityFilter,
       requireReportZ,
       requireReportRadiant,
       requireReportPhotometry,
@@ -742,13 +740,33 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
     }
 
     if (showerFilter) {
-      whereClauses.push(`EXISTS (
-        SELECT 1
-        FROM Informe_Radiante ir_sh
-        WHERE ir_sh.Meteoro_Identificador = m.Identificador
-          AND ir_sh.Lluvia_Asociada LIKE ?
+      whereClauses.push(`(
+        EXISTS (
+          SELECT 1
+          FROM Lluvia_activa la_sh
+          WHERE la_sh.Informe_Z_IdInforme IN (
+            SELECT iz_sh.IdInforme
+            FROM Informe_Z iz_sh
+            WHERE iz_sh.Meteoro_Identificador = m.Identificador
+              AND ${buildReportZVisibilityCondition('iz_sh')}
+          )
+            AND la_sh.Lluvia_Identificador LIKE ?
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Lluvia_Activa_InfRad lair_sh
+          JOIN Informe_Radiante ir_sh ON ir_sh.Identificador = lair_sh.Informe_Radiante_Identificador
+          WHERE ir_sh.Meteoro_Identificador = m.Identificador
+            AND lair_sh.Lluvia_Identificador LIKE ?
+        )
+        OR EXISTS (
+          SELECT 1
+          FROM Informe_Radiante ir_name_sh
+          WHERE ir_name_sh.Meteoro_Identificador = m.Identificador
+            AND ir_name_sh.Lluvia_Asociada LIKE ?
+        )
       )`);
-      whereParams.push(`%${showerFilter}%`);
+      whereParams.push(`%${showerFilter}%`, `%${showerFilter}%`, `%${showerFilter}%`);
     }
 
     const havingClauses = ['1=1'];
@@ -829,32 +847,12 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       whereParams.push(maxVelocityValue);
     }
 
-    let minAngularVelocityValue = parseNumber(minAngularVelocityFilter);
-    let maxAngularVelocityValue = parseNumber(maxAngularVelocityFilter);
-    if (minAngularVelocityValue !== null && maxAngularVelocityValue !== null && minAngularVelocityValue > maxAngularVelocityValue) {
-      const temp = minAngularVelocityValue;
-      minAngularVelocityValue = maxAngularVelocityValue;
-      maxAngularVelocityValue = temp;
-    }
-    if (minAngularVelocityValue !== null) {
-      whereClauses.push(`EXISTS (
-        SELECT 1 FROM Informe_Radiante ir_v
-        WHERE ir_v.Meteoro_Identificador = m.Identificador
-          AND ir_v.Velocidad_angular_grad_sec >= ?
-      )`);
-      whereParams.push(minAngularVelocityValue);
-    }
-    if (maxAngularVelocityValue !== null) {
-      whereClauses.push(`EXISTS (
-        SELECT 1 FROM Informe_Radiante ir_v
-        WHERE ir_v.Meteoro_Identificador = m.Identificador
-          AND ir_v.Velocidad_angular_grad_sec <= ?
-      )`);
-      whereParams.push(maxAngularVelocityValue);
-    }
-
     let minMagMaxValue = parseNumber(minMagMaxFilter);
     let maxMagMaxValue = parseNumber(maxMagMaxFilter);
+    if (reportType !== '4') {
+      minMagMaxValue = null;
+      maxMagMaxValue = null;
+    }
     if (minMagMaxValue !== null && maxMagMaxValue !== null && minMagMaxValue > maxMagMaxValue) {
       const temp = minMagMaxValue;
       minMagMaxValue = maxMagMaxValue;
@@ -879,6 +877,10 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
 
     let minMassValue = parseNumber(minMassFilter);
     let maxMassValue = parseNumber(maxMassFilter);
+    if (reportType !== '4') {
+      minMassValue = null;
+      maxMassValue = null;
+    }
     if (minMassValue !== null && maxMassValue !== null && minMassValue > maxMassValue) {
       const temp = minMassValue;
       minMassValue = maxMassValue;
@@ -980,7 +982,6 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       'observatories_z',
       'observatories_radiant',
       'avg_velocity_km_s',
-      'angular_velocity_deg_s',
       'mag_max',
       'photometric_mass',
       'start_altitude_km',
@@ -1004,7 +1005,6 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
           mergeObservatories(row),
           row.observatoriosRadiant,
           row.velocidadMedia,
-          row.velocidadAngular,
           row.magMax,
           row.masaFotometrica,
           row.altitudeFromZ,
@@ -1076,7 +1076,8 @@ const getReportData = async (req, res) => {
       const [data] = await pool.query(
         `SELECT Identificador, Hora, Fecha, Trayectorias_estimadas_para,
          Distancia_angular_grados, Velocidad_angular_grad_sec,
-         CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio ) AS Ob2 
+         Lluvia_Asociada,
+         CONCAT(o1.Número, ' - ', o1.Nombre_Observatorio ) AS Observatorio_Número 
          FROM Informe_Radiante ir 
          LEFT JOIN Observatorio o1 ON ir.Observatorio_Número = o1.Número 
          WHERE Identificador IN (?)`,

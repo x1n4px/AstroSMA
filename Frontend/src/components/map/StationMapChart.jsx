@@ -8,6 +8,8 @@ import {
   sortStationsByObservatoryAndId,
 } from '@/utils/stationDisplay';
 
+const STATION_IMAGE_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'avif', 'gif', 'bmp', 'svg'];
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -115,7 +117,23 @@ const StationMapChart = ({
 
   const buildPopupHtml = (group) => {
     const representative = group.stations[0] || group;
-    const observableName = escapeHtml(group.stationName || '-');
+    const stationName = group.stationName || '';
+    const observableName = escapeHtml(stationName || '-');
+    const stationImageBase = `/station/${encodeURIComponent(stationName)}`;
+    const stationImage = stationName
+      ? `
+        <img
+          src="${stationImageBase}.${STATION_IMAGE_EXTENSIONS[0]}"
+          alt="${observableName}"
+          class="img-fluid rounded mb-3"
+          style="display: block; width: 100%; max-height: 220px; object-fit: cover;"
+          loading="lazy"
+          data-image-base="${stationImageBase}"
+          data-image-extensions="${STATION_IMAGE_EXTENSIONS.join(',')}"
+          data-image-extension-index="0"
+          onerror="const extensions = this.dataset.imageExtensions.split(','); const nextIndex = Number(this.dataset.imageExtensionIndex) + 1; if (nextIndex >= extensions.length) { this.remove(); } else { this.dataset.imageExtensionIndex = nextIndex; this.src = this.dataset.imageBase + '.' + extensions[nextIndex]; }"
+        />`
+      : '';
     const latitudeText = escapeHtml(
       formatSexagesimalDisplay(representative.latitudeSexagesimal)
       === '-'
@@ -145,6 +163,7 @@ const StationMapChart = ({
 
     return `
       <div class="station-popup">
+        ${stationImage}
         <h5>${t('STATION.STATION.NAME')}: ${observableName}</h5>
         <p>${t('STATION.STATION.COORDINATES')}: ${latitudeText}, ${longitudeText}</p>
         <p>${t('STATION.STATION.ALTITUDE')}: ${altitudeText} ${t('STATION.STATION.HEIGHT.MEASURE')}</p>

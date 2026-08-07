@@ -600,6 +600,15 @@
         "REPORT_RADIANT": "Single-station report (Radiant report)",
         "REPORT_PHOTOMETRY": "Photometry report",
         "SHOW_BUTTON": "View more",
+        "RESULT_FIELDS": {
+            "MAG_MAX": "MagMax",
+            "PHOTOMETRIC_MASS": "Mass"
+        },
+        "PAGINATION": {
+            "ARIA_LABEL": "Results pagination",
+            "PREVIOUS": "Previous",
+            "NEXT": "Next"
+        },
         "SORT": {
             "TITLE": "Sort",
             "ASC": "Date ascending",
@@ -615,8 +624,6 @@
             "TIME_TO": "Time to",
             "MIN_VELOCITY": "Min average velocity",
             "MAX_VELOCITY": "Max average velocity",
-            "MIN_ANGULAR_VELOCITY": "Min angular velocity",
-            "MAX_ANGULAR_VELOCITY": "Max angular velocity",
             "MIN_MAG_MAX": "Min MagMax",
             "MAX_MAG_MAX": "Max MagMax",
             "MIN_MASS": "Min photometric mass",
@@ -636,6 +643,7 @@
             }
         },
         "MODAL": {
+            "CLOSE": "Close",
             "REPORT_Z": {
                 "TITLE": "Two-station reports (Report Z)",
                 "ID": "Id",
@@ -1097,11 +1105,30 @@
     "SHOWER_INFO": {
         "TITLE": "Select a shower",
         "START_YEAR": "Start year",
-        "MEMBERSHIP_THRESHOLD": "Minimum Association degree",
-        "DISTANCE_THRESHOLD": "Maximum distance",
+        "MEMBERSHIP_THRESHOLD": "Minimum association degree to display",
+        "DISTANCE_THRESHOLD": "Maximum angular distance between the trajectory extension and the radiant on that date",
         "END_YEAR": "End year",
         "SEARCH_BTN": "Search",
         "CLEAR_BTN": "Clear",
+        "LOADING": "Loading...",
+        "RESULTS_HEADING": "Meteors detected with minimum association degree {{membership}} to shower {{shower}}",
+        "MOON_PHASE_ICON": "The drawing represents the lunar phase",
+        "RADIANT_REPORT_BADGE": "Radiant report",
+        "PLACEHOLDERS": {
+            "START_YEAR": "e.g. 2023",
+            "END_YEAR": "e.g. 2024"
+        },
+        "ERRORS": {
+            "TITLE": "Error",
+            "RETRY": "Retry",
+            "LOAD_SHOWERS": "Error loading the meteor shower list",
+            "LOAD_REPORT_DATA": "Error loading the report data. Please try again."
+        },
+        "NO_DATA": {
+            "DEFAULT": "No data found to display",
+            "GRAPH": "There is not enough data to display the chart",
+            "REPORTS": "No reports were found for the selected criteria"
+        },
         "CHECKBOX": {
             "SHOW_REPORT_Z": "Show two-station reports",
             "SHOW_RADIANT_REPORT": "Show radiant reports",

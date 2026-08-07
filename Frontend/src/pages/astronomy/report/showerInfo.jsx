@@ -58,29 +58,37 @@ const DataSkeleton = () => (
 );
 
 // Componente para mostrar errores
-const ErrorAlert = ({ message, onRetry }) => (
-    <Alert variant="danger" className="d-flex align-items-center">
-        <ExclamationTriangle className="me-2" size={20} />
-        <div className="flex-grow-1">
-            <strong>Error:</strong> {message}
-        </div>
-        {onRetry && (
-            <Button variant="outline-danger" size="sm" onClick={onRetry}>
-                Reintentar
-            </Button>
-        )}
-    </Alert>
-);
+const ErrorAlert = ({ message, onRetry }) => {
+    const { t } = useTranslation(['text']);
+
+    return (
+        <Alert variant="danger" className="d-flex align-items-center">
+            <ExclamationTriangle className="me-2" size={20} />
+            <div className="flex-grow-1">
+                <strong>{t('SHOWER_INFO.ERRORS.TITLE')}:</strong> {message}
+            </div>
+            {onRetry && (
+                <Button variant="outline-danger" size="sm" onClick={onRetry}>
+                    {t('SHOWER_INFO.ERRORS.RETRY')}
+                </Button>
+            )}
+        </Alert>
+    );
+};
 
 // Componente para mostrar "sin datos"
-const NoDataAlert = ({ message = "No se encontraron datos para mostrar" }) => (
-    <Alert variant="info" className="text-center">
-        <div className="mb-2">
-            <i className="bi bi-info-circle" style={{ fontSize: '2rem' }}></i>
-        </div>
-        <strong>{message}</strong>
-    </Alert>
-);
+const NoDataAlert = ({ message }) => {
+    const { t } = useTranslation(['text']);
+
+    return (
+        <Alert variant="info" className="text-center">
+            <div className="mb-2">
+                <i className="bi bi-info-circle" style={{ fontSize: '2rem' }}></i>
+            </div>
+            <strong>{message || t('SHOWER_INFO.NO_DATA.DEFAULT')}</strong>
+        </Alert>
+    );
+};
 
 const MoonReport = () => {
     const { selectedCode: selectedCodeFromParams } = useParams();
@@ -109,6 +117,13 @@ const MoonReport = () => {
     const [showerGraph, setShowerGraph] = useState([]);
     const [membershipThreshold, setMembershipThreshold] = useState(1);
     const [distanceThreshold, setDistanceThreshold] = useState(80);
+    const selectedShowerOption = lluvias.find((lluvia) => lluvia.Identificador === selectedCode);
+    const selectedShowerDisplayName = selectedLluvia
+        ? `${selectedLluvia.Code} - ${selectedLluvia.ShowerNameDesignation}`
+        : selectedShowerOption
+            ? `${selectedShowerOption.Identificador} - ${selectedShowerOption.Nombre}`
+            : selectedCode;
+    const selectedMembershipLabel = getDistanceLabel(membershipThreshold);
 
     // Cargar la lista de lluvias al inicio
     useEffect(() => {
@@ -128,7 +143,7 @@ const MoonReport = () => {
                 }
             } catch (error) {
                 console.error('Error fetching lluvias:', error);
-                setShowersError('Error al cargar la lista de lluvias meteorológicas');
+                setShowersError(t('SHOWER_INFO.ERRORS.LOAD_SHOWERS'));
             } finally {
                 setLoadingShowers(false);
             }
@@ -177,7 +192,7 @@ const MoonReport = () => {
 
         } catch (error) {
             console.error('Error fetching moon data:', error);
-            setDataError('Error al cargar los datos del reporte. Por favor, intenta nuevamente.');
+            setDataError(t('SHOWER_INFO.ERRORS.LOAD_REPORT_DATA'));
             handleLimpiar();
         } finally {
             setLoadingData(false);
@@ -209,7 +224,7 @@ const MoonReport = () => {
                 }
             } catch (error) {
                 console.error('Error fetching lluvias:', error);
-                setShowersError('Error al cargar la lista de lluvias meteorológicas');
+                setShowersError(t('SHOWER_INFO.ERRORS.LOAD_SHOWERS'));
             } finally {
                 setLoadingShowers(false);
             }
@@ -290,7 +305,7 @@ const MoonReport = () => {
                                 type="number"
                                 min="1900"
                                 max="2100"
-                                placeholder="Ej: 2023"
+                                placeholder={t('SHOWER_INFO.PLACEHOLDERS.START_YEAR')}
                                 value={dateIn}
                                 onChange={(e) => setDateIn(e.target.value)}
                                 disabled={loadingData}
@@ -305,7 +320,7 @@ const MoonReport = () => {
                                 type="number"
                                 min="1900"
                                 max="2100"
-                                placeholder="Ej: 2024"
+                                placeholder={t('SHOWER_INFO.PLACEHOLDERS.END_YEAR')}
                                 value={dateOut}
                                 onChange={(e) => setDateOut(e.target.value)}
                                 disabled={loadingData}
@@ -368,7 +383,7 @@ const MoonReport = () => {
                             {loadingData ? (
                                 <>
                                     <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    Cargando...
+                                    {t('SHOWER_INFO.LOADING')}
                                 </>
                             ) : (
                                 <>
@@ -439,7 +454,7 @@ const MoonReport = () => {
                     </div>
                 )}
                 {!loadingData && showCurveGraph && showerGraph.length === 0 && selectedLluvia && (
-                    <NoDataAlert message="No hay datos suficientes para mostrar el gráfico" />
+                    <NoDataAlert message={t('SHOWER_INFO.NO_DATA.GRAPH')} />
                 )}
             </Container>
 
@@ -538,6 +553,17 @@ const MoonReport = () => {
 
             {/* Lista de tarjetas */}
             <Container className="py-4">
+                {!loadingData && selectedLluvia && (report.length > 0 || radiantReport.length > 0) && (
+                    <div className="mb-4">
+                        <h4 className="mb-1" style={{ color: '#980100' }}>
+                            {t('SHOWER_INFO.RESULTS_HEADING', {
+                                membership: selectedMembershipLabel,
+                                shower: selectedShowerDisplayName,
+                            })}
+                        </h4>
+                    </div>
+                )}
+
                 {loadingData && (
                     <Row xs={1} md={2} lg={4} className="g-4">
                         {[...Array(10)].map((_, index) => (
@@ -570,6 +596,9 @@ const MoonReport = () => {
                                                 ewidth={60}
                                                 className="mb-2"
                                             />
+                                            <small className="d-block text-muted mb-2">
+                                                {t('SHOWER_INFO.MOON_PHASE_ICON')}
+                                            </small>
                                             <Card.Title className="h6 d-flex flex-column">
                                                 <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
                                                 {getDistanceLabel(r?.orbitalMemberships)}
@@ -617,7 +646,7 @@ const MoonReport = () => {
                                         </div>
                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                             <Badge bg="#804000" style={{ backgroundColor: '#804000' }} pill>
-                                                <EvStation className="me-1" /> I.Radiante
+                                                <EvStation className="me-1" /> {t('SHOWER_INFO.RADIANT_REPORT_BADGE')}
                                             </Badge>
                                         </div>
 
@@ -628,6 +657,9 @@ const MoonReport = () => {
                                                 ewidth={60}
                                                 className="mb-2"
                                             />
+                                            <small className="d-block text-muted mb-2">
+                                                {t('SHOWER_INFO.MOON_PHASE_ICON')}
+                                            </small>
                                             <Card.Title className="h6 d-flex flex-column">
                                                 <small className="text-secondary">{t('REPORT.ACTIVE_RAIN.TABLE.MEMBERSHIP_VALUE')}</small>
                                                 {getDistanceLabel(r?.distance)}
@@ -659,7 +691,7 @@ const MoonReport = () => {
                 )}
 
                 {!loadingData && report.length === 0 && radiantReport.length === 0 && selectedLluvia && (
-                    <NoDataAlert message="No se encontraron reportes para los criterios seleccionados" />
+                    <NoDataAlert message={t('SHOWER_INFO.NO_DATA.REPORTS')} />
                 )}
             </Container>
         </div>
