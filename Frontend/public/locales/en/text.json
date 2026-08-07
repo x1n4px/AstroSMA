@@ -584,14 +584,24 @@
         "ACCEPT_BUTTON": "Submit Request"
     },
     "CUSTOMIZE_SEARCH": {
+        "EYEBROW": "Report explorer",
+        "TITLE": "Custom search",
+        "DESCRIPTION": "Find meteors and scientific reports using only the criteria available for each report type.",
         "DOWNLOAD_CSV": "Request CSV",
         "HEIGHT": "Height",
         "LATLON": "Latitude/Longitude",
         "LATITUDE": "Latitude",
         "LONGITUDE": "Longitude",
-        "SEARCH_RADIUS": "Search Radius",
-        "RANGE_DATE": "Date Range",
+        "SEARCH_RADIUS": "Search radius",
+        "RANGE_DATE": "Limit by date",
+        "DATE_FROM": "Start date",
+        "DATE_TO": "End date",
+        "RANGE_SEPARATOR": "to",
         "SEARCH_BTN": "Search",
+        "SEARCHING": "Searching…",
+        "SEARCH_ERROR": "The search could not be completed. Please try again.",
+        "CATALOG_LOADING": "Loading options…",
+        "CATALOG_ERROR": "Observatories and showers could not be loaded. You can continue using the remaining filters.",
         "CLEAR_BTN": "Clear",
         "SELECT_OPTIONAL": "Select (optional)",
         "RESULTS_TITLE": "Results",
@@ -601,8 +611,26 @@
         "REPORT_PHOTOMETRY": "Photometry report",
         "SHOW_BUTTON": "View more",
         "RESULT_FIELDS": {
+            "METEOR": "Meteor",
+            "AVERAGE_VELOCITY": "Average velocity",
             "MAG_MAX": "MagMax",
             "PHOTOMETRIC_MASS": "Mass"
+        },
+        "SECTIONS": {
+            "CONFIGURATION": "Configure your search",
+            "CONFIGURATION_HELP": "Choose a report type to see only its compatible filters.",
+            "PERIOD": "Date and time",
+            "PERIOD_HELP": "Narrow the time interval when you need fewer results."
+        },
+        "RESULTS": {
+            "EYEBROW": "Matches",
+            "DESCRIPTION": "Meteors matching the selected criteria.",
+            "AVAILABILITY": "Available reports"
+        },
+        "EMPTY": {
+            "TITLE": "No results found",
+            "DESCRIPTION": "Try a wider date range or remove one of the filters.",
+            "ACTION": "Reset filters"
         },
         "PAGINATION": {
             "ARIA_LABEL": "Results pagination",
@@ -619,11 +647,10 @@
             "METEOR_ID": "Meteor ID",
             "OBSERVATORY": "Observatory",
             "SHOWER": "Associated shower",
-            "SHOWER_PLACEHOLDER": "Example: Perseids",
             "TIME_FROM": "Time from",
             "TIME_TO": "Time to",
-            "MIN_VELOCITY": "Min average velocity",
-            "MAX_VELOCITY": "Max average velocity",
+            "MIN_VELOCITY": "Minimum average velocity (km/s)",
+            "MAX_VELOCITY": "Maximum average velocity (km/s)",
             "MIN_MAG_MAX": "Min MagMax",
             "MAX_MAG_MAX": "Max MagMax",
             "MIN_MASS": "Min photometric mass",
@@ -634,42 +661,53 @@
         },
         "REPORT_TYPE": {
             "TITLE": "Report type",
+            "HELP": {
+                "1": "Use common criteria and optionally require specific reports to be available.",
+                "2": "Filters for triangulation, trajectory and average velocity between two observatories.",
+                "3": "Filter single-station reports by observatory and final associated shower.",
+                "4": "Narrow results using maximum magnitude and photometric mass."
+            },
             "SELECT": {
                 "ALL_TYPES": "All types",
                 "REPORT_Z": "Two-station report (Report Z)",
                 "REPORT_RADIANT": "Single-station report (Radiant report)",
-                "REPORT_PHOTOMETRY": "Photometry report",
-                "REPORT_UNION": "Have all reports"
+                "REPORT_PHOTOMETRY": "Photometry report"
             }
         },
         "MODAL": {
+            "EYEBROW": "Event details",
+            "TITLE": "Meteor #{{meteorId}}",
+            "LOADING": "Loading related reports…",
+            "ERROR": "Reports for this meteor could not be loaded.",
+            "EMPTY_TITLE": "No reports available",
+            "EMPTY_DESCRIPTION": "No reports associated with this meteor were found.",
+            "REPORT_ID": "Report #{{id}}",
+            "DATE_TIME": "Date: {{date}} · Time: {{time}}",
+            "MEASUREMENT": "{{value}} {{unit}}",
+            "UNITS": {
+                "DEGREES": "°",
+                "DEGREES_PER_SECOND": "°/s"
+            },
+            "OPEN_REPORT": "Open report",
+            "NOT_AVAILABLE": "Not available",
             "CLOSE": "Close",
             "REPORT_Z": {
                 "TITLE": "Two-station reports (Report Z)",
-                "ID": "Id",
-                "DATE": "Date",
-                "HOUR": "Time",
-                "STATION_1": "Station 1",
-                "STATION_2": "Station 2"
+                "STATION_1": "Observatory 1",
+                "STATION_2": "Observatory 2"
             },
             "REPORT_RADIANT": {
                 "TITLE": "Single-station reports (Radiant report)",
-                "ID": "Id",
-                "DATE": "Date",
-                "HOUR": "Time",
-                "STATION": "Station",
+                "STATION": "Observatory",
                 "ASSOCIATED_RAIN": "Associated shower",
                 "ESTIMATED_TRAJECTORY": "Estimated trajectory",
-                "ANGULAR_DISTANCE": "Angular distance ( {{measure}} )",
-                "ANGULAR_VELOCITY": "Angular velocity (°/s)"
+                "ANGULAR_DISTANCE": "Angular distance",
+                "ANGULAR_VELOCITY": "Angular velocity"
             },
             "REPORT_PHOTOMETRY": {
                 "TITLE": "Photometry reports",
-                "ID": "Id",
-                "DATE": "Date",
-                "HOUR": "Time",
                 "VISIBLE_STARS": "Visible stars",
-                "STAR_USED_IN_REGRESSION": "Star used in regression"
+                "STAR_USED_IN_REGRESSION": "Stars used in regression"
             }
         }
     },

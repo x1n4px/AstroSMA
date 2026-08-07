@@ -299,7 +299,23 @@ const deleteAdminBolide = async (req, res) => {
   }
 };
 
-const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
+const buildAssociatedShowersSelect = (reportType) => {
+  const reportZShowers = `(
+    SELECT GROUP_CONCAT(DISTINCT la_result.Lluvia_Identificador SEPARATOR "/")
+    FROM Lluvia_activa la_result
+    JOIN Informe_Z iz_result ON iz_result.IdInforme = la_result.Informe_Z_IdInforme
+    WHERE iz_result.Meteoro_Identificador = m.Identificador
+      AND ${buildReportZVisibilityCondition('iz_result')}
+  )`;
+  const radiantShowers = `GROUP_CONCAT(DISTINCT NULLIF(ir.Lluvia_Asociada, 'Ninguna') SEPARATOR "/")`;
+
+  if (reportType === '2') return reportZShowers;
+  if (reportType === '3') return radiantShowers;
+  if (reportType === '4') return 'NULL';
+  return `CONCAT_WS("/", ${reportZShowers}, ${radiantShowers})`;
+};
+
+const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses, reportType }) => `
   SELECT
     m.*,
     MAX(CASE WHEN iz.IdInforme IS NOT NULL THEN 1 ELSE 0 END) AS hasReportZ,
@@ -313,7 +329,7 @@ const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
     ROUND(MAX(if2.MagMax), 2) AS magMax,
     MAX(if2.Masa_fotometrica) AS masaFotometrica,
     MAX(if2.Estrellas_visibles) AS estrellasVisibles,
-    GROUP_CONCAT(DISTINCT ir.Lluvia_Asociada SEPARATOR "/") AS lluviasAsociadas,
+    ${buildAssociatedShowersSelect(reportType)} AS lluviasAsociadas,
     GROUP_CONCAT(DISTINCT iz.\`Observatorio_Número\` SEPARATOR "/") AS observatoriosZ1,
     GROUP_CONCAT(DISTINCT iz.\`Observatorio_Número2\` SEPARATOR "/") AS observatoriosZ2,
     GROUP_CONCAT(DISTINCT ir.\`Observatorio_Número\` SEPARATOR "/") AS observatoriosRadiant,
@@ -333,6 +349,46 @@ const buildCustomSearchBaseQuery = ({ whereClauses, havingClauses }) => `
   GROUP BY m.Identificador
   HAVING ${havingClauses.join(' AND ')}
 `;
+
+const getCustomSearchCatalogs = async (req, res) => {
+  try {
+    const [observatories] = await pool.query(`
+      SELECT
+        o.\`Número\` AS id,
+        COALESCE(NULLIF(TRIM(o.Nombre_Observatorio), ''), NULLIF(TRIM(o.Nombre_Camara), ''), CONCAT('Observatorio ', o.\`Número\`)) AS name
+      FROM Observatorio o
+      WHERE EXISTS (
+        SELECT 1 FROM Informe_Z iz
+        WHERE iz.\`Observatorio_Número\` = o.\`Número\`
+           OR iz.\`Observatorio_Número2\` = o.\`Número\`
+      )
+      OR EXISTS (
+        SELECT 1 FROM Informe_Radiante ir
+        WHERE ir.\`Observatorio_Número\` = o.\`Número\`
+      )
+      ORDER BY name ASC, id ASC
+    `);
+    const [showers] = await pool.query(`
+      SELECT
+        l.Identificador AS id,
+        COALESCE(NULLIF(TRIM(l.Nombre), ''), l.Identificador) AS name
+      FROM Lluvia l
+      INNER JOIN (
+        SELECT Identificador, MAX(\`Año\`) AS latestYear
+        FROM Lluvia
+        GROUP BY Identificador
+      ) latest
+        ON latest.Identificador = l.Identificador
+       AND latest.latestYear = l.\`Año\`
+      ORDER BY name ASC, id ASC
+    `);
+
+    res.json({ observatories, showers });
+  } catch (error) {
+    console.error('Error al obtener los catálogos de búsqueda:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
 
 const getBolideWithCustomSearch = async (req, res) => {
   try {
@@ -365,6 +421,7 @@ const getBolideWithCustomSearch = async (req, res) => {
       maxMassFilter
     } = req.query;
 
+    const selectedReportType = ['1', '2', '3', '4'].includes(reportType) ? reportType : '1';
     const page = Number(actualPage) || 0;
     const itemsPerPage = 50;
     const offs = page * itemsPerPage;
@@ -397,28 +454,27 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
 
     const observatoryId = parseNumber(observatoryFilter);
-    if (observatoryId !== null) {
-      whereClauses.push(`(
-        EXISTS (
+    if (observatoryId !== null && selectedReportType === '2') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Z iz_obs
           WHERE iz_obs.Meteoro_Identificador = m.Identificador
             AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
             AND ${buildReportZVisibilityCondition('iz_obs')}
-        )
-        OR EXISTS (
+        )`);
+      whereParams.push(observatoryId, observatoryId);
+    } else if (observatoryId !== null && selectedReportType === '3') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Radiante ir_obs
           WHERE ir_obs.Meteoro_Identificador = m.Identificador
             AND ir_obs.\`Observatorio_Número\` = ?
-        )
-      )`);
-      whereParams.push(observatoryId, observatoryId, observatoryId);
+        )`);
+      whereParams.push(observatoryId);
     }
 
-    if (showerFilter) {
-      whereClauses.push(`(
-        EXISTS (
+    if (showerFilter && selectedReportType === '2') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Lluvia_activa la_sh
           WHERE la_sh.Informe_Z_IdInforme IN (
@@ -427,29 +483,23 @@ const getBolideWithCustomSearch = async (req, res) => {
             WHERE iz_sh.Meteoro_Identificador = m.Identificador
               AND ${buildReportZVisibilityCondition('iz_sh')}
           )
-            AND la_sh.Lluvia_Identificador LIKE ?
-        )
-        OR EXISTS (
-          SELECT 1
-          FROM Lluvia_Activa_InfRad lair_sh
-          JOIN Informe_Radiante ir_sh ON ir_sh.Identificador = lair_sh.Informe_Radiante_Identificador
-          WHERE ir_sh.Meteoro_Identificador = m.Identificador
-            AND lair_sh.Lluvia_Identificador LIKE ?
-        )
-        OR EXISTS (
+            AND la_sh.Lluvia_Identificador = ?
+        )`);
+      whereParams.push(showerFilter);
+    } else if (showerFilter && selectedReportType === '3') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Radiante ir_name_sh
           WHERE ir_name_sh.Meteoro_Identificador = m.Identificador
-            AND ir_name_sh.Lluvia_Asociada LIKE ?
-        )
-      )`);
-      whereParams.push(`%${showerFilter}%`, `%${showerFilter}%`, `%${showerFilter}%`);
+            AND ir_name_sh.Lluvia_Asociada = ?
+        )`);
+      whereParams.push(showerFilter);
     }
 
     const havingClauses = ['1=1'];
     const havingParams = [];
 
-    switch (reportType) {
+    switch (selectedReportType) {
       case '2':
         whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
         break;
@@ -459,29 +509,22 @@ const getBolideWithCustomSearch = async (req, res) => {
       case '4':
         whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
         break;
-      case '5':
-        whereClauses.push(
-          `EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`,
-          'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
-          'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
-        );
-        break;
       default:
         break;
     }
 
-    if (parseBoolean(requireReportZ)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportZ)) {
       whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
     }
-    if (parseBoolean(requireReportRadiant)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportRadiant)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
     }
-    if (parseBoolean(requireReportPhotometry)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportPhotometry)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
     }
 
     const heightValue = parseNumber(heightFilter);
-    if (parseBoolean(heightChecked) && heightValue !== null) {
+    if (selectedReportType === '2' && parseBoolean(heightChecked) && heightValue !== null) {
       whereClauses.push(`EXISTS (
         SELECT 1
         FROM Informe_Z iz_h
@@ -505,6 +548,10 @@ const getBolideWithCustomSearch = async (req, res) => {
       minVelocityValue = maxVelocityValue;
       maxVelocityValue = temp;
     }
+    if (selectedReportType !== '2') {
+      minVelocityValue = null;
+      maxVelocityValue = null;
+    }
     if (minVelocityValue !== null) {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
@@ -525,7 +572,7 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
     let minMagMaxValue = parseNumber(minMagMaxFilter);
     let maxMagMaxValue = parseNumber(maxMagMaxFilter);
-    if (reportType !== '4') {
+    if (selectedReportType !== '4') {
       minMagMaxValue = null;
       maxMagMaxValue = null;
     }
@@ -552,7 +599,7 @@ const getBolideWithCustomSearch = async (req, res) => {
     }
     let minMassValue = parseNumber(minMassFilter);
     let maxMassValue = parseNumber(maxMassFilter);
-    if (reportType !== '4') {
+    if (selectedReportType !== '4') {
       minMassValue = null;
       maxMassValue = null;
     }
@@ -578,11 +625,11 @@ const getBolideWithCustomSearch = async (req, res) => {
       whereParams.push(maxMassValue);
     }
 
-    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses });
+    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses, reportType: selectedReportType });
     const baseParams = [...whereParams, ...havingParams];
 
     const applyRadiusFilter = (rows) => {
-      if (!parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
+      if (selectedReportType !== '2' || !parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
         return rows;
       }
 
@@ -605,7 +652,7 @@ const getBolideWithCustomSearch = async (req, res) => {
     let allBolides = [];
     let totalItems = 0;
 
-    if (parseBoolean(latLonChecked) && latFilter && lonFilter && radiusMeters) {
+    if (selectedReportType === '2' && parseBoolean(latLonChecked) && latFilter && lonFilter && radiusMeters) {
       const fullDataQuery = `${baseQuery} ORDER BY m.Fecha ${sortDirection}, m.Hora ${sortDirection}, m.Identificador ${sortDirection}`;
       const [allRows] = await pool.query(fullDataQuery, baseParams);
       const filteredRows = applyRadiusFilter(allRows);
@@ -625,30 +672,30 @@ const getBolideWithCustomSearch = async (req, res) => {
       data: allBolides,
       totalItems,
       appliedFilters: {
-        reportType,
+        reportType: selectedReportType,
         meteorId,
-        observatoryId,
-        showerFilter: showerFilter || null,
+        observatoryId: ['2', '3'].includes(selectedReportType) ? observatoryId : null,
+        showerFilter: ['2', '3'].includes(selectedReportType) ? (showerFilter || null) : null,
         dateRangeChecked: parseBoolean(dateRangeChecked),
         startDate: startDate || null,
         endDate: endDate || null,
         timeFrom: timeFrom || null,
         timeTo: timeTo || null,
-        heightChecked: parseBoolean(heightChecked),
-        heightValue,
-        latLonChecked: parseBoolean(latLonChecked),
-        latFilter: parseNumber(latFilter),
-        lonFilter: parseNumber(lonFilter),
-        ratioKm: parseNumber(ratioFilter),
+        heightChecked: selectedReportType === '2' && parseBoolean(heightChecked),
+        heightValue: selectedReportType === '2' ? heightValue : null,
+        latLonChecked: selectedReportType === '2' && parseBoolean(latLonChecked),
+        latFilter: selectedReportType === '2' ? parseNumber(latFilter) : null,
+        lonFilter: selectedReportType === '2' ? parseNumber(lonFilter) : null,
+        ratioKm: selectedReportType === '2' ? parseNumber(ratioFilter) : null,
         minVelocityValue,
         maxVelocityValue,
         minMagMaxValue,
         maxMagMaxValue,
         minMassValue,
         maxMassValue,
-        requireReportZ: parseBoolean(requireReportZ),
-        requireReportRadiant: parseBoolean(requireReportRadiant),
-        requireReportPhotometry: parseBoolean(requireReportPhotometry),
+        requireReportZ: selectedReportType === '1' && parseBoolean(requireReportZ),
+        requireReportRadiant: selectedReportType === '1' && parseBoolean(requireReportRadiant),
+        requireReportPhotometry: selectedReportType === '1' && parseBoolean(requireReportPhotometry),
         sortDirection
       }
     });
@@ -691,6 +738,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       maxMassFilter
     } = req.query;
 
+    const selectedReportType = ['1', '2', '3', '4'].includes(reportType) ? reportType : '1';
     const radiusMeters = parseNumber(ratioFilter) ? parseNumber(ratioFilter) * 1000 : null;
     const sortDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
     const showerFilter = parseText(rawShowerFilter);
@@ -720,28 +768,27 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
     }
 
     const observatoryId = parseNumber(observatoryFilter);
-    if (observatoryId !== null) {
-      whereClauses.push(`(
-        EXISTS (
+    if (observatoryId !== null && selectedReportType === '2') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Z iz_obs
           WHERE iz_obs.Meteoro_Identificador = m.Identificador
             AND (iz_obs.\`Observatorio_Número\` = ? OR iz_obs.\`Observatorio_Número2\` = ?)
             AND ${buildReportZVisibilityCondition('iz_obs')}
-        )
-        OR EXISTS (
+        )`);
+      whereParams.push(observatoryId, observatoryId);
+    } else if (observatoryId !== null && selectedReportType === '3') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Radiante ir_obs
           WHERE ir_obs.Meteoro_Identificador = m.Identificador
             AND ir_obs.\`Observatorio_Número\` = ?
-        )
-      )`);
-      whereParams.push(observatoryId, observatoryId, observatoryId);
+        )`);
+      whereParams.push(observatoryId);
     }
 
-    if (showerFilter) {
-      whereClauses.push(`(
-        EXISTS (
+    if (showerFilter && selectedReportType === '2') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Lluvia_activa la_sh
           WHERE la_sh.Informe_Z_IdInforme IN (
@@ -750,29 +797,23 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
             WHERE iz_sh.Meteoro_Identificador = m.Identificador
               AND ${buildReportZVisibilityCondition('iz_sh')}
           )
-            AND la_sh.Lluvia_Identificador LIKE ?
-        )
-        OR EXISTS (
-          SELECT 1
-          FROM Lluvia_Activa_InfRad lair_sh
-          JOIN Informe_Radiante ir_sh ON ir_sh.Identificador = lair_sh.Informe_Radiante_Identificador
-          WHERE ir_sh.Meteoro_Identificador = m.Identificador
-            AND lair_sh.Lluvia_Identificador LIKE ?
-        )
-        OR EXISTS (
+            AND la_sh.Lluvia_Identificador = ?
+        )`);
+      whereParams.push(showerFilter);
+    } else if (showerFilter && selectedReportType === '3') {
+      whereClauses.push(`EXISTS (
           SELECT 1
           FROM Informe_Radiante ir_name_sh
           WHERE ir_name_sh.Meteoro_Identificador = m.Identificador
-            AND ir_name_sh.Lluvia_Asociada LIKE ?
-        )
-      )`);
-      whereParams.push(`%${showerFilter}%`, `%${showerFilter}%`, `%${showerFilter}%`);
+            AND ir_name_sh.Lluvia_Asociada = ?
+        )`);
+      whereParams.push(showerFilter);
     }
 
     const havingClauses = ['1=1'];
     const havingParams = [];
 
-    switch (reportType) {
+    switch (selectedReportType) {
       case '2':
         whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
         break;
@@ -782,29 +823,22 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       case '4':
         whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
         break;
-      case '5':
-        whereClauses.push(
-          `EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`,
-          'EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)',
-          'EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)'
-        );
-        break;
       default:
         break;
     }
 
-    if (parseBoolean(requireReportZ)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportZ)) {
       whereClauses.push(`EXISTS (SELECT 1 FROM Informe_Z iz_req WHERE iz_req.Meteoro_Identificador = m.Identificador AND ${buildReportZVisibilityCondition('iz_req')})`);
     }
-    if (parseBoolean(requireReportRadiant)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportRadiant)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Radiante ir_req WHERE ir_req.Meteoro_Identificador = m.Identificador)');
     }
-    if (parseBoolean(requireReportPhotometry)) {
+    if (selectedReportType === '1' && parseBoolean(requireReportPhotometry)) {
       whereClauses.push('EXISTS (SELECT 1 FROM Informe_Fotometria if_req WHERE if_req.Meteoro_Identificador = m.Identificador)');
     }
 
     const heightValue = parseNumber(heightFilter);
-    if (parseBoolean(heightChecked) && heightValue !== null) {
+    if (selectedReportType === '2' && parseBoolean(heightChecked) && heightValue !== null) {
       whereClauses.push(`EXISTS (
         SELECT 1
         FROM Informe_Z iz_h
@@ -828,6 +862,10 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       minVelocityValue = maxVelocityValue;
       maxVelocityValue = temp;
     }
+    if (selectedReportType !== '2') {
+      minVelocityValue = null;
+      maxVelocityValue = null;
+    }
     if (minVelocityValue !== null) {
       whereClauses.push(`EXISTS (
         SELECT 1 FROM Informe_Z iz_v
@@ -849,7 +887,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
 
     let minMagMaxValue = parseNumber(minMagMaxFilter);
     let maxMagMaxValue = parseNumber(maxMagMaxFilter);
-    if (reportType !== '4') {
+    if (selectedReportType !== '4') {
       minMagMaxValue = null;
       maxMagMaxValue = null;
     }
@@ -877,7 +915,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
 
     let minMassValue = parseNumber(minMassFilter);
     let maxMassValue = parseNumber(maxMassFilter);
-    if (reportType !== '4') {
+    if (selectedReportType !== '4') {
       minMassValue = null;
       maxMassValue = null;
     }
@@ -903,13 +941,13 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       whereParams.push(maxMassValue);
     }
 
-    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses });
+    const baseQuery = buildCustomSearchBaseQuery({ whereClauses, havingClauses, reportType: selectedReportType });
     const baseParams = [...whereParams, ...havingParams];
     const fullDataQuery = `${baseQuery} ORDER BY m.Fecha ${sortDirection}, m.Hora ${sortDirection}, m.Identificador ${sortDirection}`;
     const [allRows] = await pool.query(fullDataQuery, baseParams);
 
     const applyRadiusFilter = (rows) => {
-      if (!parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
+      if (selectedReportType !== '2' || !parseBoolean(latLonChecked) || !latFilter || !lonFilter || !radiusMeters) {
         return rows;
       }
 
@@ -943,6 +981,12 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
       if (value === null || value === undefined || value === '') return '';
       const parsed = String(value).trim().match(/^(\d{2}:\d{2}:\d{2})/);
       return parsed ? parsed[1] : String(value).trim();
+    };
+
+    const formatDecimal = (value, decimals) => {
+      if (value === null || value === undefined || value === '') return '';
+      const numericValue = Number(value);
+      return Number.isFinite(numericValue) ? numericValue.toFixed(decimals) : value;
     };
 
     const normalizeValue = (value) => {
@@ -1005,7 +1049,7 @@ const getBolideWithCustomSearchCSV = async (req, res) => {
           mergeObservatories(row),
           row.observatoriosRadiant,
           row.velocidadMedia,
-          row.magMax,
+          formatDecimal(row.magMax, 2),
           row.masaFotometrica,
           row.altitudeFromZ,
           row.Inicio_de_la_trayectoria_Estacion_1
@@ -1620,6 +1664,7 @@ module.exports = {
   getBolideCompareLastTen,
   getBolideCompareLastTwo,
   getBolideWithCustomSearch,
+  getCustomSearchCatalogs,
   getBolideTrajectoriesForEarthGlobe,
   testing,
   getReportData,

@@ -576,14 +576,24 @@
         }
     },
     "CUSTOMIZE_SEARCH": {
+        "EYEBROW": "Explorador de informes",
+        "TITLE": "Búsqueda personalizada",
+        "DESCRIPTION": "Localiza meteoros e informes científicos combinando únicamente los criterios disponibles para cada tipo de informe.",
         "DOWNLOAD_CSV": "Solicitar CSV",
         "HEIGHT": "Altura",
         "LATLON": "Latitud/Longitud",
         "LATITUDE": "Latitud",
         "LONGITUDE": "Longitud",
-        "SEARCH_RADIUS": "Radio de Búsqueda",
-        "RANGE_DATE": "Rango de Fechas",
+        "SEARCH_RADIUS": "Radio de búsqueda",
+        "RANGE_DATE": "Limitar por fechas",
+        "DATE_FROM": "Fecha inicial",
+        "DATE_TO": "Fecha final",
+        "RANGE_SEPARATOR": "a",
         "SEARCH_BTN": "Buscar",
+        "SEARCHING": "Buscando…",
+        "SEARCH_ERROR": "No se pudo completar la búsqueda. Inténtalo de nuevo.",
+        "CATALOG_LOADING": "Cargando opciones…",
+        "CATALOG_ERROR": "No se pudieron cargar los observatorios y las lluvias. Puedes seguir buscando con el resto de filtros.",
         "CLEAR_BTN": "Limpiar",
         "SELECT_OPTIONAL": "Seleccionar (opcional)",
         "RESULTS_TITLE": "Resultados",
@@ -593,8 +603,26 @@
         "REPORT_PHOTOMETRY": "Informe de fotometría",
         "SHOW_BUTTON": "Ver más",
         "RESULT_FIELDS": {
+            "METEOR": "Meteoro",
+            "AVERAGE_VELOCITY": "Velocidad media",
             "MAG_MAX": "MagMax",
             "PHOTOMETRIC_MASS": "Masa"
+        },
+        "SECTIONS": {
+            "CONFIGURATION": "Configura la búsqueda",
+            "CONFIGURATION_HELP": "Elige el tipo de informe para ver solo los filtros compatibles.",
+            "PERIOD": "Fecha y hora",
+            "PERIOD_HELP": "Acota el intervalo temporal si necesitas reducir el número de resultados."
+        },
+        "RESULTS": {
+            "EYEBROW": "Coincidencias",
+            "DESCRIPTION": "Meteoros que cumplen los criterios seleccionados.",
+            "AVAILABILITY": "Informes disponibles"
+        },
+        "EMPTY": {
+            "TITLE": "No se encontraron resultados",
+            "DESCRIPTION": "Prueba a ampliar el periodo o a eliminar alguno de los filtros.",
+            "ACTION": "Restablecer filtros"
         },
         "PAGINATION": {
             "ARIA_LABEL": "Paginación de resultados",
@@ -611,11 +639,10 @@
             "METEOR_ID": "ID de meteoro",
             "OBSERVATORY": "Observatorio",
             "SHOWER": "Lluvia asociada",
-            "SHOWER_PLACEHOLDER": "Ejemplo: Perseidas",
             "TIME_FROM": "Hora desde",
             "TIME_TO": "Hora hasta",
-            "MIN_VELOCITY": "Velocidad media mínima",
-            "MAX_VELOCITY": "Velocidad media máxima",
+            "MIN_VELOCITY": "Velocidad media mínima (km/s)",
+            "MAX_VELOCITY": "Velocidad media máxima (km/s)",
             "MIN_MAG_MAX": "MagMax mínima",
             "MAX_MAG_MAX": "MagMax máxima",
             "MIN_MASS": "Masa fotométrica mínima",
@@ -626,42 +653,53 @@
         },
         "REPORT_TYPE": {
             "TITLE": "Tipo de informe",
+            "HELP": {
+                "1": "Utiliza criterios comunes y, si lo necesitas, exige la disponibilidad de determinados informes.",
+                "2": "Filtros propios de triangulación, trayectoria y velocidad media entre dos observatorios.",
+                "3": "Filtra los informes de una estación por observatorio y por la lluvia finalmente asociada.",
+                "4": "Acota los resultados mediante magnitud máxima y masa fotométrica."
+            },
             "SELECT": {
                 "ALL_TYPES": "Todos los tipos",
                 "REPORT_Z": "Informe de dos estaciones",
                 "REPORT_RADIANT": "Informe de una sola estación",
-                "REPORT_PHOTOMETRY": "Informe de fotometría",
-                "REPORT_UNION": "Disponga de todos los informes"
+                "REPORT_PHOTOMETRY": "Informe de fotometría"
             }
         },
         "MODAL": {
+            "EYEBROW": "Detalle del evento",
+            "TITLE": "Meteoro #{{meteorId}}",
+            "LOADING": "Cargando informes relacionados…",
+            "ERROR": "No se pudieron cargar los informes de este meteoro.",
+            "EMPTY_TITLE": "No hay informes disponibles",
+            "EMPTY_DESCRIPTION": "No se encontraron informes asociados a este meteoro.",
+            "REPORT_ID": "Informe #{{id}}",
+            "DATE_TIME": "Fecha: {{date}} · Hora: {{time}}",
+            "MEASUREMENT": "{{value}} {{unit}}",
+            "UNITS": {
+                "DEGREES": "°",
+                "DEGREES_PER_SECOND": "°/s"
+            },
+            "OPEN_REPORT": "Abrir informe",
+            "NOT_AVAILABLE": "No disponible",
             "CLOSE": "Cerrar",
             "REPORT_Z": {
                 "TITLE": "Informes de dos estaciones",
-                "ID": "Id",
-                "DATE": "Fecha",
-                "HOUR": "Hora",
-                "STATION_1": "Estación 1",
-                "STATION_2": "Estación 2"
+                "STATION_1": "Observatorio 1",
+                "STATION_2": "Observatorio 2"
             },
             "REPORT_RADIANT": {
                 "TITLE": "Informes de una sola estación",
-                "ID": "Id",
-                "DATE": "Fecha",
-                "HOUR": "Hora",
-                "STATION": "Estación",
+                "STATION": "Observatorio",
                 "ASSOCIATED_RAIN": "Lluvia asociada",
                 "ESTIMATED_TRAJECTORY": "Trayectoria estimada",
-                "ANGULAR_DISTANCE": "Distancia angular ( {{measure}} )",
-                "ANGULAR_VELOCITY": "Velocidad angular (°/s)"
+                "ANGULAR_DISTANCE": "Distancia angular",
+                "ANGULAR_VELOCITY": "Velocidad angular"
             },
             "REPORT_PHOTOMETRY": {
-                "TITLE": "Infomes de fotometría",
-                "ID": "Id",
-                "DATE": "Fecha",
-                "HOUR": "Hora",
+                "TITLE": "Informes de fotometría",
                 "VISIBLE_STARS": "Estrellas visibles",
-                "STAR_USED_IN_REGRESSION": "Estrella utilizada en la regresión"
+                "STAR_USED_IN_REGRESSION": "Estrellas usadas en la regresión"
             }
         }
     },

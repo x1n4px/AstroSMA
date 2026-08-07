@@ -142,6 +142,16 @@ export const getBolideWithCustomSearch = async ({
     }
 };
 
+export const getCustomSearchCatalogs = async () => {
+    try {
+        const response = await axios.get(`${API_URL}/bolide/search/catalogs`);
+        return response.data;
+    } catch (error) {
+        console.error('Error loading custom search catalogs:', error);
+        throw error;
+    }
+};
+
 export const getBolideWithCustomSearchCSV = async ({ heightFilter, latFilter, lonFilter, ratioFilter, heightChecked, latLonChecked, dateRangeChecked, startDate, endDate, actualPage, reportType }) => {
     try {
         const response = await axios.get(`${API_URL}/bolide/search/csv`, {

@@ -12,6 +12,7 @@ router.get('/bolide/months', BolideController.getAllBolideLastSixMonths);
 router.get('/bolide/comparation', BolideController.getBolideCompareLastTen);
 router.get('/bolide/comparation/two', BolideController.getBolideCompareLastTwo);
 router.get('/bolide/earth/trajectories', BolideController.getBolideTrajectoriesForEarthGlobe);
+router.get('/bolide/search/catalogs', BolideController.getCustomSearchCatalogs);
 router.get('/bolide/search', BolideController.getBolideWithCustomSearch);
 router.get('/bolide/search/csv', BolideController.getBolideWithCustomSearchCSV);
 router.get('/bolide/search/reports', BolideController.getReportData);

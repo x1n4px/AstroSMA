@@ -1,16 +1,28 @@
 import { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
-import { getBolideWithCustomSearch } from '@/services/bolideService.jsx';
+import { Container, Row, Col, Card, Button, Form, Badge, Alert, Spinner } from 'react-bootstrap';
+import {
+    CalendarDays,
+    CheckCircle2,
+    Download,
+    Eye,
+    FileSearch,
+    Gauge,
+    MapPin,
+    RotateCcw,
+    Search,
+    SlidersHorizontal,
+    Sparkles,
+    Telescope,
+    XCircle
+} from 'lucide-react';
+import { getBolideWithCustomSearch, getCustomSearchCatalogs } from '@/services/bolideService.jsx';
 import { formatDate } from '@/pipe/formatDate.jsx';
 import CustomizeSearchModal from '@/components/modal/CustomizeSearchModal.jsx';
-import CheckIcon from '@/assets/icon/check';
-import CrossIcon from '@/assets/icon/cross';
 import { createRequest } from '@/services/requestService.jsx';
 import DownloadConfirmModal from '@/components/modal/DownloadConfirmModal.jsx';
 import { useTranslation } from 'react-i18next';
 import { isNotQRUser } from '../../utils/roleMaskUtils';
-import { getStations } from '@/services/stationService.jsx';
-import { getAllShower } from '@/services/activeShower.jsx';
+import './customizeSearch.css';
 
 const getYearAgoDate = () => {
     const today = new Date();
@@ -61,26 +73,28 @@ const CustomizeSearch = () => {
     const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false);
     const [stations, setStations] = useState([]);
     const [showers, setShowers] = useState([]);
+    const [catalogLoading, setCatalogLoading] = useState(true);
+    const [catalogError, setCatalogError] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchError, setSearchError] = useState(false);
     const isPhotometryReportType = reportType === '4';
+    const isTwoStationReportType = reportType === '2';
+    const supportsObservatoryAndShower = reportType === '2' || reportType === '3';
+    const isAllReportTypes = reportType === '1';
 
     useEffect(() => {
         const fetchCatalogs = async () => {
             try {
-                const [stationsData, showersData] = await Promise.all([
-                    getStations(),
-                    getAllShower()
-                ]);
-
-                const uniqueShowers = Array.isArray(showersData?.shower)
-                    ? Array.from(
-                        new Map(showersData.shower.map((shower) => [shower.Identificador, shower])).values()
-                    )
-                    : [];
-
-                setStations(Array.isArray(stationsData) ? stationsData : []);
-                setShowers(uniqueShowers);
+                setCatalogLoading(true);
+                setCatalogError(false);
+                const catalogs = await getCustomSearchCatalogs();
+                setStations(Array.isArray(catalogs?.observatories) ? catalogs.observatories : []);
+                setShowers(Array.isArray(catalogs?.showers) ? catalogs.showers : []);
             } catch (error) {
                 console.error('Error loading custom search catalogs:', error);
+                setCatalogError(true);
+            } finally {
+                setCatalogLoading(false);
             }
         };
 
@@ -89,11 +103,34 @@ const CustomizeSearch = () => {
 
     const handleReportTypeChange = (value) => {
         setReportType(value);
+
+        if (value !== '2') {
+            setAlturaChecked(false);
+            setAlturaFilter('');
+            setLatLonChecked(false);
+            setLatFilter('');
+            setLonFilter('');
+            setRadioBusqueda('');
+            setMinVelocityFilter('');
+            setMaxVelocityFilter('');
+        }
+
+        if (value !== '2' && value !== '3') {
+            setObservatoryFilter('');
+            setShowerFilter('');
+        }
+
         if (value !== '4') {
             setMinMagMaxFilter('');
             setMaxMagMaxFilter('');
             setMinMassFilter('');
             setMaxMassFilter('');
+        }
+
+        if (value !== '1') {
+            setRequireReportZ(false);
+            setRequireReportRadiant(false);
+            setRequireReportPhotometry(false);
         }
     };
 
@@ -105,6 +142,8 @@ const CustomizeSearch = () => {
 
     const handleApplyFilters = async (page = 0) => {
         try {
+            setIsSearching(true);
+            setSearchError(false);
             const response = await getBolideWithCustomSearch({
                 heightFilter,
                 latFilter,
@@ -140,6 +179,10 @@ const CustomizeSearch = () => {
             setSearchButton(true);
         } catch (error) {
             console.error('Error al aplicar los filtros:', error);
+            setSearchError(true);
+            setSearchButton(true);
+        } finally {
+            setIsSearching(false);
         }
     };
 
@@ -256,12 +299,34 @@ const CustomizeSearch = () => {
         setActualPage(0);
         setTotalItems(0);
         setReportData([]);
+        setSearchError(false);
     };
 
     return (
-        <Container className="my-4">
-            <Card className="p-4 mb-4 shadow border-0">
-                <Row className="mb-3">
+        <div className="custom-search-page">
+        <Container className="custom-search-shell">
+            <header className="custom-search-hero">
+                <div className="custom-search-hero__icon" aria-hidden="true">
+                    <FileSearch size={30} />
+                </div>
+                <div>
+                    <span className="custom-search-eyebrow">{t('CUSTOMIZE_SEARCH.EYEBROW')}</span>
+                    <h1>{t('CUSTOMIZE_SEARCH.TITLE')}</h1>
+                    <p>{t('CUSTOMIZE_SEARCH.DESCRIPTION')}</p>
+                </div>
+            </header>
+
+            <Card className="custom-search-panel">
+                <Card.Body>
+                <div className="custom-search-section-heading">
+                    <div className="custom-search-section-heading__icon"><SlidersHorizontal size={19} /></div>
+                    <div>
+                        <h2>{t('CUSTOMIZE_SEARCH.SECTIONS.CONFIGURATION')}</h2>
+                        <p>{t('CUSTOMIZE_SEARCH.SECTIONS.CONFIGURATION_HELP')}</p>
+                    </div>
+                </div>
+
+                <Row className="g-3 mb-4">
                     <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.REPORT_TYPE.TITLE')} :</Form.Label>
                     </Col>
@@ -275,7 +340,7 @@ const CustomizeSearch = () => {
                     </Col>
                 </Row>
 
-                <Row className="mb-3">
+                <Row className="g-3 mb-4">
                     <Col xs={12} md={3} className="d-flex align-items-center">
                         <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SORT.TITLE')}</Form.Label>
                     </Col>
@@ -287,8 +352,67 @@ const CustomizeSearch = () => {
                     </Col>
                 </Row>
 
-                {reportType === '2' && (
-                    <Row className="mb-3">
+                <div className="custom-search-divider" />
+                <div className="custom-search-section-heading custom-search-section-heading--compact">
+                    <div className="custom-search-section-heading__icon"><CalendarDays size={19} /></div>
+                    <div>
+                        <h2>{t('CUSTOMIZE_SEARCH.SECTIONS.PERIOD')}</h2>
+                        <p>{t('CUSTOMIZE_SEARCH.SECTIONS.PERIOD_HELP')}</p>
+                    </div>
+                </div>
+
+                <Row className="g-3 mb-4">
+                    <Col xs={12} md={3} className="d-flex align-items-center">
+                        <Form.Check
+                            type="checkbox"
+                            label={t('CUSTOMIZE_SEARCH.RANGE_DATE')}
+                            checked={dateRangeChecked}
+                            onChange={(e) => setDateRangeChecked(e.target.checked)}
+                        />
+                    </Col>
+                    <Col xs={12} md={9} className="d-flex flex-column flex-sm-row align-items-stretch gap-2">
+                        <Form.Group className="flex-fill">
+                            <Form.Label className="visually-hidden">{t('CUSTOMIZE_SEARCH.DATE_FROM')}</Form.Label>
+                            <Form.Control type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} disabled={!dateRangeChecked} />
+                        </Form.Group>
+                        <span className="custom-search-range-separator">{t('CUSTOMIZE_SEARCH.RANGE_SEPARATOR')}</span>
+                        <Form.Group className="flex-fill">
+                            <Form.Label className="visually-hidden">{t('CUSTOMIZE_SEARCH.DATE_TO')}</Form.Label>
+                            <Form.Control type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} disabled={!dateRangeChecked} />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
+                <Row className="g-3 mb-4">
+                    <Col xs={12} md={6}>
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_FROM')}</Form.Label>
+                        <Form.Control type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} />
+                    </Col>
+                    <Col xs={12} md={6}>
+                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_TO')}</Form.Label>
+                        <Form.Control type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} />
+                    </Col>
+                </Row>
+
+                <div className="custom-search-divider" />
+                <div className="custom-search-section-heading custom-search-section-heading--compact">
+                    <div className="custom-search-section-heading__icon">
+                        {isPhotometryReportType ? <Sparkles size={19} /> : isTwoStationReportType ? <Telescope size={19} /> : <Gauge size={19} />}
+                    </div>
+                    <div>
+                        <h2>{t('CUSTOMIZE_SEARCH.ADVANCED.TITLE')}</h2>
+                        <p>{t(`CUSTOMIZE_SEARCH.REPORT_TYPE.HELP.${reportType}`)}</p>
+                    </div>
+                </div>
+
+                {catalogError && supportsObservatoryAndShower && (
+                    <Alert variant="warning" className="custom-search-alert">
+                        {t('CUSTOMIZE_SEARCH.CATALOG_ERROR')}
+                    </Alert>
+                )}
+
+                {isTwoStationReportType && (
+                    <Row className="g-3 mb-3">
                         <Col xs={12} md={3} className="d-flex align-items-center">
                             <Form.Check
                                 type="checkbox"
@@ -315,8 +439,8 @@ const CustomizeSearch = () => {
                     </Row>
                 )}
 
-                {reportType === '2' && (
-                    <Row className="mb-3">
+                {isTwoStationReportType && (
+                    <Row className="g-3 mb-3">
                         <Col xs={12} md={3} className="d-flex align-items-center">
                             <Form.Check
                                 type="checkbox"
@@ -347,8 +471,8 @@ const CustomizeSearch = () => {
                     </Row>
                 )}
 
-                {reportType === '2' && (
-                    <Row className="mb-3">
+                {isTwoStationReportType && (
+                    <Row className="g-3 mb-4">
                         <Col xs={12} md={3} className="d-flex align-items-center">
                             <Form.Label className="me-2 mb-0">{t('CUSTOMIZE_SEARCH.SEARCH_RADIUS')} (km):</Form.Label>
                         </Col>
@@ -372,39 +496,8 @@ const CustomizeSearch = () => {
                     </Row>
                 )}
 
-                <Row className="mb-3">
-                    <Col xs={12} md={3} className="d-flex align-items-center">
-                        <Form.Check
-                            type="checkbox"
-                            label={t('CUSTOMIZE_SEARCH.RANGE_DATE')}
-                            checked={dateRangeChecked}
-                            onChange={(e) => setDateRangeChecked(e.target.checked)}
-                            className="me-2"
-                        />
-                    </Col>
-                    <Col xs={12} md={9} className="d-flex align-items-center gap-2">
-                        <Form.Control
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            disabled={!dateRangeChecked}
-                        />
-                        <Form.Control
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            disabled={!dateRangeChecked}
-                        />
-                    </Col>
-                </Row>
-
-                <hr />
-
-                <Row className="mb-3">
-                    <Col xs={12}>
-                        <h6 className="mb-2">{t('CUSTOMIZE_SEARCH.ADVANCED.TITLE')}</h6>
-                    </Col>
-                    <Col xs={12} md={4} className="mb-2">
+                <Row className="g-3 mb-4">
+                    <Col xs={12} md={supportsObservatoryAndShower ? 4 : 12} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.METEOR_ID')}</Form.Label>
                         <Form.Control
                             type="number"
@@ -413,56 +506,39 @@ const CustomizeSearch = () => {
                             placeholder={t('CUSTOMIZE_SEARCH.ADVANCED.METEOR_ID')}
                         />
                     </Col>
-                    <Col xs={12} md={4} className="mb-2">
+                    {supportsObservatoryAndShower && <Col xs={12} md={4} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.OBSERVATORY')}</Form.Label>
                         <Form.Select
                             value={observatoryFilter}
                             onChange={(e) => setObservatoryFilter(e.target.value)}
+                            disabled={catalogLoading || catalogError}
                         >
-                            <option value="">{t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
+                            <option value="">{catalogLoading ? t('CUSTOMIZE_SEARCH.CATALOG_LOADING') : t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
                             {stations.map((station) => (
                                 <option key={station.id} value={station.id}>
-                                    {station.id} - {station.stationName || station.name}
+                                    {station.id} - {station.name}
                                 </option>
                             ))}
                         </Form.Select>
-                    </Col>
-                    <Col xs={12} md={4} className="mb-2">
+                    </Col>}
+                    {supportsObservatoryAndShower && <Col xs={12} md={4} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}</Form.Label>
                         <Form.Select
                             value={showerFilter}
                             onChange={(e) => setShowerFilter(e.target.value)}
+                            disabled={catalogLoading || catalogError}
                         >
-                            <option value="">{t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
+                            <option value="">{catalogLoading ? t('CUSTOMIZE_SEARCH.CATALOG_LOADING') : t('CUSTOMIZE_SEARCH.SELECT_OPTIONAL')}</option>
                             {showers.map((shower) => (
-                                <option key={`${shower.Identificador}-${shower.Año || shower.Nombre}`} value={shower.Identificador}>
-                                    {shower.Identificador} - {shower.Nombre}
+                                <option key={shower.id} value={shower.id}>
+                                    {shower.id} - {shower.name}
                                 </option>
                             ))}
                         </Form.Select>
-                    </Col>
+                    </Col>}
                 </Row>
 
-                <Row className="mb-3">
-                    <Col xs={12} md={6} className="mb-2">
-                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_FROM')}</Form.Label>
-                        <Form.Control
-                            type="time"
-                            value={timeFrom}
-                            onChange={(e) => setTimeFrom(e.target.value)}
-                        />
-                    </Col>
-                    <Col xs={12} md={6} className="mb-2">
-                        <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.TIME_TO')}</Form.Label>
-                        <Form.Control
-                            type="time"
-                            value={timeTo}
-                            onChange={(e) => setTimeTo(e.target.value)}
-                        />
-                    </Col>
-                </Row>
-
-                <Row className="mb-3">
+                {isTwoStationReportType && <Row className="g-3 mb-4">
                     <Col xs={12} md={6} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}</Form.Label>
                         <Form.Control
@@ -481,10 +557,10 @@ const CustomizeSearch = () => {
                             onChange={(e) => setMaxVelocityFilter(e.target.value)}
                         />
                     </Col>
-                </Row>
+                </Row>}
 
                 {isPhotometryReportType && (
-                <Row className="mb-3">
+                <Row className="g-3 mb-4">
                     <Col xs={12} md={3} className="mb-2">
                         <Form.Label>{t('CUSTOMIZE_SEARCH.ADVANCED.MIN_MAG_MAX')}</Form.Label>
                         <Form.Control
@@ -524,7 +600,7 @@ const CustomizeSearch = () => {
                 </Row>
                 )}
 
-                <Row className="mb-3">
+                {isAllReportTypes && <Row className="mb-3">
                     <Col xs={12} className="d-flex flex-wrap gap-3">
                         <Form.Check
                             type="checkbox"
@@ -545,88 +621,108 @@ const CustomizeSearch = () => {
                             onChange={(e) => setRequireReportPhotometry(e.target.checked)}
                         />
                     </Col>
-                </Row>
+                </Row>}
 
-                <Row>
-                    <Col xs={12} md={9}>
-                        <Button
-                            style={{ backgroundColor: '#980100', borderColor: '#980100' }}
-                            onClick={() => handleApplyFilters(0)}
-                        >
-                            {t('CUSTOMIZE_SEARCH.SEARCH_BTN')}
+                <div className="custom-search-actions">
+                    <Button variant="outline-secondary" onClick={handleClear} disabled={isSearching}>
+                        <RotateCcw size={17} />
+                        {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
+                    </Button>
+                    {isNotQRUser(roleMask) && reportData.length > 0 && (
+                        <Button variant="outline-success" onClick={handleCSV} disabled={isSearching}>
+                            <Download size={17} />
+                            {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
                         </Button>
-
-                        <Button variant="secondary" className="ms-2" onClick={handleClear}>
-                            {t('CUSTOMIZE_SEARCH.CLEAR_BTN')}
-                        </Button>
-
-                        {isNotQRUser(roleMask) && reportData.length > 0 && (
-                            <Button
-                                style={{ backgroundColor: '#28a745', borderColor: '#28a745', marginLeft: '10px' }}
-                                onClick={handleCSV}
-                            >
-                                {t('CUSTOMIZE_SEARCH.DOWNLOAD_CSV')}
-                            </Button>
-                        )}
-                    </Col>
-                </Row>
+                    )}
+                    <Button className="custom-search-primary" onClick={() => handleApplyFilters(0)} disabled={isSearching}>
+                        {isSearching ? <Spinner size="sm" animation="border" /> : <Search size={18} />}
+                        {isSearching ? t('CUSTOMIZE_SEARCH.SEARCHING') : t('CUSTOMIZE_SEARCH.SEARCH_BTN')}
+                    </Button>
+                </div>
+                </Card.Body>
             </Card>
 
             {searchButton && (
-                <div className="mt-4 shadow rounded">
-                    <div className="p-3 rounded shadow-sm mt-4">
-                        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                            <h6 className="mb-0">{t('CUSTOMIZE_SEARCH.RESULTS_TITLE')}</h6>
-                            <Badge bg="secondary">
+                <Card className="custom-search-results">
+                    <Card.Body>
+                        <div className="custom-search-results__header">
+                            <div>
+                                <span className="custom-search-eyebrow">{t('CUSTOMIZE_SEARCH.RESULTS.EYEBROW')}</span>
+                                <h2>{t('CUSTOMIZE_SEARCH.RESULTS_TITLE')}</h2>
+                                <p>{t('CUSTOMIZE_SEARCH.RESULTS.DESCRIPTION')}</p>
+                            </div>
+                            <Badge pill className="custom-search-count">
                                 {t('CUSTOMIZE_SEARCH.RESULTS_COUNT', { count: totalItems })}
                             </Badge>
                         </div>
 
-                        <ul className="list-group">
+                        {searchError && (
+                            <Alert variant="danger" className="custom-search-alert">
+                                {t('CUSTOMIZE_SEARCH.SEARCH_ERROR')}
+                            </Alert>
+                        )}
+
+                        {!searchError && reportData.length === 0 && (
+                            <div className="custom-search-empty">
+                                <div className="custom-search-empty__icon"><Search size={28} /></div>
+                                <h3>{t('CUSTOMIZE_SEARCH.EMPTY.TITLE')}</h3>
+                                <p>{t('CUSTOMIZE_SEARCH.EMPTY.DESCRIPTION')}</p>
+                                <Button variant="outline-secondary" onClick={handleClear}>
+                                    <RotateCcw size={17} />
+                                    {t('CUSTOMIZE_SEARCH.EMPTY.ACTION')}
+                                </Button>
+                            </div>
+                        )}
+
+                        {!searchError && reportData.length > 0 && <div className="custom-search-result-list">
                             {reportData.map((report, index) => (
-                                <li
-                                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                <article
+                                    className="custom-search-result"
                                     key={report.IdInforme || report.Identificador || index}
                                 >
-                                    <div>
-                                        <strong>
-                                            #{report.Identificador} · {formatDate(report.Fecha)} {report.Hora?.substring(0, 8)}
-                                        </strong>
-                                        <div className="small text-muted">
-                                            {report.velocidadMedia != null && `${t('CUSTOMIZE_SEARCH.ADVANCED.MIN_VELOCITY')}: ${report.velocidadMedia} km/s`}
-                                            {report.magMax != null ? ` · ${t('CUSTOMIZE_SEARCH.RESULT_FIELDS.MAG_MAX')}: ${formatDecimal(report.magMax)}` : ''}
-                                            {report.masaFotometrica != null ? ` · ${t('CUSTOMIZE_SEARCH.RESULT_FIELDS.PHOTOMETRIC_MASS')}: ${report.masaFotometrica}` : ''}
-                                            {report.lluviasAsociadas ? ` · ${t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}: ${report.lluviasAsociadas}` : ''}
+                                    <div className="custom-search-result__main">
+                                        <div className="custom-search-result__identity">
+                                            <span>{t('CUSTOMIZE_SEARCH.RESULT_FIELDS.METEOR')}</span>
+                                            <h3>#{report.Identificador}</h3>
+                                            <p><CalendarDays size={15} /> {formatDate(report.Fecha)} · {report.Hora?.substring(0, 8)}</p>
+                                        </div>
+                                        <div className="custom-search-metrics">
+                                            {report.velocidadMedia != null && (
+                                                <span><Gauge size={14} /> {t('CUSTOMIZE_SEARCH.RESULT_FIELDS.AVERAGE_VELOCITY')}: <strong>{report.velocidadMedia} km/s</strong></span>
+                                            )}
+                                            {report.magMax != null && (
+                                                <span><Sparkles size={14} /> {t('CUSTOMIZE_SEARCH.RESULT_FIELDS.MAG_MAX')}: <strong>{formatDecimal(report.magMax)}</strong></span>
+                                            )}
+                                            {report.masaFotometrica != null && (
+                                                <span>{t('CUSTOMIZE_SEARCH.RESULT_FIELDS.PHOTOMETRIC_MASS')}: <strong>{report.masaFotometrica} g</strong></span>
+                                            )}
+                                            {report.lluviasAsociadas && (
+                                                <span><MapPin size={14} /> {t('CUSTOMIZE_SEARCH.ADVANCED.SHOWER')}: <strong>{report.lluviasAsociadas}</strong></span>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="d-inline-flex gap-3">
-                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_Z')}: {report.hasReportZ ? <CheckIcon /> : <CrossIcon />}</div>
-                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_RADIANT')}: {report.hasReportRadiant ? <CheckIcon /> : <CrossIcon />}</div>
-                                        <div>{t('CUSTOMIZE_SEARCH.REPORT_PHOTOMETRY')}: {report.hasReportPhotometry ? <CheckIcon /> : <CrossIcon />}</div>
+                                    <div className="custom-search-availability" aria-label={t('CUSTOMIZE_SEARCH.RESULTS.AVAILABILITY')}>
+                                        {[
+                                            [t('CUSTOMIZE_SEARCH.REPORT_Z'), report.hasReportZ],
+                                            [t('CUSTOMIZE_SEARCH.REPORT_RADIANT'), report.hasReportRadiant],
+                                            [t('CUSTOMIZE_SEARCH.REPORT_PHOTOMETRY'), report.hasReportPhotometry]
+                                        ].map(([label, available]) => (
+                                            <span key={label} className={available ? 'is-available' : 'is-unavailable'}>
+                                                {available ? <CheckCircle2 size={15} /> : <XCircle size={15} />}
+                                                {label}
+                                            </span>
+                                        ))}
                                     </div>
-                                    <div>
-                                        <Button
-                                            style={{ backgroundColor: '#980100', borderColor: '#980100', marginTop: '5px' }}
-                                            onClick={() => handleShowModal(report)}
-                                        >
-                                            {t('CUSTOMIZE_SEARCH.SHOW_BUTTON')}
-                                        </Button>
-                                    </div>
-                                </li>
+                                    <Button className="custom-search-view" onClick={() => handleShowModal(report)}>
+                                        <Eye size={17} />
+                                        {t('CUSTOMIZE_SEARCH.SHOW_BUTTON')}
+                                    </Button>
+                                </article>
                             ))}
-                        </ul>
-                    </div>
+                        </div>}
 
-                    <CustomizeSearchModal report={modalReport} show={showModal} onHide={handleCloseModal} />
-
-                    <DownloadConfirmModal
-                        show={showDownloadConfirmModal}
-                        onHide={() => setShowDownloadConfirmModal(false)}
-                        onConfirm={handleConfirmDownload}
-                    />
-
-                    <nav aria-label={t('CUSTOMIZE_SEARCH.PAGINATION.ARIA_LABEL')}>
-                        <ul className="pagination justify-content-center py-4">
+                    {!searchError && totalPages > 1 && <nav className="custom-search-pagination" aria-label={t('CUSTOMIZE_SEARCH.PAGINATION.ARIA_LABEL')}>
+                        <ul className="pagination justify-content-center mb-0">
                             <li className={`page-item ${actualPage === 0 ? 'disabled' : ''}`}>
                                 <button className="page-link" onClick={handlePrevPage}>
                                     {t('CUSTOMIZE_SEARCH.PAGINATION.PREVIOUS')}
@@ -666,10 +762,19 @@ const CustomizeSearch = () => {
                                 </button>
                             </li>
                         </ul>
-                    </nav>
-                </div>
+                    </nav>}
+                    </Card.Body>
+                </Card>
             )}
+
+            <CustomizeSearchModal report={modalReport} show={showModal} onHide={handleCloseModal} />
+            <DownloadConfirmModal
+                show={showDownloadConfirmModal}
+                onHide={() => setShowDownloadConfirmModal(false)}
+                onConfirm={handleConfirmDownload}
+            />
         </Container>
+        </div>
     );
 };
 
