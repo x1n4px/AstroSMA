@@ -114,14 +114,14 @@ const Dashboard = () => {
                             >
                                 <Search /> {t('DASHBOARD.CUSTOMIZE_SEARCH_BTN')}
                             </Button>
-                            <Button
+                            {/* <Button
                                 as={Link}
                                 to="/bolide-globe"
                                 variant="outline-dark"
                                 className="py-2"
                             >
                                 <GlobeEuropeAfrica className="me-1" /> Visor 3D
-                            </Button>
+                            </Button> */}
                         </Col>
 
                         <Col md={6} className="d-flex justify-content-end">
@@ -342,7 +342,7 @@ const Dashboard = () => {
                         </Row>
 
                         <Row className="mb-4">
-                            <Col md={4}>
+                            {/* <Col md={4}>
 
                                 <Box key="box13">
                                     <p><strong>{t('DASHBOARD.GRAPH.SIXTH.TITLE')}</strong></p>
@@ -354,8 +354,8 @@ const Dashboard = () => {
                                         </div>
                                     )}
                                 </Box>
-                            </Col>
-                            <Col md={4}>
+                            </Col> */}
+                            <Col md={6}>
 
                                 <Box key="box14">   <p><strong>{t('DASHBOARD.GRAPH.THIRD.TITLE')}</strong></p>
                                     {loading ? (
@@ -367,7 +367,7 @@ const Dashboard = () => {
                                     )}
                                 </Box>
                             </Col>
-                            <Col md={4}>
+                            <Col md={6}>
 
                                 <Box key="box15">  <p><strong>{t('DASHBOARD.GRAPH.EIGHTH.TITLE')}</strong></p>
                                     {loading ? (

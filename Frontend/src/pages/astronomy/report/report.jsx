@@ -248,9 +248,9 @@ const Report = () => {
                             <PointAdjustReport regressionTrajectory={regressionTrajectory} trajectoryData={trajectoryData} />
                         </Tab>
 
-                        <Tab eventKey="SONIFICATION" title={t('REPORT.SONIFICATION.TAB_TITLE')}>
+                        {/* <Tab eventKey="SONIFICATION" title={t('REPORT.SONIFICATION.TAB_TITLE')}>
                             <SonificationReport report={reportData} />
-                        </Tab>
+                        </Tab> */}
 
 
                         {Array.isArray(photometryData) && photometryData.length > 0 && (
