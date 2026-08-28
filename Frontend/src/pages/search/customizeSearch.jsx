@@ -25,10 +25,9 @@ import { isNotQRUser } from '../../utils/roleMaskUtils';
 import './customizeSearch.css';
 
 const getYearAgoDate = () => {
-    const today = new Date();
-    const yearAgo = new Date(today);
-    yearAgo.setFullYear(today.getFullYear() - 1);
-    return yearAgo.toISOString().split('T')[0];
+      const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return date.toISOString().split('T')[0];
 };
 
 const CustomizeSearch = () => {
@@ -687,9 +686,9 @@ const CustomizeSearch = () => {
                                             <p><CalendarDays size={15} /> {formatDate(report.Fecha)} · {report.Hora?.substring(0, 8)}</p>
                                         </div>
                                         <div className="custom-search-metrics">
-                                            {report.velocidadMedia != null && (
+                                            {/* {report.velocidadMedia != null && (
                                                 <span><Gauge size={14} /> {t('CUSTOMIZE_SEARCH.RESULT_FIELDS.AVERAGE_VELOCITY')}: <strong>{report.velocidadMedia} km/s</strong></span>
-                                            )}
+                                            )} */}
                                             {report.magMax != null && (
                                                 <span><Sparkles size={14} /> {t('CUSTOMIZE_SEARCH.RESULT_FIELDS.MAG_MAX')}: <strong>{formatDecimal(report.magMax)}</strong></span>
                                             )}

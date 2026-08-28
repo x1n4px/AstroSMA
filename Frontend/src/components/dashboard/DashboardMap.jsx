@@ -123,7 +123,7 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
                 </div>
 
               </div>
-
+{/* 
               <div className="mb-4">
                 <div className="d-flex align-items-center">
                   <Gauge size={18} className="me-2" style={{ color: "#980100" }} />
@@ -132,7 +132,7 @@ const Map = ({ observatoryData, lastReportMap, lastReportData }) => {
                     <div className="fw-light">{truncateDecimal(lastReportData?.Velocidad_media)} km/s</div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Botón de actualizar */}
               <Button as={Link} to={isLoggedIn ? `/report/${lastReportData?.IdInforme}/INFERRED_DATA_TAB` : "/login"}
