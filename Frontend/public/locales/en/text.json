@@ -328,7 +328,7 @@
             "IMAGES": "Images"
         },
         "SONIFICATION": {
-            "TAB_TITLE": "Sonification",
+            "TAB_TITLE": "Under_construction",
             "TITLE": "Detection sonification",
             "DESCRIPTION": "Choose a sonification method, play the generated video and download the associated files.",
             "EMPTY": "There is not enough data to sonify this report.",
