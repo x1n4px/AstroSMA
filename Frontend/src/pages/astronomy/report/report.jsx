@@ -10,7 +10,8 @@ import PointAdjustReport from '@/pages/astronomy/report/pages/pointAdjustReport'
 import OrbitReport from '@/pages/astronomy/report/pages/orbitReport.jsx'
 import PhotometryReport from '@/pages/astronomy/report/pages/photometryReport.jsx';
 import RotationReport from './pages/rotationReport';
-import SonificationReport from '@/pages/astronomy/report/pages/sonification/sonification.jsx';
+// import SonificationReport from '@/pages/astronomy/report/pages/sonification/sonification.jsx';
+import SonificationReport from  '@/pages/astronomy/report/pages/photometryReport.jsx';
 import AssociatedDownloadReport from '@/pages/astronomy/report/pages/associatedDownloadReport.jsx';
 import MediaReport from '@/pages/astronomy/report/pages/mediaReport.jsx';
 import RelatedReportsTab from '@/pages/astronomy/report/pages/relatedReportsTab.jsx';
@@ -129,7 +130,7 @@ const Report = () => {
             'ORBIT': 'ORBIT',
             'PENDING_TAB': 'PENDING_TAB',
             'FRAMES': 'ZWO',
-            'SONIFICATION': 'SONIFICATION',
+            // 'SONIFICATION': 'SONIFICATION',
             'PHOTOMETRY': 'PHOTOMETRY',
             'ASSOCIATED_STATIONS': 'ASSOCIATED_STATIONS',
             'RESOURCES': 'ASSOCIATED_DOWNLOAD_LINK',
