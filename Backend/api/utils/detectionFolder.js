@@ -92,6 +92,36 @@ function resolveDetectionContext(date, time, fullPath = process.env.FULL_PATH) {
   };
 }
 
+
+
+
+function originalResolveDetectionContext(date, time, fullPath = process.env.FULL_PATH) {
+  if (!fullPath) {
+    return null;
+  }
+
+  const dateParts = normalizeDate(date);
+  const timeParts = normalizeTime(time);
+
+  if (!dateParts || !timeParts) {
+    return null;
+  }
+
+  const deteccionesRoot = path.resolve(fullPath);
+  const formattedDate = `${dateParts.year}${dateParts.month}${dateParts.day}`;
+  const formattedTime = `${timeParts.hour}${timeParts.minute}${timeParts.second}`;
+  const eventFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);
+
+  return {
+    dateParts,
+    timeParts,
+    deteccionesRoot,
+    eventFolder,
+    formattedDate,
+    formattedTime
+  };
+}
+
 module.exports = {
-  resolveDetectionContext
+  resolveDetectionContext, originalResolveDetectionContext
 };

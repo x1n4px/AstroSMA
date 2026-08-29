@@ -1,87 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
-
-function normalizeDateParts(inputDate) {
-  const value = String(inputDate || '').trim();
-  const match = value.match(/(\d{4})[-/]?(\d{2})[-/]?(\d{2})/);
-
-  if (!match) {
-    return null;
-  }
-
-  return { year: match[1], month: match[2], day: match[3] };
-}
-
-function normalizeTimeParts(inputTime) {
-  const value = String(inputTime || '').trim();
-  const match = value.match(/(\d{2}):?(\d{2}):?(\d{2})/);
-
-  if (!match) {
-    return null;
-  }
-
-  return { hour: match[1], minute: match[2], second: match[3] };
-}
-
-function shiftDateParts(dateParts, offsetDays) {
-  const year = Number(dateParts.year);
-  const month = Number(dateParts.month);
-  const day = Number(dateParts.day);
-
-  if (![year, month, day].every(Number.isInteger)) {
-    return null;
-  }
-
-  const shifted = new Date(Date.UTC(year, month - 1, day));
-  shifted.setUTCDate(shifted.getUTCDate() + offsetDays);
-
-  return {
-    year: String(shifted.getUTCFullYear()).padStart(4, '0'),
-    month: String(shifted.getUTCMonth() + 1).padStart(2, '0'),
-    day: String(shifted.getUTCDate()).padStart(2, '0')
-  };
-}
-
-function buildDetectionContext(dateParts, timeParts, fullPath) {
-  if (!fullPath || !dateParts || !timeParts) {
-    return null;
-  }
-
-  const deteccionesRoot = path.resolve(fullPath);
-  const formattedDate = `${dateParts.year}${dateParts.month}${dateParts.day}`;
-  const formattedTime = `${timeParts.hour}${timeParts.minute}${timeParts.second}`;
-  const eventFolder = path.resolve(deteccionesRoot, dateParts.year, formattedDate, formattedTime);
-
-  return {
-    dateParts,
-    timeParts,
-    deteccionesRoot,
-    eventFolder,
-    formattedDate,
-    formattedTime
-  };
-}
-
-function buildOrbitFileCandidates({ button, safeFileName, id1, id2, detectionContext }) {
-  const { deteccionesRoot, eventFolder } = detectionContext;
-  const stationIds = [id1, id2].map((value) => String(value || '').trim()).filter(Boolean);
-  const pairFolders = stationIds.length === 2
-    ? [`${stationIds[0]}-${stationIds[1]}`, `${stationIds[1]}-${stationIds[0]}`]
-    : [];
-
-  const candidateRoots = button === 'WMPL_PROGRAM'
-    ? [deteccionesRoot]
-    : [
-        eventFolder,
-        ...pairFolders.map((pairFolder) => path.resolve(eventFolder, pairFolder))
-      ];
-
-  return {
-    candidateRoots,
-    candidatePaths: candidateRoots.map((candidateRoot) => path.resolve(candidateRoot, safeFileName))
-  };
-}
+const { resolveDetectionContext,  } = require('../utils/detectionFolder');
 
 
 const getOrbitFile = (req, res) => {
@@ -112,54 +32,37 @@ const getOrbitFile = (req, res) => {
       return res.status(500).json({ error: 'FULL_PATH no está configurado' });
     }
 
-    const inputDate = date || (year && month && day ? `${year}-${month}-${day}` : '');
-    const inputTime = time || (hour && minute && second ? `${hour}:${minute}:${second}` : '');
-    const rawDateParts = normalizeDateParts(inputDate);
-    const timeParts = normalizeTimeParts(inputTime);
-    const dawnCutoffHour = Number(process.env.DAWN_CUTOFF_HOUR ?? 8);
-    const hourNumber = timeParts ? Number(timeParts.hour) : Number.NaN;
-    const isBeforeDawn = Number.isInteger(hourNumber) && hourNumber < dawnCutoffHour;
-    const observationDateParts = isBeforeDawn ? shiftDateParts(rawDateParts, -1) : rawDateParts;
-    const rawDetectionContext = buildDetectionContext(rawDateParts, timeParts, fullPath);
-    const observationDetectionContext = buildDetectionContext(observationDateParts, timeParts, fullPath);
+    const detectionContext = resolveDetectionContext(
+      date || (year && month && day ? `${year}-${month}-${day}` : ''),
+      time || (hour && minute && second ? `${hour}:${minute}:${second}` : '')
+    );
 
-    if (!rawDetectionContext || !observationDetectionContext) {
+    if (!detectionContext) {
       console.warn('[getOrbitFile] INVALID_DATE_OR_TIME', JSON.stringify({ date, time, year, month, day, hour, minute, second }));
       return res.status(400).json({ error: 'Fecha u hora inválida para construir la ruta' });
     }
 
+    const {
+      dateParts,
+      timeParts,
+      deteccionesRoot,
+      eventFolder,
+      formattedDate,
+      formattedTime
+    } = detectionContext;
+
     const safeFileName = path.basename(String(fileName));
-    const contextsToSearch = rawDetectionContext.eventFolder === observationDetectionContext.eventFolder
-      ? [rawDetectionContext]
-      : [rawDetectionContext, observationDetectionContext];
-
-    console.log(
-      '[getOrbitFile] SEARCH_CONTEXT',
-      JSON.stringify({
-        inputDate,
-        inputTime,
-        dawnCutoffHour,
-        isBeforeDawn,
-        rawEventFolder: rawDetectionContext.eventFolder,
-        observationEventFolder: observationDetectionContext.eventFolder,
-        fallbackEnabled: rawDetectionContext.eventFolder !== observationDetectionContext.eventFolder
-      })
-    );
-
-    const candidateSets = contextsToSearch.map((context) => {
-      const { candidateRoots, candidatePaths } = buildOrbitFileCandidates({
-        button,
-        safeFileName,
-        id1,
-        id2,
-        detectionContext: context
-      });
-
-      return { context, candidateRoots, candidatePaths };
-    });
-
-    const candidatePaths = candidateSets.flatMap((set) => set.candidatePaths);
-    const selectedContext = observationDetectionContext;
+    const stationIds = [id1, id2].map((value) => String(value || '').trim()).filter(Boolean);
+    const pairFolders = stationIds.length === 2
+      ? [`${stationIds[0]}-${stationIds[1]}`, `${stationIds[1]}-${stationIds[0]}`]
+      : [];
+    const candidateRoots = button === 'WMPL_PROGRAM'
+      ? [deteccionesRoot]
+      : [
+          eventFolder,
+          ...pairFolders.map((pairFolder) => path.resolve(eventFolder, pairFolder))
+        ];
+    const candidatePaths = candidateRoots.map((candidateRoot) => path.resolve(candidateRoot, safeFileName));
 
     console.log(
       '[getOrbitFile] request=',
@@ -171,45 +74,26 @@ const getOrbitFile = (req, res) => {
         safeFileName,
         id1,
         id2,
-        year: selectedContext.dateParts.year,
-        yyyymmdd: selectedContext.formattedDate,
-        hhmmss: selectedContext.formattedTime,
-        deteccionesRoot: selectedContext.deteccionesRoot
+        year: dateParts.year,
+        yyyymmdd: formattedDate,
+        hhmmss: formattedTime,
+        deteccionesRoot
       })
     );
-    console.log('[getOrbitFile] eventFolder=', selectedContext.eventFolder);
+    console.log('[getOrbitFile] eventFolder=', eventFolder);
     console.log('[getOrbitFile] candidatePaths=', JSON.stringify(candidatePaths));
 
-    const invalidPath = candidateSets.flatMap(({ candidateRoots, candidatePaths: setCandidatePaths }) =>
-      setCandidatePaths.map((candidatePath, index) => ({
-        candidatePath,
-        root: candidateRoots[index]
-      }))
-    ).find(({ candidatePath, root }) => {
+    const invalidPath = candidatePaths.find((candidatePath, index) => {
+      const root = candidateRoots[index];
       return !candidatePath.startsWith(`${root}${path.sep}`) && candidatePath !== path.join(root, safeFileName);
     });
 
     if (invalidPath) {
-      console.warn('[getOrbitFile] INVALID_PATH', invalidPath.candidatePath);
+      console.warn('[getOrbitFile] INVALID_PATH', invalidPath);
       return res.status(400).json({ error: 'Ruta de archivo inválida' });
     }
 
-    let filePath = null;
-    for (const candidatePath of candidatePaths) {
-      const exists = fs.existsSync(candidatePath);
-      console.log(
-        '[getOrbitFile] CHECK_PATH',
-        JSON.stringify({
-          candidatePath,
-          exists
-        })
-      );
-
-      if (exists) {
-        filePath = candidatePath;
-        break;
-      }
-    }
+    const filePath = candidatePaths.find((candidatePath) => fs.existsSync(candidatePath));
 
     if (!filePath) {
       console.warn('[getOrbitFile] NOT_FOUND', JSON.stringify(candidatePaths));
@@ -234,7 +118,6 @@ const getOrbitFile = (req, res) => {
     return res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-
 
 
 
