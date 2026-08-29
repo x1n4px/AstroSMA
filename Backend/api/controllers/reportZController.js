@@ -182,25 +182,21 @@ async function getReportMediaById(req, res) {
         if (!reportRows.length) {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
-
         const report = reportRows[0];
         const detectionContext = resolveDetectionContext(report.Fecha, report.Hora);
-        const reportDateParts = parseDetectionDateParts(report.Fecha);
-        const reportTimeParts = parseDetectionTimeParts(report.Hora);
-
-        if (!detectionContext || !reportDateParts || !reportTimeParts) {
+        if (!detectionContext || !detectionContext.dateParts || !detectionContext.timeParts) {
             return res.status(404).json({ message: 'No se pudo localizar el directorio del evento' });
         }
 
         const candidateContexts = Array.from({ length: 4 }, (_, offset) => {
-            const candidate = buildDetectionCandidate(reportDateParts, reportTimeParts, offset);
+            const candidate = buildDetectionCandidate(detectionContext.dateParts, detectionContext.timeParts, offset);
+            console.log(`[getReportMediaById] candidate for offset ${offset}:`, candidate);
             if (!candidate) {
                 return null;
             }
 
             return resolveDetectionContext(candidate.candidateDate, candidate.candidateTime);
         }).filter(Boolean);
-
         for (const candidateContext of candidateContexts) {
             const mediaPath = path.resolve(candidateContext.eventFolder, 'videos-e-imagenes.txt');
             console.log(`Checking media file at: ${mediaPath} for candidate context: ${candidateContext.eventFolder}`);

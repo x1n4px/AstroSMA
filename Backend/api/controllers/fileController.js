@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
-const { resolveDetectionContext,  } = require('../utils/detectionFolder');
+const { resolveDetectionContext, originalResolveDetectionContext  } = require('../utils/detectionFolder');
 
 
 const getOrbitFile = (req, res) => {
@@ -32,7 +32,7 @@ const getOrbitFile = (req, res) => {
       return res.status(500).json({ error: 'FULL_PATH no está configurado' });
     }
 
-    const detectionContext = resolveDetectionContext(
+    const detectionContext = originalResolveDetectionContext(
       date || (year && month && day ? `${year}-${month}-${day}` : ''),
       time || (hour && minute && second ? `${hour}:${minute}:${second}` : '')
     );
