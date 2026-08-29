@@ -158,7 +158,7 @@ const MediaReport = ({ reportId }) => {
                 <div className="d-flex align-items-start justify-content-between gap-3">
                   <div>
                     <div className="fw-semibold">{item.filename}</div>
-                    <div className="text-muted small">{item.url}</div>
+                    {/* <div className="text-muted small">{item.url}</div> */}
                   </div>
                   <Badge bg={item.type === 'video' ? 'danger' : item.type === 'image' ? 'primary' : 'secondary'}>
                     {getMediaTypeLabel(item.type, t)}

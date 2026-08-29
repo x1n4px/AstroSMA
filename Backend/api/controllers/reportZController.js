@@ -131,13 +131,17 @@ function parseMediaListFile(content) {
 }
 
 function parseDetectionDateParts(inputDate) {
-    const value = String(inputDate || '').trim();
-    const match = value.match(/(\d{4})[-/]?(\d{2})[-/]?(\d{2})/);
-    if (!match) {
+    const date = new Date(inputDate);
+
+    if (Number.isNaN(date.getTime())) {
         return null;
     }
 
-    return { year: match[1], month: match[2], day: match[3] };
+    return {
+        year: String(date.getFullYear()),
+        month: String(date.getMonth() + 1).padStart(2, '0'),
+        day: String(date.getDate()).padStart(2, '0')
+    };
 }
 
 function parseDetectionTimeParts(inputTime) {
@@ -182,15 +186,19 @@ async function getReportMediaById(req, res) {
         if (!reportRows.length) {
             return res.status(404).json({ message: 'Informe no encontrado' });
         }
+        console.log(`fecha: ${reportRows[0].Fecha}, hora: ${reportRows[0].Hora}`);
         const report = reportRows[0];
-        const detectionContext = resolveDetectionContext(report.Fecha, report.Hora);
-        if (!detectionContext || !detectionContext.dateParts || !detectionContext.timeParts) {
+        const reportDateParts = parseDetectionDateParts(report.Fecha);
+        const reportTimeParts = parseDetectionTimeParts(report.Hora);
+
+        console.log(`Parsed report date parts: ${JSON.stringify(reportDateParts)}, time parts: ${JSON.stringify(reportTimeParts)}`);
+
+        if (!reportDateParts || !reportTimeParts) {
             return res.status(404).json({ message: 'No se pudo localizar el directorio del evento' });
         }
 
         const candidateContexts = Array.from({ length: 4 }, (_, offset) => {
-            const candidate = buildDetectionCandidate(detectionContext.dateParts, detectionContext.timeParts, offset);
-            console.log(`[getReportMediaById] candidate for offset ${offset}:`, candidate);
+            const candidate = buildDetectionCandidate(reportDateParts, reportTimeParts, offset);
             if (!candidate) {
                 return null;
             }
