@@ -130,6 +130,47 @@ function parseMediaListFile(content) {
         });
 }
 
+function parseDetectionDateParts(inputDate) {
+    const value = String(inputDate || '').trim();
+    const match = value.match(/(\d{4})[-/]?(\d{2})[-/]?(\d{2})/);
+    if (!match) {
+        return null;
+    }
+
+    return { year: match[1], month: match[2], day: match[3] };
+}
+
+function parseDetectionTimeParts(inputTime) {
+    const value = String(inputTime || '').trim();
+    const match = value.match(/(\d{2}):?(\d{2}):?(\d{2})/);
+    if (!match) {
+        return null;
+    }
+
+    return { hour: match[1], minute: match[2], second: match[3] };
+}
+
+function buildDetectionCandidate(dateParts, timeParts, offsetSeconds) {
+    const year = Number(dateParts.year);
+    const month = Number(dateParts.month);
+    const day = Number(dateParts.day);
+    const hour = Number(timeParts.hour);
+    const minute = Number(timeParts.minute);
+    const second = Number(timeParts.second);
+
+    if (![year, month, day, hour, minute, second].every(Number.isInteger)) {
+        return null;
+    }
+
+    const candidate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    candidate.setUTCSeconds(candidate.getUTCSeconds() + offsetSeconds);
+
+    const candidateDate = `${candidate.getUTCFullYear()}-${String(candidate.getUTCMonth() + 1).padStart(2, '0')}-${String(candidate.getUTCDate()).padStart(2, '0')}`;
+    const candidateTime = `${String(candidate.getUTCHours()).padStart(2, '0')}:${String(candidate.getUTCMinutes()).padStart(2, '0')}:${String(candidate.getUTCSeconds()).padStart(2, '0')}`;
+
+    return { candidateDate, candidateTime };
+}
+
 async function getReportMediaById(req, res) {
     try {
         const { id } = req.params;
@@ -144,33 +185,45 @@ async function getReportMediaById(req, res) {
 
         const report = reportRows[0];
         const detectionContext = resolveDetectionContext(report.Fecha, report.Hora);
+        const reportDateParts = parseDetectionDateParts(report.Fecha);
+        const reportTimeParts = parseDetectionTimeParts(report.Hora);
 
-        if (!detectionContext) {
+        if (!detectionContext || !reportDateParts || !reportTimeParts) {
             return res.status(404).json({ message: 'No se pudo localizar el directorio del evento' });
         }
 
-        const mediaPath = path.resolve(detectionContext.eventFolder, 'videos-e-imagenes.txt');
-        if (!mediaPath.startsWith(`${detectionContext.eventFolder}${path.sep}`)) {
-            return res.status(400).json({ message: 'Ruta de archivo inválida' });
-        }
+        const candidateContexts = Array.from({ length: 4 }, (_, offset) => {
+            const candidate = buildDetectionCandidate(reportDateParts, reportTimeParts, offset);
+            if (!candidate) {
+                return null;
+            }
 
-        if (!fs.existsSync(mediaPath)) {
+            return resolveDetectionContext(candidate.candidateDate, candidate.candidateTime);
+        }).filter(Boolean);
+
+        for (const candidateContext of candidateContexts) {
+            const mediaPath = path.resolve(candidateContext.eventFolder, 'videos-e-imagenes.txt');
+            console.log(`Checking media file at: ${mediaPath} for candidate context: ${candidateContext.eventFolder}`);
+            if (!mediaPath.startsWith(`${candidateContext.eventFolder}${path.sep}`)) {
+                continue;
+            }
+
+            if (!fs.existsSync(mediaPath)) {
+                continue;
+            }
+
+            const fileContent = await fs.promises.readFile(mediaPath, 'utf8');
+            const media = parseMediaListFile(fileContent);
+
             return res.json({
                 reportId: report.IdInforme,
-                media: [],
-                sourceFile: mediaPath,
-                sourceFileExists: false
+                media
             });
         }
 
-        const fileContent = await fs.promises.readFile(mediaPath, 'utf8');
-        const media = parseMediaListFile(fileContent);
-
         return res.json({
             reportId: report.IdInforme,
-            media,
-            sourceFile: mediaPath,
-            sourceFileExists: true
+            media: []
         });
     } catch (error) {
         console.error('Error al obtener el material audiovisual del informe:', error);
