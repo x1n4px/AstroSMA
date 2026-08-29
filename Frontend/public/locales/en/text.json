@@ -713,7 +713,7 @@
     },
     "STATION": {
         "TITLE": "Stations map",
-        "DESCRIPTION": "The University of Malaga's Meteor and Fireball Network",
+        "DESCRIPTION": "Meteor and Fireball Network of the Universidad de Málaga and Sociedad Malagueña de astronomía",
         "LOADING_MSG": "Loading stations...",
         "ERROR_MSG": "Error loading stations",
         "STATION_LIST": "Station list",
