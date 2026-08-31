@@ -3,7 +3,7 @@ import './Station.css';
 import StationMapChart from '@/components/map/StationMapChart';
 import React, { useState, useEffect, useRef } from 'react';
 import { Alert, Badge, Button, Col, Form, ListGroup, Modal, Row, Table } from 'react-bootstrap';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { LocateFixed, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { createStation, deleteStation, getStations, updateStation, updateStationStatus } from '@/services/stationService';
 import { isAdminUser } from '@/utils/roleMaskUtils';
 import { useLocation } from "react-router-dom";
@@ -90,22 +90,34 @@ function Station() {
     const [editingStationId, setEditingStationId] = useState(null);
     const [savingStation, setSavingStation] = useState(false);
     const [crudError, setCrudError] = useState(null);
+    const [stationSearch, setStationSearch] = useState('');
 
 
-    useEffect(() => {
-        const fetchStations = async () => {
-            try {
-                const data = await getStations();
-                setStations([...data].sort(sortStationsByObservatoryAndId));
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+const fetchStations = async ({ showLoading = false } = {}) => {
+    try {
+        if (showLoading) {
+            setLoading(true);
+        }
 
-        fetchStations();
-    }, []);
+        setError(null);
+
+        const data = await getStations();
+
+        setStations(
+            [...data].sort(sortStationsByObservatoryAndId)
+        );
+    } catch (err) {
+        setError(err);
+    } finally {
+        if (showLoading) {
+            setLoading(false);
+        }
+    }
+};
+
+useEffect(() => {
+    fetchStations({ showLoading: true });
+}, []);
 
     useEffect(() => {
         if (!loading && stations.length > 0) {
@@ -180,41 +192,36 @@ function Station() {
         setCrudError(null);
     };
 
-    const saveStation = async () => {
-        try {
-            setSavingStation(true);
-            setCrudError(null);
+const saveStation = async () => {
+    try {
+        setSavingStation(true);
+        setCrudError(null);
 
-            const payload = {
-                ...stationForm,
-                ...computeStationRadians(stationForm),
-            };
+        const payload = {
+            ...stationForm,
+            ...computeStationRadians(stationForm),
+        };
 
-            const savedStation = editingStationId
-                ? await updateStation(editingStationId, payload)
-                : await createStation(payload);
-
-            if (!savedStation?.id) {
-                throw new Error('Station save returned an invalid response');
-            }
-
-            setStations(currentStations => (editingStationId
-                ? currentStations.map(station => station.id === editingStationId ? savedStation : station)
-                : [...currentStations, savedStation]
-            ).sort(sortStationsByObservatoryAndId)
-            );
-
-            setEditingStationId(null);
-            setStationForm(EMPTY_STATION);
-        } catch (err) {
-            setCrudError(
-                err.response?.data?.message
-                || 'No se pudo guardar la estación. Comprueba que el backend esté reiniciado con las rutas nuevas.'
-            );
-        } finally {
-            setSavingStation(false);
+        if (editingStationId) {
+            await updateStation(editingStationId, payload);
+        } else {
+            await createStation(payload);
         }
-    };
+
+        // Volver a obtener los datos actualizados del backend
+        await fetchStations();
+
+        setEditingStationId(null);
+        setStationForm(EMPTY_STATION);
+    } catch (err) {
+        setCrudError(
+            err.response?.data?.message
+            || 'No se pudo guardar la estación. Comprueba que el backend esté reiniciado con las rutas nuevas.'
+        );
+    } finally {
+        setSavingStation(false);
+    }
+};
 
     const confirmDeleteStation = async () => {
         if (!stationToDelete) return;
@@ -237,6 +244,17 @@ function Station() {
         .filter(station => station?.id !== null && station?.id !== undefined)
         .filter(station => isStationAdminPanel || Number(station?.state) === 1)
         .sort(sortStationsByObservatoryAndId);
+    const normalizedStationSearch = stationSearch.trim().toLowerCase();
+    const stationSearchResults = normalizedStationSearch
+        ? renderedStations.filter((station) => [
+            station.stationName,
+            station.name,
+            station.credit,
+            station.id,
+            station.longitudeSexagesimal,
+            station.latitudeSexagesimal,
+        ].some(value => String(value ?? '').toLowerCase().includes(normalizedStationSearch)))
+        : renderedStations;
     const selectedStation = editingStationId
         ? renderedStations.find(station => station.id === editingStationId)
         : null;
@@ -573,64 +591,104 @@ function Station() {
 
     return (
         <>
-            <div className="station-page">
-                <h1 style={{ fontSize: '2rem', marginBottom: '20px', textAlign: 'center' }}>{t('STATION.TITLE')}</h1>
-                <p style={{ fontSize: '1.2rem', marginBottom: '20px', textAlign: 'center' }}>
-                    {t('STATION.DESCRIPTION')}
-                </p>
+            <div className="station-page station-public-shell">
+                <section className="station-map-panel" aria-label="Mapa de estaciones">
+                    <div className="station-map-panel__body">
+                        {loading ? (
+                            <Alert variant="info" className="mb-0">{t('STATION.LOADING_MSG')}</Alert>
+                        ) : error ? (
+                            <Alert variant="danger" className="mb-0">{t('STATION.ERROR_MSG')}</Alert>
+                        ) : (
+                            <StationMapChart
+                                key={mapKey}
+                                data={renderedStations}
+                                activePopUp
+                                latitude={latitude}
+                                longitude={longitude}
+                                zoom={zoom}
+                                height={560}
+                            />
+                        )}
+                    </div>
+                </section>
 
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                    {loading ? (
-                        <p>{t('STATION.LOADING_MSG')}</p>
-                    ) : error ? (
-                        <p>{t('STATION.ERROR_MSG')}</p>
-                    ) : (
-                        <StationMapChart
-                            key={mapKey}
-                            data={renderedStations}
-                            activePopUp
-                            latitude={latitude}
-                            longitude={longitude}
-                            zoom={zoom}
-                        />
-                    )}
-                </div>
+                <section className="station-list-panel" aria-label={t('STATION.STATION_LIST')}>
+                    <div className="station-list-panel__toolbar">
+                        <div className="station-list-panel__title-group">
+                            <h1 className="station-list-panel__title">{t('STATION.STATION_LIST')}</h1>
+                            <p className="station-list-panel__meta">
+                                {stationSearchResults.length} de {renderedStations.length} estaciones
+                            </p>
+                        </div>
 
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '15px', textAlign: 'center' }}>{t('STATION.STATION_LIST')}</h2>
-                <div>
+                        <div className="station-search">
+                            <Search size={17} aria-hidden="true" />
+                            <Form.Control
+                                type="search"
+                                value={stationSearch}
+                                onChange={(event) => setStationSearch(event.target.value)}
+                                placeholder="Buscar estación, cámara o créditos"
+                                aria-label="Buscar estación"
+                            />
+                        </div>
+                    </div>
+
                     {loading ? (
-                        <p>{t('STATION.ERROR_MSG')}</p>
+                        <Alert variant="info">{t('STATION.LOADING_MSG')}</Alert>
                     ) : error ? (
-                        <p>{t('STATION.ERROR_MSG')}</p>
+                        <Alert variant="danger">{t('STATION.ERROR_MSG')}</Alert>
+                    ) : stationSearchResults.length === 0 ? (
+                        <Alert variant="light" className="station-empty-state">
+                            No hay estaciones que coincidan con la búsqueda.
+                        </Alert>
                     ) : (
-                        <ListGroup>
-                            {renderedStations.map((station) => (
-                                <ListGroup.Item key={station.id} className="d-flex flex-column flex-lg-row justify-content-between gap-3">
-                                    <div className="flex-grow-1">
-                                        <div className="fw-bold">{station.stationName || '-'}</div>
-                                        <div className="text-muted small">
-                                            {t('STATION.STATION.COORDINATES')}: {formatStationCoordinates(station)}
-                                        </div>
-                                        <div className="text-muted small">
-                                            {t('STATION.STATION.RESOLUTION')}: {station.resolution || formatResolution(station.chipSize, station.chipOrientation)}
-                                        </div>
-                                        <div className="text-muted small">
-                                            {t('STATION.STATION.CREDITS')}: {station.credit || '-'}
+                        <ListGroup className="station-public-list">
+                            {stationSearchResults.map((station) => (
+                                <ListGroup.Item key={station.id} className="station-public-list__item">
+                                    <div className="station-public-list__identity">
+                                        <Badge bg="light" text="dark" className="station-public-list__id">#{station.id}</Badge>
+                                        <div>
+                                            <h2 className="station-public-list__name">{station.stationName || '-'}</h2>
+                                            <p className="station-public-list__camera">{station.name || 'Cámara sin nombre'}</p>
                                         </div>
                                     </div>
+
+                                    <div className="station-public-list__description">{station.description || '-'}</div>
+
+                                    <dl className="station-public-list__details">
+                                        <div className="station-public-list__detail">
+                                            <dt>{t('STATION.STATION.COORDINATES')}</dt>
+                                            <dd>{formatStationCoordinates(station)}</dd>
+                                        </div>
+                                        <div className="station-public-list__detail">
+                                            <dt>{t('STATION.STATION.RESOLUTION')}</dt>
+                                            <dd>{station.resolution || formatResolution(station.chipSize, station.chipOrientation)}</dd>
+                                        </div>
+                                        <div className="station-public-list__detail">
+                                            <dt>{t('STATION.STATION.ALTITUDE')}</dt>
+                                            <dd>{station.height ?? '-'} {station.height !== null && station.height !== undefined && station.height !== '' ? t('STATION.STATION.HEIGHT.MEASURE') : ''}</dd>
+                                        </div>
+                                        <div className="station-public-list__detail">
+                                            <dt>{t('STATION.STATION.CREDITS')}</dt>
+                                            <dd>{station.credit || '-'}</dd>
+                                        </div>
+                                    </dl>
+
                                     <Button
                                         variant="outline-primary"
                                         size="sm"
+                                        className="station-public-list__button"
                                         disabled={!hasMapCoordinates(station)}
                                         onClick={() => cambiarDato(station.latitude, station.longitude, 10)}
                                     >
-                                        {t('STATION.SHOW_BUTTON')}
+                                        <LocateFixed size={16} aria-hidden="true" />
+                                        <span>{t('STATION.SHOW_BUTTON')}</span>
                                     </Button>
                                 </ListGroup.Item>
                             ))}
                         </ListGroup>
                     )}
-                </div>
+                </section>
             </div>
             {renderDeleteModal()}
         </>
